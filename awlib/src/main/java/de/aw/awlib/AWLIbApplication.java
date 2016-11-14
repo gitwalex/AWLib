@@ -1,0 +1,307 @@
+/*
+ * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ *
+ * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; if
+ * not, see <http://www.gnu.org/licenses/>.
+ */
+package de.aw.awlib;
+
+import android.app.Application;
+import android.app.FragmentManager;
+import android.app.LoaderManager;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Debug;
+import android.os.Environment;
+import android.os.StrictMode;
+import android.support.annotation.CallSuper;
+import android.util.Log;
+import android.view.ViewConfiguration;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
+
+import static de.aw.awlib.AWLibInterface.linefeed;
+
+/**
+ * AWLIbApplication: Einschalten von StrictModus, wenn im debug-mode. Erstellt eine HProf-Log bei
+ * penaltyDeath().
+ */
+public abstract class AWLIbApplication extends Application {
+    /**
+     * Debugging Cursor einschalten
+     */
+    public static final boolean EnableCursorLogging = false;
+    /**
+     * true: Debugging FragmentManager einschalten
+     */
+    public static final boolean EnableFragmentManagerLogging = false;
+    /**
+     * true: Debugging LoaderManager einschalten
+     */
+    public static final boolean EnableLoaderManagerLogging = false;
+    public static final String STACKTRACE = "STACKTRACE", TAG = "de.aw";
+    private static final String STACKTRACEPATH = "/stackTrace.txt";
+    private static String DATAPATH;
+    private static WeakReference<Context> mContext;
+
+    public AWLIbApplication() {
+        mContext = new WeakReference<Context>(this);
+        File folder = new File(theApplicationPath());
+        createFiles(folder);
+    }
+
+    /**
+     * Loggt Warnungen
+     *
+     * @param message
+     *         message
+     */
+    public static void Log(String message) {
+        if (BuildConfig.DEBUG) {
+            Log.d(AWLIbApplication.TAG, message);
+        }
+    }
+
+    /**
+     * Loggt Fehler. Die Meldung wird auch in das File Applicationpath/LOG.txt geschrieben
+     *
+     * @param message
+     *         Fehlermeldung
+     */
+    public static void LogError(String message) {
+        File logFile = new File(getApplicationPath() + "/LOG.txt");
+        try {
+            FileOutputStream fileout = new FileOutputStream(logFile, true);
+            OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
+            outputWriter.write(message);
+            outputWriter.write(linefeed);
+            outputWriter.close();
+        } catch (IOException e) {
+            //TODO Execption bearbeiten
+            e.printStackTrace();
+        }
+        if (BuildConfig.DEBUG) {
+            Log.e(AWLIbApplication.TAG, message);
+        }
+    }
+
+    public static String getApplicationBackupPath() {
+        AWLIbApplication me = (AWLIbApplication) mContext.get();
+        return me.theApplicationBackupPath();
+    }
+
+    public static ContentResolver getApplicationContentResolver() {
+        return getContext().getContentResolver();
+    }
+
+    public static String getApplicationExportPath() {
+        AWLIbApplication me = (AWLIbApplication) mContext.get();
+        return me.theApplicationExportPath();
+    }
+
+    public static String getApplicationImportPath() {
+        AWLIbApplication me = (AWLIbApplication) mContext.get();
+        return me.theApplicationImportPath();
+    }
+
+    public static String getApplicationPath() {
+        AWLIbApplication me = (AWLIbApplication) mContext.get();
+        return me.theApplicationPath();
+    }
+
+    public static Context getContext() {
+        return mContext.get();
+    }
+
+    public static String getDatenbankFilename() {
+        String path = getDatenbankname();
+        if (BuildConfig.DEBUG) {
+            path = DATAPATH + path;
+        }
+        return path;
+    }
+
+    public static int getDatenbankVersion() {
+        AWLIbApplication me = (AWLIbApplication) mContext.get();
+        return me.theDatenbankVersion();
+    }
+
+    public static String getDatenbankname() {
+        AWLIbApplication me = (AWLIbApplication) mContext.get();
+        return me.theDatenbankname();
+    }
+
+    @CallSuper
+    protected void createFiles(File applicationFolder) {
+        if (!applicationFolder.exists()) {
+            applicationFolder.mkdir();
+        }
+        if (BuildConfig.DEBUG) {
+            DATAPATH = getApplicationPath() + "/debug/";
+        } else {
+            DATAPATH = getApplicationPath() + "/release/";
+        }
+        applicationFolder = new File(DATAPATH);
+        if (!applicationFolder.exists()) {
+            applicationFolder.mkdir();
+        }
+        applicationFolder = new File(getApplicationBackupPath());
+        if (!applicationFolder.exists()) {
+            applicationFolder.mkdir();
+        }
+        applicationFolder = new File(getApplicationExportPath());
+        if (!applicationFolder.exists()) {
+            applicationFolder.mkdir();
+        }
+        applicationFolder = new File(getApplicationImportPath());
+        if (!applicationFolder.exists()) {
+            applicationFolder.mkdir();
+        }
+    }
+
+    public void handleUncaughtException(Throwable e) throws IOException {
+        e.printStackTrace(); // not all Android versions will print the stack trace automatically
+        String stackTrace = Log.getStackTraceString(e);
+        File stackTraceFile = new File(getApplicationPath() + STACKTRACEPATH);
+        FileOutputStream fileout = new FileOutputStream(stackTraceFile);
+        OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
+        outputWriter.write(stackTrace);
+        outputWriter.close();
+        String exceptionAsString = stackTrace + e.getMessage();
+        Intent intent = new Intent(this, AWLibActivityDebug.class);
+        intent.putExtra(STACKTRACE, exceptionAsString);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // required when starting from Application
+        startActivity(intent);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mContext = new WeakReference<Context>(this);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        if (BuildConfig.DEBUG) {
+            try {
+                // Im Debug-Mode Pruefen lassen, welche Constraints verletzt werden.
+                // Hier nur logging
+                StrictMode.setThreadPolicy(
+                        new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+                //
+                // Achtung: .detectActivityLeaks() wurde bewusst abgeschaltet
+                // und muss zumdeindest zeitweise mal gestestet werden.
+                // Hintergund:
+                //http://stackoverflow.com/questions/21145261/strictmode-activity-instance-count
+                // -violation-2-instances-1-expected-on-rotati/25252425#25252425
+                StrictMode.setVmPolicy(
+                        new StrictMode.VmPolicy.Builder().detectLeakedClosableObjects()
+                                .detectLeakedRegistrationObjects().detectLeakedSqlLiteObjects()
+                                .penaltyLog().build());
+                // Schreiben/Lesen auf Disk erlauben
+                StrictMode.allowThreadDiskReads();
+                StrictMode.allowThreadDiskWrites();
+                // Replace System.err with one that'll monitor for StrictMode
+                // killing us and perform a hprof heap dump just before it does.
+                System.setErr(new PrintStreamThatDumpsHprofWhenStrictModeKillsUs(System.err));
+                FragmentManager.enableDebugLogging(EnableFragmentManagerLogging);
+                LoaderManager.enableDebugLogging(EnableLoaderManagerLogging);
+            } catch (Exception e) {
+                // ignore errors
+            }
+        }
+        // Bei Abbruch ein Fenster mit der Fehlermeldung
+        // zeigen
+        final UncaughtExceptionHandler oldExceptionHandler =
+                Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable e) {
+                e.printStackTrace();
+                try {
+                    handleUncaughtException(e);
+                } catch (IOException e1) {
+                    //TODO Execption bearbeiten
+                    e1.printStackTrace();
+                }
+                oldExceptionHandler.uncaughtException(thread, e);
+            }
+        });
+        //-Ausschalten Device - Option - Button, wenn vorhanden.
+        // If an Android device has an option button, the overflow menu is not
+        // shown.
+        // While it it not recommended as the user except a certain behavior
+        // from his device, you can trick you device in thinking it has no
+        // option button with the following code.
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public abstract String theApplicationBackupPath();
+
+    public abstract String theApplicationExportPath();
+
+    public abstract String theApplicationImportPath();
+
+    public abstract String theApplicationPath();
+
+    public abstract int theDatenbankVersion();
+
+    protected abstract String theDatenbankname();
+
+    /**
+     * Im Debug-Modus wird Strict eingeschaltet. Sollte es zu einem Fehler kommen, wird der Heap in
+     * ein File gedumpt.
+     */
+    private static class PrintStreamThatDumpsHprofWhenStrictModeKillsUs extends PrintStream {
+        PrintStreamThatDumpsHprofWhenStrictModeKillsUs(OutputStream outs) {
+            super(outs);
+        }
+
+        @Override
+        public synchronized void println(String str) {
+            super.println(str);
+            if (str.startsWith("StrictMode VmPolicy violation with POLICY_DEATH;")) {
+                // StrictMode is about to terminate us... do a heap dump!
+                try {
+                    AWLIbApplication.Log("Logge HPROF...");
+                    File dir = Environment.getExternalStorageDirectory();
+                    File file = new File(dir, "strictmode-violation.hprof");
+                    super.println("Dumping HPROF to: " + file);
+                    Debug.dumpHprofData(file.getAbsolutePath());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}

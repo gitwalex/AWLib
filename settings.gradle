@@ -1,0 +1,5 @@
+include ':awlib'
+
+//include 'awlib-debug'
+//project(':awlib-debug').projectDir =
+//        new File('C:\\Users\\alex\\AppDaten\\java\\androidProjects\\AWLib\\awlib')

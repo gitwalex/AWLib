@@ -1,0 +1,127 @@
+<!--
+  ~ MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+  ~
+  ~ Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under the terms of the
+  ~ GNU General Public License as published by the Free Software Foundation; either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+  ~ even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with this program; if
+  ~ not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <!-- Base application theme, dependent on API level. -->
+    <!-- This theme is replaced  by AppBaseTheme from -->
+    <!-- res/values-vXX/styles.xml on newer devices. -->
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    </style>
+    <!-- Application theme. -->
+    <style name="AWLibTheme" parent="AppBaseTheme">
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:textAppearanceLarge">@style/TextViewMain.Large</item>
+        <item name="android:textAppearanceMedium">@style/TextViewMain.Medium</item>
+        <item name="android:textAppearanceSmall">@style/TextViewMain.Small</item>
+    </style>
+    <!-- Style fuer CardView, die WPUmsaetze bearbeiten lassenDetails zeigen-->
+    <style name="CardWPUmsatz" parent="CardDetailAnsicht">
+        <item name="android:layout_marginBottom">1sp</item>
+        <item name="android:layout_marginLeft">0sp</item>
+        <item name="android:layout_marginRight">0sp</item>
+        <item name="android:layout_marginTop">5sp</item>
+        <item name="cardCornerRadius">3dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="contentPadding">1dp</item>
+    </style>
+
+    <style name="CardFinanzuebersicht" parent="RecyclerView">
+        <item name="contentPadding">20dp</item>
+        <item name="android:layout_marginTop">5dp</item>
+    </style>
+
+    <style name="CardSplitBuchungen" parent="RecyclerView">
+        <item name="contentPadding">0dp</item>
+        <item name="android:paddingBottom">20dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+    </style>
+
+    <style name="CardBuchungliste" parent="RecyclerView">
+        <item name="contentPadding">10dp</item>
+    </style>
+
+    <!-- Style fuer Dialoge -->
+
+    <style name="RecyclerView" parent="@style/CardView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">1dp</item>
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginRight">20dp</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="cardCornerRadius">3dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="contentPadding">5dp</item>
+    </style>
+    <!-- Style fuer ListViews-->
+    <style name="ListView" parent="RecyclerView">
+        <item name="contentPadding">10dp</item>
+    </style>
+    <!-- Style fuer CardViews, die Details zeigen-->
+    <style name="CardDetailAnsicht" parent="RecyclerView">
+        <item name="contentPadding">10dp</item>
+    </style>
+    <!-- Zeichnet eine horizentrale linie mit 2dp Dicke -->
+    <!-- Zeichnet eine verticale linie mit 2dp Dicke -->
+
+    <style name="TextViewMain.Large" parent="android:style/TextAppearance">
+        <!-- TextView: Large.  -->
+        <item name="android:textSize">25sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="TextViewMain.Medium" parent="android:style/TextAppearance">
+        <!-- TextView: Medium. Derzeit wie normal Medium, kann ergaenzt werden -->
+        <item name="android:textSize">17sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">2dp</item>
+    </style>
+
+    <style name="TextViewMain.Small" parent="android:style/TextAppearance">
+        <!-- TextView: Small. Derzeit wie normal Small kann ergaenzt werden -->
+        <item name="android:textSize">13sp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="MaterialBottomSheetDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowAnimationStyle">@style/MaterialDialogSheetAnimation</item>
+    </style>
+
+    <style name="MaterialBottomSheet" parent="@android:style/Theme.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowAnimationStyle">@style/MaterialDialogSheetAnimation</item>
+    </style>
+
+    <style name="MaterialDialogSheetAnimation">
+        <item name="android:windowEnterAnimation">@anim/popup_show</item>
+        <item name="android:windowExitAnimation">@anim/popup_hide</item>
+    </style>
+</resources>
