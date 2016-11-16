@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 /**
  *
  */
@@ -144,17 +143,16 @@ public interface AWLibInterface {
             linefeed = System.getProperty("line.separator");
 
     enum MainAction implements Parcelable {
-        Logout, Login, ADD, EDIT, SHOW;
-        public static final Creator<MainAction> CREATOR =
-                new Creator<MainAction>() {
-                    public MainAction createFromParcel(Parcel in) {
-                        return MainAction.values()[in.readInt()];
-                    }
+        Logout, Login, ADD, EDIT, SHOW, doVaccum, doSave, doRestore;
+        public static final Creator<MainAction> CREATOR = new Creator<MainAction>() {
+            public MainAction createFromParcel(Parcel in) {
+                return MainAction.values()[in.readInt()];
+            }
 
-                    public MainAction[] newArray(int size) {
-                        return new MainAction[size];
-                    }
-                };
+            public MainAction[] newArray(int size) {
+                return new MainAction[size];
+            }
+        };
 
         @Override
         public int describeContents() {

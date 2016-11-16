@@ -63,11 +63,16 @@ public abstract class AWLIbApplication extends Application {
     private static final String STACKTRACEPATH = "/stackTrace.txt";
     private static String DATAPATH;
     private static WeakReference<Context> mContext;
+    private static boolean mDebugFlag;
 
     public AWLIbApplication() {
         mContext = new WeakReference<Context>(this);
+        mDebugFlag = getDebugFlag();
         File folder = new File(theApplicationPath());
-        createFiles(folder);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        createFiles();
     }
 
     /**
@@ -77,7 +82,7 @@ public abstract class AWLIbApplication extends Application {
      *         message
      */
     public static void Log(String message) {
-        if (BuildConfig.DEBUG) {
+        if (mDebugFlag) {
             Log.d(AWLIbApplication.TAG, message);
         }
     }
@@ -100,7 +105,7 @@ public abstract class AWLIbApplication extends Application {
             //TODO Execption bearbeiten
             e.printStackTrace();
         }
-        if (BuildConfig.DEBUG) {
+        if (mDebugFlag) {
             Log.e(AWLIbApplication.TAG, message);
         }
     }
@@ -135,9 +140,7 @@ public abstract class AWLIbApplication extends Application {
 
     public static String getDatenbankFilename() {
         String path = getDatenbankname();
-        if (BuildConfig.DEBUG) {
-            path = DATAPATH + path;
-        }
+        path = DATAPATH + path;
         return path;
     }
 
@@ -151,35 +154,43 @@ public abstract class AWLIbApplication extends Application {
         return me.theDatenbankname();
     }
 
+    public static boolean getDebug() {
+        return mDebugFlag;
+    }
+
+    public static void onRestoreDB() {
+        AWLIbApplication me = (AWLIbApplication) mContext.get();
+        me.onRestoreDatabase();
+    }
+
     @CallSuper
-    protected void createFiles(File applicationFolder) {
-        if (!applicationFolder.exists()) {
-            applicationFolder.mkdir();
-        }
-        if (BuildConfig.DEBUG) {
+    protected void createFiles() {
+        if (mDebugFlag) {
             DATAPATH = getApplicationPath() + "/debug/";
         } else {
             DATAPATH = getApplicationPath() + "/release/";
         }
-        applicationFolder = new File(DATAPATH);
-        if (!applicationFolder.exists()) {
-            applicationFolder.mkdir();
+        File folder = new File(DATAPATH);
+        if (!folder.exists()) {
+            folder.mkdir();
         }
-        applicationFolder = new File(getApplicationBackupPath());
-        if (!applicationFolder.exists()) {
-            applicationFolder.mkdir();
+        folder = new File(getApplicationBackupPath());
+        if (!folder.exists()) {
+            folder.mkdir();
         }
-        applicationFolder = new File(getApplicationExportPath());
-        if (!applicationFolder.exists()) {
-            applicationFolder.mkdir();
+        folder = new File(getApplicationExportPath());
+        if (!folder.exists()) {
+            folder.mkdir();
         }
-        applicationFolder = new File(getApplicationImportPath());
-        if (!applicationFolder.exists()) {
-            applicationFolder.mkdir();
+        folder = new File(getApplicationImportPath());
+        if (!folder.exists()) {
+            folder.mkdir();
         }
     }
 
-    public void handleUncaughtException(Throwable e) throws IOException {
+    protected abstract boolean getDebugFlag();
+
+    private void handleUncaughtException(Throwable e) throws IOException {
         e.printStackTrace(); // not all Android versions will print the stack trace automatically
         String stackTrace = Log.getStackTraceString(e);
         File stackTraceFile = new File(getApplicationPath() + STACKTRACEPATH);
@@ -198,12 +209,13 @@ public abstract class AWLIbApplication extends Application {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mContext = new WeakReference<Context>(this);
+        mDebugFlag = getDebugFlag();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        if (BuildConfig.DEBUG) {
+        if (mDebugFlag) {
             try {
                 // Im Debug-Mode Pruefen lassen, welche Constraints verletzt werden.
                 // Hier nur logging
@@ -266,15 +278,17 @@ public abstract class AWLIbApplication extends Application {
         }
     }
 
-    public abstract String theApplicationBackupPath();
+    protected abstract void onRestoreDatabase();
 
-    public abstract String theApplicationExportPath();
+    protected abstract String theApplicationBackupPath();
 
-    public abstract String theApplicationImportPath();
+    protected abstract String theApplicationExportPath();
 
-    public abstract String theApplicationPath();
+    protected abstract String theApplicationImportPath();
 
-    public abstract int theDatenbankVersion();
+    protected abstract String theApplicationPath();
+
+    protected abstract int theDatenbankVersion();
 
     protected abstract String theDatenbankname();
 

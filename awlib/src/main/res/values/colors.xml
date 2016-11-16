@@ -16,9 +16,19 @@
   -->
 
 <resources>
+    <color name="cardViewWPBackground">#0F0000ff</color>
+    <color name="cardViewCashBackground">#0Fffff00</color>
+    <color name="cardViewCashBackgroundOnline">#0F0fff00</color>
     <color name="headerBackground">#30808080</color>
+    <color name="headerReportBackground">#1000ff00</color>
+    <color name="listViewAlternateBackground">#10bfbfbf</color>
+    <color name="listViewBackground">#10ffffff</color>
     <color name="white">#FFFFFF</color>
     <!-- Farben fuer Background von selected Items-->
+    <color name="selected_item_pressed">@android:color/holo_orange_light</color>
+    <color name="selected_item_activated">@android:color/holo_green_light
+    </color>
+    <color name="selected_item_selected">@android:color/holo_green_light</color>
     <color name="primary_dark_material_light">#757575</color>
     <color name="accent_material_light">#006796</color>
 

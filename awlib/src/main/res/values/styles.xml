@@ -20,14 +20,22 @@
     <!-- This theme is replaced  by AppBaseTheme from -->
     <!-- res/values-vXX/styles.xml on newer devices. -->
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
-    </style>
-    <!-- Application theme. -->
-    <style name="AWLibTheme" parent="AppBaseTheme">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:textAppearanceLarge">@style/TextViewMain.Large</item>
         <item name="android:textAppearanceMedium">@style/TextViewMain.Medium</item>
         <item name="android:textAppearanceSmall">@style/TextViewMain.Small</item>
     </style>
+
+    <style name="AWLibTheme" parent="AppBaseTheme">
+
+    </style>
+
+    <style name="Preference_TextAppearanceMaterialBody2">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+
     <!-- Style fuer CardView, die WPUmsaetze bearbeiten lassenDetails zeigen-->
     <style name="CardWPUmsatz" parent="CardDetailAnsicht">
         <item name="android:layout_marginBottom">1sp</item>
@@ -56,7 +64,41 @@
         <item name="contentPadding">10dp</item>
     </style>
 
-    <!-- Style fuer Dialoge -->
+    <style name="HeaderCardViewWP">
+        <!-- Header in Listen: Background sehr helles Gelb, unten Padding -->
+        <item name="android:background">@color/cardViewWPBackground</item>
+        <item name="android:paddingBottom">5dp</item>
+    </style>
+
+    <style name="HeaderCardViewCash">
+        <!-- Header in Listen: Background sehr helles Gelb, unten Padding -->
+        <item name="android:background">@color/cardViewCashBackground</item>
+        <item name="android:paddingBottom">5dp</item>
+    </style>
+
+    <style name="HeaderReport">
+        <!-- Header in Listen: Background sehr helles gruen, unten Padding 20dp-->
+        <item name="android:background">@color/headerReportBackground</item>
+        <item name="android:paddingBottom">20dp</item>
+    </style>
+    <!-- Style fuer Dialoge --><style name="DialogLayout">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:animateLayoutChanges">true</item>
+    <item name="android:orientation">vertical</item>
+    <item name="android:paddingLeft">20dp</item>
+    <item name="android:paddingRight">20dp</item>
+    <item name="android:paddingBottom">10dp</item>
+    <item name="android:paddingTop">10dp</item>
+</style>
+
+    <style name="HeaderGrey">
+        <!-- Header in Listen: Background sehr helles Grau, rechts und links 20dp Padding -->
+        <item name="android:background">@color/headerBackground</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+    </style>
 
     <style name="RecyclerView" parent="@style/CardView">
         <item name="android:layout_width">match_parent</item>
@@ -79,7 +121,18 @@
         <item name="contentPadding">10dp</item>
     </style>
     <!-- Zeichnet eine horizentrale linie mit 2dp Dicke -->
-    <!-- Zeichnet eine verticale linie mit 2dp Dicke -->
+    <style name="horizentralDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">10dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+    <!-- Zeichnet eine verticale linie mit 2dp Dicke --><style name="verticalDivider">
+    <item name="android:layout_width">10dp</item>
+    <item name="android:layout_height">match_parent</item>
+    <item name="android:orientation">vertical</item>
+    <item name="android:background">?android:attr/listDivider</item>
+</style>
 
     <style name="TextViewMain.Large" parent="android:style/TextAppearance">
         <!-- TextView: Large.  -->

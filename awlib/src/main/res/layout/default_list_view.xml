@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
   ~
   ~ Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
@@ -15,21 +15,22 @@
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
 
-<resources>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <!--
-        Base application theme for API 14+. This theme completely replaces
-        AppBaseTheme from BOTH res/values/styles.xml and
-        res/values-v11/styles.xml on API 14+ devices.
-    -->
-    <style name="AWLibTheme" parent="AppBaseTheme">
+    <TextView
+        android:id="@+id/tvNoEntries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center_horizontal"
+        android:text="@string/tvNoEntries"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="gone"/>
 
-    </style>
-
-    <!-- API 14 theme customizations can go here. -->
-    <style name="Preference_TextAppearanceMaterialBody2">
-        <item name="android:textSize">20sp</item>
-    </style>
-
-
-</resources>
+    <ListView
+        android:id="@+id/defaultListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</RelativeLayout>

@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
   ~
   ~ Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
@@ -15,15 +15,15 @@
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
 
-<resources>
+<!-- Item-Selector. Kann als background fuer eine View gesetzt werden, die anzeigen soll, dass sie selectiert wurde-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+          android:exitFadeDuration="@android:integer/config_mediumAnimTime">
 
-    <!--
-        Base application theme for API 11+. This theme completely replaces
-        AppBaseTheme from res/values/styles.xml on API 11+ devices.
-    -->
-    <style name="AWLibTheme" parent="AppBaseTheme">
+    <item android:drawable="@color/selected_item_pressed"
+          android:state_pressed="true"/>
+    <item android:drawable="@color/selected_item_selected"
+          android:state_selected="true"/>
+    <item android:drawable="@color/selected_item_activated"
+          android:state_activated="true"/>
 
-    </style>
-
-
-</resources>
+</selector>

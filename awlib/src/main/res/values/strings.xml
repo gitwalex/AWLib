@@ -27,5 +27,16 @@
     <string name="tvNoEntries">Keine Einträge</string>
     <!-- Ende Allgemeine Texte, die nicht einem bestimmten Fragment zugeordnet werden können -->
     <string name="menu_item_calculator">Rechner</string>
+    <string name="Bearbeiten">Bearbeiten</string>
+    <!-- ActionBar Texte -->
+    <!-- FragmentFileChooser und DialogFragmentQIFImport -->
+    <string name="fileChooserTitle">Dateiauswahl</string>
+    <!-- ActionBar Subtitle fuer FragmentFileChooser -->
+    <string name="fileChooserSubtitel">Bitte auswählen </string>
+    <!-- ActionBar Subtitle fuer DialogFragmentQIFImport -->
+    <!-- Ende ActionBar Texte -->
+
+    <string name="folder">Folder</string>
+    <string name="deleteFile">Datei löschen</string>
 
 </resources>

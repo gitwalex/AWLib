@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+  ~
+  ~ Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it under the terms of the
+  ~ GNU General Public License as published by the Free Software Foundation; either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+  ~ even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with this program; if
+  ~ not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/dbTitleDatenbank">
+        <Preference
+            android:key="@string/pkDBVacuum"
+            android:summary="@string/dbSmryDBVacuum"
+            android:title="@string/dbTitleDBVacuum"
+            />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/dbSavePeriodic"
+            android:summary="@string/smryDBSavePeriodic"
+            android:title="@string/titleDBSavePeriodic"
+            />
+        <Preference
+            android:key="@string/pkDBSave"
+            android:title="@string/actionDatenbankSichern"
+            />
+        <Preference
+            android.summary="@string/dbSmryDatenbankRestore"
+            android:key="@string/pkDBRestore"
+            android:title="@string/actionDatenbankRestore"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/dbExterneSicherung">
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/dbExterneSicherung"
+            android:summary="@string/dbExterneSicherung"
+            android:title="@string/titleExterneSicherung"
+            />
+        <Preference
+            android:dependency="@string/dbExterneSicherung"
+            android:key="@string/dbServerURL"
+            android:title="@string/dbServerURL"
+            />
+        <Preference
+            android:dependency="@string/dbExterneSicherung"
+            android:key="@string/dbServerUID"
+            android:title="@string/dbServerUID"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/MonMaInfo">
+        <Preference
+            android:key="@string/MonMaAbout"
+            android:title="@string/MonMaAbout"
+            />
+        <Preference
+            android:key="@string/MonMaCopyright"
+            android:title="@string/MonMaCopyright"
+            />
+        <Preference
+            android:key="@string/BuildInfo"
+            android:title="@string/BuildInfo"
+            />
+    </PreferenceCategory>
+</PreferenceScreen>

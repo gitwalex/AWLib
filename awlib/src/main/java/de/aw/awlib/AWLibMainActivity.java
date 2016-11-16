@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -99,7 +100,9 @@ public abstract class AWLibMainActivity extends AppCompatActivity
     }
 
     /**
-     * Methode kann von Fragmemt gerufen werden, wenn eine Action beendet wird.
+     * Methode kann von Fragmemt gerufen werden, wenn eine Action beendet wird. Als Default wird bei
+     * Auswahl des ActionFinishedButton der Subtitle in der Toolbar sowie das Fragment vom Stack
+     * gepopt / entfernt
      *
      * @param layoutID
      *         layoutID des Fragments
@@ -107,6 +110,21 @@ public abstract class AWLibMainActivity extends AppCompatActivity
      *         itemResID, die ausgewaehlt wurde, wenn eine Action durch Usereingriff beendet wurde
      */
     public void onActionFinishClicked(int layoutID, int itemResID) {
+        getToolbar().setSubtitle(null);
+        getToolbar().setNavigationIcon(null);
+        getSupportFragmentManager().popBackStack();
+    }
+
+    /**
+     * Wird ein {@link AWLibFragmentActionBar} gezeigt und BackPressed, wird der Subtitle entfernt.
+     */
+    @Override
+    public void onBackPressed() {
+        Fragment f = getSupportFragmentManager().findFragmentById(container);
+        if (f instanceof AWLibFragmentActionBar) {
+            getToolbar().setSubtitle(null);
+        }
+        super.onBackPressed();
     }
 
     @Override
