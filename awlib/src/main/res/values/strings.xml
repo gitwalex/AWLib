@@ -38,5 +38,7 @@
 
     <string name="folder">Folder</string>
     <string name="deleteFile">Datei löschen</string>
+    <string name="awlibeventservice">AWLibEventService</string>
+    <string name="awlib_nav_Settings">Einstellungen</string>
 
 </resources>

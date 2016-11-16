@@ -16,26 +16,36 @@
  */
 package de.aw.awlib;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 import android.view.View;
 
+import de.aw.awlib.preferences.AWLibPreferenceActivity;
+
 public abstract class AWLibActivityMainScreen extends AWLibMainActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private static final int layout = R.layout.awlib_activity_main_screen;
     protected DrawerLayout mDrawerLayout;
+    protected ViewPager pager;
     private DrawerToggle mDrawerToggle;
 
-    protected abstract DrawerLayout getDrawerLayout();
+    protected abstract FragmentPagerAdapter getFragmentPagerAdapter();
+
+    protected int getNavigationMenuID() {
+        return R.menu.awlib_navigationdrawer;
+    }
 
     public abstract int getNavigationTitel();
-
-    public abstract NavigationView getNavigationView();
 
     @Override
     public void onBackPressed() {
@@ -43,6 +53,12 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
             // Drawer ist offen - close
             mDrawerLayout.closeDrawers();
         }
+        if (pager != null && pager.getCurrentItem() != 0) {
+            //  finish(), if the user is currently looking at the first step on this activity
+            pager.setCurrentItem(pager.getCurrentItem() - 1);
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
@@ -53,19 +69,46 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
     }
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        this.onCreate(savedInstanceState, layout);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState, int layout) {
         super.onCreate(savedInstanceState, layout);
         ActionBar bar = getSupportActionBar();
         bar.setHomeAsUpIndicator(R.drawable.ic_drawer);
         bar.setDisplayHomeAsUpEnabled(true);
-        mDrawerLayout = getDrawerLayout();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new DrawerToggle(this);
-        NavigationView view = getNavigationView();
+        NavigationView view = (NavigationView) findViewById(R.id.navigation_view);
+        view.inflateMenu(getNavigationMenuID());
         view.setNavigationItemSelectedListener(this);
+        FragmentPagerAdapter adapter = getFragmentPagerAdapter();
+        if (adapter != null) {
+            pager = (ViewPager) findViewById(R.id.pager);
+            pager.setVisibility(View.VISIBLE);
+            pager.setAdapter(adapter);
+            pager.setOffscreenPageLimit(1);
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.tabhost_main);
+            tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+            tabLayout.setupWithViewPager(pager);
+        } else {
+            findViewById(R.id.container4fragment).setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
-    public abstract boolean onNavigationItemSelected(MenuItem item);
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int i = item.getItemId();
+        if (i == R.id.awlib_nav_Settings) {
+            Intent intent = new Intent();
+            intent.setClass(AWLibActivityMainScreen.this, AWLibPreferenceActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -17,24 +17,13 @@
 package de.aw.awlib;
 
 /**
- * Verschiedene Codes fuer Ergebnisse von Aktivitaeten
+ * Verschiedene ResultCodes fuer Ergebnisse von Aktivitaeten
  */
-public interface Codes {
-    /**
-     * Code fuer Request des Namens eines Partners/Wertpaiers/Categorie o.ae.
-     */
-    int REQUEST_AUSWAHLNAME = 1;//
-    /**
-     * Request_Codes fuer Fragments und Activities
-     */
+public interface AWLibResultCodes {
     /**
      * Alles OK
      */
     int RESULT_OK = -1,//
-    /**
-     * Keine Bestaende mit YahooKuerzel
-     */
-    RESULT_NOYahooKuerzel = -2,//
     /**
      * TimeOut
      */
@@ -44,28 +33,12 @@ public interface Codes {
      */
     RESULT_FILE_ERROR = -4,//
     /**
-     * Keine Buchungen beim Abgelich gefunden
-     */
-    RESULT_KEINE_BUCHUNGEN = 0,//
-    /**
-     * Wenn keine automatischer Abgleich OnlineBuchungen gewuenscht ist.
-     */
-    RESULT_KEIN_ABGLEICHGEWUENSCHT = -5,//
-    /**
      * File not found
      */
     RESULT_FILE_NOTFOUND = -6,//
     /**
      * Sonstiger Fehler
      */
-    RESULT_Divers = -99,//
-    /**
-     * Import: Zieltabelle nicht gefunden
-     */
-    RESULT_FEHLER_TBD = -7,//
-    /**
-     * Import: Spaltenname in tbd nicht vorhanden
-     */
-    RESULT_SPALTE_IN_TBD_NICHT_VORHANDEN = -8//
+    RESULT_Divers = -99//
             ;
 }

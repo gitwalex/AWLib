@@ -19,50 +19,56 @@ package de.aw.awlib.events;
 import android.app.Service;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.AWLibInterface;
 import de.aw.awlib.AWLibNotification;
-import de.aw.awlib.Codes;
+import de.aw.awlib.AWLibResultCodes;
 import de.aw.awlib.R;
 import de.aw.awlib.database.AbstractDBConvert;
-import de.aw.awlib.database.AbstractDBHelper;
 
 /**
- * Klasse fuer Sicheren/Resoren DB
+ * Klasse fuer Sicheren/Restoren DB
  */
-public class EventDBSaveRestore implements Codes, AWLibInterface {
+public class EventDBSave extends AsyncTask<Void, Void, String>
+        implements AWLibResultCodes, AWLibInterface {
     private static final String BACKUPPATH = AWLIbApplication.getApplicationBackupPath() + "/";
     private static final String DATABASEPATH = AWLIbApplication.getDatenbankFilename();
     private final Context mContext;
     private final int BUFFERSIZE = 8192;
     private final SharedPreferences prefs;
+    private final Date date;
     private String backupFileName;
-    private boolean isRunning;
+    private boolean fromServiceCalled = false;
+    private AWLibNotification mNotification;
 
-    public EventDBSaveRestore(Service service) {
+    public EventDBSave(Service service) {
         this(service.getApplicationContext());
+        fromServiceCalled = true;
     }
 
-    public EventDBSaveRestore(Context context) {
+    public EventDBSave(Context context) {
         mContext = context;
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        date = new Date(System.currentTimeMillis());
+        Locale locale = Locale.getDefault();
+        DateFormat formatter =
+                DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+        backupFileName =
+                BACKUPPATH + (formatter.format(date)).replace(".", "_").replace(":", "_") + ".zip";
     }
 
     /**
@@ -134,102 +140,14 @@ public class EventDBSaveRestore implements Codes, AWLibInterface {
         fis.close();
     }
 
-    /**
-     * Utility method to read data from InputStream
-     */
-    private void extractEntry(final ZipEntry zipEntry, InputStream is) throws IOException {
-        String extractTo;
-        if (AWLIbApplication.getDebug()) {
-            extractTo = AWLIbApplication.getDatenbankFilename();
-        } else {
-            extractTo =
-                    mContext.getDatabasePath(AWLIbApplication.getDatenbankname()).getAbsolutePath();
-        }
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(extractTo);
-            final byte[] buf = new byte[BUFFERSIZE];
-            int length;
-            while ((length = is.read(buf, 0, buf.length)) >= 0) {
-                fos.write(buf, 0, length);
-            }
-        } finally {
-            if (fos != null) {
-                fos.close();
-            }
-        }
-    }
-
-    public String getFileName() {
-        return backupFileName;
-    }
-
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public int restore(String inputFilename) {
-        int result = RESULT_Divers;
-        ZipInputStream is = null;
-        BufferedInputStream bis;
-        isRunning = true;
-        AbstractDBHelper.getInstance().close();
-        try {
-            bis = new BufferedInputStream(new FileInputStream(inputFilename));
-            is = new ZipInputStream(bis);
-            ZipEntry entry;
-            while ((entry = is.getNextEntry()) != null) {
-                extractEntry(entry, is);
-            }
-            result = RESULT_OK;
-        } catch (FileNotFoundException e) {
-            result = RESULT_FILE_NOTFOUND;
-        } catch (IOException e) {
-            result = RESULT_FILE_ERROR;
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                //TODO Execption bearbeiten
-                e.printStackTrace();
-            }
-        }
-        AbstractDBHelper.getInstance();
-        if (result == RESULT_OK) {
-            AWLIbApplication.onRestoreDB();
-        }
-        isRunning = false;
-        return result;
-    }
-
-    /**
-     * Sichert die Datenbank.
-     *
-     * @return Darum der Sicherung
-     */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public Date save() {
-        Date date = new Date(System.currentTimeMillis());
-        Locale locale = Locale.getDefault();
-        DateFormat formatter =
-                DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-        backupFileName =
-                BACKUPPATH + (formatter.format(date)).replace(".", "_").replace(":", "_") + ".zip";
-        String ticker = mContext.getString(R.string.tickerDBSicherung);
-        String contentTitle = mContext.getString(R.string.contentTextDBSicherung);
-        AWLibNotification mNotification = new AWLibNotification(mContext, contentTitle);
-        mNotification.setTicker(ticker);
-        mNotification.setHasProgressBar(true);
-        mNotification.createNotification(contentTitle);
+    @Override
+    protected String doInBackground(Void... params) {
         int ergebnis = RESULT_OK;
         FileOutputStream fout;
         ZipOutputStream zout = null;
         try {
             File folder = new File(DATABASEPATH);
             File bakFile = new File(backupFileName);
-            bakFile.delete();
             fout = new FileOutputStream(bakFile);
             zout = new ZipOutputStream(new BufferedOutputStream(fout));
             addFileToZipArchive(zout, folder);
@@ -263,13 +181,27 @@ public class EventDBSaveRestore implements Codes, AWLibInterface {
                 result = mContext.getString(R.string.dbSaveError);
                 break;
         }
+        return result;
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
         mNotification.setHasProgressBar(false);
         mNotification.replaceNotification(result);
-        return date;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        String ticker = mContext.getString(R.string.tickerDBSicherung);
+        String contentTitle = mContext.getString(R.string.contentTextDBSicherung);
+        mNotification = new AWLibNotification(mContext, contentTitle);
+        mNotification.setTicker(ticker);
+        mNotification.setHasProgressBar(true);
+        mNotification.createNotification(contentTitle);
     }
 
     /**
-     * Liest aus den Preferences mit Key  {@link AWLibInterface.MainAction#doSave#name()} das letzte
+     * Liest aus den Preferences mit Key  {@link MainAction#doSave#name()} das letzte
      * Sicherungsdatum und stellt dieses in die Summary ein.
      */
     private void setDBSaveSummary(String saveDate) {

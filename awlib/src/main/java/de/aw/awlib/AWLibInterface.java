@@ -113,6 +113,10 @@ public interface AWLibInterface {
              */
             , PASSWORDISVALID = "PASSWORDISVALID"
             /**
+             * Events fuer {@link de.aw.awlib.events.AWLibEvent}
+             */
+            , AWLIBEVENT = "AWLIBEVENT"
+            /**
              * MainAction
              */
             , AWLIBACTION = "AWLIBACTION";

@@ -41,7 +41,7 @@ import de.aw.awlib.R;
 import de.aw.awlib.database.AbstractDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.events.AWLibEvent;
-import de.aw.awlib.events.EventDBSaveRestore;
+import de.aw.awlib.events.EventDBRestore;
 import de.aw.awlib.events.EventTransferDB;
 
 import static de.aw.awlib.AWLibInterface.MainAction.doSave;
@@ -51,7 +51,7 @@ import static de.aw.awlib.AWLibInterface.MainAction.doSave;
  *
  * @author alex
  */
-public class PreferencesAllgemein extends AWLibPreferenceFragment
+public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
         implements Preference.OnPreferenceClickListener, AWLibInterface {
     private static final int[] mPrefs =
             new int[]{R.string.pkDBVacuum, R.string.pkDBSave, R.string.pkDBRestore,
@@ -81,7 +81,7 @@ public class PreferencesAllgemein extends AWLibPreferenceFragment
                         AbstractDBHelper.doVacuum();
                         break;
                     case doSave:
-                        EventDBSaveRestore eventSaveDB = new EventDBSaveRestore(getActivity());
+                        EventDBRestore eventSaveDB = new EventDBRestore(getActivity());
                         Date saveDate = eventSaveDB.save();
                         if (saveDate != null) {
                             setDBSaveSummary(AbstractDBConvert.convertDate(saveDate));

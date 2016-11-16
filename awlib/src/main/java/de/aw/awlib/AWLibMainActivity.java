@@ -20,9 +20,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -88,6 +88,15 @@ public abstract class AWLibMainActivity extends AppCompatActivity
         return mDefaultFAB;
     }
 
+    /**
+     * Als Default wird hier nohelp zurueckgeliefert.
+     *
+     * @return ein Helpfile unter /assets/html
+     */
+    protected String getHelpFile() {
+        return "nohelp.html";
+    }
+
     public MainAction getMainAction() {
         return mainAction;
     }
@@ -100,7 +109,7 @@ public abstract class AWLibMainActivity extends AppCompatActivity
     }
 
     /**
-     * Methode kann von Fragmemt gerufen werden, wenn eine Action beendet wird. Als Default wird bei
+     * Methode wird von Fragmemt gerufen, wenn eine Action beendet wird. Als Default wird bei
      * Auswahl des ActionFinishedButton der Subtitle in der Toolbar sowie das Fragment vom Stack
      * gepopt / entfernt
      *
@@ -109,22 +118,10 @@ public abstract class AWLibMainActivity extends AppCompatActivity
      * @param itemResID
      *         itemResID, die ausgewaehlt wurde, wenn eine Action durch Usereingriff beendet wurde
      */
+    @CallSuper
     public void onActionFinishClicked(int layoutID, int itemResID) {
         getToolbar().setSubtitle(null);
         getToolbar().setNavigationIcon(null);
-        getSupportFragmentManager().popBackStack();
-    }
-
-    /**
-     * Wird ein {@link AWLibFragmentActionBar} gezeigt und BackPressed, wird der Subtitle entfernt.
-     */
-    @Override
-    public void onBackPressed() {
-        Fragment f = getSupportFragmentManager().findFragmentById(container);
-        if (f instanceof AWLibFragmentActionBar) {
-            getToolbar().setSubtitle(null);
-        }
-        super.onBackPressed();
     }
 
     @Override
@@ -180,11 +177,11 @@ public abstract class AWLibMainActivity extends AppCompatActivity
     }
 
     /**
-     * Wird in getPreferencesActivity() ein Wert ungleich null zuruckgeliefert, wird im OptionsMenu
-     * 'Einstellungen' angezeigt. Wird in getLoginActivity() ein Wert ungleich null zuruckgeliefert,
-     * wird im OptionsMenu 'Logout' angezeigt.
-     * <p/>
-     * Andernfalls werden die entsprechenden Menupunkte ausgeblendet.
+     * Installiert ein Menu mit folgenden Items:
+     * <p>
+     * Rechner
+     * <p>
+     * Hilfe
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -194,12 +191,10 @@ public abstract class AWLibMainActivity extends AppCompatActivity
     }
 
     /**
-     * Wenn getPreferencesActivity ungleich null ist, wird im Menu 'Einstellungen' angezeigt. Bei
-     * Auswahl wird die PreferenceActivity gestartet.
-     * <p/>
-     * Wenn getLoginActivity ungleich null ist, wird im Menu 'Logout' angezeigt. Bei Auswahl wird
-     * die LoginActivity gestartet. Wird 'Home' ausgewaehlt, wird die Activity beendet und als
-     * Result RESULT_OK gesetzt. Darauf koennte die rufende Activity reagieren
+     * Reagiert auf die MenuItems.
+     * <p>
+     * Bie Rechner wird ein BottomSheet mit einem Rechner gezeigt, bei Hilfe startet eine WebView
+     * mit einem Hilfetext. Die ID des Hilfetextes wird ueber
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -212,7 +207,7 @@ public abstract class AWLibMainActivity extends AppCompatActivity
             isConsumed = true;
         } else if (i == R.id.awlib_menu_item_hilfe) {
             intent = new Intent(this, AWLibWebViewActivity.class);
-            intent.putExtra(ID, "nohelp.html");
+            intent.putExtra(ID, getHelpFile());
             startActivity(intent);
             isConsumed = true;
         } else if (i == android.R.id.home) {

@@ -16,7 +16,10 @@
  */
 package de.aw.awlib;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.IntegerRes;
+import android.support.annotation.LayoutRes;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,6 +32,7 @@ import android.view.View;
  */
 public abstract class AWLibFragmentActionBar extends AWLibFragment {
     private String mActionBarSubtitle;
+    private OnActionFinishListener mOnActionFinishClickedListener;
     private Toolbar mToolbar;
 
     /**
@@ -40,8 +44,7 @@ public abstract class AWLibFragmentActionBar extends AWLibFragment {
     }
 
     protected void onActionFinishClicked(int itemResID) {
-        AWLibMainActivity.hide_keyboard(getActivity());
-        ((AWLibMainActivity) getActivity()).onActionFinishClicked(layout, itemResID);
+        mOnActionFinishClickedListener.onActionFinishClicked(layout, itemResID);
     }
 
     @Override
@@ -51,9 +54,22 @@ public abstract class AWLibFragmentActionBar extends AWLibFragment {
         bar.setHomeAsUpIndicator(getActionBarImageRessource());
     }
 
+    /**
+     * Context muss OnActionFinishClickedListener implementieren. Ist das nicht der Fall, gibt es
+     * eine IllegalStateException
+     *
+     * @throws IllegalStateException
+     *         wenn OnActionFinishClickedListener nicht implementiert.
+     */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mOnActionFinishClickedListener = (OnActionFinishListener) context;
+        } catch (ClassCastException e) {
+            throw new IllegalStateException(context.getClass()
+                    .getSimpleName() + " muss OnActionFinishClickedListener implementieren");
+        }
     }
 
     @Override
@@ -79,5 +95,20 @@ public abstract class AWLibFragmentActionBar extends AWLibFragment {
 
     protected void setActionBarSubTitle(int resID) {
         setActionBarSubTitle(getString(resID));
+    }
+
+    /**
+     * Interface fuer rufende Activity. Muss implementiert werden.
+     */
+    public interface OnActionFinishListener {
+        /**
+         * Methode wird von Fragmemt gerufen, wenn eine Action beendet wird.
+         *
+         * @param layout
+         *         layoutID des Fragments
+         * @param itemResiD
+         *         resID, die geclicked wurde
+         */
+        void onActionFinishClicked(@LayoutRes int layout, @IntegerRes int itemResiD);
     }
 }

@@ -16,16 +16,35 @@
  */
 package de.aw.awlib.events;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Definiert moegliche Events innerhalb MonMa.
  */
-public enum AWLibEvent {
+public enum AWLibEvent implements Parcelable {
     /**
      * Event fuer Sicherung der Datenbank
      */
-    DoDatabaseSave
-    /**
-     * Export Buchungen
-     */
-    , ExportBuchungen
+    DoDatabaseSave;
+    public static final Parcelable.Creator<AWLibEvent> CREATOR =
+            new android.os.Parcelable.Creator<AWLibEvent>() {
+                public AWLibEvent createFromParcel(Parcel in) {
+                    return AWLibEvent.values()[in.readInt()];
+                }
+
+                public AWLibEvent[] newArray(int size) {
+                    return new AWLibEvent[size];
+                }
+            };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(ordinal());
+    }
 }
