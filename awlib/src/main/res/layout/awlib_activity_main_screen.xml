@@ -45,6 +45,7 @@
             android:background="?attr/colorPrimary"
             android:elevation="6dp"
             android:minHeight="?attr/actionBarSize"
+            android:visibility="gone"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:tabMode="scrollable"/>
     </android.support.design.widget.AppBarLayout>
@@ -74,7 +75,7 @@
         <android.support.design.widget.NavigationView
             android:id="@+id/awlib_navigation_view"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="start"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
     </android.support.v4.widget.DrawerLayout>

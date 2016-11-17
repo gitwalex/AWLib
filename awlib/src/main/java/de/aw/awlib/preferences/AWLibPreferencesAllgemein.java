@@ -43,6 +43,7 @@ import de.aw.awlib.events.AWLibEvent;
 import de.aw.awlib.events.EventDBRestore;
 import de.aw.awlib.events.EventTransferDB;
 import de.aw.awlib.fragments.AWLibFragment;
+import de.aw.awlib.fragments.AWLibPreferenceFragment;
 
 import static de.aw.awlib.activities.AWLibInterface.MainAction.doSave;
 

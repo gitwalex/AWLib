@@ -31,8 +31,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.aw.awlib.AWLibDialogHinweis;
 import de.aw.awlib.R;
+import de.aw.awlib.fragments.AWLibDialogHinweis;
 import de.aw.awlib.fragments.AWLibFragment;
 
 /**
@@ -176,7 +176,7 @@ public class FragmentFileChooser extends AWLibFragment
         FileChooserOptions o = adapter.getItem(position);
         if (!o.getData().equalsIgnoreCase("folder") && !o.getData()
                 .equalsIgnoreCase("parent directory")) {
-            String title = getString(R.string.deleteFile);
+            String title = getString(R.string.awlib_deleteFile);
             String message = o.getName();
             AWLibDialogHinweis hinweis = AWLibDialogHinweis.newInstance(true, title, message);
             hinweis.setOnDailogClickListener(this);

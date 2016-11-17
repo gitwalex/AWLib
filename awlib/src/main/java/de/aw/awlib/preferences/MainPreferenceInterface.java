@@ -17,6 +17,8 @@
 
 package de.aw.awlib.preferences;
 
+import de.aw.awlib.fragments.AWLibPreferenceFragment;
+
 /**
  * Interface fuer Preferences, wenn die Summary-Zeile ueberschrieben werden soll. Wird in {@link
  * AWLibPreferenceFragment#updatePrefSummary(android.support.v7.preference.Preference)} gerufen.

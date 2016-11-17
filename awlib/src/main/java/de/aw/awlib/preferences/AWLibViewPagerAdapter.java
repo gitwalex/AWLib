@@ -24,12 +24,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 /**
  * Adapter fuer ViewPager
  */
-public class AWLibPreferenceViewPagerAdapter extends FragmentPagerAdapter {
+public abstract class AWLibViewPagerAdapter extends FragmentPagerAdapter {
     private final int PAGE_COUNT;
     private final String tabtitles[];
 
-    public AWLibPreferenceViewPagerAdapter(Context context, FragmentManager fm,
-                                           int[] tableTitlesResIDs) {
+    public AWLibViewPagerAdapter(Context context, FragmentManager fm, int[] tableTitlesResIDs) {
         super(fm);
         PAGE_COUNT = tableTitlesResIDs.length;
         tabtitles = new String[PAGE_COUNT];
@@ -46,15 +45,7 @@ public class AWLibPreferenceViewPagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
-    public Fragment getItem(int position) {
-        Fragment f = null;
-        switch (position) {
-            case 0:
-                f = new AWLibPreferencesAllgemein();
-                break;
-        }
-        return f;
-    }
+    public abstract Fragment getItem(int position);
 
     @Override
     public CharSequence getPageTitle(int position) {

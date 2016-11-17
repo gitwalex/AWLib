@@ -32,7 +32,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import de.aw.awlib.R;
-import de.aw.awlib.preferences.AWLibPreferenceActivity;
 
 /**
  * Abstracte Klasse fuer Navigation mit NavigatioView. Sollte von jeder App als Haupteinstieg
@@ -148,6 +147,7 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
             pager.setAdapter(adapter);
             pager.setOffscreenPageLimit(1);
             TabLayout tabLayout = (TabLayout) findViewById(R.id.awlib_tabhost_main);
+            tabLayout.setVisibility(View.VISIBLE);
             tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
             tabLayout.setupWithViewPager(pager);
         } else {
@@ -168,7 +168,7 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
 
     /**
      * Gibt es kein eigenes NavigationsMenu ({@link AWLibActivityMainScreen#getNavigationMenuID()}
-     * ist nich ueberscheieben), wird eine Einstellung fuer Datanbankaktionen und Infos ueber die
+     * ist nicht ueberschrieben), wird eine Einstellung fuer Datanbankaktionen und Infos ueber die
      * App gezeigt.
      */
     @Override

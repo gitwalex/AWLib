@@ -37,9 +37,16 @@
     <!-- Ende ActionBar Texte -->
 
     <string name="folder">Folder</string>
-    <string name="deleteFile">Datei löschen</string>
     <string name="awlib_eventservice">AWLibEventService</string>
     <string name="awlib_nav_Settings">Einstellungen</string>
     <string name="awlib_noTitle">Kein Titel</string>
+    <string name="awlib_menu_item_add">Neu</string>
+    <string name="awlib_menu_item_edit">Bearbeiten</string>
+    <string name="awlib_menu_item_delete">Löschen</string>
+    <string name="NoInternetConnection">Keine Internetverbindng</string>
+    <string name="awlib_deleteFile">Datei löschen</string>
+    <string name="awlib_openFile">Öffnen</string>
+    <string name="awlib_datensatzGesichert">Datensatz gespeichert</string>
+
 
 </resources>

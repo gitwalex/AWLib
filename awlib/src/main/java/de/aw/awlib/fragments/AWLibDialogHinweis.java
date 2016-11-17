@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib;
+package de.aw.awlib.fragments;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -23,7 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.WindowManager;
 
-import de.aw.awlib.fragments.AWLibFragment;
+import de.aw.awlib.R;
 
 /**
  * Allgemeiner Dialog fuer Hinweise und Fehlermeldungen.
