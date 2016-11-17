@@ -22,7 +22,7 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-import static de.aw.awlib.AWLibInterface.AWLIBEVENT;
+import static de.aw.awlib.activities.AWLibInterface.AWLIBEVENT;
 
 /**
  * Bearbeitet Events innerhalb MonMa. Moegliche Events: {@link AWLibEvent}

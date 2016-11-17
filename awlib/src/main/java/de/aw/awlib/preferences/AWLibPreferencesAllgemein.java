@@ -33,18 +33,18 @@ import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
 
-import de.aw.awlib.AWLibFragment;
-import de.aw.awlib.AWLibInterface;
-import de.aw.awlib.AWLibWebViewActivity;
 import de.aw.awlib.BuildConfig;
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWLibWebViewActivity;
 import de.aw.awlib.database.AbstractDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.events.AWLibEvent;
 import de.aw.awlib.events.EventDBRestore;
 import de.aw.awlib.events.EventTransferDB;
+import de.aw.awlib.fragments.AWLibFragment;
 
-import static de.aw.awlib.AWLibInterface.MainAction.doSave;
+import static de.aw.awlib.activities.AWLibInterface.MainAction.doSave;
 
 /**
  * Erstellt und bearbeitet die allgemeinen Preferences.

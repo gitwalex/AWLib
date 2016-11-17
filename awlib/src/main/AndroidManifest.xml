@@ -14,14 +14,16 @@
         android:supportsRtl="true"
         android:theme="@style/AWLibTheme">
 
-        <activity android:name=".AWLibActivityDebug">
+        <activity android:name=".activities.AWLibActivityDebug">
         </activity>
-        <activity android:name=".AWLibWebViewActivity">
+        <activity android:name=".activities.AWLibWebViewActivity">
+        </activity>
+        <activity android:name=".preferences.AWLibPreferenceActivity">
         </activity>
 
         <service
             android:name=".events.AWLibEventService"
-            android:label="@string/awlibeventservice"
+            android:label="@string/awlib_eventservice"
             />
 
     </application>

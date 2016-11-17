@@ -22,7 +22,7 @@
                 android:orientation="vertical">
 
     <ProgressBar
-        android:id="@+id/pbDlg_db_ftp"
+        android:id="@+id/awlib_pbDlg_db_ftp"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
         android:orientation="vertical">
 
         <EditText
-            android:id="@+id/etDBServerName"
+            android:id="@+id/awlib_etDBServerName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -44,7 +44,7 @@
             android:inputType="text"/>
 
         <EditText
-            android:id="@+id/etDBUserName"
+            android:id="@+id/awlib_etDBUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -52,7 +52,7 @@
             android:inputType="textPersonName"/>
 
         <EditText
-            android:id="@+id/etDBUserPW"
+            android:id="@+id/awlib_etDBUserPW"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -60,7 +60,7 @@
             android:inputType="textPassword"/>
 
         <LinearLayout
-            android:id="@+id/llServerError"
+            android:id="@+id/awlib_llServerError"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -74,7 +74,7 @@
                 android:textAppearance="@style/TextViewMain.Medium"/>
 
             <TextView
-                android:id="@+id/tvServerError"
+                android:id="@+id/awlib_tvServerError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

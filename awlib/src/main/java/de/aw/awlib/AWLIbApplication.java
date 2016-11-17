@@ -40,7 +40,9 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
-import static de.aw.awlib.AWLibInterface.linefeed;
+import de.aw.awlib.activities.AWLibActivityDebug;
+
+import static de.aw.awlib.activities.AWLibInterface.linefeed;
 
 /**
  * AWLIbApplication: Einschalten von StrictModus, wenn im debug-mode. Erstellt eine HProf-Log bei

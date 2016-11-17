@@ -26,8 +26,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 
-import de.aw.awlib.AWLibMainActivity;
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibMainActivity;
 
 /**
  * @author alex
@@ -48,13 +48,13 @@ public class AWLibPreferenceActivity extends AWLibMainActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, layout);
-        pager = (ViewPager) findViewById(R.id.pager);
+        pager = (ViewPager) findViewById(R.id.awlib_pager);
         final FragmentManager fm = getSupportFragmentManager();
         FragmentPagerAdapter adapter = getPreferencePagerAdapter(fm);
         pager.setAdapter(adapter);
         pager.setOffscreenPageLimit(tableTitlesResIDs.length);
         pager.setCurrentItem(args.getInt(LASTSELECTEDPOSITION, 0));
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabhost_main);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.awlib_tabhost_main);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabLayout.setupWithViewPager(pager);
         getSupportActionBar().setTitle(R.string.settings);

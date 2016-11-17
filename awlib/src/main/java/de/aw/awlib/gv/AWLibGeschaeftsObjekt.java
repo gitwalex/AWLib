@@ -29,8 +29,8 @@ import java.util.Date;
 
 import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.AWLibException;
-import de.aw.awlib.AWLibInterface;
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.database.AWLibDBDefinition;
 import de.aw.awlib.database.AbstractDBChangeHelper;
 import de.aw.awlib.database.AbstractDBConvert;

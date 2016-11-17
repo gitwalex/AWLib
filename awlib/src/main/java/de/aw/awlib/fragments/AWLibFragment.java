@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib;
+package de.aw.awlib.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -38,6 +38,9 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import de.aw.awlib.AWLIbApplication;
+import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.database.AbstractDBChangeHelper;
 import de.aw.awlib.gv.AWLibGeschaeftsObjekt;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
@@ -233,8 +236,8 @@ public abstract class AWLibFragment extends DialogFragment
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setPositiveButton(R.string.btnAccept, this)
-                .setNegativeButton(R.string.btnCancel, this);
+        builder.setPositiveButton(R.string.awlib_btnAccept, this)
+                .setNegativeButton(R.string.awlib_btnCancel, this);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View childView = onCreateDialogView(inflater);
         builder.setView(childView);

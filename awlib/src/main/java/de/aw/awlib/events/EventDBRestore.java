@@ -38,10 +38,10 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import de.aw.awlib.AWLIbApplication;
-import de.aw.awlib.AWLibInterface;
 import de.aw.awlib.AWLibNotification;
 import de.aw.awlib.AWLibResultCodes;
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.database.AbstractDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
 

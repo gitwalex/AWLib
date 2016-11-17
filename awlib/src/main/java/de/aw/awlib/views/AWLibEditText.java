@@ -21,7 +21,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
-import de.aw.awlib.AWLibInterface;
+import de.aw.awlib.activities.AWLibInterface;
 
 /**
  * Created by alex on 02.03.2015.

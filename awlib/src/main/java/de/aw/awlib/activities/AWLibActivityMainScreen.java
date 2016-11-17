@@ -14,11 +14,12 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib;
+package de.aw.awlib.activities;
 
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -30,33 +31,94 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 import android.view.View;
 
+import de.aw.awlib.R;
 import de.aw.awlib.preferences.AWLibPreferenceActivity;
 
+/**
+ * Abstracte Klasse fuer Navigation mit NavigatioView. Sollte von jeder App als Haupteinstieg
+ * verwendet werden.
+ * <p>
+ * Bietet die Moeglichkeit, entweder einen ViewPager darzustellen oder nur in einfaches Fragment.
+ * Die Steuerung fuer einen ViewPager efolgt ueber das Ueberschreiben von {@link
+ * AWLibActivityMainScreen#getFragmentPagerAdapter()}. Hier muss dann ein ViewPagerAdapter geliefert
+ * werden. Wird hier null zurueckgeliefert (Default), wird der Pager ausgeblendet und es koennen
+ * Fragment in container (R.id.container4fragment) eingehaengt werden. Der Titel der Navigation wird
+ * ueber {@link AWLibActivityMainScreen#getNavigationTitel()} festgelegt. Als Default wird 'Kein
+ * Titel' angezeigt. Das NavigationMenu wird durch {@link AWLibActivityMainScreen#getNavigationMenuID()}
+ * ermittelt. Als Default wird hier nur 'Einstellungen' zurueckgeliefert, dies bietet dann Infos zur
+ * App und Sicherung/Restore der Datenbank als Preferenca an.
+ * <p>
+ */
+@SuppressWarnings("ConstantConditions")
 public abstract class AWLibActivityMainScreen extends AWLibMainActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
     private static final int layout = R.layout.awlib_activity_main_screen;
-    protected DrawerLayout mDrawerLayout;
-    protected ViewPager pager;
+    private DrawerLayout mDrawerLayout;
     private DrawerToggle mDrawerToggle;
+    private ViewPager pager;
 
-    protected abstract FragmentPagerAdapter getFragmentPagerAdapter();
+    /**
+     * Wird hier ein FragmentPagerAdapter geliefert, wird dieser fuer einen ViewPager benutzt.
+     * Fragment keonnen dann nicht mehr ueber den container (R.id.container4fragment) engehaengt
+     * werden (sind nicht sichtbar).
+     *
+     * @return null in der Defaultimplementierung
+     */
+    protected FragmentPagerAdapter getFragmentPagerAdapter() {
+        return null;
+    }
 
+    /**
+     * Liefert die ID des Navigationsmenues.
+     *
+     * @return Ein einfaches Menu mit Preferences 'Einstellungen' fue die App und Sichern/Restore
+     * der Datenbank
+     */
     protected int getNavigationMenuID() {
         return R.menu.awlib_navigationdrawer;
     }
 
-    public abstract int getNavigationTitel();
+    /**
+     * Titel in der App, wenn das Navigationsmenu geoeffnet wird.
+     *
+     * @return Defualt 'Kein Titel'
+     */
+    public int getNavigationTitel() {
+        return R.string.awlib_noTitle;
+    }
 
+    /**
+     * @return den genutzten ViewPager oder null, wenn kein Adapter in {@link
+     * AWLibActivityMainScreen#getFragmentPagerAdapter()} geliefert wurde.
+     */
+    public ViewPager getPager() {
+        return pager;
+    }
+
+    /**
+     * Ist das Navigationsmenu offen, wird es geschlossen
+     * <p>
+     * oder
+     * <p>
+     * gibt es einen Pager und der Pager steht nicht auf der ersten Position, wird im Pager die
+     * Position um eins vermindert.
+     * <p>
+     * oder
+     * <p>
+     * beenden der App.
+     */
     @Override
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             // Drawer ist offen - close
             mDrawerLayout.closeDrawers();
-        }
-        if (pager != null && pager.getCurrentItem() != 0) {
-            //  finish(), if the user is currently looking at the first step on this activity
-            pager.setCurrentItem(pager.getCurrentItem() - 1);
             return;
+        } else {
+            if (pager != null && pager.getCurrentItem() != 0) {
+                //  finish(), if the user is currently looking at the first step on this activity
+                pager.setCurrentItem(pager.getCurrentItem() - 1);
+                return;
+            }
         }
         super.onBackPressed();
     }
@@ -70,27 +132,22 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.onCreate(savedInstanceState, layout);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState, int layout) {
         super.onCreate(savedInstanceState, layout);
         ActionBar bar = getSupportActionBar();
         bar.setHomeAsUpIndicator(R.drawable.ic_drawer);
         bar.setDisplayHomeAsUpEnabled(true);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.awlib_drawer_layout);
         mDrawerToggle = new DrawerToggle(this);
-        NavigationView view = (NavigationView) findViewById(R.id.navigation_view);
+        NavigationView view = (NavigationView) findViewById(R.id.awlib_navigation_view);
         view.inflateMenu(getNavigationMenuID());
         view.setNavigationItemSelectedListener(this);
         FragmentPagerAdapter adapter = getFragmentPagerAdapter();
         if (adapter != null) {
-            pager = (ViewPager) findViewById(R.id.pager);
+            pager = (ViewPager) findViewById(R.id.awlib_pager);
             pager.setVisibility(View.VISIBLE);
             pager.setAdapter(adapter);
             pager.setOffscreenPageLimit(1);
-            TabLayout tabLayout = (TabLayout) findViewById(R.id.tabhost_main);
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.awlib_tabhost_main);
             tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
             tabLayout.setupWithViewPager(pager);
         } else {
@@ -98,6 +155,22 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
         }
     }
 
+    /**
+     * Diese Methode kann hier nicht verwendet werden, da die contentView festgelegt ist.
+     *
+     * @throws UnsupportedOperationException
+     *         bei Aufruf
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState, int layout) {
+        throw new UnsupportedOperationException("Diese Methode kann hier nicht verwendet werden");
+    }
+
+    /**
+     * Gibt es kein eigenes NavigationsMenu ({@link AWLibActivityMainScreen#getNavigationMenuID()}
+     * ist nich ueberscheieben), wird eine Einstellung fuer Datanbankaktionen und Infos ueber die
+     * App gezeigt.
+     */
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int i = item.getItemId();
@@ -110,6 +183,10 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
         return false;
     }
 
+    /**
+     * Ist der NavigationDrawer geoeffent, wird er geschlissen und vice versa.
+     */
+    @CallSuper
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean consumed;
@@ -128,12 +205,44 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
         return consumed;
     }
 
+    /**
+     * Keine Aktion in der Default-Implementierung
+     */
+    @Override
+    public void onPageScrollStateChanged(int state) {
+    }
+
+    /**
+     * Keine Aktion in der Default-Implementierung
+     */
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
+
+    /**
+     * Keine Aktion in der Default-Implementierung
+     */
+    @Override
+    public void onPageSelected(int position) {
+    }
+
+    /**
+     * Entfernt den DrawerListener. Gibt es einen Pager, wird der OnPageListener entfernt und die
+     * letzte Position gespeichert.
+     */
     @Override
     protected void onPause() {
         super.onPause();
         mDrawerLayout.removeDrawerListener(mDrawerToggle);
+        if (pager != null) {
+            pager.removeOnPageChangeListener(this);
+            args.putInt(AWLibInterface.LASTSELECTEDPOSITION, pager.getCurrentItem());
+        }
     }
 
+    /**
+     * Synkronisiert den Drawer
+     */
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -141,17 +250,28 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
         mDrawerToggle.syncState();
     }
 
+    /**
+     * r Setzt den DrawerListener. Gibt es einen Pager, wird die Activity als OnPageListener
+     * registriert und die zuletzt gewaehlte Position aufgerufen.
+     */
     @Override
     protected void onResume() {
         super.onResume();
         mDrawerLayout.addDrawerListener(mDrawerToggle);
+        if (pager != null) {
+            pager.addOnPageChangeListener(this);
+            pager.setCurrentItem(args.getInt(AWLibInterface.LASTSELECTEDPOSITION, 0));
+        }
     }
 
+    /**
+     * DrawerToggle.
+     */
     private class DrawerToggle extends ActionBarDrawerToggle
             implements DrawerLayout.DrawerListener {
         private CharSequence savedSubtitel;
 
-        public DrawerToggle(AWLibActivityMainScreen activity) {
+        DrawerToggle(AWLibActivityMainScreen activity) {
             super(activity, mDrawerLayout, activity.getNavigationTitel(), R.string.Bearbeiten);
         }
 

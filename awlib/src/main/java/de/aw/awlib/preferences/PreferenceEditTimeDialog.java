@@ -29,7 +29,7 @@ import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
 import de.aw.awlib.R;
-import de.aw.awlib.AWLibFragment;
+import de.aw.awlib.fragments.AWLibFragment;
 
 /**
  * EditTextPreferenceTime: Liest eine Uhrzeit und speichert diese als Long in Preferences. Gibt es

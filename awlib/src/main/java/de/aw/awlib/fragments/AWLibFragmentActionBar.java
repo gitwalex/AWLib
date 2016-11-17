@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib;
+package de.aw.awlib.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -24,6 +24,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+
+import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibMainActivity;
 
 /**
  * Template fuer Actions. Setzt in der Toolbar ein NavigationsIcon, startet die Action und

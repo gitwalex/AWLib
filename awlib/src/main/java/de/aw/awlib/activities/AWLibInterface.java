@@ -17,7 +17,7 @@
 /**
  *
  */
-package de.aw.awlib;
+package de.aw.awlib.activities;
 
 import android.os.Parcel;
 import android.os.Parcelable;

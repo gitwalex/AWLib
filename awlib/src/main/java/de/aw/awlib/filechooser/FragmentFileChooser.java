@@ -31,9 +31,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.aw.awlib.AWLibFragment;
-import de.aw.awlib.MonMaDialogHinweis;
+import de.aw.awlib.AWLibDialogHinweis;
 import de.aw.awlib.R;
+import de.aw.awlib.fragments.AWLibFragment;
 
 /**
  * FileChooser: Auswahl von Dateien auf dem ExternalStrorage
@@ -41,7 +41,7 @@ import de.aw.awlib.R;
 public class FragmentFileChooser extends AWLibFragment
         implements AdapterView.OnItemLongClickListener, DialogInterface.OnClickListener,
         AdapterView.OnItemClickListener {
-    private static final int layout = R.layout.default_list_view;
+    private static final int layout = R.layout.awlib_default_list_view;
     private static String FILEEXTENSION = "FILEEXTENSION", ONLYFOLDERFILES = "ONLYFOLDERFILES",
             STARTDIRECTORY = "STARTDIRECTORY";
     private FileChooserAdapter adapter;
@@ -178,7 +178,7 @@ public class FragmentFileChooser extends AWLibFragment
                 .equalsIgnoreCase("parent directory")) {
             String title = getString(R.string.deleteFile);
             String message = o.getName();
-            MonMaDialogHinweis hinweis = MonMaDialogHinweis.newInstance(true, title, message);
+            AWLibDialogHinweis hinweis = AWLibDialogHinweis.newInstance(true, title, message);
             hinweis.setOnDailogClickListener(this);
         }
         return true;
@@ -187,7 +187,7 @@ public class FragmentFileChooser extends AWLibFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mListView = (ListView) view.findViewById(R.id.defaultListView);
+        mListView = (ListView) view.findViewById(R.id.awlib_defaultListView);
         mListView.setOnItemLongClickListener(this);
         mListView.setOnItemClickListener(this);
         mExtension = args.getString(FILEEXTENSION);

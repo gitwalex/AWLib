@@ -88,8 +88,8 @@ public class FileChooserAdapter extends ArrayAdapter<FileChooserOptions> {
 
         public ViewHolder(View view) {
             ivFile = (ImageView) view.findViewById(R.id.folderImage);
-            fileName = (TextView) view.findViewById(R.id.FileName);
-            fileData = (TextView) view.findViewById(R.id.FileData);
+            fileName = (TextView) view.findViewById(R.id.awlib_fileName);
+            fileData = (TextView) view.findViewById(R.id.awlib_fileData);
         }
     }
 }

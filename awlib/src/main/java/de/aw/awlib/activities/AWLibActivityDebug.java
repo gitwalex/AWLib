@@ -14,9 +14,24 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+package de.aw.awlib.activities;
 
-package de.aw.awlib;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.widget.TextView;
 
-public interface AWLibFragmentInterface extends AWLibInterface {
-    String getTAG();
+import de.aw.awlib.AWLIbApplication;
+import de.aw.awlib.R;
+
+/**
+ * Created by alex on 18.05.2015.
+ */
+public class AWLibActivityDebug extends FragmentActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.awlib_debug);
+        TextView tv = (TextView) findViewById(R.id.awlib_debugText);
+        tv.setText(getIntent().getExtras().getString(AWLIbApplication.STACKTRACE));
+    }
 }

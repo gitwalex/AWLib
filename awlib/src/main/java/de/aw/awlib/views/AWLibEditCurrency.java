@@ -26,7 +26,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
 
-import de.aw.awlib.AWLibInterface;
+import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.database.AbstractDBConvert;
 
 /**

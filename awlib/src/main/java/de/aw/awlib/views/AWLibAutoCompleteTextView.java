@@ -32,7 +32,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.FilterQueryProvider;
 
 import de.aw.awlib.R;
-import de.aw.awlib.AWLibInterface;
+import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.database.AWLibDBDefinition;
 
 /**

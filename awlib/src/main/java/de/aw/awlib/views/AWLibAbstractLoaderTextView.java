@@ -27,8 +27,8 @@ import android.support.v4.content.Loader;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import de.aw.awlib.AWLibInterface;
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.database.AWLibDBDefinition;
 
 /**

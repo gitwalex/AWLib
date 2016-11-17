@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib;
+package de.aw.awlib.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -32,6 +32,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import de.aw.awlib.R;
 import de.aw.awlib.views.AWLibBottomSheetCalculator;
 
 /**
@@ -59,7 +60,7 @@ public abstract class AWLibMainActivity extends AppCompatActivity
     /**
      * Default FloatingActionButton. Rechts unten, Icon ist 'Add', standardmaessig View.GONE
      */
-    protected FloatingActionButton mDefaultFAB;
+    private FloatingActionButton mDefaultFAB;
     private Toolbar mToolbar;
     private MainAction mainAction;
 
@@ -162,7 +163,7 @@ public abstract class AWLibMainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(layout);
         mainAction = args.getParcelable(AWLIBACTION);
-        mDefaultFAB = (FloatingActionButton) findViewById(R.id.defaultFAB);
+        mDefaultFAB = (FloatingActionButton) findViewById(R.id.awlib_defaultFAB);
         mToolbar = (Toolbar) findViewById(R.id.awlib_toolbar);
         setSupportActionBar(mToolbar);
         ActionBar bar = getSupportActionBar();
@@ -217,7 +218,7 @@ public abstract class AWLibMainActivity extends AppCompatActivity
     }
 
     /**
-     * Sicherung der Argumente
+     * Sicherung aller Argumente sowie des aktuellen AppTitels
      */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {

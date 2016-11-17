@@ -16,17 +16,17 @@
   -->
 
 <resources>
-    <string name="app_name">MonMa</string>
+    <string name="app_name">AWLib</string>
     <!-- String n/a als Platzhalter -->
     <string name="na">n/a</string>
     <!-- UnitID fuer ADMOB -->
-    <string name="btnCancel">Abbrechen</string>
-    <string name="btnAccept">OK</string>
+    <string name="awlib_btnCancel">Abbrechen</string>
+    <string name="awlib_btnAccept">OK</string>
     <!-- Ende Wert fuer MenuItems -->
     <!-- Texte fuer Buttons --><!-- Texte MasterDetailFragmentButtons -->
-    <string name="tvNoEntries">Keine Einträge</string>
+    <string name="awlib_tvNoEntries">Keine Einträge</string>
     <!-- Ende Allgemeine Texte, die nicht einem bestimmten Fragment zugeordnet werden können -->
-    <string name="menu_item_calculator">Rechner</string>
+    <string name="awlib_menu_item_calculator">Rechner</string>
     <string name="Bearbeiten">Bearbeiten</string>
     <!-- ActionBar Texte -->
     <!-- FragmentFileChooser und DialogFragmentQIFImport -->
@@ -38,7 +38,8 @@
 
     <string name="folder">Folder</string>
     <string name="deleteFile">Datei löschen</string>
-    <string name="awlibeventservice">AWLibEventService</string>
+    <string name="awlib_eventservice">AWLibEventService</string>
     <string name="awlib_nav_Settings">Einstellungen</string>
+    <string name="awlib_noTitle">Kein Titel</string>
 
 </resources>

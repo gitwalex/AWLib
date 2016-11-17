@@ -14,8 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
-package de.aw.awlib;
+package de.aw.awlib.fragments;
 
 import android.content.res.Configuration;
 import android.database.Cursor;

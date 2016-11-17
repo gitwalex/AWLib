@@ -29,15 +29,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import de.aw.awlib.AWLibFragment;
 import de.aw.awlib.R;
 import de.aw.awlib.events.EventTransferDB;
+import de.aw.awlib.fragments.AWLibFragment;
 
 /**
  * Dialog zur Abfrage von Zugangsdaten fuer externe Sicherung der DB.
  */
 public class DialogFTP extends AWLibFragment {
-    private final int layout = R.layout.dialog_db_ftp;
+    private final int layout = R.layout.awlib_dialog_db_ftp;
     private Button mOKBtn;
     private String mPasswort;
     private EditText mPasswortEditText;
@@ -79,15 +79,15 @@ public class DialogFTP extends AWLibFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View mView = LayoutInflater.from(getActivity()).inflate(layout, null);
-        mServerEditText = (EditText) mView.findViewById(R.id.etDBServerName);
+        mServerEditText = (EditText) mView.findViewById(R.id.awlib_etDBServerName);
         mServerEditText.setText(mServer);
-        mUserNameEditText = (EditText) mView.findViewById(R.id.etDBUserName);
+        mUserNameEditText = (EditText) mView.findViewById(R.id.awlib_etDBUserName);
         mUserNameEditText.setText(mUsername);
-        mPasswortEditText = (EditText) mView.findViewById(R.id.etDBUserPW);
-        mServerMessageLayout = mView.findViewById(R.id.llServerError);
-        mServerMessageTextView = (TextView) mView.findViewById(R.id.tvServerError);
-        mProgressBar = mView.findViewById(R.id.pbDlg_db_ftp);
-        builder.setPositiveButton(R.string.btnAccept, this);
+        mPasswortEditText = (EditText) mView.findViewById(R.id.awlib_etDBUserPW);
+        mServerMessageLayout = mView.findViewById(R.id.awlib_llServerError);
+        mServerMessageTextView = (TextView) mView.findViewById(R.id.awlib_tvServerError);
+        mProgressBar = mView.findViewById(R.id.awlib_pbDlg_db_ftp);
+        builder.setPositiveButton(R.string.awlib_btnAccept, this);
         builder.setNeutralButton(R.string.dbServerTest, this);
         builder.setTitle(R.string.dbServerZugangsdaten);
         builder.setView(mView);

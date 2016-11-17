@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import de.aw.awlib.AWLIbApplication;
-import de.aw.awlib.AWLibInterface;
+import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.gv.AWLibGeschaeftsObjekt;
 
 /**

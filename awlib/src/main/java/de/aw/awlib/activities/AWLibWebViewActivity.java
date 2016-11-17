@@ -14,22 +14,37 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
-package de.aw.awlib;
+package de.aw.awlib.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.widget.TextView;
+import android.webkit.WebView;
+
+import de.aw.awlib.R;
 
 /**
- * Created by alex on 18.05.2015.
+ * zeigt eine interne html-Seite. Im Intent wird unter ID der Name des html-files erwartet und im
+ * Verzeichnis assets/html gesucht.
  */
-public class AWLibActivityDebug extends FragmentActivity {
+public class AWLibWebViewActivity extends FragmentActivity implements AWLibInterface {
+    private static final String path = "file:///android_asset/html/";
+    private WebView webView;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.awlib_debug);
-        TextView tv = (TextView) findViewById(R.id.awlib_debugText);
-        tv.setText(getIntent().getExtras().getString(AWLIbApplication.STACKTRACE));
+        setContentView(R.layout.awlib_webview);
+        webView = (WebView) findViewById(R.id.awlib_webView);
+        String htmlSeite = getIntent().getExtras().getString(ID);
+        webView.loadUrl(path + htmlSeite);
     }
 }

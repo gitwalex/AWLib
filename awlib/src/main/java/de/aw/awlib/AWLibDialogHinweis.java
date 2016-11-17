@@ -23,10 +23,12 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.WindowManager;
 
+import de.aw.awlib.fragments.AWLibFragment;
+
 /**
  * Allgemeiner Dialog fuer Hinweise und Fehlermeldungen.
  */
-public class MonMaDialogHinweis extends AWLibFragment {
+public class AWLibDialogHinweis extends AWLibFragment {
     private static final String SHOWOKBUTTON = "SHOWOKBUTTON";
     private static final String TITLE = "TITLE", HINWEIS = "HINWEIS";
     private DialogInterface.OnClickListener mOnDailogClickListener;
@@ -41,13 +43,13 @@ public class MonMaDialogHinweis extends AWLibFragment {
      *
      * @return DialogFragment
      */
-    public static MonMaDialogHinweis newInstance(boolean showOKButton, String title,
+    public static AWLibDialogHinweis newInstance(boolean showOKButton, String title,
                                                  String... hinweistext) {
         Bundle args = new Bundle();
         args.putBoolean(SHOWOKBUTTON, showOKButton);
         args.putString(TITLE, title);
         args.putStringArray(HINWEIS, hinweistext);
-        MonMaDialogHinweis f = new MonMaDialogHinweis();
+        AWLibDialogHinweis f = new AWLibDialogHinweis();
         f.setArguments(args);
         return f;
     }
@@ -65,7 +67,7 @@ public class MonMaDialogHinweis extends AWLibFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (args.getBoolean(SHOWOKBUTTON)) {
-            builder.setPositiveButton(R.string.btnAccept, this);
+            builder.setPositiveButton(R.string.awlib_btnAccept, this);
         }
         builder.setTitle(args.getString(TITLE));
         String[] hinweise = args.getStringArray(HINWEIS);

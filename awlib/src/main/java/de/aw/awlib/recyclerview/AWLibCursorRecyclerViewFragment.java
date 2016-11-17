@@ -32,9 +32,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.AWLibLoaderFragment;
 import de.aw.awlib.database.AWLibDBDefinition;
 import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.fragments.AWLibLoaderFragment;
 
 /**
  * Erstellt eine Liste ueber Daten einer Tabelle.
@@ -238,9 +238,9 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
         super.onLoadFinished(loader, cursor);
         indexColumn = cursor.getColumnIndexOrThrow(tbd.columnName(R.string._id));
         if (cursor.getCount() == 0) {
-            getView().findViewById(R.id.tvNoEntries).setVisibility(View.VISIBLE);
+            getView().findViewById(R.id.awlib_tvNoEntries).setVisibility(View.VISIBLE);
         } else {
-            getView().findViewById(R.id.tvNoEntries).setVisibility(View.GONE);
+            getView().findViewById(R.id.awlib_tvNoEntries).setVisibility(View.GONE);
             if (mAdapter == null) {
                 mAdapter = getCursorAdapter();
                 mRecyclerView.setAdapter(mAdapter);
@@ -351,7 +351,7 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
      */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.defaultRecyclerView);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.awlib_defaultRecyclerView);
         mRecyclerView.setTag(this.getClass().getSimpleName());
         // Setzen der RecyclerView-ID. Standard: layout-Value. Alternativ:
         // args(VIEWID).

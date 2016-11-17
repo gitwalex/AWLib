@@ -39,7 +39,7 @@
         </android.support.v7.widget.Toolbar>
 
         <android.support.design.widget.TabLayout
-            android:id="@+id/tabhost_main"
+            android:id="@+id/awlib_tabhost_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
@@ -50,7 +50,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+        android:id="@+id/awlib_drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -65,14 +65,14 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
         <android.support.v4.view.ViewPager
-            android:id="@+id/pager"
+            android:id="@+id/awlib_pager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"/>
 
         <!-- The navigation drawer -->
         <android.support.design.widget.NavigationView
-            android:id="@+id/navigation_view"
+            android:id="@+id/awlib_navigation_view"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"
@@ -80,7 +80,7 @@
     </android.support.v4.widget.DrawerLayout>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/defaultFAB"
+        android:id="@+id/awlib_defaultFAB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"

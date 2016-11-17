@@ -29,7 +29,7 @@ import android.support.v4.app.NotificationCompat;
 
 import java.util.List;
 
-import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibInterface;
 
 /**
  * Erstellt und ersetzt Notifications

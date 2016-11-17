@@ -23,7 +23,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/bottomSheetTitle"
+        android:id="@+id/awlib_bottomSheetTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/headerBackground"
@@ -31,7 +31,7 @@
         android:visibility="gone"/>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/BottomSheetRecyclerView"
+        android:id="@+id/awlib_bottomSheetRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"

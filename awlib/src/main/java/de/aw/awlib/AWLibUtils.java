@@ -17,6 +17,9 @@
 
 package de.aw.awlib;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -27,6 +30,37 @@ import java.util.Map;
  * Utility-Klasse
  */
 public final class AWLibUtils {
+    /**
+     * Prueft, ob Internetverbindung vorhanden ist.
+     *
+     * @param context
+     *         Context
+     *
+     * @return true, wenn irgendeine Internetverbindung vorhanden ist.
+     */
+    public static boolean hasInternetConnection(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean result = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        return result;
+    }
+
+    /**
+     * Prueft, ob Internet via WiFi erreichbar ist
+     *
+     * @param context
+     *         Context
+     *
+     * @return true, wenn WiFi-Verbindung.
+     */
+    public static boolean isInternetWifi(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
     /**
      * Liest eine Map aus Parcel.
      * <p/>
@@ -87,3 +121,4 @@ public final class AWLibUtils {
         }
     }
 }
+

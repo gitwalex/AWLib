@@ -21,7 +21,7 @@
     <item
         android:id="@+id/awlib_menu_item_calculator"
         android:orderInCategory="800"
-        android:title="@string/menu_item_calculator"
+        android:title="@string/awlib_menu_item_calculator"
         app:showAsAction="never"
         tools:ignore="AppCompatResource">
     </item>

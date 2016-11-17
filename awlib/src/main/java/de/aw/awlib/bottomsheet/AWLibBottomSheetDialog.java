@@ -118,12 +118,12 @@ public class AWLibBottomSheetDialog extends ExpandedBottomSheetDialog {
         super.onCreate(savedInstanceState);
         View contentView = View.inflate(getContext(), layout, null);
         RecyclerView recyclerView =
-                (RecyclerView) contentView.findViewById(R.id.BottomSheetRecyclerView);
+                (RecyclerView) contentView.findViewById(R.id.awlib_bottomSheetRecyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         if (mTitle != null) {
-            TextView title = (TextView) contentView.findViewById(R.id.bottomSheetTitle);
+            TextView title = (TextView) contentView.findViewById(R.id.awlib_bottomSheetTitle);
             title.setText(mTitle);
             title.setVisibility(View.VISIBLE);
         }
@@ -230,7 +230,7 @@ public class AWLibBottomSheetDialog extends ExpandedBottomSheetDialog {
             public ViewHolder(View itemView) {
                 super(itemView);
                 itemView.setOnClickListener(this);
-                textView = (CheckedTextView) itemView.findViewById(R.id.BottomSheetTextView);
+                textView = (CheckedTextView) itemView.findViewById(R.id.awlib_bottomSheetTextView);
                 if (checkedItems != null) {
                     textView.setCheckMarkDrawable(checkMarkDrawableResId);
                 }

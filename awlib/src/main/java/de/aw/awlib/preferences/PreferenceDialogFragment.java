@@ -23,9 +23,9 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.WindowManager;
 
-import de.aw.awlib.AWLibFragment;
-import de.aw.awlib.AWLibInterface;
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.fragments.AWLibFragment;
 
 /**
  * Template fuer MonMaFragmente
@@ -70,7 +70,7 @@ public class PreferenceDialogFragment extends AWLibFragment
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setPositiveButton(R.string.btnAccept, this);
+        builder.setPositiveButton(R.string.awlib_btnAccept, this);
         builder.setTitle(args.getString(TITLE));
         String hinweise = args.getString(HINWEIS);
         builder.setMessage(hinweise);

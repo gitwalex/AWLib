@@ -31,7 +31,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
-import de.aw.awlib.AWLibInterface;
+import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.database.AbstractDBConvert;
 
 /**
