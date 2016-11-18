@@ -38,9 +38,9 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AbstractDBChangeHelper;
 import de.aw.awlib.gv.AWLibGeschaeftsObjekt;
 import de.aw.awlib.recyclerview.AWLibViewHolder;

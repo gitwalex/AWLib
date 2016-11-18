@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib;
+package de.aw.awlib.application;
 
 import android.app.Application;
 import android.app.FragmentManager;
@@ -27,6 +27,7 @@ import android.os.Debug;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.support.annotation.CallSuper;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ViewConfiguration;
 
@@ -40,6 +41,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
+import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibActivityDebug;
 
 import static de.aw.awlib.activities.AWLibInterface.linefeed;
@@ -48,6 +50,7 @@ import static de.aw.awlib.activities.AWLibInterface.linefeed;
  * AWLIbApplication: Einschalten von StrictModus, wenn im debug-mode. Erstellt eine HProf-Log bei
  * penaltyDeath().
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public abstract class AWLIbApplication extends Application {
     /**
      * Debugging Cursor einschalten
@@ -62,15 +65,40 @@ public abstract class AWLIbApplication extends Application {
      */
     public static final boolean EnableLoaderManagerLogging = false;
     public static final String STACKTRACE = "STACKTRACE", TAG = "de.aw";
+    /**
+     * Pfad, indem alle de.aw.-Applications abgelegt werden
+     */
+    protected static final String DE_AW_APPLICATIONPATH =
+            Environment.getExternalStorageDirectory() + "/de.aw";
+    /**
+     * Pfad, indem alle Backups zu de.aw.-Applications abgelegt werden
+     */
+    private static final String BACKUPPATH = "/backup";
+    /**
+     * Pfad, indem alle Exports zu de.aw.-Applications abgelegt werden
+     */
+    private static final String EXPORTPATH = "/export";
+    /**
+     * Pfad, indem alle Imports zu de.aw.-Applications abgelegt werden
+     */
+    private static final String IMPORTPATH = "/import";
     private static final String STACKTRACEPATH = "/stackTrace.txt";
     private static String DATAPATH;
     private static WeakReference<Context> mContext;
     private static boolean mDebugFlag;
+    private static String APPLICATIONPATH;
+    private static ApplicationConfig mApplicationConfig;
 
     public AWLIbApplication() {
         mContext = new WeakReference<Context>(this);
-        mDebugFlag = getDebugFlag();
-        File folder = new File(theApplicationPath());
+        File folder = new File(DE_AW_APPLICATIONPATH);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        mApplicationConfig = getApplicationConfig();
+        mDebugFlag = mApplicationConfig.getDebugFlag();
+        APPLICATIONPATH = DE_AW_APPLICATIONPATH + mApplicationConfig.theApplicationDirectory();
+        folder = new File(APPLICATIONPATH);
         if (!folder.exists()) {
             folder.mkdir();
         }
@@ -96,7 +124,7 @@ public abstract class AWLIbApplication extends Application {
      *         Fehlermeldung
      */
     public static void LogError(String message) {
-        File logFile = new File(getApplicationPath() + "/LOG.txt");
+        File logFile = new File(APPLICATIONPATH + "/LOG.txt");
         try {
             FileOutputStream fileout = new FileOutputStream(logFile, true);
             OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
@@ -112,9 +140,12 @@ public abstract class AWLIbApplication extends Application {
         }
     }
 
+    public static String getAboutHTML() {
+        return mApplicationConfig.getAboutHTML();
+    }
+
     public static String getApplicationBackupPath() {
-        AWLIbApplication me = (AWLIbApplication) mContext.get();
-        return me.theApplicationBackupPath();
+        return APPLICATIONPATH + BACKUPPATH;
     }
 
     public static ContentResolver getApplicationContentResolver() {
@@ -122,55 +153,51 @@ public abstract class AWLIbApplication extends Application {
     }
 
     public static String getApplicationExportPath() {
-        AWLIbApplication me = (AWLIbApplication) mContext.get();
-        return me.theApplicationExportPath();
+        return APPLICATIONPATH + EXPORTPATH;
     }
 
     public static String getApplicationImportPath() {
-        AWLIbApplication me = (AWLIbApplication) mContext.get();
-        return me.theApplicationImportPath();
+        return APPLICATIONPATH + IMPORTPATH;
     }
 
     public static String getApplicationPath() {
-        AWLIbApplication me = (AWLIbApplication) mContext.get();
-        return me.theApplicationPath();
+        return APPLICATIONPATH;
     }
 
     public static Context getContext() {
         return mContext.get();
     }
 
+    public static String getCopyrightHTML() {
+        return mApplicationConfig.getCopyrightHTML();
+    }
+
     public static String getDatenbankFilename() {
-        String path = getDatenbankname();
-        path = DATAPATH + path;
-        return path;
+        return DATAPATH + getDatenbankname();
     }
 
     public static int getDatenbankVersion() {
-        AWLIbApplication me = (AWLIbApplication) mContext.get();
-        return me.theDatenbankVersion();
+        return mApplicationConfig.theDatenbankVersion();
     }
 
     public static String getDatenbankname() {
-        AWLIbApplication me = (AWLIbApplication) mContext.get();
-        return me.theDatenbankname();
+        return mApplicationConfig.theDatenbankname();
     }
 
-    public static boolean getDebug() {
+    public static boolean getDebugFlag() {
         return mDebugFlag;
     }
 
     public static void onRestoreDB() {
-        AWLIbApplication me = (AWLIbApplication) mContext.get();
-        me.onRestoreDatabase();
+        mApplicationConfig.onRestoreDatabase();
     }
 
     @CallSuper
     protected void createFiles() {
         if (mDebugFlag) {
-            DATAPATH = getApplicationPath() + "/debug/";
+            DATAPATH = APPLICATIONPATH + "/debug/";
         } else {
-            DATAPATH = getApplicationPath() + "/release/";
+            DATAPATH = APPLICATIONPATH + "/release/";
         }
         File folder = new File(DATAPATH);
         if (!folder.exists()) {
@@ -190,12 +217,12 @@ public abstract class AWLIbApplication extends Application {
         }
     }
 
-    protected abstract boolean getDebugFlag();
+    protected abstract ApplicationConfig getApplicationConfig();
 
     private void handleUncaughtException(Throwable e) throws IOException {
         e.printStackTrace(); // not all Android versions will print the stack trace automatically
         String stackTrace = Log.getStackTraceString(e);
-        File stackTraceFile = new File(getApplicationPath() + STACKTRACEPATH);
+        File stackTraceFile = new File(APPLICATIONPATH + STACKTRACEPATH);
         FileOutputStream fileout = new FileOutputStream(stackTraceFile);
         OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
         outputWriter.write(stackTrace);
@@ -217,6 +244,7 @@ public abstract class AWLIbApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        PreferenceManager.setDefaultValues(this, R.xml.awlib_preferences_allgemein, false);
         if (mDebugFlag) {
             try {
                 // Im Debug-Mode Pruefen lassen, welche Constraints verletzt werden.
@@ -280,20 +308,6 @@ public abstract class AWLIbApplication extends Application {
         }
     }
 
-    protected abstract void onRestoreDatabase();
-
-    protected abstract String theApplicationBackupPath();
-
-    protected abstract String theApplicationExportPath();
-
-    protected abstract String theApplicationImportPath();
-
-    protected abstract String theApplicationPath();
-
-    protected abstract int theDatenbankVersion();
-
-    protected abstract String theDatenbankname();
-
     /**
      * Im Debug-Modus wird Strict eingeschaltet. Sollte es zu einem Fehler kommen, wird der Heap in
      * ein File gedumpt.
@@ -310,9 +324,8 @@ public abstract class AWLIbApplication extends Application {
                 // StrictMode is about to terminate us... do a heap dump!
                 try {
                     AWLIbApplication.Log("Logge HPROF...");
-                    File dir = Environment.getExternalStorageDirectory();
-                    File file = new File(dir, "strictmode-violation.hprof");
-                    super.println("Dumping HPROF to: " + file);
+                    File file = new File(APPLICATIONPATH, "strictmode-violation.hprof");
+                    super.println("Dumping HPROF to: " + file.getName());
                     Debug.dumpHprofData(file.getAbsolutePath());
                 } catch (Exception e) {
                     e.printStackTrace();

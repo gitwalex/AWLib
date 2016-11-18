@@ -16,7 +16,6 @@
  */
 package de.aw.awlib.database;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
@@ -27,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.gv.AWLibGeschaeftsObjekt;
 
 /**
@@ -61,19 +60,16 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
                     return c;
                 }
             };
-    private static String databaseVersion;
     /**
      * DBHelperTemplate ist ein Singleton.
      */
     private static AbstractDBHelper ch;
 
-    protected AbstractDBHelper(Context context, String datenbankName,
-                               SQLiteDatabase.CursorFactory cursorFactory, int version) {
-        super(context, datenbankName, (cursorFactory == null) ? mCursorFactory : cursorFactory,
-                version);
+    protected AbstractDBHelper(SQLiteDatabase.CursorFactory cursorFactory) {
+        super(AWLIbApplication.getContext(), AWLIbApplication.getDatenbankFilename(),
+                (cursorFactory == null) ? mCursorFactory : cursorFactory,
+                AWLIbApplication.getDatenbankVersion());
         ch = this;
-        //        SQLiteDatabase database = getWritableDatabase();
-        //        databaseVersion = "" + database.getVersion();
     }
 
     public static void doVacuum() {
@@ -112,10 +108,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      */
     public static SQLiteDatabase getDatabase() {
         return AbstractDBHelper.getInstance().getWritableDatabase();
-    }
-
-    public static String getDatabaseVersion() {
-        return databaseVersion;
     }
 
     public static AbstractDBHelper getInstance() {

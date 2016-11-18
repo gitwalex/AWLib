@@ -21,7 +21,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
-import de.aw.awlib.AWLIbApplication;
+import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AWLibDBDefinition;
 
 /**

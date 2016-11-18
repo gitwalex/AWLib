@@ -23,7 +23,7 @@ import android.util.SparseArray;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.aw.awlib.AWLIbApplication;
+import de.aw.awlib.application.AWLIbApplication;
 
 /**
  * Formate fuer die einzelnen Columns der DB

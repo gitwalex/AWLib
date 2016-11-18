@@ -155,7 +155,7 @@ public abstract class AWLibLoaderFragment extends AWLibFragment
     }
 
     /**
-     * nitialisiert oder restartet einen Loader.
+     * Initialisiert oder restartet einen Loader.
      *
      * @param loaderID
      *         id des loaders, der (nach-) gestartet werden soll</br>

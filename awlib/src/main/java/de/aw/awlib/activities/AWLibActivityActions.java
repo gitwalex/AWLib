@@ -26,8 +26,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
-import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.R;
+import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.events.EventDBRestore;
 import de.aw.awlib.filechooser.FragmentFileChooser;
 import de.aw.awlib.fragments.AWLibDialogHinweis;

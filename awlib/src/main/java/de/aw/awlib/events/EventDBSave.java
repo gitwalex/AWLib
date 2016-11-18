@@ -28,12 +28,12 @@ import java.text.DateFormat;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.AWLibNotification;
 import de.aw.awlib.AWLibResultCodes;
 import de.aw.awlib.AWLibUtils;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AbstractDBConvert;
 
 /**

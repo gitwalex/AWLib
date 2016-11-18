@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.aw.awlib.AWLIbApplication;
+import de.aw.awlib.application.AWLIbApplication;
 
 /**
  * Adapter fuer RecyclerView, der Drag/Drop und Swipe unterstuetzt. Der Adapter baut eine Liste mit

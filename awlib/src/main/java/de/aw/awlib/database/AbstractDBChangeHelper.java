@@ -23,7 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.aw.awlib.AWLIbApplication;
+import de.aw.awlib.application.AWLIbApplication;
 
 /**
  * Helper fuer Database-CUD. Fuer Read ist der ContentResolver zu nutzen

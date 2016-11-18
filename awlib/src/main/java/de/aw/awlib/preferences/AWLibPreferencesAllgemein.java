@@ -37,6 +37,7 @@ import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibActivityActions;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.activities.AWLibWebViewActivity;
+import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AbstractDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.events.AWLibEvent;
@@ -134,7 +135,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
                 DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
                 StringBuilder buildInfo = new StringBuilder("Compilezeit: ").append(df.format(date))
                         .append(", Datenbankversion : ")
-                        .append(AbstractDBHelper.getDatabaseVersion()).append(", Version: ")
+                        .append(AWLIbApplication.getDatenbankVersion()).append(", Version: ")
                         .append(BuildConfig.VERSION_NAME);
                 preference.setSummary(buildInfo);
             } else if (pkKey == R.string.pkServerUID || pkKey == R.string.pkServerURL) {
@@ -175,12 +176,12 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
             return true;
         } else if (getString(R.string.pkCopyright).equals(key)) {
             Intent intent = new Intent(getActivity(), AWLibWebViewActivity.class);
-            intent.putExtra(ID, "monma_copyright.html");
+            intent.putExtra(ID, AWLIbApplication.getCopyrightHTML());
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkAbout).equals(key)) {
             Intent intent = new Intent(getActivity(), AWLibWebViewActivity.class);
-            intent.putExtra(ID, "monma_about.html");
+            intent.putExtra(ID, AWLIbApplication.getAboutHTML());
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkExterneSicherung).equals(key)) {

@@ -20,8 +20,8 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.R;
+import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AbstractDBConvert;
 
 /**

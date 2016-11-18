@@ -22,10 +22,10 @@ import android.os.AsyncTask;
 
 import java.util.concurrent.ExecutionException;
 
-import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.AWLibResultCodes;
 import de.aw.awlib.AWLibUtils;
 import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AbstractDBHelper;
 
 /**
@@ -49,7 +49,7 @@ public class EventDBRestore extends AsyncTask<String, Void, Integer>
     protected Integer doInBackground(String... params) {
         int result;
         String targetFileName;
-        if (AWLIbApplication.getDebug()) {
+        if (AWLIbApplication.getDebugFlag()) {
             targetFileName = AWLIbApplication.getDatenbankFilename();
         } else {
             targetFileName =

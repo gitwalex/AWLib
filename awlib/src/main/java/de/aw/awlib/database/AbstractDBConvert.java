@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import de.aw.awlib.AWLIbApplication;
+import de.aw.awlib.application.AWLIbApplication;
 
 public class AbstractDBConvert {
     public static final DateFormat DATEFORMAT = DateFormat.getDateInstance();

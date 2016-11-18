@@ -20,8 +20,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
 
-import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.R;
+import de.aw.awlib.application.AWLIbApplication;
 
 /**
  * Created by alex on 18.05.2015.
