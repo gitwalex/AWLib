@@ -17,5 +17,5 @@
   -->
 
 <resources>
-    <item name="drag_handle" type="id"/>
+    <item name="awlib_drag_handle" type="id"/>
 </resources>

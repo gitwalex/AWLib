@@ -19,7 +19,6 @@
     <!-- Preferences Allgemein -->
     <string name="settings">Einstellungen</string>
     <string name="awlib_menu_item_hilfe">Hilfe</string>
-    <string name="TitleAllgemeinPrefs">Allgemein</string>
     <string name="dbTitleDatenbank">Datenbank</string>
     <string name="dbTitleDBVacuum">Aufräumen</string>
     <string name="dbSmryDBVacuum">Datenbank komprimieren</string>
@@ -35,7 +34,6 @@
     <string name="dbSmryDatenbankRestore">Sicherung Wiederherstellen</string>
     <string name="dlgDatenbankRestore">Sicherung wird wiederhergestellt</string>
     <!-- Preferences Finanzen -->
-    <string name="TitleImportPrefs">Import/Export</string>
     <string name="tickerDBSicherung">Datenbanksicherung</string>
     <string name="contentTextDBSicherung">Datenbank wird gesichert</string>
     <string name="dbSaved">Datenbank gesichert</string>
@@ -44,7 +42,6 @@
     <string name="pkSavePeriodic">spdbSavePeriodic</string>
     <string name="titleDBSavePeriodic">Regelmäßig sichern</string>
     <string name="smryDBSavePeriodic">Datenbank wird alle fünf Tage automatisch gesichert</string>
-    <string name="UmsaetzeOnlyWifi">Nur bei WLAN-Verbindung</string>
     <string name="titleInfo">Info</string>
     <string name="pkCopyright">Copyright</string>
     <string name="titleCopyright">Copyright</string>

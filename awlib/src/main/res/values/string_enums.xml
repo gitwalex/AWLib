@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Texte fuer Enum DateSelector (Auswahl Berichtsdatum -->
+    <string name="AktJhr">Aktuelles Jahr</string>
+    <string name="AktMnt">Aktueller Monat</string>
+    <string name="AktQuart">Atuelles Quartal</string>
+    <string name="BisHeuteJhr">Jahr bis Heute</string>
+    <string name="Heute">Heute</string>
+    <string name="BisHeuteMnt">Monat bis Heute</string>
+    <string name="BisHeuteQuart">Quartal bis Heute</string>
+    <string name="LetzMnt">Letzter Monat</string>
+    <string name="LetztQuart">Letztes Quartal</string>
+    <string name="LztJhr">Letztes Jahr</string>
+    <string name="Ltz12Mnt">Letzte 12 Monate</string>
+    <string name="EigDatum">Eigenes Datum</string>
+    <!-- -->
+
+</resources>
