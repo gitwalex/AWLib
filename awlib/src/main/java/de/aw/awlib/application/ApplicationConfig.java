@@ -8,24 +8,37 @@ public abstract class ApplicationConfig {
     /**
      * @return Liefert ein HTML-File  fuer die Auswahl der Preferences 'About'. Das file wird in
      * /assets/html erwartet.
+     * <p>
+     * Default: Anzeige kein About
      */
-    public abstract String getAboutHTML();
+    public String getAboutHTML() {
+        return "no_about.html";
+    }
 
     /**
      * @return Liefert ein HTML-File  fuer die Auswahl der Preferences 'Copyright'. Das file wird in
      * /assets/html erwartet.
+     * <p>
+     * Default: Anzeige kein Copyright
      */
-    public abstract String getCopyrightHTML();
+    public String getCopyrightHTML() {
+        return "no_copyright.html";
+    }
 
     /**
      * @return Das DebugFlag der Application
+     * <p>
+     * Default: True, immer im Debugmodus
      */
-    public abstract boolean getDebugFlag();
+    public boolean getDebugFlag() {
+        return true;
+    }
 
     /**
      * Wird gerufen, wenn die Datenbank restored wurde
      */
-    public abstract void onRestoreDatabase();
+    public void onRestoreDatabase() {
+    }
 
     /**
      * @return Verzeichnis, in dem die Appplicationsdaten abgelegt werden sollen
@@ -39,6 +52,10 @@ public abstract class ApplicationConfig {
 
     /**
      * @return Datenbankname
+     * <p>
+     * Default: Applicationpathname + '.db'
      */
-    public abstract String theDatenbankname();
+    public String theDatenbankname() {
+        return theApplicationDirectory().replaceAll("/", "") + ".db";
+    }
 }
