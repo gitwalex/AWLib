@@ -23,25 +23,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
-import android.text.TextUtils;
 
-import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
 
 import de.aw.awlib.BuildConfig;
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWLibActivityActions;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.activities.AWLibWebViewActivity;
 import de.aw.awlib.database.AbstractDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.events.AWLibEvent;
-import de.aw.awlib.events.EventDBRestore;
-import de.aw.awlib.events.EventTransferDB;
+import de.aw.awlib.events.EventDBSave;
+import de.aw.awlib.fragments.AWLibDialogHinweis;
 import de.aw.awlib.fragments.AWLibFragment;
 import de.aw.awlib.fragments.AWLibPreferenceFragment;
 
@@ -56,9 +56,9 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
         implements Preference.OnPreferenceClickListener, AWLibInterface {
     private static final int[] mPrefs =
             new int[]{R.string.pkDBVacuum, R.string.pkDBSave, R.string.pkDBRestore,
-                    R.string.dbSavePeriodic, R.string.MonMaCopyright, R.string.MonMaAbout,
-                    R.string.BuildInfo, R.string.dbExterneSicherung, R.string.dbServerURL,
-                    R.string.dbServerUID};
+                    R.string.pkSavePeriodic, R.string.pkCopyright, R.string.pkAbout,
+                    R.string.pkBuildInfo, R.string.pkExterneSicherung, R.string.pkServerURL,
+                    R.string.pkServerUID};
 
     /**
      * Fuehrt die ausgewaehlte Aktion gemaess {@link MainAction}durch.
@@ -71,65 +71,53 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
      *         Text im Dialog
      */
     private void doAction(final MainAction dbAction, final String title, final String message) {
-        new AsyncTask<MainAction, Void, MainAction>() {
-            public String dialogTag;
-
-            @Override
-            protected MainAction doInBackground(MainAction... params) {
-                MainAction action = params[0];
-                switch (action) {
-                    case doVaccum:
-                        AbstractDBHelper.doVacuum();
-                        break;
-                    case doSave:
-                        EventDBRestore eventSaveDB = new EventDBRestore(getActivity());
-                        Date saveDate = eventSaveDB.save();
-                        if (saveDate != null) {
-                            setDBSaveSummary(AbstractDBConvert.convertDate(saveDate));
-                        }
-                        String filename = eventSaveDB.getFileName();
-                        try {
-                            new EventTransferDB(getContext(), EventTransferDB.ConnectionArt.SSL,
-                                    filename);
-                        } catch (IOException | EventTransferDB.ConnectionFailsException e) {
-                            //TODO Execption bearbeiten
-                            e.printStackTrace();
-                        }
-                        break;
+        AWLibDialogHinweis dialog = AWLibDialogHinweis.newInstance(true, title, message);
+        String dialogTag = dialog.getTag();
+        dialog.show(getFragmentManager(), dialogTag);
+        switch (dbAction) {
+            case doSave:
+                EventDBSave eventSaveDB = new EventDBSave(getActivity());
+                Date saveDate = eventSaveDB.save();
+                if (saveDate != null) {
+                    setDBSaveSummary(AbstractDBConvert.convertDate(saveDate));
                 }
-                return action;
-            }
-
-            /**
-             * Dismiss Dialog, ggfs. Nacharbeiten fuer Aktion.
-             * @param action Action
-             */
-            @Override
-            protected void onPostExecute(MainAction action) {
-                // Generell Dailog entfernen
                 FragmentManager fm = getFragmentManager();
                 if (fm != null) {
-                    PreferenceDialogFragment dialog =
-                            (PreferenceDialogFragment) getFragmentManager()
-                                    .findFragmentByTag(dialogTag);
+                    dialog = (AWLibDialogHinweis) getFragmentManager().findFragmentByTag(dialogTag);
                     if (dialog != null) {
                         dialog.dismiss();
                     }
                 }
-                Snackbar.make(getView(), action.name(), Snackbar.LENGTH_SHORT).show();
-            }
+                Snackbar.make(getView(), dbAction.name(), Snackbar.LENGTH_SHORT).show();
+                break;
+            case doVaccum:
+                new AsyncTask<Void, Void, Void>() {
+                    public String dialogTag;
 
-            /**
-             * Dialog erstellen
-             */
-            @Override
-            protected void onPreExecute() {
-                PreferenceDialogFragment dialog =
-                        PreferenceDialogFragment.newInstance(title, message);
-                dialogTag = dialog.getTag();
-                dialog.show(getFragmentManager(), dialogTag);
-            }
-        }.execute(dbAction);
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        AbstractDBHelper.doVacuum();
+                        return null;
+                    }
+
+                    /**
+                     * Dismiss Dialog, ggfs. Nacharbeiten fuer Aktion.
+                     */
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        // Generell Dailog entfernen
+                        FragmentManager fm = getFragmentManager();
+                        if (fm != null) {
+                            AWLibDialogHinweis dialog = (AWLibDialogHinweis) getFragmentManager()
+                                    .findFragmentByTag(dialogTag);
+                            if (dialog != null) {
+                                dialog.dismiss();
+                            }
+                        }
+                        Snackbar.make(getView(), dbAction.name(), Snackbar.LENGTH_SHORT).show();
+                    }
+                }.execute();
+        }
     }
 
     @Override
@@ -141,7 +129,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
         for (int pkKey : mPrefs) {
             String key = getString(pkKey);
             Preference preference = findPreference(key);
-            if (pkKey == R.string.BuildInfo) {
+            if (pkKey == R.string.pkBuildInfo) {
                 java.util.Date date = new Date(BuildConfig.BuildTime);
                 DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
                 StringBuilder buildInfo = new StringBuilder("Compilezeit: ").append(df.format(date))
@@ -149,7 +137,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
                         .append(AbstractDBHelper.getDatabaseVersion()).append(", Version: ")
                         .append(BuildConfig.VERSION_NAME);
                 preference.setSummary(buildInfo);
-            } else if (pkKey == R.string.dbServerUID || pkKey == R.string.dbServerURL) {
+            } else if (pkKey == R.string.pkServerUID || pkKey == R.string.pkServerURL) {
                 String value = prefs.getString(key, null);
                 preference.setSummary(value);
                 preference.setOnPreferenceClickListener(this);
@@ -161,7 +149,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
-        addPreferencesFromResource(R.xml.preferences_allgemein);
+        addPreferencesFromResource(R.xml.awlib_preferences_allgemein);
     }
 
     @Override
@@ -181,18 +169,21 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
             doAction(doSave, title, hinweis);
             return true;
         } else if (getString(R.string.pkDBRestore).equals(key)) {
-            throw new UnsupportedOperationException("Muss noch implementiert werden!");
-        } else if (getString(R.string.MonMaCopyright).equals(key)) {
+            Intent intent = new Intent(getActivity(), AWLibActivityActions.class);
+            intent.putExtra(AWLIBACTION, (Parcelable) MainAction.doRestore);
+            getActivity().startActivity(intent);
+            return true;
+        } else if (getString(R.string.pkCopyright).equals(key)) {
             Intent intent = new Intent(getActivity(), AWLibWebViewActivity.class);
             intent.putExtra(ID, "monma_copyright.html");
             getActivity().startActivity(intent);
             return true;
-        } else if (getString(R.string.MonMaAbout).equals(key)) {
+        } else if (getString(R.string.pkAbout).equals(key)) {
             Intent intent = new Intent(getActivity(), AWLibWebViewActivity.class);
             intent.putExtra(ID, "monma_about.html");
             getActivity().startActivity(intent);
             return true;
-        } else if (getString(R.string.dbExterneSicherung).equals(key)) {
+        } else if (getString(R.string.pkExterneSicherung).equals(key)) {
             AWLibFragment f = DialogFTP.newInstance();
             f.show(getFragmentManager(), null);
             return true;
@@ -202,21 +193,13 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (getString(R.string.prefLogoutTime).equals(key)) {
-            String s = sharedPreferences.getString(key, "10");
-            if (TextUtils.isEmpty(s)) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(key, "1").apply();
-            }
-        }
-        super.onSharedPreferenceChanged(sharedPreferences, key);
     }
 
     /**
      * Liest aus den Preferences mit Key  {@link MainAction#doSave#name()} das letzte
      * Sicherungsdatum und stellt dieses in die Summary ein.
      */
-    private void setDBSaveSummary(String saveDate) {
+    protected void setDBSaveSummary(String saveDate) {
         int key = R.string.pkDBSave;
         final Preference doDBSave = findPreference(getString(key));
         final StringBuilder sb = new StringBuilder(getString(R.string.lastSave)).append(": ");

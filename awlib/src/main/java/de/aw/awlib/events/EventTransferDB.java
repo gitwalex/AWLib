@@ -52,10 +52,10 @@ public class EventTransferDB {
     public EventTransferDB(Context context, ConnectionArt connectionArt, String filename)
             throws ConnectionFailsException, IOException {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        servername = prefs.getString(context.getString(R.string.dbServerURL), null);
-        user = prefs.getString(context.getString(R.string.dbServerUID), null);
+        servername = prefs.getString(context.getString(R.string.pkServerURL), null);
+        user = prefs.getString(context.getString(R.string.pkServerUID), null);
         password = prefs.getString(context.getString(R.string.dbServerPW), null);
-        if (prefs.getBoolean(context.getString(R.string.dbExterneSicherung), false)) {
+        if (prefs.getBoolean(context.getString(R.string.pkExterneSicherung), false)) {
             FTPClient client = null;
             switch (connectionArt) {
                 case SSL:

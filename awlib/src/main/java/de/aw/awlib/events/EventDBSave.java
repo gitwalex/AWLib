@@ -22,20 +22,16 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.util.Locale;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.concurrent.ExecutionException;
 
 import de.aw.awlib.AWLIbApplication;
 import de.aw.awlib.AWLibNotification;
 import de.aw.awlib.AWLibResultCodes;
+import de.aw.awlib.AWLibUtils;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.database.AbstractDBConvert;
@@ -43,12 +39,11 @@ import de.aw.awlib.database.AbstractDBConvert;
 /**
  * Klasse fuer Sicheren/Restoren DB
  */
-public class EventDBSave extends AsyncTask<Void, Void, String>
+public class EventDBSave extends AsyncTask<Void, Void, Integer>
         implements AWLibResultCodes, AWLibInterface {
     private static final String BACKUPPATH = AWLIbApplication.getApplicationBackupPath() + "/";
     private static final String DATABASEPATH = AWLIbApplication.getDatenbankFilename();
     private final Context mContext;
-    private final int BUFFERSIZE = 8192;
     private final SharedPreferences prefs;
     private final Date date;
     private String backupFileName;
@@ -71,99 +66,18 @@ public class EventDBSave extends AsyncTask<Void, Void, String>
                 BACKUPPATH + (formatter.format(date)).replace(".", "_").replace(":", "_") + ".zip";
     }
 
-    /**
-     * Fuegt die Files dem Zip-Archiv hinzu.
-     *
-     * @param zos
-     *         ZipOutputStraem
-     * @param fileToZip
-     *         File, welches gezipt werden soll
-     * @param parrentDirectoryName
-     *         Name des ParentDirectories. Wenn null, wird dies als Wurzel betrachtet
-     *
-     * @throws IOException
-     *         Bei Fehlern
-     */
-    private void addDirToZipArchive(ZipOutputStream zos, File fileToZip,
-                                    String parrentDirectoryName) throws IOException {
-        if (fileToZip == null || !fileToZip.exists()) {
-            return;
-        }
-        String zipEntryName = fileToZip.getName();
-        if (parrentDirectoryName != null && !parrentDirectoryName.isEmpty()) {
-            zipEntryName = parrentDirectoryName + "/" + fileToZip.getName();
-        }
-        if (fileToZip.isDirectory()) {
-            System.out.println("+" + zipEntryName);
-            for (File file : fileToZip.listFiles()) {
-                addDirToZipArchive(zos, file, zipEntryName);
-            }
-        } else {
-            System.out.println("   " + zipEntryName);
-            byte[] buffer = new byte[BUFFERSIZE];
-            FileInputStream fis = new FileInputStream(fileToZip);
-            zos.putNextEntry(new ZipEntry(zipEntryName));
-            int length;
-            while ((length = fis.read(buffer)) > 0) {
-                zos.write(buffer, 0, length);
-            }
-            zos.closeEntry();
-            fis.close();
-        }
+    @Override
+    protected Integer doInBackground(Void... params) {
+        File bakFile = new File(backupFileName);
+        return AWLibUtils.addToZipArchive(bakFile, DATABASEPATH);
     }
 
-    /**
-     * Fuegt die Files dem Zip-Archiv hinzu.
-     *
-     * @param zos
-     *         ZipOutputStraem
-     * @param fileToZip
-     *         File, welches gezipt werden soll
-     *
-     * @throws IOException
-     *         Bei Fehlern
-     */
-    private void addFileToZipArchive(ZipOutputStream zos, File fileToZip) throws IOException {
-        if (fileToZip == null || !fileToZip.exists()) {
-            return;
-        }
-        String zipEntryName = fileToZip.getName();
-        System.out.println("   " + zipEntryName);
-        byte[] buffer = new byte[BUFFERSIZE];
-        FileInputStream fis = new FileInputStream(fileToZip);
-        zos.putNextEntry(new ZipEntry(zipEntryName));
-        int length;
-        while ((length = fis.read(buffer)) > 0) {
-            zos.write(buffer, 0, length);
-        }
-        zos.closeEntry();
-        fis.close();
+    public String getFileName() {
+        return backupFileName;
     }
 
     @Override
-    protected String doInBackground(Void... params) {
-        int ergebnis = RESULT_OK;
-        FileOutputStream fout;
-        ZipOutputStream zout = null;
-        try {
-            File folder = new File(DATABASEPATH);
-            File bakFile = new File(backupFileName);
-            fout = new FileOutputStream(bakFile);
-            zout = new ZipOutputStream(new BufferedOutputStream(fout));
-            addFileToZipArchive(zout, folder);
-        } catch (IOException e) {
-            ergebnis = RESULT_FILE_ERROR;
-        } catch (Exception e) {
-            ergebnis = RESULT_Divers;
-        } finally {
-            try {
-                if (zout != null) {
-                    zout.close();
-                }
-            } catch (IOException e) {
-                ergebnis = RESULT_FILE_ERROR;
-            }
-        }
+    protected void onPostExecute(Integer ergebnis) {
         String result;
         switch (ergebnis) {
             case RESULT_OK:
@@ -181,11 +95,6 @@ public class EventDBSave extends AsyncTask<Void, Void, String>
                 result = mContext.getString(R.string.dbSaveError);
                 break;
         }
-        return result;
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
         mNotification.setHasProgressBar(false);
         mNotification.replaceNotification(result);
     }
@@ -198,6 +107,19 @@ public class EventDBSave extends AsyncTask<Void, Void, String>
         mNotification.setTicker(ticker);
         mNotification.setHasProgressBar(true);
         mNotification.createNotification(contentTitle);
+    }
+
+    public Date save() {
+        try {
+            execute().get();
+        } catch (InterruptedException e) {
+            //TODO Execption bearbeiten
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            //TODO Execption bearbeiten
+            e.printStackTrace();
+        }
+        return date;
     }
 
     /**

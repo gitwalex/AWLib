@@ -18,7 +18,7 @@
 <resources>
     <!-- Preferences Allgemein -->
     <string name="settings">Einstellungen</string>
-    <string name="menu_item_hilfe">Hilfe</string>
+    <string name="awlib_menu_item_hilfe">Hilfe</string>
     <string name="TitleAllgemeinPrefs">Allgemein</string>
     <string name="dbTitleDatenbank">Datenbank</string>
     <string name="dbTitleDBVacuum">Aufräumen</string>
@@ -35,62 +35,35 @@
     <string name="dbSmryDatenbankRestore">Sicherung Wiederherstellen</string>
     <string name="dlgDatenbankRestore">Sicherung wird wiederhergestellt</string>
     <!-- Preferences Finanzen -->
-    <string name="TitleFinanzuebersichtPrefs">Meine Finanzen</string>
-    <string name="catTitleKontenuebersich">Kontoübersicht</string>
-    <string name="cbTitleAusgeblendeteKontenAnzeigen">Konten</string>
-    <string name="cbSummryAusgeblendeteKontenAnzeigen">Ausgeblendete Konten
-        anzeigen</string>
-    <!-- Preferences Wertpapieruebersicht -->
-    <string name="TitleWertpapieruebersichtPrefs">Wertpapiere</string>
-    <string name="catTitleSteuerlicheBehandlung">Steuern</string>
-    <string name="catSmrySteuerlicheBehandlung">Einstellungen zur steuerlichen Behandlung</string>
-    <string name="cbTitleFiFoPrinzip">FirstIn - FirstOut</string>
-    <string name="WhatIsFiFoPrinzip">Verkäufe / Wertpapierentnahmen werden nach dem vorgesehenen FiFo (FirstIn - FirstOut)
-        - Prinzip durchgeführt. Alternativ werden diese Bestandsveränderungenwerden zuerst auf steuerpflichtige Bestände
-        angewendet. Dies ist dann sinnvoll, wenn bei der Bank steuerlich getrennte Depots geführt werden, die in der Anwendung
-        aber in einem Depot gesammelt werden. </string>
-    <!-- Preferences Import -->
     <string name="TitleImportPrefs">Import/Export</string>
-    <string name="importQIFFile">Import Quicken (QIF) Datei</string>
-    <!-- Preferences HBCI -->
-    <string name="TitleHBCIPrefs">Online-Banking</string>
-    <string name="cbTitleEmpfaengerabgleichen">Empfängernamen</string>
-    <string name="catHBCIUmsaetzeAbrufen">Umsätze</string>
-    <string name="cbTitleAutomatisch">Regelmäßig abrufen</string>
-    <string name="cbTitleHBCIAbruf1">1. Abruf</string>
-    <string name="cbTitleHBCIAbruf2">2. Abruf</string>
-    <string name="dlgTitleHBCIAbruf">HBCI-Abrufzeit</string>
     <string name="tickerDBSicherung">Datenbanksicherung</string>
     <string name="contentTextDBSicherung">Datenbank wird gesichert</string>
     <string name="dbSaved">Datenbank gesichert</string>
     <string name="dbFileError">Datenbank konnte wegen Dateifehler nicht gesichert werden</string>
     <string name="dbSaveError">Datenbank konnte nicht gesichert werden</string>
-    <string name="dbSavePeriodic">spdbSavePeriodic</string>
+    <string name="pkSavePeriodic">spdbSavePeriodic</string>
     <string name="titleDBSavePeriodic">Regelmäßig sichern</string>
     <string name="smryDBSavePeriodic">Datenbank wird alle fünf Tage automatisch gesichert</string>
     <string name="UmsaetzeOnlyWifi">Nur bei WLAN-Verbindung</string>
-    <string name="cbDetailAnzeigeOnlineKonten">Kontodetails</string>
-    <string name="cbDetailAnzeigeUmsaetze">Umsatzdetails</string>
-    <string name="cbDetailAnzeigeBank">Bankdetails</string>
-    <string name="MonMaInfo">Info</string>
-    <string name="MonMaCopyright">Copyright</string>
-    <string name="prefSecurity">Sicherheit</string>
-    <string name="prefAutomaticLogout">Automatisch abmelden</string>
-    <string name="prefLogoutTime">Abmelden nach Minuten</string>
-    <string name="MonMaAbout">Über diese App</string>
-    <string name="BuildInfo">Build-Info</string>
-    <string name="catTitleRegelmBuchungen">Regelmäßige Buchungen</string>
-    <string name="cbTitleRegelmBuchungAutomatisch">Automatisch ausführen</string>
-    <string name="cbSummryRegelmBuchungAutomatisch">Regelmäßige Buchungen automatisch ausführen</string>
-    <string name="cbTitleRegelmBuchungenTage">Tage im voraus</string>
-    <string name="dbExterneSicherung">Remotesicherung</string>
+    <string name="titleInfo">Info</string>
+    <string name="pkCopyright">Copyright</string>
+    <string name="titleCopyright">Copyright</string>
+    <string name="pkAbout">Über diese App</string>
+    <string name="titleAbout">Über diese App</string>
+    <string name="pkBuildInfo">Build-Info</string>
+    <string name="titleBuildInfo">Build-Info</string>
+    <string name="pkExterneSicherung">Remotesicherung</string>
+    <string name="smryExterneSicherung">Remotesicherung</string>
     <string name="titleExterneSicherung">Auf Server sichern</string>
-    <string name="dbServerURL">Servername</string>
-    <string name="dbServerUID">User</string>
+    <string name="pkServerURL">Servername</string>
+    <string name="titleServerURL">Servername</string>
+    <string name="pkServerUID">User</string>
+    <string name="titleServerUID">User</string>
     <string name="dbServerPW">Password</string>
     <string name="dbServerTest">Verbindung testen</string>
     <string name="dbServerZugangsdaten">Server Zugangsdaten</string>
     <string name="dbServerMessage">Der Server meldet: </string>
     <string name="dbServerMessageErfolgreich">Test erfolgreich!</string>
+    <string name="dlgTitleTime">Uhrzeit</string>
 
 </resources>

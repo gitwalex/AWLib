@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/dbServerURL"
+            android:hint="@string/pkServerURL"
             android:inputType="text"/>
 
         <EditText
@@ -48,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/dbServerUID"
+            android:hint="@string/pkServerUID"
             android:inputType="textPersonName"/>
 
         <EditText

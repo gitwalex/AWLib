@@ -41,8 +41,7 @@ public class AWLibEventService extends IntentService {
         AWLibEvent event = extras.getParcelable(AWLIBEVENT);
         switch (event) {
             case DoDatabaseSave:
-                EventDBRestore eventSaveDB = new EventDBRestore(this);
-                eventSaveDB.save();
+                EventDBSave eventSaveDB = new EventDBSave(this);
                 String filename = eventSaveDB.getFileName();
                 try {
                     new EventTransferDB(getApplicationContext(), EventTransferDB.ConnectionArt.SSL,

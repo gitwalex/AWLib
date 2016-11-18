@@ -59,8 +59,8 @@ public class DialogFTP extends AWLibFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mServer = prefs.getString(getString(R.string.dbServerURL), null);
-        mUsername = prefs.getString(getString(R.string.dbServerUID), null);
+        mServer = prefs.getString(getString(R.string.pkServerURL), null);
+        mUsername = prefs.getString(getString(R.string.pkServerUID), null);
     }
 
     /**
@@ -165,10 +165,10 @@ public class DialogFTP extends AWLibFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(getString(R.string.dbExterneSicherung), !isCanceled).apply();
+        editor.putBoolean(getString(R.string.pkExterneSicherung), !isCanceled).apply();
         if (!isCanceled) {
-            editor.putString(getString(R.string.dbServerURL), mServerName).apply();
-            editor.putString(getString(R.string.dbServerUID), mUserName).apply();
+            editor.putString(getString(R.string.pkServerURL), mServerName).apply();
+            editor.putString(getString(R.string.pkServerUID), mUserName).apply();
             editor.putString(getString(R.string.dbServerPW), mPasswort).apply();
         }
     }

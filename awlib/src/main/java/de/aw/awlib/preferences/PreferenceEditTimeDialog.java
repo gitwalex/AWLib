@@ -66,7 +66,7 @@ public class PreferenceEditTimeDialog extends AWLibFragment
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dlg = new TimePickerDialog(getActivity(), this, mHour, mMinute,
                 DateFormat.is24HourFormat(getActivity()));
-        dlg.setTitle(R.string.dlgTitleHBCIAbruf);
+        dlg.setTitle(R.string.dlgTitleTime);
         return dlg;
     }
 

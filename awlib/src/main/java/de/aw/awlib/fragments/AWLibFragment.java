@@ -184,12 +184,13 @@ public abstract class AWLibFragment extends DialogFragment
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case AlertDialog.BUTTON_POSITIVE:
-                AbstractDBChangeHelper db = getDBHelper();
                 switch (mainAction) {
                     case ADD:
+                        AbstractDBChangeHelper db = getDBHelper();
                         awlib_gv.insert(db);
                         break;
                     case EDIT:
+                        db = getDBHelper();
                         awlib_gv.update(db);
                         break;
                     default:

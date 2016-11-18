@@ -25,7 +25,7 @@
             />
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="@string/dbSavePeriodic"
+            android:key="@string/pkSavePeriodic"
             android:summary="@string/smryDBSavePeriodic"
             android:title="@string/titleDBSavePeriodic"
             />
@@ -39,36 +39,36 @@
             android:title="@string/actionDatenbankRestore"
             />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/dbExterneSicherung">
+    <PreferenceCategory android:title="@string/titleExterneSicherung">
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="@string/dbExterneSicherung"
-            android:summary="@string/dbExterneSicherung"
+            android:key="@string/pkExterneSicherung"
+            android:summary="@string/smryExterneSicherung"
             android:title="@string/titleExterneSicherung"
             />
         <Preference
-            android:dependency="@string/dbExterneSicherung"
-            android:key="@string/dbServerURL"
-            android:title="@string/dbServerURL"
+            android:dependency="@string/pkExterneSicherung"
+            android:key="@string/pkServerURL"
+            android:title="@string/titleServerURL"
             />
         <Preference
-            android:dependency="@string/dbExterneSicherung"
-            android:key="@string/dbServerUID"
-            android:title="@string/dbServerUID"
+            android:dependency="@string/pkExterneSicherung"
+            android:key="@string/pkServerUID"
+            android:title="@string/titleServerUID"
             />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/MonMaInfo">
+    <PreferenceCategory android:title="@string/titleInfo">
         <Preference
-            android:key="@string/MonMaAbout"
-            android:title="@string/MonMaAbout"
+            android:key="@string/pkAbout"
+            android:title="@string/titleAbout"
             />
         <Preference
-            android:key="@string/MonMaCopyright"
-            android:title="@string/MonMaCopyright"
+            android:key="@string/pkCopyright"
+            android:title="@string/titleCopyright"
             />
         <Preference
-            android:key="@string/BuildInfo"
-            android:title="@string/BuildInfo"
+            android:key="@string/pkBuildInfo"
+            android:title="@string/titleBuildInfo"
             />
     </PreferenceCategory>
 </PreferenceScreen>

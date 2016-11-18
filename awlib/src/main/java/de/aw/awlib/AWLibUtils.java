@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib;
 
 import android.content.Context;
@@ -23,13 +22,144 @@ import android.net.NetworkInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+import static de.aw.awlib.AWLibResultCodes.RESULT_Divers;
+import static de.aw.awlib.AWLibResultCodes.RESULT_FILE_ERROR;
+import static de.aw.awlib.AWLibResultCodes.RESULT_FILE_NOTFOUND;
+import static de.aw.awlib.AWLibResultCodes.RESULT_OK;
 
 /**
  * Utility-Klasse
  */
 public final class AWLibUtils {
+    private final static int BUFFERSIZE = 8192;
+
+    /**
+     * Erstellt ein Zip-Archiv und fuegt die Files eines Directories dem Zip-Archiv hinzu.
+     *
+     * @param zos
+     *         ZipOutputStraem
+     * @param parrentDirectoryName
+     *         Name des ParentDirectories.
+     *
+     * @throws IOException
+     *         Bei Fehlern
+     */
+    private static void addDirToZipArchive(ZipOutputStream zos, String parrentDirectoryName)
+            throws IOException {
+        File directoryToZip = new File(parrentDirectoryName);
+        if (!directoryToZip.isDirectory()) {
+            addFileToZipArchive(zos, directoryToZip);
+            return;
+        }
+        for (File fileToZip : directoryToZip.listFiles()) {
+            String zipEntryName;
+            if (fileToZip.isDirectory()) {
+                zipEntryName = fileToZip.getName();
+                System.out.println("+" + zipEntryName);
+                addDirToZipArchive(zos, zipEntryName);
+            } else {
+                addFileToZipArchive(zos, fileToZip);
+            }
+        }
+    }
+
+    /**
+     * Fuegt die Files dem Zip-Archiv hinzu.
+     *
+     * @param zos
+     *         ZipOutputStraem
+     * @param fileToZip
+     *         File, welches gezipt werden soll
+     *
+     * @throws IOException
+     *         Bei Fehlern
+     */
+    private static void addFileToZipArchive(ZipOutputStream zos, File fileToZip)
+            throws IOException {
+        if (fileToZip == null || !fileToZip.exists()) {
+            return;
+        }
+        String zipEntryName = fileToZip.getName();
+        System.out.println("   " + zipEntryName);
+        byte[] buffer = new byte[BUFFERSIZE];
+        FileInputStream fis = new FileInputStream(fileToZip);
+        zos.putNextEntry(new ZipEntry(zipEntryName));
+        int length;
+        while ((length = fis.read(buffer)) > 0) {
+            zos.write(buffer, 0, length);
+        }
+        zos.closeEntry();
+        fis.close();
+    }
+
+    /**
+     * Erstellt ein Zip-Archiv und fuegt die Files eines Directories dem Zip-Archiv hinzu.
+     *
+     * @param target
+     *         File, in dem das Archiv gespeichert werden soll
+     * @param fileToZip
+     *         Name des zu zippenden Verzeichnisses/Datei
+     *
+     * @return Ergebnis der Operation
+     *
+     * @throws IOException
+     */
+    public static int addToZipArchive(File target, String fileToZip) {
+        int ergebnis = RESULT_OK;
+        ZipOutputStream zos = null;
+        try {
+            FileOutputStream fout = new FileOutputStream(target);
+            zos = new ZipOutputStream(new BufferedOutputStream(fout));
+            addDirToZipArchive(zos, fileToZip);
+        } catch (IOException e) {
+            ergebnis = RESULT_FILE_ERROR;
+        } catch (Exception e) {
+            ergebnis = RESULT_Divers;
+        } finally {
+            try {
+                if (zos != null) {
+                    zos.close();
+                }
+            } catch (IOException e) {
+                ergebnis = RESULT_FILE_ERROR;
+            }
+        }
+        return ergebnis;
+    }
+
+    /**
+     * Utility method to read data from InputStream
+     */
+    private static void extractEntry(InputStream is, String extractTo) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(extractTo);
+            final byte[] buf = new byte[BUFFERSIZE];
+            int length;
+            while ((length = is.read(buf, 0, buf.length)) >= 0) {
+                fos.write(buf, 0, length);
+            }
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
+    }
+
     /**
      * Prueft, ob Internetverbindung vorhanden ist.
      *
@@ -42,8 +172,7 @@ public final class AWLibUtils {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean result = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        return result;
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     /**
@@ -90,6 +219,32 @@ public final class AWLibUtils {
                     vClass.cast(parcel.readParcelable(vClass.getClassLoader())));
         }
         return map;
+    }
+
+    public static int restoreZipArchivToFile(String target, String inputFilename) {
+        int result = RESULT_Divers;
+        ZipInputStream is = null;
+        try {
+            is = new ZipInputStream(new BufferedInputStream(new FileInputStream(inputFilename)));
+            while (is.getNextEntry() != null) {
+                extractEntry(is, target);
+            }
+            result = RESULT_OK;
+        } catch (FileNotFoundException e) {
+            result = RESULT_FILE_NOTFOUND;
+        } catch (IOException e) {
+            result = RESULT_FILE_ERROR;
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                //TODO Execption bearbeiten
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 
     /**
