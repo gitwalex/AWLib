@@ -22,12 +22,12 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-import static de.aw.awlib.activities.AWLibInterface.AWLIBEVENT;
+import de.aw.awlib.activities.AWLibInterface;
 
 /**
- * Bearbeitet Events innerhalb MonMa. Moegliche Events: {@link AWLibEvent}
+ * Bearbeitet Events innerhalb MonMa.
  */
-public class AWLibEventService extends IntentService {
+public class AWLibEventService extends IntentService implements AWLibInterface {
     public AWLibEventService() {
         super("AWLibEventService");
     }

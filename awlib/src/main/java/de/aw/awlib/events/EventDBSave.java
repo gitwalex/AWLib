@@ -123,7 +123,7 @@ public class EventDBSave extends AsyncTask<Void, Void, Integer>
     }
 
     /**
-     * Liest aus den Preferences mit Key  {@link MainAction#doSave#name()} das letzte
+     * Liest aus den Preferences mit Key  {@link AWLibEvent#DoDatabaseSave#name()} das letzte
      * Sicherungsdatum und stellt dieses in die Summary ein.
      */
     private void setDBSaveSummary(String saveDate) {

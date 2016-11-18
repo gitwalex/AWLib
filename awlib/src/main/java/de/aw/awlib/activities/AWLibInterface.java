@@ -21,7 +21,6 @@ package de.aw.awlib.activities;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.view.MenuItem;
 
 /**
  * @author alex
@@ -79,10 +78,6 @@ public interface AWLibInterface {
             /**
              *
              */
-            , POSITION = "POSITION"
-            /**
-             *
-             */
             , ORDERBY = "ORDERBY"
             /**
              *
@@ -99,19 +94,11 @@ public interface AWLibInterface {
             /**
              *
              */
-            , INTENTFILTER = "INTENTFILTER"
-            /**
-             *
-             */
             , ACTIONBARTITLE = "ACTIONBARTITLE"
             /**
              *
              */
             , ACTIONBARSUBTITLE = "ACTIONBARSUBTITLE"
-            /**
-             * Ist Passwort noch guelitg?
-             */
-            , PASSWORDISVALID = "PASSWORDISVALID"
             /**
              * Events fuer {@link de.aw.awlib.events.AWLibEvent}
              */
@@ -128,18 +115,12 @@ public interface AWLibInterface {
             /**
              *
              */
-            , NOID = 0
-            /**
-             * Flag fuer Home-Button-Pressed.
-             * @see AWLibMainActivity#onOptionsItemSelected(MenuItem)
-             */
-            , HOME_BUTTON_PRESSED = 1;
+            , NOID = 0;
     Long
             /**
              *
              */
             NOROWS = -1L;
-    int POPBACKSTACK = 1;
     String
             /**
              *
@@ -147,7 +128,7 @@ public interface AWLibInterface {
             linefeed = System.getProperty("line.separator");
 
     enum MainAction implements Parcelable {
-        Logout, Login, ADD, EDIT, SHOW, doVaccum, doSave, doRestore;
+        ADD, EDIT, SHOW;
         public static final Creator<MainAction> CREATOR = new Creator<MainAction>() {
             public MainAction createFromParcel(Parcel in) {
                 return MainAction.values()[in.readInt()];

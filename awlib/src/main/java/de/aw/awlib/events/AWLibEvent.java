@@ -26,7 +26,15 @@ public enum AWLibEvent implements Parcelable {
     /**
      * Event fuer Sicherung der Datenbank
      */
-    DoDatabaseSave;
+    DoDatabaseSave
+    /**
+     * Event zur kompriemierung Datenbank
+     */
+    , doVaccum
+    /**
+     * Event restore Datenbank
+     */
+    , doRestore;
     public static final Parcelable.Creator<AWLibEvent> CREATOR =
             new android.os.Parcelable.Creator<AWLibEvent>() {
                 public AWLibEvent createFromParcel(Parcel in) {

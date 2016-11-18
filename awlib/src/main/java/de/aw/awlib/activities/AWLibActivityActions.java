@@ -28,6 +28,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWLIbApplication;
+import de.aw.awlib.events.AWLibEvent;
 import de.aw.awlib.events.EventDBRestore;
 import de.aw.awlib.filechooser.FragmentFileChooser;
 import de.aw.awlib.fragments.AWLibDialogHinweis;
@@ -37,6 +38,8 @@ import de.aw.awlib.fragments.AWLibDialogHinweis;
  */
 public class AWLibActivityActions extends AWLibMainActivity
         implements DialogInterface.OnClickListener, FragmentFileChooser.FileChooserListener {
+    private AWLibEvent event;
+
     @Override
     public void onClick(DialogInterface dialog, int which) {
         finish();
@@ -45,14 +48,15 @@ public class AWLibActivityActions extends AWLibMainActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getMainAction() == null) {
+        event = args.getParcelable(AWLIBEVENT);
+        if (event == null) {
             finish();
         } else {
             Integer titleResID = null;
             if (savedInstanceState == null) {
                 Fragment f;
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                switch (getMainAction()) {
+                switch (event) {
                     case doRestore:
                         // Datenbank wiederherstellen
                         String backupFolderName = AWLIbApplication.getApplicationBackupPath();
@@ -83,7 +87,7 @@ public class AWLibActivityActions extends AWLibMainActivity
      */
     @Override
     public void onFilenameSelected(String filename) {
-        switch (getMainAction()) {
+        switch (event) {
             case doRestore:
                 String restoreTtitle = getString(R.string.dbTitleDatenbank);
                 String restoreHinweistext = getString(R.string.dlgDatenbankRestore);

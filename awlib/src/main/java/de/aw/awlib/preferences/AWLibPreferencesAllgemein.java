@@ -46,7 +46,7 @@ import de.aw.awlib.fragments.AWLibDialogHinweis;
 import de.aw.awlib.fragments.AWLibFragment;
 import de.aw.awlib.fragments.AWLibPreferenceFragment;
 
-import static de.aw.awlib.activities.AWLibInterface.MainAction.doSave;
+import static de.aw.awlib.events.AWLibEvent.DoDatabaseSave;
 
 /**
  * Erstellt und bearbeitet die allgemeinen Preferences.
@@ -64,19 +64,19 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
     /**
      * Fuehrt die ausgewaehlte Aktion gemaess {@link MainAction}durch.
      *
-     * @param dbAction
+     * @param event
      *         Aktion geamaess Action
      * @param title
      *         Titel des Hinweisdialogs
      * @param message
      *         Text im Dialog
      */
-    private void doAction(final MainAction dbAction, final String title, final String message) {
+    private void doAction(final AWLibEvent event, final String title, final String message) {
         AWLibDialogHinweis dialog = AWLibDialogHinweis.newInstance(true, title, message);
         String dialogTag = dialog.getTag();
         dialog.show(getFragmentManager(), dialogTag);
-        switch (dbAction) {
-            case doSave:
+        switch (event) {
+            case DoDatabaseSave:
                 EventDBSave eventSaveDB = new EventDBSave(getActivity());
                 Date saveDate = eventSaveDB.save();
                 if (saveDate != null) {
@@ -89,7 +89,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
                         dialog.dismiss();
                     }
                 }
-                Snackbar.make(getView(), dbAction.name(), Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(getView(), event.name(), Snackbar.LENGTH_SHORT).show();
                 break;
             case doVaccum:
                 new AsyncTask<Void, Void, Void>() {
@@ -115,7 +115,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
                                 dialog.dismiss();
                             }
                         }
-                        Snackbar.make(getView(), dbAction.name(), Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(getView(), event.name(), Snackbar.LENGTH_SHORT).show();
                     }
                 }.execute();
         }
@@ -161,17 +161,17 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
         if (getString(R.string.pkDBVacuum).equals(key)) {
             title = getString(R.string.dbTitleDatenbank);
             hinweis = getString(R.string.dlgDatenbankAufraeumen);
-            doAction(MainAction.doVaccum, title, hinweis);
+            doAction(AWLibEvent.doVaccum, title, hinweis);
             return true;
         } else if (getString(R.string.pkDBSave).equals(key)) {
             // Datenbank sichern
             title = getString(R.string.dbTitleDatenbank);
             hinweis = getString(R.string.dlgDatenbankSichern);
-            doAction(doSave, title, hinweis);
+            doAction(DoDatabaseSave, title, hinweis);
             return true;
         } else if (getString(R.string.pkDBRestore).equals(key)) {
             Intent intent = new Intent(getActivity(), AWLibActivityActions.class);
-            intent.putExtra(AWLIBACTION, (Parcelable) MainAction.doRestore);
+            intent.putExtra(AWLIBACTION, (Parcelable) AWLibEvent.doRestore);
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkCopyright).equals(key)) {
@@ -197,7 +197,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
     }
 
     /**
-     * Liest aus den Preferences mit Key  {@link MainAction#doSave#name()} das letzte
+     * Liest aus den Preferences mit Key  {@link AWLibEvent#DoDatabaseSave#name()} das letzte
      * Sicherungsdatum und stellt dieses in die Summary ein.
      */
     protected void setDBSaveSummary(String saveDate) {
