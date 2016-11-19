@@ -164,7 +164,8 @@ public class FragmentFileChooser extends AWLibFragment
                 .equalsIgnoreCase("parent directory")) {
             currentDir = new File(o.getPath());
             List content = createContent(currentDir);
-            adapter = new FileChooserAdapter(getActivity(), R.layout.awlib_filechooser, content);
+            adapter = new FileChooserAdapter(getActivity(), R.layout.awlib_filechooser_items,
+                    content);
             mListView.setAdapter(adapter);
         } else {
             onFileClick(o);
@@ -200,7 +201,7 @@ public class FragmentFileChooser extends AWLibFragment
         }
         externalStorageDir = currentDir.getName();
         List content = createContent(currentDir);
-        adapter = new FileChooserAdapter(getActivity(), R.layout.awlib_filechooser, content);
+        adapter = new FileChooserAdapter(getActivity(), R.layout.awlib_filechooser_items, content);
         mListView.setAdapter(adapter);
     }
 

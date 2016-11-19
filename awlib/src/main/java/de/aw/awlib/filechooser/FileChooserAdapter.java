@@ -53,11 +53,11 @@ public class FileChooserAdapter extends ArrayAdapter<FileChooserOptions> {
             LayoutInflater vi =
                     (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(id, null);
-            v.setTag(R.layout.awlib_filechooser, new ViewHolder(v));
+            v.setTag(R.layout.awlib_filechooser_items, new ViewHolder(v));
         }
         final FileChooserOptions o = items.get(position);
         if (o != null) {
-            ViewHolder holder = (ViewHolder) v.getTag(R.layout.awlib_filechooser);
+            ViewHolder holder = (ViewHolder) v.getTag(R.layout.awlib_filechooser_items);
             String name = null;
             if (holder.fileName != null) {
                 name = o.getName();

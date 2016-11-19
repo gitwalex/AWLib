@@ -53,7 +53,7 @@ public abstract class ApplicationConfig {
     /**
      * @return Datenbankname
      * <p>
-     * Default: Applicationpathname + '.db'
+     * Default: ApplicationDirectory + '.db'
      */
     public String theDatenbankname() {
         return theApplicationDirectory().replaceAll("/", "") + ".db";

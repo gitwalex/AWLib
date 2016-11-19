@@ -30,6 +30,7 @@ import de.aw.awlib.R;
 import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.events.AWLibEvent;
 import de.aw.awlib.events.EventDBRestore;
+import de.aw.awlib.filechooser.FileChooserRecyclerView;
 import de.aw.awlib.filechooser.FragmentFileChooser;
 import de.aw.awlib.fragments.AWLibDialogHinweis;
 
@@ -60,7 +61,7 @@ public class AWLibActivityActions extends AWLibMainActivity
                     case doRestore:
                         // Datenbank wiederherstellen
                         String backupFolderName = AWLIbApplication.getApplicationBackupPath();
-                        f = FragmentFileChooser.newInstance(backupFolderName);
+                        f = FileChooserRecyclerView.newInstance(backupFolderName);
                         titleResID = R.string.fileChooserTitleDoRestore;
                         break;
                     default:
