@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.database;
 
 import java.text.DateFormat;
@@ -29,6 +28,9 @@ import java.util.TimeZone;
 
 import de.aw.awlib.application.AWLIbApplication;
 
+/**
+ * Klasse zum konvertieren von Daten in ein anderes Format
+ */
 public class AbstractDBConvert {
     public static final DateFormat DATEFORMAT = DateFormat.getDateInstance();
     private static final Locale mLocale = Locale.getDefault();

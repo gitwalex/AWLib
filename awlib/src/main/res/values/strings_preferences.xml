@@ -39,9 +39,10 @@
     <string name="dbSaved">Datenbank gesichert</string>
     <string name="dbFileError">Datenbank konnte wegen Dateifehler nicht gesichert werden</string>
     <string name="dbSaveError">Datenbank konnte nicht gesichert werden</string>
-    <string name="pkSavePeriodic">spdbSavePeriodic</string>
+    <string name="pkSavePeriodic">pkSavePeriodic</string>
     <string name="titleDBSavePeriodic">Regelmäßig sichern</string>
     <string name="smryDBSavePeriodic">Datenbank wird alle fünf Tage automatisch gesichert</string>
+    <string name="smryDBSavePeriodicOn">Nächste Sicherung : </string>
     <string name="titleInfo">Info</string>
     <string name="pkCopyright">Copyright</string>
     <string name="titleCopyright">Copyright</string>
@@ -62,5 +63,6 @@
     <string name="dbServerMessage">Der Server meldet: </string>
     <string name="dbServerMessageErfolgreich">Test erfolgreich!</string>
     <string name="dlgTitleTime">Uhrzeit</string>
+    <string name="nextDoDBSave">nextDoDBSave</string>
 
 </resources>

@@ -20,8 +20,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 
-import java.io.IOException;
-
 import de.aw.awlib.activities.AWLibInterface;
 
 /**
@@ -41,18 +39,7 @@ public class AWLibEventService extends IntentService implements AWLibInterface {
         AWLibEvent event = extras.getParcelable(AWLIBEVENT);
         switch (event) {
             case DoDatabaseSave:
-                EventDBSave eventSaveDB = new EventDBSave(this);
-                String filename = eventSaveDB.getFileName();
-                try {
-                    new EventTransferDB(getApplicationContext(), EventTransferDB.ConnectionArt.SSL,
-                            filename);
-                } catch (IOException e) {
-                    //TODO Execption bearbeiten
-                    e.printStackTrace();
-                } catch (EventTransferDB.ConnectionFailsException e) {
-                    //TODO Execption bearbeiten
-                    e.printStackTrace();
-                }
+                new EventDBSave(this).save();
                 break;
         }
     }

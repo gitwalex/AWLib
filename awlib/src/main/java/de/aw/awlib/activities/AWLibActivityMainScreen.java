@@ -171,6 +171,7 @@ public abstract class AWLibActivityMainScreen extends AWLibMainActivity
      * ist nicht ueberschrieben), wird eine Einstellung fuer Datanbankaktionen und Infos ueber die
      * App gezeigt.
      */
+    @CallSuper
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int i = item.getItemId();

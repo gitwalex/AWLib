@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.database;
 
 import android.content.Context;
@@ -34,12 +33,26 @@ public abstract class AbstractDBFormate {
      */
     private static final SparseArray<Character> mapResID2Formate = new SparseArray<>();
     /**
-     * "TTEXT", "DDate", "NNUMERIC", "BBoolean", "CNUMERIC", "PNUMERIC", "KNUMERIC"}; Liste der
-     * moeglichen Formate. * <p> T = normaler Text</p><p> N = Numerisch</p><p>C = Numerisch als
-     * Currency, Long, anzahl Stellen wie Nachkommastellen Locale.getCurrency </p><p>K = Numerisch
-     * als Currency, Long, aktuell Anzahl Stellen wie Nachkommastellen Locale.getCurrency </p><p>D =
-     * Datum</p><p>B = Boolean</p><p>P = Numerisch als Prozent</p><p>K = Numerisch mit 5
-     * NAchkommastellen (Kurs)</p>
+     * "TTEXT", "DDate", "NNUMERIC", "BBoolean", "CNUMERIC", "PNUMERIC", "KNUMERIC"};
+     * <p>
+     * Liste der moeglichen Formate.
+     * <p>
+     * T = normaler Text
+     * <p>
+     * N = Numerisch
+     * <p>
+     * C = Numerisch als Currency, Long, anzahl Stellen wie Nachkommastellen Locale.getCurrency
+     * <p>
+     * K = Numerisch als Currency, Long, aktuell Anzahl Stellen wie Nachkommastellen
+     * Locale.getCurrency
+     * <p>
+     * D = Datum
+     * <p>
+     * B = Boolean
+     * <p>
+     * P = Numerisch als Prozent
+     * <p>
+     * K = Numerisch mit 5 NAchkommastellen (Kurs)
      */
     private final Map<Character, String> formate = new HashMap<>();
     private final Map<String, Integer> mapColumnNae2ResID = new HashMap<>();

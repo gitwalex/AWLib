@@ -96,7 +96,7 @@ public class AWLibPreferenceActivity extends AWLibMainActivity {
             ViewPager pager = (ViewPager) findViewById(R.id.awlib_pager);
             pager.setVisibility(View.VISIBLE);
             pager.setAdapter(adapter);
-            pager.setOffscreenPageLimit(adapter.getCount());
+            pager.setOffscreenPageLimit(1);
             pager.setCurrentItem(args.getInt(LASTSELECTEDPOSITION, 0));
             TabLayout tabLayout = (TabLayout) findViewById(R.id.awlib_tabhost_main);
             tabLayout.setVisibility(View.VISIBLE);

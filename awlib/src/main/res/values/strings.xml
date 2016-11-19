@@ -31,6 +31,7 @@
     <!-- ActionBar Texte -->
     <!-- FragmentFileChooser und DialogFragmentQIFImport -->
     <string name="fileChooserTitle">Dateiauswahl</string>
+    <string name="fileChooserTitleDoRestore">Backup-Datei</string>
     <!-- ActionBar Subtitle fuer FragmentFileChooser -->
     <string name="fileChooserSubtitel">Bitte auswählen </string>
     <!-- ActionBar Subtitle fuer DialogFragmentQIFImport -->

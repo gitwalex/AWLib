@@ -61,7 +61,7 @@ public class AWLibActivityActions extends AWLibMainActivity
                         // Datenbank wiederherstellen
                         String backupFolderName = AWLIbApplication.getApplicationBackupPath();
                         f = FragmentFileChooser.newInstance(backupFolderName);
-                        titleResID = R.string.fileChooserTitle;
+                        titleResID = R.string.fileChooserTitleDoRestore;
                         break;
                     default:
                         throw new IllegalArgumentException(

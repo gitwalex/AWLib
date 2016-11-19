@@ -60,6 +60,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
                     R.string.pkSavePeriodic, R.string.pkCopyright, R.string.pkAbout,
                     R.string.pkBuildInfo, R.string.pkExterneSicherung, R.string.pkServerURL,
                     R.string.pkServerUID};
+    private Preference regelmSicherung;
 
     /**
      * Fuehrt die ausgewaehlte Aktion gemaess {@link MainAction}durch.
@@ -73,15 +74,11 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
      */
     private void doAction(final AWLibEvent event, final String title, final String message) {
         AWLibDialogHinweis dialog = AWLibDialogHinweis.newInstance(true, title, message);
-        String dialogTag = dialog.getTag();
+        final String dialogTag = dialog.getTag();
         dialog.show(getFragmentManager(), dialogTag);
         switch (event) {
             case DoDatabaseSave:
-                EventDBSave eventSaveDB = new EventDBSave(getActivity());
-                Date saveDate = eventSaveDB.save();
-                if (saveDate != null) {
-                    setDBSaveSummary(AbstractDBConvert.convertDate(saveDate));
-                }
+                new EventDBSave(getActivity()).save();
                 FragmentManager fm = getFragmentManager();
                 if (fm != null) {
                     dialog = (AWLibDialogHinweis) getFragmentManager().findFragmentByTag(dialogTag);
@@ -93,8 +90,6 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
                 break;
             case doVaccum:
                 new AsyncTask<Void, Void, Void>() {
-                    public String dialogTag;
-
                     @Override
                     protected Void doInBackground(Void... params) {
                         AbstractDBHelper.doVacuum();
@@ -122,11 +117,9 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle bundle, String s) {
+        addPreferencesFromResource(R.xml.awlib_preferences_allgemein);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String lastSave = prefs.getString(AWLibEvent.DoDatabaseSave.name(), null);
-        setDBSaveSummary(lastSave);
         for (int pkKey : mPrefs) {
             String key = getString(pkKey);
             Preference preference = findPreference(key);
@@ -141,16 +134,11 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
             } else if (pkKey == R.string.pkServerUID || pkKey == R.string.pkServerURL) {
                 String value = prefs.getString(key, null);
                 preference.setSummary(value);
-                preference.setOnPreferenceClickListener(this);
-            } else {
-                preference.setOnPreferenceClickListener(this);
+            } else if (pkKey == R.string.pkSavePeriodic) {
+                setRegelmSicherungSummary(preference, prefs);
             }
+            preference.setOnPreferenceClickListener(this);
         }
-    }
-
-    @Override
-    public void onCreatePreferences(Bundle bundle, String s) {
-        addPreferencesFromResource(R.xml.awlib_preferences_allgemein);
     }
 
     @Override
@@ -171,7 +159,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
             return true;
         } else if (getString(R.string.pkDBRestore).equals(key)) {
             Intent intent = new Intent(getActivity(), AWLibActivityActions.class);
-            intent.putExtra(AWLIBACTION, (Parcelable) AWLibEvent.doRestore);
+            intent.putExtra(AWLIBEVENT, (Parcelable) AWLibEvent.doRestore);
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkCopyright).equals(key)) {
@@ -188,33 +176,32 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
             AWLibFragment f = DialogFTP.newInstance();
             f.show(getFragmentManager(), null);
             return true;
+        } else if (getString(R.string.pkSavePeriodic).equals(key)) {
+            if (preference.getSharedPreferences().getBoolean(preference.getKey(), false)) {
+                EventDBSave.setDBSaveAlarm(getContext(), preference.getSharedPreferences());
+            } else {
+                EventDBSave.cancelDBSaveAlarm(getContext(), preference.getSharedPreferences());
+            }
         }
         return false;
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.nextDoDBSave))) {
+            Preference pref = findPreference(getString(R.string.pkSavePeriodic));
+            setRegelmSicherungSummary(pref, sharedPreferences);
+        }
     }
 
-    /**
-     * Liest aus den Preferences mit Key  {@link AWLibEvent#DoDatabaseSave#name()} das letzte
-     * Sicherungsdatum und stellt dieses in die Summary ein.
-     */
-    protected void setDBSaveSummary(String saveDate) {
-        int key = R.string.pkDBSave;
-        final Preference doDBSave = findPreference(getString(key));
-        final StringBuilder sb = new StringBuilder(getString(R.string.lastSave)).append(": ");
-        if (saveDate == null) {
-            sb.append(getString(R.string.na));
+    private void setRegelmSicherungSummary(Preference pref, SharedPreferences prefs) {
+        if (prefs.getBoolean(getString(R.string.pkSavePeriodic), false)) {
+            long value = prefs.getLong(getString(R.string.nextDoDBSave), 0);
+            String date = AbstractDBConvert.convertDate(value);
+            pref.setSummary(getString(R.string.smryDBSavePeriodicOn) + date);
         } else {
-            sb.append(saveDate);
+            pref.setSummary(prefs.getString(getString(R.string.nextDoDBSave),
+                    getString(R.string.smryDBSavePeriodic)));
         }
-        final String erg = sb.toString();
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                doDBSave.setSummary(erg);
-            }
-        });
     }
 }
