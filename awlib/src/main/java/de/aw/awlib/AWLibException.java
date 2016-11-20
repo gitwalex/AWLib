@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib;
 
 /**
@@ -40,7 +39,8 @@ public class AWLibException extends Exception {
      * @param message
      *         Message
      * @param o
-     *         Object, welches durch {@link AWLibException#getExceptionObject()} geholt werden kann.
+     *         Object, welches durch {@link AWLibException#getExceptionObject()} geholt werden
+     *         kann.
      */
     public AWLibException(String message, Object o) {
         super(message);

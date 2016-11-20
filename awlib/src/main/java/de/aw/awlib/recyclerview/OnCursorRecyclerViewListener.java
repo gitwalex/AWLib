@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.recyclerview;
 
 import android.support.v7.widget.RecyclerView;
@@ -24,7 +23,7 @@ import android.view.View;
  * Convenience- Methoden fuer onClick(View view), OnLongClick (View view). Liefert zu der View
  * weitere Parameter mit
  */
-public interface OnRecyclerViewListener {
+public interface OnCursorRecyclerViewListener {
     /**
      * Convenience- Methode fuer onClick(View v). Liefert zu der View weitere Parameter mit
      *

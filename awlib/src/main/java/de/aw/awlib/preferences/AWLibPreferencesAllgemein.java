@@ -159,7 +159,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
             return true;
         } else if (getString(R.string.pkDBRestore).equals(key)) {
             Intent intent = new Intent(getActivity(), AWLibActivityActions.class);
-            intent.putExtra(AWLIBEVENT, (Parcelable) AWLibEvent.doRestore);
+            intent.putExtra(AWLIBEVENT, (Parcelable) AWLibEvent.showBackupFiles);
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkCopyright).equals(key)) {

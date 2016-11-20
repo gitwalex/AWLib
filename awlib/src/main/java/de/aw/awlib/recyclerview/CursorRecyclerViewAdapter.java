@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.recyclerview;/*
  * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
  *
@@ -54,8 +53,8 @@ public class CursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHol
     private boolean mDataValid;
     private RecyclerView mRecyclerView;
     private int mRowIdColumnIndex;
-    private OnRecyclerViewListener onRecyclerItemClickListener;
-    private OnRecyclerViewListener onRecyclerItemLongClickListener;
+    private OnCursorRecyclerViewListener onRecyclerItemClickListener;
+    private OnCursorRecyclerViewListener onRecyclerItemLongClickListener;
 
     /**
      * Initialisiert Adapter. Cursor muss eine Spalte '_id' enthalten.
@@ -180,12 +179,13 @@ public class CursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHol
         return false;
     }
 
-    public void setOnRecyclerItemClickListener(OnRecyclerViewListener onRecyclerItemClickListener) {
+    public void setOnRecyclerItemClickListener(
+            OnCursorRecyclerViewListener onRecyclerItemClickListener) {
         this.onRecyclerItemClickListener = onRecyclerItemClickListener;
     }
 
     public void setOnRecyclerItemLongClickListener(
-            OnRecyclerViewListener onRecyclerItemLongClickListener) {
+            OnCursorRecyclerViewListener onRecyclerItemLongClickListener) {
         this.onRecyclerItemLongClickListener = onRecyclerItemLongClickListener;
     }
 
@@ -220,7 +220,6 @@ public class CursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHol
         /**
          * Wird vom Adapter gerufen, um den ViewType zu ermitteln
          *
-         *
          * @param cursor
          * @param position
          *         aktuelle position in RecyclerView
@@ -242,7 +241,8 @@ public class CursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHol
         void onBindViewHolder(AWLibViewHolder viewHolder, int position, Cursor cursor);
 
         /**
-         * Erstellt auf Anforderung einen neuen AWLibViewHolder anhand des listLayout fuer die Liste.
+         * Erstellt auf Anforderung einen neuen AWLibViewHolder anhand des listLayout fuer die
+         * Liste.
          *
          * @param viewGroup
          *         ViewGroup

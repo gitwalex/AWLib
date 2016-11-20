@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.recyclerview;
 
 import android.content.Context;
@@ -47,7 +46,7 @@ import de.aw.awlib.fragments.AWLibLoaderFragment;
  */
 public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragment
         implements CursorRecyclerViewAdapter.CursorViewHolderBinder, View.OnClickListener,
-        View.OnLongClickListener, OnRecyclerViewListener {
+        View.OnLongClickListener, OnCursorRecyclerViewListener {
     public final static int minCardWidth = 800;
     public final int DEFAULTVIEWTYPE = 0;
     protected RecyclerView mRecyclerView;
@@ -64,7 +63,7 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
     private int layout = R.layout.awlib_default_recycler_view;
-    private OnRecyclerViewListener onRecyclerViewListener;
+    private OnCursorRecyclerViewListener onCursorRecyclerViewListener;
     private AWLibDBDefinition tbd;
     private int viewHolderLayout;
     private int[] viewResIDs;
@@ -133,16 +132,16 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
     }
 
     /**
-     * Activity kann (muss aber nicht) OnRecyclerViewListener implementieren. In diesem Fall wird
-     * die entsprechende Methode bei Bedarf aufgerufen.
+     * Activity kann (muss aber nicht) OnCursorRecyclerViewListener implementieren. In diesem Fall
+     * wird die entsprechende Methode bei Bedarf aufgerufen.
      *
-     * @see OnRecyclerViewListener
+     * @see OnCursorRecyclerViewListener
      */
     @Override
     public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
-            onRecyclerViewListener = (OnRecyclerViewListener) activity;
+            onCursorRecyclerViewListener = (OnCursorRecyclerViewListener) activity;
         } catch (ClassCastException e) {
             // Nix tun. Activity muss keinen RecyclerListerer implementieren.
         }
@@ -297,12 +296,12 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
 
     /**
      * Wird aus onClick(...) gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs.
-     * die Activity gerufen, die einen {@link OnRecyclerViewListener} implementiert hat.
+     * die Activity gerufen, die einen {@link OnCursorRecyclerViewListener} implementiert hat.
      */
     @Override
     public void onRecyclerItemClick(RecyclerView recyclerView, View view, int position, long id) {
-        if (onRecyclerViewListener != null) {
-            onRecyclerViewListener.onRecyclerItemClick(mRecyclerView, view, position, id);
+        if (onCursorRecyclerViewListener != null) {
+            onCursorRecyclerViewListener.onRecyclerItemClick(mRecyclerView, view, position, id);
         }
     }
 
@@ -312,7 +311,7 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
     @Override
     public boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position,
                                            long id) {
-        return onRecyclerViewListener != null && onRecyclerViewListener
+        return onCursorRecyclerViewListener != null && onCursorRecyclerViewListener
                 .onRecyclerItemLongClick(mRecyclerView, view, position, id);
     }
 

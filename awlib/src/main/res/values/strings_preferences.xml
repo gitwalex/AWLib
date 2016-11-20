@@ -32,7 +32,7 @@
     <string name="pkDBRestore">dbRestore</string>
     <string name="actionDatenbankRestore">Wiederherstellen</string>
     <string name="dbSmryDatenbankRestore">Sicherung Wiederherstellen</string>
-    <string name="dlgDatenbankRestore">Sicherung wird wiederhergestellt</string>
+    <string name="dlgDatenbankRestore">Sicherung wird wiederhergestellt und App neu gestartet</string>
     <!-- Preferences Finanzen -->
     <string name="tickerDBSicherung">Datenbanksicherung</string>
     <string name="contentTextDBSicherung">Datenbank wird gesichert</string>

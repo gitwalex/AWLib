@@ -19,31 +19,78 @@
  */
 package de.aw.awlib.activities;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+
+import java.io.File;
 
 import de.aw.awlib.R;
-import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.events.AWLibEvent;
 import de.aw.awlib.events.EventDBRestore;
-import de.aw.awlib.filechooser.FileChooserRecyclerView;
-import de.aw.awlib.filechooser.FragmentFileChooser;
-import de.aw.awlib.fragments.AWLibDialogHinweis;
+import de.aw.awlib.fragments.AWLibFileChooser;
+import de.aw.awlib.recyclerview.OnArrayRecyclerViewListener;
 
 /**
  * Activity fuer verschiedene Aktionen
  */
-public class AWLibActivityActions extends AWLibMainActivity
-        implements DialogInterface.OnClickListener, FragmentFileChooser.FileChooserListener {
+public class AWLibActivityActions extends AWLibMainActivity implements OnArrayRecyclerViewListener {
     private AWLibEvent event;
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
-        finish();
+    public void onArrayRecyclerItemClick(RecyclerView parent, View view, Object object) {
+        switch (event) {
+            case showBackupFiles:
+                final File file = (File) object;
+                if (!file.isDirectory()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setPositiveButton(R.string.awlib_btnAccept,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    EventDBRestore dbRestore =
+                                            new EventDBRestore(AWLibActivityActions.this);
+                                    dbRestore.restore(file);
+                                }
+                            });
+                    builder.setTitle(R.string.dbTitleDatenbank);
+                    builder.setMessage(R.string.dlgDatenbankRestore);
+                    Dialog dlg = builder.create();
+                    dlg.show();
+                    break;
+                }
+        }
+    }
+
+    @Override
+    public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view,
+                                                Object object) {
+        return false;
+    }
+
+    /**
+     * Wenn BackButton gewaehlt wird, pruefen, ob ein {@link AWLibFileChooser} gezeigt wird. Ist
+     * dies der Fall, wird die Methode {@link AWLibFileChooser#onBackPressed()} gerufen.
+     * <p>
+     * Liefert das Fragment true zuruck, wird keine weitere Aktion durchgefuehrt. Ansonsten wird
+     * super.onBackpressed gerufen..
+     */
+    @Override
+    public void onBackPressed() {
+        Fragment mFragment =
+                getSupportFragmentManager().findFragmentByTag(AWLibEvent.showBackupFiles.name());
+        if (mFragment != null) {
+            if (((AWLibFileChooser) mFragment).onBackPressed()) {
+                return;
+            }
+        }
+        super.onBackPressed();
     }
 
     @Override
@@ -58,10 +105,12 @@ public class AWLibActivityActions extends AWLibMainActivity
                 Fragment f;
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 switch (event) {
-                    case doRestore:
+                    case showBackupFiles:
                         // Datenbank wiederherstellen
-                        String backupFolderName = AWLIbApplication.getApplicationBackupPath();
-                        f = FileChooserRecyclerView.newInstance(backupFolderName);
+                        String backupFolderName =
+                                Environment.getExternalStorageDirectory().getAbsolutePath();
+                        //AWLIbApplication.getApplicationBackupPath();
+                        f = AWLibFileChooser.newInstance(backupFolderName);
                         titleResID = R.string.fileChooserTitleDoRestore;
                         break;
                     default:
@@ -69,39 +118,13 @@ public class AWLibActivityActions extends AWLibMainActivity
                                 "Kein Fragment fuer " + getMainAction().name() + " vorgesehen");
                 }
                 if (f != null) {
-                    ft.add(container, f, null);
+                    ft.add(container, f, event.name());
                 }
                 ft.commit();
             }
             if (titleResID != null) {
                 getSupportActionBar().setTitle(titleResID);
             }
-        }
-    }
-
-    /**
-     * Wird von {@link FragmentFileChooser} gerufen, wenn ein Filename selektiert wurde. Zeigt
-     * Dialog und fuehrt Aktion durch.
-     *
-     * @param filename
-     *         fileName
-     */
-    @Override
-    public void onFilenameSelected(String filename) {
-        switch (event) {
-            case doRestore:
-                String restoreTtitle = getString(R.string.dbTitleDatenbank);
-                String restoreHinweistext = getString(R.string.dlgDatenbankRestore);
-                AWLibDialogHinweis hinweis =
-                        AWLibDialogHinweis.newInstance(false, restoreTtitle, restoreHinweistext);
-                hinweis.show(getSupportFragmentManager(), null);
-                EventDBRestore dbRestore = new EventDBRestore(AWLibActivityActions.this);
-                dbRestore.restore(filename);
-                hinweis.dismiss();
-                PackageManager pm = getPackageManager();
-                Intent intent = pm.getLaunchIntentForPackage(getPackageName());
-                startActivity(intent);
-                break;
         }
     }
 }

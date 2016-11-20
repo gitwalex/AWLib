@@ -39,19 +39,19 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * Adapter fuer RecyclerView mit Cursor.
+ * Adapter fuer RecyclerView mit List oder Array.
  */
-public class ArrayRecyclerViewAdapter<T extends Object>
-        extends RecyclerView.Adapter<AWLibViewHolder>
+public class ArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibViewHolder>
         implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
     private final ArrayViewHolderBinder<T> arrayViewHolderBinder;
     private RecyclerView mRecyclerView;
-    private T[] mValues;
-    private OnRecyclerViewListener onRecyclerItemClickListener;
-    private OnRecyclerViewListener onRecyclerItemLongClickListener;
+    private List<T> mValues;
+    private OnArrayRecyclerViewListener onRecyclerItemClickListener;
+    private OnArrayRecyclerViewListener onRecyclerItemLongClickListener;
 
     /**
      * Initialisiert Adapter.
@@ -59,7 +59,7 @@ public class ArrayRecyclerViewAdapter<T extends Object>
      * @param binder
      *         ArrayViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      */
-    protected ArrayRecyclerViewAdapter(@NonNull ArrayViewHolderBinder binder) {
+    protected ArrayRecyclerViewAdapter(@NonNull ArrayViewHolderBinder<T> binder) {
         arrayViewHolderBinder = binder;
     }
 
@@ -68,12 +68,12 @@ public class ArrayRecyclerViewAdapter<T extends Object>
      */
     @Override
     public int getItemCount() {
-        return (mValues != null) ? mValues.length : 0;
+        return (mValues != null) ? mValues.size() : 0;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return arrayViewHolderBinder.getItemViewType(position, mValues[position]);
+        return arrayViewHolderBinder.getItemViewType(position, mValues.get(position));
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ArrayRecyclerViewAdapter<T extends Object>
      */
     @Override
     public void onBindViewHolder(AWLibViewHolder viewHolder, int position) {
-        arrayViewHolderBinder.onBindViewHolder(viewHolder, mValues[position]);
+        arrayViewHolderBinder.onBindViewHolder(viewHolder, mValues.get(position));
     }
 
     @Override
@@ -103,8 +103,8 @@ public class ArrayRecyclerViewAdapter<T extends Object>
         if (onRecyclerItemClickListener != null) {
             View v = holder.getView();
             int position = mRecyclerView.getChildAdapterPosition(v);
-            long id = mRecyclerView.getChildItemId(v);
-            onRecyclerItemClickListener.onRecyclerItemClick(mRecyclerView, v, position, id);
+            T object = mValues.get(position);
+            onRecyclerItemClickListener.onArrayRecyclerItemClick(mRecyclerView, v, object);
         }
     }
 
@@ -131,19 +131,20 @@ public class ArrayRecyclerViewAdapter<T extends Object>
         if (onRecyclerItemLongClickListener != null) {
             View v = holder.getView();
             int position = mRecyclerView.getChildAdapterPosition(v);
-            long id = mRecyclerView.getChildItemId(v);
+            T object = mValues.get(position);
             return onRecyclerItemLongClickListener
-                    .onRecyclerItemLongClick(mRecyclerView, v, position, id);
+                    .onArrayRecyclerItemLongClick(mRecyclerView, v, object);
         }
         return false;
     }
 
-    public void setOnRecyclerItemClickListener(OnRecyclerViewListener onRecyclerItemClickListener) {
+    public void setOnRecyclerItemClickListener(
+            OnArrayRecyclerViewListener onRecyclerItemClickListener) {
         this.onRecyclerItemClickListener = onRecyclerItemClickListener;
     }
 
     public void setOnRecyclerItemLongClickListener(
-            OnRecyclerViewListener onRecyclerItemLongClickListener) {
+            OnArrayRecyclerViewListener onRecyclerItemLongClickListener) {
         this.onRecyclerItemLongClickListener = onRecyclerItemLongClickListener;
     }
 
@@ -153,31 +154,25 @@ public class ArrayRecyclerViewAdapter<T extends Object>
      * @param newValues
      *         Array mit Werten
      */
-    @SafeVarargs
-    public final T[] swapValues(T... newValues) {
-        final T[] mOldValues = this.mValues;
-        this.mValues = newValues;
-        notifyDataSetChanged();
-        return mOldValues;
+    public final void swapValues(@NonNull T[] newValues) {
+        swapValues(Arrays.asList(newValues));
     }
 
     /**
-     * Setzt eine (neue) ArrayList mit Werten
+     * Setzt eine List mit Werten
      *
      * @param value
      *         ArrayList mit Werten
      */
-    public T[] swapValues(ArrayList<T> value) {
-        final T[] mOldValues = this.mValues;
-        this.mValues = (T[]) value.toArray();
+    public void swapValues(List<T> value) {
+        mValues = value;
         notifyDataSetChanged();
-        return mOldValues;
     }
 
     /**
      * Bindet Daten eines Cursors an einen AWLibViewHolder
      */
-    protected interface ArrayViewHolderBinder<T extends Object> {
+    protected interface ArrayViewHolderBinder<T> {
         /**
          * Wird vom Adapter gerufen, um den ViewType zu ermitteln
          *

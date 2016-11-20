@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib;
 
 import android.app.NotificationManager;
@@ -117,8 +116,8 @@ public class AWLibNotification implements AWLibInterface {
     }
 
     /**
-     * Erstellt einen NotificationBuilder mit Ticker {@link AWLibNotification#ticker}, hasProgressBar
-     * und setzt (wenn gesetzt) startActivity als StartActivity.
+     * Erstellt einen NotificationBuilder mit Ticker {@link AWLibNotification#ticker},
+     * hasProgressBar und setzt (wenn gesetzt) startActivity als StartActivity.
      *
      * @return NotificationBuilder
      */

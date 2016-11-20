@@ -39,13 +39,13 @@ import de.aw.awlib.fragments.AWLibFragment;
  * Als Standard erhaelt die RecyclerView als ID den Wert des Layout. Durch args.setInt(VIEWID,
  * value) erhaelt die RecyclerView eine andere ID.
  */
-public class AWLibArrayRecyclerViewFragment extends AWLibFragment
-        implements ArrayRecyclerViewAdapter.ArrayViewHolderBinder, View.OnClickListener,
-        View.OnLongClickListener, OnRecyclerViewListener {
+public class AWLibArrayRecyclerViewFragment<T> extends AWLibFragment
+        implements ArrayRecyclerViewAdapter.ArrayViewHolderBinder<T>, View.OnClickListener,
+        View.OnLongClickListener, OnArrayRecyclerViewListener {
     public final static int minCardWidth = 800;
     public final int DEFAULTVIEWTYPE = 0;
     protected RecyclerView mRecyclerView;
-    protected ArrayRecyclerViewAdapter mAdapter;
+    protected ArrayRecyclerViewAdapter<T> mAdapter;
     protected LayoutManager mLayoutManager;
     /**
      * Die zuletzt ausgewaehlte ID, die selektiert wurde.
@@ -56,12 +56,12 @@ public class AWLibArrayRecyclerViewFragment extends AWLibFragment
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
     private int layout = R.layout.awlib_default_recycler_view;
-    private OnRecyclerViewListener onRecyclerViewListener;
+    private OnArrayRecyclerViewListener onArrayRecyclerViewListener;
     private int viewHolderLayout;
     private int[] viewResIDs;
 
-    public ArrayRecyclerViewAdapter getArrayAdapter() {
-        return new ArrayRecyclerViewAdapter(this);
+    public ArrayRecyclerViewAdapter<T> getArrayAdapter() {
+        return new ArrayRecyclerViewAdapter<>(this);
     }
 
     /**
@@ -73,7 +73,7 @@ public class AWLibArrayRecyclerViewFragment extends AWLibFragment
      * @return Liefert als ViewType {@link AWLibArrayRecyclerViewFragment#DEFAULTVIEWTYPE} zurueck
      */
     @Override
-    public int getItemViewType(int position, Object object) {
+    public int getItemViewType(int position, T object) {
         return DEFAULTVIEWTYPE;
     }
 
@@ -125,16 +125,37 @@ public class AWLibArrayRecyclerViewFragment extends AWLibFragment
     }
 
     /**
-     * Activity kann (muss aber nicht) OnRecyclerViewListener implementieren. In diesem Fall wird
-     * die entsprechende Methode bei Bedarf aufgerufen.
+     * Wird aus onClick(...) gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs.
+     * die Activity gerufen, die einen {@link OnCursorRecyclerViewListener} implementiert hat.
+     */
+    @Override
+    public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, Object object) {
+        if (onArrayRecyclerViewListener != null) {
+            onArrayRecyclerViewListener.onArrayRecyclerItemClick(mRecyclerView, view, object);
+        }
+    }
+
+    /**
+     * Wird aus onLongClick(...) gerufen, wenn ein Item der RecyclerView long-geclickt wurde.
+     */
+    @Override
+    public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view,
+                                                Object object) {
+        return onArrayRecyclerViewListener != null && onArrayRecyclerViewListener
+                .onArrayRecyclerItemLongClick(mRecyclerView, view, object);
+    }
+
+    /**
+     * Activity kann (muss aber nicht) OnCursorRecyclerViewListener implementieren. In diesem Fall
+     * wird die entsprechende Methode bei Bedarf aufgerufen.
      *
-     * @see OnRecyclerViewListener
+     * @see OnCursorRecyclerViewListener
      */
     @Override
     public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
-            onRecyclerViewListener = (OnRecyclerViewListener) activity;
+            onArrayRecyclerViewListener = (OnArrayRecyclerViewListener) activity;
         } catch (ClassCastException e) {
             // Nix tun. Activity muss keinen RecyclerListerer implementieren.
         }
@@ -156,7 +177,7 @@ public class AWLibArrayRecyclerViewFragment extends AWLibFragment
      * ausgegangen, dass es sich um eine TextView handelt und der Text aus dem Cursor an der
      * Position gesetzt. Default: false.
      */
-    protected boolean onBindView(AWLibViewHolder holder, View view, int resID, Object object) {
+    protected boolean onBindView(AWLibViewHolder holder, View view, int resID, T object) {
         return false;
     }
 
@@ -170,7 +191,7 @@ public class AWLibArrayRecyclerViewFragment extends AWLibFragment
      * View, int, Object)}
      */
     @Override
-    public final void onBindViewHolder(AWLibViewHolder holder, Object object) {
+    public final void onBindViewHolder(AWLibViewHolder holder, T object) {
         onPreBindViewHolder(object, holder);
         for (int viewResID : viewResIDs) {
             View view = holder.findViewById(viewResID);
@@ -226,28 +247,7 @@ public class AWLibArrayRecyclerViewFragment extends AWLibFragment
      *         AWLibViewHolder
      */
     @CallSuper
-    protected void onPreBindViewHolder(Object object, AWLibViewHolder holder) {
-    }
-
-    /**
-     * Wird aus onClick(...) gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs.
-     * die Activity gerufen, die einen {@link OnRecyclerViewListener} implementiert hat.
-     */
-    @Override
-    public void onRecyclerItemClick(RecyclerView recyclerView, View view, int position, long id) {
-        if (onRecyclerViewListener != null) {
-            onRecyclerViewListener.onRecyclerItemClick(mRecyclerView, view, position, id);
-        }
-    }
-
-    /**
-     * Wird aus onLongClick(...) gerufen, wenn ein Item der RecyclerView long-geclickt wurde.
-     */
-    @Override
-    public boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position,
-                                           long id) {
-        return onRecyclerViewListener != null && onRecyclerViewListener
-                .onRecyclerItemLongClick(mRecyclerView, view, position, id);
+    protected void onPreBindViewHolder(T object, AWLibViewHolder holder) {
     }
 
     @Override

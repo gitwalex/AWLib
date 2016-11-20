@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.bottomsheet;
 
 import android.content.Context;
@@ -97,7 +96,8 @@ public class AWLibBottomSheetDialog extends ExpandedBottomSheetDialog {
      * @param position
      *         Position des Item, welches geklickt wurde
      * @param extras
-     *         Bundle, welches durch {@link AWLibBottomSheetDialog#setExtras(Bundle)} gesetzt wurde.
+     *         Bundle, welches durch {@link AWLibBottomSheetDialog#setExtras(Bundle)} gesetzt
+     *         wurde.
      * @param view
      *         CheckedTextView, die geclickt wurde
      */

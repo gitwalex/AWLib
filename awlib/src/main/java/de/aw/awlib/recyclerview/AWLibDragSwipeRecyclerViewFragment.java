@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.recyclerview;
 
 import android.database.Cursor;
@@ -55,8 +54,8 @@ public class AWLibDragSwipeRecyclerViewFragment extends AWLibCursorRecyclerViewF
     }
 
     /**
-     * Ist mittels {@link AWLibDragSwipeRecyclerViewFragment#setOneTouchStartDragResID(int)} eine resID
-     * einer View der Detailview gesetzt worden, wird diese als startDrag-Event konfiguriert.
+     * Ist mittels {@link AWLibDragSwipeRecyclerViewFragment#setOneTouchStartDragResID(int)} eine
+     * resID einer View der Detailview gesetzt worden, wird diese als startDrag-Event konfiguriert.
      *
      * @throws NullPointerException
      *         wenn es keine View mit dieer resID gibt

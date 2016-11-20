@@ -16,11 +16,12 @@
  */
 package de.aw.awlib.events;
 
-import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 
-import java.util.concurrent.ExecutionException;
+import java.io.File;
 
 import de.aw.awlib.AWLibResultCodes;
 import de.aw.awlib.AWLibUtils;
@@ -31,48 +32,42 @@ import de.aw.awlib.database.AbstractDBHelper;
 /**
  * Klasse fuer Sicheren/Restoren DB
  */
-public class EventDBRestore extends AsyncTask<String, Void, Integer>
-        implements AWLibResultCodes, AWLibInterface {
+public class EventDBRestore implements AWLibResultCodes, AWLibInterface {
     private final Context mContext;
-    private boolean fromServiceCalled = false;
-
-    public EventDBRestore(Service service) {
-        this(service.getApplicationContext());
-        fromServiceCalled = true;
-    }
 
     public EventDBRestore(Context context) {
         mContext = context;
     }
 
-    @Override
-    protected Integer doInBackground(String... params) {
-        int result;
-        String targetFileName;
-        if (AWLIbApplication.getDebugFlag()) {
-            targetFileName = AWLIbApplication.getDatenbankFilename();
-        } else {
-            targetFileName =
-                    mContext.getDatabasePath(AWLIbApplication.getDatenbankname()).getAbsolutePath();
-        }
-        AbstractDBHelper.getInstance().close();
-        result = AWLibUtils.restoreZipArchivToFile(targetFileName, params[0]);
-        AbstractDBHelper.getInstance();
-        if (result == RESULT_OK) {
-            AWLIbApplication.onRestoreDB();
-        }
-        return result;
+    public void restore(File file) {
+        new DoDatabaseRestore().execute(file);
     }
 
-    public void restore(String filename) {
-        try {
-            execute(filename).get();
-        } catch (InterruptedException e) {
-            //TODO Execption bearbeiten
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            //TODO Execption bearbeiten
-            e.printStackTrace();
+    private class DoDatabaseRestore extends AsyncTask<File, Void, Integer> {
+        @Override
+        protected Integer doInBackground(File... params) {
+            int result;
+            String targetFileName;
+            if (AWLIbApplication.getDebugFlag()) {
+                targetFileName = AWLIbApplication.getDatenbankFilename();
+            } else {
+                targetFileName = mContext.getDatabasePath(AWLIbApplication.getDatenbankname())
+                        .getAbsolutePath();
+            }
+            AbstractDBHelper.getInstance().close();
+            result = AWLibUtils.restoreZipArchivToFile(targetFileName, params[0]);
+            AbstractDBHelper.getInstance();
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            if (result == RESULT_OK) {
+                AWLIbApplication.onRestoreDB();
+                PackageManager pm = mContext.getPackageManager();
+                Intent intent = pm.getLaunchIntentForPackage(mContext.getPackageName());
+                mContext.startActivity(intent);
+            }
         }
     }
 }

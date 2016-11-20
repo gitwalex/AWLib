@@ -221,11 +221,11 @@ public final class AWLibUtils {
         return map;
     }
 
-    public static int restoreZipArchivToFile(String target, String inputFilename) {
+    public static int restoreZipArchivToFile(String target, File inputFile) {
         int result = RESULT_Divers;
         ZipInputStream is = null;
         try {
-            is = new ZipInputStream(new BufferedInputStream(new FileInputStream(inputFilename)));
+            is = new ZipInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
             while (is.getNextEntry() != null) {
                 extractEntry(is, target);
             }

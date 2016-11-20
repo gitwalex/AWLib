@@ -22,6 +22,8 @@ package de.aw.awlib.activities;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import de.aw.awlib.fragments.AWLibFileChooser;
+
 /**
  * @author alex
  */
@@ -106,7 +108,15 @@ public interface AWLibInterface {
             /**
              * MainAction
              */
-            , AWLIBACTION = "AWLIBACTION";
+            , AWLIBACTION = "AWLIBACTION"
+            /**
+             * Filter fuer einen Filenamen. Wird in {@link AWLibFileChooser} verwendet.
+             */
+            , FILENAMEFILTER = "FILENAMEFILTER"
+            /**
+             * Daten fuer einen Server
+             */
+            , SERVERDATEN = "SERVERDATEN";
     int
             /**
              *
