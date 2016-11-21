@@ -49,7 +49,7 @@ public class EventDBRestore implements AWLibResultCodes, AWLibInterface {
             int result;
             String targetFileName;
             if (AWLIbApplication.getDebugFlag()) {
-                targetFileName = AWLIbApplication.getDatenbankFilename();
+                targetFileName = AWLIbApplication.getApplicationDatabaseFilename();
             } else {
                 targetFileName = mContext.getDatabasePath(AWLIbApplication.getDatenbankname())
                         .getAbsolutePath();

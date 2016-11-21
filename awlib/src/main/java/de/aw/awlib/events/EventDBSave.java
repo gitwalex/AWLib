@@ -49,7 +49,8 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
     private static final String ALARMTIME = "ALARMTIME";
     private static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
     private static final String BACKUPPATH = AWLIbApplication.getApplicationBackupPath() + "/";
-    private static final String DATABASEFILENAME = AWLIbApplication.getDatenbankFilename();
+    private static final String DATABASEFILENAME =
+            AWLIbApplication.getApplicationDatabaseFilename();
     private final Context mContext;
     private final SharedPreferences prefs;
     private final Date date;

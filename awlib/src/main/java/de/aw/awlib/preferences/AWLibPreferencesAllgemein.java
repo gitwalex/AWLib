@@ -42,7 +42,6 @@ import de.aw.awlib.database.AbstractDBConvert;
 import de.aw.awlib.events.AWLibEvent;
 import de.aw.awlib.events.AWLibEventService;
 import de.aw.awlib.events.EventDBSave;
-import de.aw.awlib.fragments.AWLibFragment;
 import de.aw.awlib.fragments.AWLibPreferenceFragment;
 
 import static de.aw.awlib.events.AWLibEvent.DoDatabaseSave;
@@ -144,8 +143,9 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkExterneSicherung).equals(key)) {
-            AWLibFragment f = DialogFTP.newInstance();
-            f.show(getFragmentManager(), null);
+            Intent intent = new Intent(getActivity(), AWLibActivityActions.class);
+            intent.putExtra(AWLIBEVENT, (Parcelable) AWLibEvent.configRemoteFileServer);
+            getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkSavePeriodic).equals(key)) {
             if (preference.getSharedPreferences().getBoolean(preference.getKey(), false)) {

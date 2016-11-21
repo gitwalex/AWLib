@@ -26,7 +26,6 @@ import android.content.res.Configuration;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.support.annotation.CallSuper;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ViewConfiguration;
@@ -68,7 +67,7 @@ public abstract class AWLIbApplication extends Application {
     /**
      * Pfad, indem alle de.aw.-Applications abgelegt werden
      */
-    protected static final String DE_AW_APPLICATIONPATH =
+    private static final String DE_AW_APPLICATIONPATH =
             Environment.getExternalStorageDirectory() + "/de.aw";
     /**
      * Pfad, indem alle Backups zu de.aw.-Applications abgelegt werden
@@ -83,26 +82,41 @@ public abstract class AWLIbApplication extends Application {
      */
     private static final String IMPORTPATH = "/import";
     private static final String STACKTRACEPATH = "/stackTrace.txt";
-    private static String DATAPATH;
+    private static String APPLICATIONPATH;
+    private static String APPLICATIONDATAPATH;
+    private static String AWLIBDATAPATH;
     private static WeakReference<Context> mContext;
     private static boolean mDebugFlag;
-    private static String APPLICATIONPATH;
     private static ApplicationConfig mApplicationConfig;
+    private final ApplicationConfig mAWLibConfig;
 
     public AWLIbApplication() {
         mContext = new WeakReference<Context>(this);
+        mApplicationConfig = getApplicationConfig(DE_AW_APPLICATIONPATH);
+        mAWLibConfig = new ApplicationConfig(DE_AW_APPLICATIONPATH) {
+            @Override
+            public String theApplicationDirectory() {
+                return DE_AW_APPLICATIONPATH;
+            }
+
+            @Override
+            public int theDatenbankVersion() {
+                return 1;
+            }
+        };
         File folder = new File(DE_AW_APPLICATIONPATH);
         if (!folder.exists()) {
             folder.mkdir();
         }
-        mApplicationConfig = getApplicationConfig();
         mDebugFlag = mApplicationConfig.getDebugFlag();
-        APPLICATIONPATH = DE_AW_APPLICATIONPATH + mApplicationConfig.theApplicationDirectory();
+        APPLICATIONPATH = mApplicationConfig.getApplicationPath();
+        APPLICATIONDATAPATH = mApplicationConfig.getApplicationDataPath();
+        AWLIBDATAPATH = mAWLibConfig.getApplicationDataPath();
         folder = new File(APPLICATIONPATH);
         if (!folder.exists()) {
             folder.mkdir();
         }
-        createFiles();
+        mApplicationConfig.createFiles();
     }
 
     /**
@@ -152,6 +166,10 @@ public abstract class AWLIbApplication extends Application {
         return getContext().getContentResolver();
     }
 
+    public static String getApplicationDatabaseFilename() {
+        return mApplicationConfig.getApplicationDatabaseFilename();
+    }
+
     public static String getApplicationExportPath() {
         return APPLICATIONPATH + EXPORTPATH;
     }
@@ -160,20 +178,12 @@ public abstract class AWLIbApplication extends Application {
         return APPLICATIONPATH + IMPORTPATH;
     }
 
-    public static String getApplicationPath() {
-        return APPLICATIONPATH;
-    }
-
     public static Context getContext() {
         return mContext.get();
     }
 
     public static String getCopyrightHTML() {
         return mApplicationConfig.getCopyrightHTML();
-    }
-
-    public static String getDatenbankFilename() {
-        return DATAPATH + getDatenbankname();
     }
 
     public static int getDatenbankVersion() {
@@ -188,36 +198,15 @@ public abstract class AWLIbApplication extends Application {
         return mDebugFlag;
     }
 
+    public static ApplicationConfig getMainApplicationConfig() {
+        return mAWLibConfig;
+    }
+
     public static void onRestoreDB() {
-        mApplicationConfig.onRestoreDatabase();
+        mApplicationConfig.onRestoreDatabase(getContext());
     }
 
-    @CallSuper
-    protected void createFiles() {
-        if (mDebugFlag) {
-            DATAPATH = APPLICATIONPATH + "/debug/";
-        } else {
-            DATAPATH = APPLICATIONPATH + "/release/";
-        }
-        File folder = new File(DATAPATH);
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        folder = new File(getApplicationBackupPath());
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        folder = new File(getApplicationExportPath());
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        folder = new File(getApplicationImportPath());
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-    }
-
-    protected abstract ApplicationConfig getApplicationConfig();
+    protected abstract ApplicationConfig getApplicationConfig(String theMainPath);
 
     private void handleUncaughtException(Throwable e) throws IOException {
         e.printStackTrace(); // not all Android versions will print the stack trace automatically

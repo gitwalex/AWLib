@@ -60,6 +60,33 @@
             android:inputType="textPassword"/>
 
         <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnTestConnection"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|end"
+                android:layout_weight="1"
+                android:gravity="right|center_vertical|end"
+                android:text="@string/dbServerTest"/>
+
+            <Button
+                android:id="@+id/btnAccept"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|end"
+                android:layout_weight="1"
+                android:gravity="right|center_vertical|center_horizontal|end"
+                android:text="@string/awlib_btnAccept"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/awlib_llServerError"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -80,6 +107,8 @@
                 android:layout_weight="1"
                 android:textAppearance="@style/TextViewMain.Medium"/>
         </LinearLayout>
+
+        <include layout="@layout/awlib_default_recycler_view"/>
     </LinearLayout>
 
 </RelativeLayout>

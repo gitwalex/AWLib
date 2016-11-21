@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.events;
+package de.aw.awlib.gv;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -34,7 +34,7 @@ public class RemoteFileServer {
     private final String mUserID;
     private final String mUserPassword;
     private final ConnectionType mConnectionType;
-    private final FTPClient mClient;
+    private FTPClient mClient;
 
     /**
      * Neuer RemoteServer. Testet sofort die Verbindung.
@@ -71,31 +71,33 @@ public class RemoteFileServer {
      */
     private FTPClient getFTPClient() throws ConnectionFailsException {
         FTPClient client = mClient;
-        if (mClient == null) {
-            switch (mConnectionType) {
-                case SSL:
-                    client = new FTPSClient();
-                    break;
-                case NONSSL:
-                    client = new FTPClient();
-            }
-        }
-        try {
-            if (!client.isConnected()) {
-                client.connect(mURL, 21);
-                client.enterLocalPassiveMode();
-                if (!client.login(mUserID, mUserPassword)) {
-                    throw new ConnectionFailsException(client);
-                }
-                if (client instanceof FTPSClient) {
-                    // Set protection buffer size
-                    ((FTPSClient) client).execPBSZ(0);
-                    // Set data channel protection to private
-                    ((FTPSClient) client).execPROT("P");
+        if (mConnectionType != null) {
+            if (mClient == null) {
+                switch (mConnectionType) {
+                    case SSL:
+                        client = new FTPSClient();
+                        break;
+                    case NONSSL:
+                        client = new FTPClient();
                 }
             }
-        } catch (IOException e) {
-            throw new ConnectionFailsException(client);
+            try {
+                if (!client.isConnected()) {
+                    client.connect(mURL, 21);
+                    client.enterLocalPassiveMode();
+                    if (!client.login(mUserID, mUserPassword)) {
+                        throw new ConnectionFailsException(client);
+                    }
+                    if (client instanceof FTPSClient) {
+                        // Set protection buffer size
+                        ((FTPSClient) client).execPBSZ(0);
+                        // Set data channel protection to private
+                        ((FTPSClient) client).execPROT("P");
+                    }
+                }
+            } catch (IOException e) {
+                throw new ConnectionFailsException(client);
+            }
         }
         return client;
     }
@@ -122,18 +124,6 @@ public class RemoteFileServer {
     }
 
     /**
-     * Ermittelt alle Files auf dem Remote-Server im Root-Directory
-     *
-     * @return FTPFile-Array
-     *
-     * @throws IOException
-     *         bei Fehlern.
-     */
-    public FTPFile[] listFiles() throws ConnectionFailsException {
-        return listFiles("/");
-    }
-
-    /**
      * Ermittelt alle Files auf dem Remote-Server zu einem Directory
      *
      * @param directory
@@ -151,6 +141,18 @@ public class RemoteFileServer {
         } catch (IOException e) {
             throw new ConnectionFailsException(client);
         }
+    }
+
+    /**
+     * Ermittelt alle Files auf dem Remote-Server im Root-Directory
+     *
+     * @return FTPFile-Array
+     *
+     * @throws IOException
+     *         bei Fehlern.
+     */
+    public FTPFile[] listFiles() throws ConnectionFailsException {
+        return listFiles("/");
     }
 
     /**

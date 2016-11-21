@@ -30,13 +30,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.events.RemoteFileServer;
+import de.aw.awlib.fragments.AWLibFileChooser;
 import de.aw.awlib.fragments.AWLibFragment;
+import de.aw.awlib.gv.RemoteFileServer;
 
 /**
  * Dialog zur Abfrage von Zugangsdaten fuer externe Sicherung der DB.
  */
-public class DialogFTP extends AWLibFragment {
+public class DialogFTP extends AWLibFileChooser {
     private final int layout = R.layout.awlib_dialog_db_ftp;
     private Button mOKBtn;
     private String mPasswort;

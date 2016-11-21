@@ -1,10 +1,45 @@
 package de.aw.awlib.application;
 
+import android.content.Context;
+import android.support.annotation.CallSuper;
+
+import java.io.File;
+
+import static de.aw.awlib.application.AWLIbApplication.getApplicationBackupPath;
+import static de.aw.awlib.application.AWLIbApplication.getApplicationExportPath;
+import static de.aw.awlib.application.AWLIbApplication.getApplicationImportPath;
+
 /**
  * Konfigurationsklasse fuer AWLib-Applications.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class ApplicationConfig {
+    private final String theMainpath;
+
+    public ApplicationConfig(String AWLibDatapath) {
+        theMainpath = AWLibDatapath;
+    }
+
+    @CallSuper
+    protected void createFiles() {
+        File folder = new File(getApplicationDataPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        folder = new File(getApplicationBackupPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        folder = new File(getApplicationExportPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        folder = new File(getApplicationImportPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+    }
+
     /**
      * @return Liefert ein HTML-File  fuer die Auswahl der Preferences 'About'. Das file wird in
      * /assets/html erwartet.
@@ -13,6 +48,18 @@ public abstract class ApplicationConfig {
      */
     public String getAboutHTML() {
         return "no_about.html";
+    }
+
+    public final String getApplicationDataPath() {
+        return getApplicationPath() + "/database/";
+    }
+
+    public String getApplicationDatabaseFilename() {
+        return getApplicationDataPath() + "/" + theDatenbankname();
+    }
+
+    public final String getApplicationPath() {
+        return theMainpath + theApplicationDirectory();
     }
 
     /**
@@ -37,7 +84,7 @@ public abstract class ApplicationConfig {
     /**
      * Wird gerufen, wenn die Datenbank restored wurde
      */
-    public void onRestoreDatabase() {
+    public void onRestoreDatabase(Context context) {
     }
 
     /**
@@ -53,9 +100,9 @@ public abstract class ApplicationConfig {
     /**
      * @return Datenbankname
      * <p>
-     * Default: ApplicationDirectory + '.db'
+     * Default: "database.db"
      */
     public String theDatenbankname() {
-        return theApplicationDirectory().replaceAll("/", "") + ".db";
+        return "database.db";
     }
 }

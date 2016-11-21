@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.application.AWLIbApplication;
+import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.gv.AWLibGeschaeftsObjekt;
 
 /**
@@ -65,10 +66,11 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      */
     private static AbstractDBHelper ch;
 
-    protected AbstractDBHelper(SQLiteDatabase.CursorFactory cursorFactory) {
-        super(AWLIbApplication.getContext(), AWLIbApplication.getDatenbankFilename(),
+    protected AbstractDBHelper(ApplicationConfig config,
+                               SQLiteDatabase.CursorFactory cursorFactory) {
+        super(AWLIbApplication.getContext(), config.getApplicationDatabaseFilename(),
                 (cursorFactory == null) ? mCursorFactory : cursorFactory,
-                AWLIbApplication.getDatenbankVersion());
+                config.theDatenbankVersion());
         ch = this;
     }
 
