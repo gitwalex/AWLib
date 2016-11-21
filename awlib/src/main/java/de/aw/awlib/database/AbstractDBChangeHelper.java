@@ -31,7 +31,7 @@ import de.aw.awlib.application.AWLIbApplication;
 public abstract class AbstractDBChangeHelper {
     protected final Context context;
     private final SQLiteDatabase db;
-    private Set<AWLibDBDefinition> usedTables = new HashSet<>();
+    private Set<AWLibAbstractDBDefinition> usedTables = new HashSet<>();
 
     public AbstractDBChangeHelper() {
         this.context = AWLIbApplication.getContext();
@@ -51,7 +51,7 @@ public abstract class AbstractDBChangeHelper {
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBChangeHelper#notifyCursors(Set)} gerufen.
      */
-    public int delete(AWLibDBDefinition tbd, String selection, String[] selectionArgs) {
+    public int delete(AWLibAbstractDBDefinition tbd, String selection, String[] selectionArgs) {
         usedTables.add(tbd);
         int rows = db.delete(tbd.name(), selection, selectionArgs);
         if (!db.inTransaction()) {
@@ -64,7 +64,7 @@ public abstract class AbstractDBChangeHelper {
      * siehe {@link SQLiteDatabase#endTransaction()}
      * <p>
      * Transaktionen koennen geschachtelt werden. Erst wenn keine Transaktion mehr ansteht, wird
-     * {@link AbstractDBChangeHelper#notifyCursors(Set< AWLibDBDefinition >)} gerufen.
+     * {@link AbstractDBChangeHelper#notifyCursors(Set< AWLibAbstractDBDefinition >)} gerufen.
      */
     public void endTransaction() {
         db.endTransaction();
@@ -90,7 +90,8 @@ public abstract class AbstractDBChangeHelper {
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBChangeHelper#notifyCursors(Set)} gerufen.
      */
-    public long insert(AWLibDBDefinition tbd, String nullColumnHack, ContentValues content) {
+    public long insert(AWLibAbstractDBDefinition tbd, String nullColumnHack,
+                       ContentValues content) {
         usedTables.add(tbd);
         long id = db.insert(tbd.name(), nullColumnHack, content);
         if (!db.inTransaction()) {
@@ -102,7 +103,7 @@ public abstract class AbstractDBChangeHelper {
     /**
      * siehe {@link SQLiteDatabase#insertWithOnConflict(String, String, ContentValues, int)}
      */
-    public long insertWithOnConflict(AWLibDBDefinition tbd, String nullColumnHack,
+    public long insertWithOnConflict(AWLibAbstractDBDefinition tbd, String nullColumnHack,
                                      ContentValues values, int conflictAlgorithm) {
         return db.insertWithOnConflict(tbd.name(), nullColumnHack, values, conflictAlgorithm);
     }
@@ -116,7 +117,7 @@ public abstract class AbstractDBChangeHelper {
      * <code>
      *
      *     ContentResolver resolver = context.getContentResolver();
-     *     for (AWLibDBDefinition tbd usedTables) {
+     *     for (AWLibAbstractDBDefinition tbd usedTables) {
      *     resolver.notifyChange(tbd.getUri(), null);
      *     switch (tbd.name()) {}
      *     case
@@ -130,7 +131,7 @@ public abstract class AbstractDBChangeHelper {
      * @param tables
      *         Tabellen, die waehrend der gesamten Transaktion benutzt wurden
      */
-    protected abstract void notifyCursors(Set<AWLibDBDefinition> tables);
+    protected abstract void notifyCursors(Set<AWLibAbstractDBDefinition> tables);
 
     /**
      * siehe {@link SQLiteDatabase#setTransactionSuccessful()}
@@ -145,7 +146,7 @@ public abstract class AbstractDBChangeHelper {
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBChangeHelper#notifyCursors(Set)} gerufen.
      */
-    public int update(AWLibDBDefinition tbd, ContentValues content, String selection,
+    public int update(AWLibAbstractDBDefinition tbd, ContentValues content, String selection,
                       String[] selectionArgs) {
         usedTables.add(tbd);
         int rows = db.update(tbd.name(), content, selection, selectionArgs);

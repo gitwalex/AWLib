@@ -26,7 +26,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.View;
 
-import de.aw.awlib.database.AWLibDBDefinition;
+import de.aw.awlib.database.AWLibAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBChangeHelper;
 
 /**
@@ -34,7 +34,7 @@ import de.aw.awlib.database.AbstractDBChangeHelper;
  * LAYOUT: Layout des Fragments
  * <p>
  * <p>
- * AWLibDBDefinition: AWLibDBDefinition des Fragments
+ * AWLibAbstractDBDefinition: AWLibAbstractDBDefinition des Fragments
  * <p>
  * VIEWRESIDS: VIEWRESIDS des Fragments FROMRESIDs: FROMRESIDs des Fragments
  * <p>
@@ -95,7 +95,7 @@ public abstract class AWLibLoaderFragment extends AWLibFragment
      * args.getString(GROUPBY): GroupBy-Clause
      * <p>
      * args.getString(ORDERBY): OrderBy-Clause. Ist dies nicht belegt, wird der Cursor gemaess
-     * {@link AWLibDBDefinition#getOrderString()} sortiert.
+     * {@link AWLibAbstractDBDefinition#getOrderString()} sortiert.
      *
      * @throws NullPointerException
      *         wenn args.getParcelable(DBDEFINITION) Null liefert
@@ -106,7 +106,7 @@ public abstract class AWLibLoaderFragment extends AWLibFragment
     @Override
     @CallSuper
     public Loader<Cursor> onCreateLoader(int p1, Bundle args) {
-        AWLibDBDefinition tbd = args.getParcelable(DBDEFINITION);
+        AWLibAbstractDBDefinition tbd = args.getParcelable(DBDEFINITION);
         assert tbd != null;
         Uri mUri = tbd.getUri();
         String[] projection = args.getStringArray(PROJECTION);

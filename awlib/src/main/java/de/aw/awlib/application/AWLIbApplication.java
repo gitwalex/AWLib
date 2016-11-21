@@ -88,7 +88,7 @@ public abstract class AWLIbApplication extends Application {
     private static WeakReference<Context> mContext;
     private static boolean mDebugFlag;
     private static ApplicationConfig mApplicationConfig;
-    private final ApplicationConfig mAWLibConfig;
+    private static ApplicationConfig mAWLibConfig;
 
     public AWLIbApplication() {
         mContext = new WeakReference<Context>(this);
@@ -96,7 +96,7 @@ public abstract class AWLIbApplication extends Application {
         mAWLibConfig = new ApplicationConfig(DE_AW_APPLICATIONPATH) {
             @Override
             public String theApplicationDirectory() {
-                return DE_AW_APPLICATIONPATH;
+                return "";
             }
 
             @Override

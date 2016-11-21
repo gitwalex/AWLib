@@ -31,7 +31,7 @@ import de.aw.awlib.AWLibException;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.application.AWLIbApplication;
-import de.aw.awlib.database.AWLibDBDefinition;
+import de.aw.awlib.database.AWLibAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBChangeHelper;
 import de.aw.awlib.database.AbstractDBConvert;
 
@@ -68,7 +68,7 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
     /**
      * Tabellendefinition, fuer die dieser AWLibGeschaeftsObjekt gilt. Wird im Konstruktor belegt.
      */
-    private AWLibDBDefinition tbd;
+    private AWLibAbstractDBDefinition tbd;
 
     protected AWLibGeschaeftsObjekt(Parcel in) {
         this.selection = in.readString();
@@ -91,7 +91,8 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
      * @throws android.content.res.Resources.NotFoundException
      *         Wenn kein Datensatz mit dieser ID gefunden wurde.
      */
-    public AWLibGeschaeftsObjekt(AWLibDBDefinition tbd, Long id) throws LineNotFoundException {
+    public AWLibGeschaeftsObjekt(AWLibAbstractDBDefinition tbd, Long id)
+            throws LineNotFoundException {
         this(tbd);
         fillContent(id);
         id = getID();
@@ -102,9 +103,9 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
      * Anlegen eines leeren Geschaeftsobjektes
      *
      * @param tbd
-     *         AWLibDBDefinition
+     *         AWLibAbstractDBDefinition
      */
-    public AWLibGeschaeftsObjekt(AWLibDBDefinition tbd) {
+    public AWLibGeschaeftsObjekt(AWLibAbstractDBDefinition tbd) {
         this.tbd = tbd;
         selection = tbd.columnName(R.string._id) + " = ?";
         for (int resID : tbd.getResIDs()) {
@@ -136,7 +137,8 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
      *
      * @return Cursor Cursor
      */
-    public static Cursor getCursor(AWLibDBDefinition tbd, String[] projection, String selection,
+    public static Cursor getCursor(AWLibAbstractDBDefinition tbd, String[] projection,
+                                   String selection,
                                    String[] selectionArgs, String sortOrder) {
         Uri uri = tbd.getUri();
         return AWLIbApplication.getApplicationContentResolver()
@@ -484,7 +486,7 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
         return new ContentValues(currentContent);
     }
 
-    protected AWLibDBDefinition getDBDefinition() {
+    protected AWLibAbstractDBDefinition getDBDefinition() {
         return tbd;
     }
 
@@ -638,14 +640,14 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
     }
 
     /**
-     * Setzt die Zieltabelle neu anhand der AWLibDBDefinition. Ist die Zieltabelle eine andere als
+     * Setzt die Zieltabelle neu anhand der AWLibAbstractDBDefinition. Ist die Zieltabelle eine andere als
      * die urspruenliche Tabelle, Dabei wird dann das Geschaeftsobject als noch nicht eingefuegt
      * markiert (id wird auf null gesetzt) und entfernt.
      *
      * @param to
      *         Zieltabelle
      */
-    public void setDBDefinition(AWLibDBDefinition to) {
+    public void setDBDefinition(AWLibAbstractDBDefinition to) {
         if (this.tbd != to) {
             this.tbd = to;
             currentContent.remove(getContext().getString(R.string._id));

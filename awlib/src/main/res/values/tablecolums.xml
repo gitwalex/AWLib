@@ -18,6 +18,8 @@
 <resources>
     <!-- ID - gilt fuer alle Tabllen -->
     <string name="_id">_id</string>
+    <string name="column_serverurl">serverurl</string>
+    <string name="column_userID">userID</string>
 
 
 </resources>

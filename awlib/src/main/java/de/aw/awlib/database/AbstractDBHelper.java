@@ -83,11 +83,11 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      * Liefert die Liste der Spalten einer Tabelle zuruck.
      *
      * @param tbd
-     *         AWLibDBDefinition
+     *         AWLibAbstractDBDefinition
      *
      * @return Liste der Columns.
      */
-    public static List<String> getColumnsForTable(AWLibDBDefinition tbd) {
+    public static List<String> getColumnsForTable(AWLibAbstractDBDefinition tbd) {
         List<String> columns = new ArrayList<>();
         Cursor c = getDatabase().rawQuery("PRAGMA table_info (" + tbd.name() + ")", null);
         try {
@@ -123,7 +123,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      * Ermittelt die Anzahl der Zeilen, die durch die Selection potentiell zurueckgeliefert werden.
      *
      * @param tbd
-     *         AWLibDBDefinition der Tabelle
+     *         AWLibAbstractDBDefinition der Tabelle
      * @param selection
      *         Selection
      * @param selectionArgs
@@ -131,7 +131,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      *
      * @return Anzahl der  Zeilen.
      */
-    public static long getNumberOfRows(AWLibDBDefinition tbd, String selection,
+    public static long getNumberOfRows(AWLibAbstractDBDefinition tbd, String selection,
                                        String[] selectionArgs) {
         String[] projection = new String[]{"COUNT(*)"};
         Cursor c = getDatabase()

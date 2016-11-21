@@ -63,7 +63,7 @@ public class AbstractDBConvert {
         AWLIbApplication.Log(message);
     }
 
-    public static String convert(AWLibDBDefinition tbd, int resID, String value) {
+    public static String convert(AWLibAbstractDBDefinition tbd, int resID, String value) {
         Character format = tbd.getFormat(resID);
         if (format != null & value != null) {
             switch (format) {

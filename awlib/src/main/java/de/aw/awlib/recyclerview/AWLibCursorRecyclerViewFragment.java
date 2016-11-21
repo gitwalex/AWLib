@@ -31,7 +31,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.database.AWLibDBDefinition;
+import de.aw.awlib.database.AWLibAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBConvert;
 import de.aw.awlib.fragments.AWLibLoaderFragment;
 
@@ -64,7 +64,7 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
      */
     private int layout = R.layout.awlib_default_recycler_view;
     private OnCursorRecyclerViewListener onCursorRecyclerViewListener;
-    private AWLibDBDefinition tbd;
+    private AWLibAbstractDBDefinition tbd;
     private int viewHolderLayout;
     private int[] viewResIDs;
 

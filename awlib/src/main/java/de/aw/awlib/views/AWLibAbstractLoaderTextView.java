@@ -29,7 +29,7 @@ import android.widget.TextView;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.database.AWLibDBDefinition;
+import de.aw.awlib.database.AWLibAbstractDBDefinition;
 
 /**
  * Convenience-Klasse fuer TextView, die mit einem Loader hinterlegt ist. ID der TextView wird
@@ -79,7 +79,8 @@ public abstract class AWLibAbstractLoaderTextView extends TextView
      * @throws LoaderTextViewException
      *         wenn Argumente nicht vollstaendig sind oder nicht zueinander passen.
      */
-    public void initialize(LoaderManager lm, AWLibDBDefinition tbd, int resID, String projection,
+    public void initialize(LoaderManager lm, AWLibAbstractDBDefinition tbd, int resID,
+                           String projection,
                            String selection, String[] selectionArgs) {
         isInitialized = true;
         mLoaderManager = lm;
@@ -90,7 +91,7 @@ public abstract class AWLibAbstractLoaderTextView extends TextView
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        AWLibDBDefinition tbd = args.getParcelable(DBDEFINITION);
+        AWLibAbstractDBDefinition tbd = args.getParcelable(DBDEFINITION);
         String[] projection = args.getStringArray(PROJECTION);
         String selection = args.getString(SELECTION);
         String[] selectionArgs = args.getStringArray(SELECTIONARGS);
@@ -149,7 +150,8 @@ public abstract class AWLibAbstractLoaderTextView extends TextView
         startOrRestartLoader(getId(), args);
     }
 
-    private void setArguments(AWLibDBDefinition tbd, int resID, String projection, String selection,
+    private void setArguments(AWLibAbstractDBDefinition tbd, int resID, String projection,
+                              String selection,
                               String[] selectionArgs) {
         if (tbd == null) {
             throw new LoaderTextViewException("DBDefinition ist null.");

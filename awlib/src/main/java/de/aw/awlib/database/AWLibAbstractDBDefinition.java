@@ -23,14 +23,14 @@ import android.os.Parcelable;
 
 /**
  */
-public interface AWLibDBDefinition extends Parcelable {
+public interface AWLibAbstractDBDefinition extends Parcelable {
     String columnName(int newColumn);
 
     String[] columnNames();
 
     String[] columnNames(int... intArray);
 
-    void createDatabase(DBAlterHelper dbAlterHelper);
+    void createDatabase(AWLibDBAlterHelper dbAlterHelper);
 
     String getCommaSeperatedList(int[] columns);
 

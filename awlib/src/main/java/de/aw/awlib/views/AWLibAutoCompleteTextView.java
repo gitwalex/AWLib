@@ -32,7 +32,7 @@ import android.widget.FilterQueryProvider;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.database.AWLibDBDefinition;
+import de.aw.awlib.database.AWLibAbstractDBDefinition;
 
 /**
  * AutoCompleteTextView (siehe  {@link AWLibAutoCompleteTextView#initialize (DBDefinition, String,
@@ -62,7 +62,7 @@ public abstract class AWLibAutoCompleteTextView extends AutoCompleteTextView
     private String[] projection;
     private String selectedText = null;
     private long selectionID;
-    private AWLibDBDefinition tbd;
+    private AWLibAbstractDBDefinition tbd;
 
     public AWLibAutoCompleteTextView(Context context) {
         super(context);
@@ -140,7 +140,7 @@ public abstract class AWLibAutoCompleteTextView extends AutoCompleteTextView
      *         wenn LoaderManager null ist.
      */
     public void initialize(LoaderManager loaderManager, OnTextChangedListener mOnTextChangeListener,
-                           AWLibDBDefinition tbd, String selection, String[] selectionArgs,
+                           AWLibAbstractDBDefinition tbd, String selection, String[] selectionArgs,
                            int fromResID) {
         if (loaderManager == null) {
             throw new NullPointerException("LoaderManager darf nicht null sein");

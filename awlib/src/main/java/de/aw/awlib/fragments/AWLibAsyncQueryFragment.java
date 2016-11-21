@@ -22,7 +22,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import de.aw.awlib.application.AWLIbApplication;
-import de.aw.awlib.database.AWLibDBDefinition;
+import de.aw.awlib.database.AWLibAbstractDBDefinition;
 
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
@@ -63,7 +63,7 @@ public abstract class AWLibAsyncQueryFragment extends AWLibFragment {
 
         public void startQuery(int token, Bundle args) {
             String[] mProjection;
-            AWLibDBDefinition tbd = args.getParcelable(DBDEFINITION);
+            AWLibAbstractDBDefinition tbd = args.getParcelable(DBDEFINITION);
             if ((mProjection = args.getStringArray(PROJECTION)) == null) {
                 mProjection = tbd.columnNames(args.getIntArray(FROMRESIDS));
             }
