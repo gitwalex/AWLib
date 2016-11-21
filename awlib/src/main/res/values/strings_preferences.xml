@@ -57,12 +57,14 @@
     <string name="titleServerURL">Servername</string>
     <string name="pkServerUID">User</string>
     <string name="titleServerUID">User</string>
-    <string name="dbServerPW">Password</string>
+    <string name="pkServerPW">Password</string>
     <string name="dbServerTest">Verbindung testen</string>
     <string name="dbServerZugangsdaten">Server Zugangsdaten</string>
     <string name="dbServerMessage">Der Server meldet: </string>
     <string name="dbServerMessageErfolgreich">Test erfolgreich!</string>
     <string name="dlgTitleTime">Uhrzeit</string>
     <string name="nextDoDBSave">nextDoDBSave</string>
+    <string name="pkServerConnectionType">ConnectionType</string>
+    <string name="pkServerRemoteDirectory">RemoteDirectory</string>
 
 </resources>

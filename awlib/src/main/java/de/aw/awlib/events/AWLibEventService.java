@@ -17,10 +17,18 @@
 package de.aw.awlib.events;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
+import java.io.File;
+import java.util.concurrent.ExecutionException;
+
+import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * Bearbeitet Events innerhalb MonMa.
@@ -39,9 +47,44 @@ public class AWLibEventService extends IntentService implements AWLibInterface {
         AWLibEvent event = extras.getParcelable(AWLIBEVENT);
         switch (event) {
             case DoDatabaseSave:
-                new EventDBSave(this).save();
+                try {
+                    File file = new EventDBSave(this).execute();
+                    Context context = getApplicationContext();
+                    SharedPreferences prefs =
+                            PreferenceManager.getDefaultSharedPreferences(context);
+                    if (prefs.getBoolean(context.getString(R.string.pkExterneSicherung), false)) {
+                        String mURL =
+                                prefs.getString(context.getString(R.string.pkServerURL), null);
+                        String mUserID =
+                                prefs.getString(context.getString(R.string.pkServerUID), null);
+                        String mUserPassword =
+                                prefs.getString(context.getString(R.string.pkServerPW), null);
+                        int connectionTypeOrdinal =
+                                prefs.getInt(context.getString(R.string.pkServerConnectionType), 0);
+                        RemoteFileServer.ConnectionType mConnectionType =
+                                RemoteFileServer.ConnectionType.values()[connectionTypeOrdinal];
+                        String remoteDirectory =
+                                prefs.getString(context.getString(R.string.pkServerRemoteDirectory),
+                                        null);
+                        new RemoteFileServer(mURL, mUserID, mUserPassword, mConnectionType).
+                                transferFileToServer(file, remoteDirectory);
+                    }
+                } catch (ExecutionException e) {
+                    //TODO Execption bearbeiten
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    //TODO Execption bearbeiten
+                    e.printStackTrace();
+                } catch (RemoteFileServer.ConnectionFailsException e) {
+                    //TODO Execption bearbeiten
+                    e.printStackTrace();
+                }
+                break;
+            case doVaccum:
+                AbstractDBHelper.doVacuum();
                 break;
         }
     }
 }
+
 

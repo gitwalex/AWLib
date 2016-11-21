@@ -19,13 +19,13 @@
  */
 package de.aw.awlib.preferences;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
 
@@ -39,10 +39,9 @@ import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.activities.AWLibWebViewActivity;
 import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AbstractDBConvert;
-import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.events.AWLibEvent;
+import de.aw.awlib.events.AWLibEventService;
 import de.aw.awlib.events.EventDBSave;
-import de.aw.awlib.fragments.AWLibDialogHinweis;
 import de.aw.awlib.fragments.AWLibFragment;
 import de.aw.awlib.fragments.AWLibPreferenceFragment;
 
@@ -63,7 +62,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
     private Preference regelmSicherung;
 
     /**
-     * Fuehrt die ausgewaehlte Aktion gemaess {@link MainAction}durch.
+     * Fuehrt die ausgewaehlte Aktion gemaess {@link AWLibEvent}durch.
      *
      * @param event
      *         Aktion geamaess Action
@@ -73,47 +72,19 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
      *         Text im Dialog
      */
     private void doAction(final AWLibEvent event, final String title, final String message) {
-        AWLibDialogHinweis dialog = AWLibDialogHinweis.newInstance(true, title, message);
-        final String dialogTag = dialog.getTag();
-        dialog.show(getFragmentManager(), dialogTag);
-        switch (event) {
-            case DoDatabaseSave:
-                new EventDBSave(getActivity()).save();
-                FragmentManager fm = getFragmentManager();
-                if (fm != null) {
-                    dialog = (AWLibDialogHinweis) getFragmentManager().findFragmentByTag(dialogTag);
-                    if (dialog != null) {
-                        dialog.dismiss();
-                    }
-                }
-                Snackbar.make(getView(), event.name(), Snackbar.LENGTH_SHORT).show();
-                break;
-            case doVaccum:
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        AbstractDBHelper.doVacuum();
-                        return null;
-                    }
-
-                    /**
-                     * Dismiss Dialog, ggfs. Nacharbeiten fuer Aktion.
-                     */
-                    @Override
-                    protected void onPostExecute(Void aVoid) {
-                        // Generell Dailog entfernen
-                        FragmentManager fm = getFragmentManager();
-                        if (fm != null) {
-                            AWLibDialogHinweis dialog = (AWLibDialogHinweis) getFragmentManager()
-                                    .findFragmentByTag(dialogTag);
-                            if (dialog != null) {
-                                dialog.dismiss();
-                            }
-                        }
-                        Snackbar.make(getView(), event.name(), Snackbar.LENGTH_SHORT).show();
-                    }
-                }.execute();
-        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(R.string.awlib_btnAccept, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        Dialog dlg = builder.create();
+        dlg.show();
+        Intent intent = new Intent(getContext(), AWLibEventService.class);
+        intent.putExtra(AWLIBEVENT, (Parcelable) event);
+        getContext().startService(intent);
     }
 
     @Override

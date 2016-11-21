@@ -28,11 +28,11 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import de.aw.awlib.AWLibNotification;
 import de.aw.awlib.AWLibResultCodes;
@@ -53,13 +53,11 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
     private final Context mContext;
     private final SharedPreferences prefs;
     private final Date date;
-    private String backupFileName;
-    private boolean fromServiceCalled = false;
+    private File backupFile;
     private AWLibNotification mNotification;
 
     public EventDBSave(Service service) {
         this(service.getApplicationContext());
-        fromServiceCalled = true;
     }
 
     public EventDBSave(Context context) {
@@ -69,8 +67,8 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
         Locale locale = Locale.getDefault();
         DateFormat formatter =
                 DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-        backupFileName =
-                BACKUPPATH + (formatter.format(date)).replace(".", "_").replace(":", "_") + ".zip";
+        backupFile = new File(
+                BACKUPPATH + (formatter.format(date)).replace(".", "_").replace(":", "_") + ".zip");
     }
 
     public static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
@@ -103,8 +101,13 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
         mAlarmManager.set(ALARM_TYPE, nextDBSave, newAlarmIntent);
     }
 
-    public String getFileName() {
-        return backupFileName;
+    public File execute() throws ExecutionException, InterruptedException {
+        new EventDBSaveExecute().execute(backupFile).get();
+        return getFileName();
+    }
+
+    public File getFileName() {
+        return backupFile;
     }
 
     @Override
@@ -117,25 +120,13 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
     }
 
     public void save() {
-        new EventDBSaveExecute().execute();
+        new EventDBSaveExecute().execute(backupFile);
     }
 
-    private class EventDBSaveExecute extends AsyncTask<Void, Void, Integer> {
+    private class EventDBSaveExecute extends AsyncTask<File, Void, Integer> {
         @Override
-        protected Integer doInBackground(Void... params) {
-            File bakFile = new File(backupFileName);
-            int result = AWLibUtils.addToZipArchive(bakFile, DATABASEFILENAME);
-            try {
-                new EventTransferDB(EventDBSave.this.mContext, EventTransferDB.ConnectionArt.SSL,
-                        bakFile.getAbsolutePath());
-            } catch (IOException e) {
-                //TODO Execption bearbeiten
-                e.printStackTrace();
-            } catch (EventTransferDB.ConnectionFailsException e) {
-                //TODO Execption bearbeiten
-                e.printStackTrace();
-            }
-            return result;
+        protected Integer doInBackground(File... params) {
+            return AWLibUtils.addToZipArchive(params[0], DATABASEFILENAME);
         }
 
         @Override

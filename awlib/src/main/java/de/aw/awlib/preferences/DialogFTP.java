@@ -30,7 +30,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.events.EventTransferDB;
+import de.aw.awlib.events.RemoteFileServer;
 import de.aw.awlib.fragments.AWLibFragment;
 
 /**
@@ -106,10 +106,10 @@ public class DialogFTP extends AWLibFragment {
                             @Override
                             protected Boolean doInBackground(Void... params) {
                                 try {
-                                    new EventTransferDB(mServerName, mUserName, mPasswort,
-                                            EventTransferDB.ConnectionArt.SSL);
+                                    new RemoteFileServer(mServerName, mUserName, mPasswort,
+                                            RemoteFileServer.ConnectionType.SSL);
                                     return true;
-                                } catch (final EventTransferDB.ConnectionFailsException e) {
+                                } catch (final RemoteFileServer.ConnectionFailsException e) {
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -169,7 +169,7 @@ public class DialogFTP extends AWLibFragment {
         if (!isCanceled) {
             editor.putString(getString(R.string.pkServerURL), mServerName).apply();
             editor.putString(getString(R.string.pkServerUID), mUserName).apply();
-            editor.putString(getString(R.string.dbServerPW), mPasswort).apply();
+            editor.putString(getString(R.string.pkServerPW), mPasswort).apply();
         }
     }
 

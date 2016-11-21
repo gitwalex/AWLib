@@ -106,7 +106,8 @@ public class AWLibFileChooser extends AWLibArrayRecyclerViewFragment<File> {
             value.add(0, file.getParentFile());
         }
         mFile = file;
-        ((AWLibMainActivity) getActivity()).getSupportActionBar().setSubtitle(file.getName());
+        ((AWLibMainActivity) getActivity()).getSupportActionBar()
+                .setSubtitle(file.getAbsolutePath());
         mAdapter.swapValues(value);
     }
 
@@ -192,7 +193,7 @@ public class AWLibFileChooser extends AWLibArrayRecyclerViewFragment<File> {
                     consumed = true;
                 } else if (resID == R.id.awlib_fileData) {
                     tv = (TextView) view;
-                    tv.setText(file.getName());
+                    tv.setText(file.getAbsolutePath());
                     consumed = true;
                 }
                 break;
