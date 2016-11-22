@@ -36,8 +36,10 @@ import de.aw.awlib.database.AbstractDBChangeHelper;
 import de.aw.awlib.database.AbstractDBConvert;
 
 /**
- * MonMa AWLibGeschaeftsObjekt Vorlage fuer die Geschaeftsvorfaelle, z.B. Bankkonto-Buchung, Neues
- * Account etc. Bietet Import-Funktion, die Tabellen werden direkt aus dem Import-File gefuellt.
+ * MonMa AWLibApplicationGeschaeftsObjekt
+ * <p>
+ * Vorlage fuer die Geschaeftsvorfaelle, z.B. Bankkonto-Buchung, Neues Account etc. Bietet
+ * Import-Funktion, die Tabellen werden direkt aus dem Import-File gefuellt.
  * <p/>
  * Fuer Sonderheiten kann die Methode doImport(int resID, String Key, String value) ueberschieben
  * werden. Diese Funktion wird immer aufgerufen, wenn ein neues Praefix beim Import gefunden wurde.
@@ -47,8 +49,7 @@ import de.aw.awlib.database.AbstractDBConvert;
  *
  * @author alex
  */
-@SuppressWarnings("CloneDoesntCallSuperClone")
-public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelable {
+public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface, Parcelable {
     /**
      * Flag, ob gerade Daten importiert werden.
      */
@@ -56,7 +57,7 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
     private final String CLASSNAME = this.getClass().getSimpleName();
     protected String selection;
     /**
-     * ID des AWLibGeschaeftsObjekt
+     * ID des AWLibApplicationGeschaeftsObjekt
      */
     protected Long id;
     protected String[] selectionArgs;
@@ -66,11 +67,12 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
     protected ContentValues currentContent = new ContentValues();
     protected boolean isDirty;
     /**
-     * Tabellendefinition, fuer die dieser AWLibGeschaeftsObjekt gilt. Wird im Konstruktor belegt.
+     * Tabellendefinition, fuer die dieser AWLibApplicationGeschaeftsObjekt gilt. Wird im
+     * Konstruktor belegt.
      */
     private AWLibAbstractDBDefinition tbd;
 
-    protected AWLibGeschaeftsObjekt(Parcel in) {
+    protected AWLibApplicationGeschaeftsObjekt(Parcel in) {
         this.selection = in.readString();
         this.id = (Long) in.readValue(Long.class.getClassLoader());
         this.currentContent = in.readParcelable(ContentValues.class.getClassLoader());
@@ -91,7 +93,7 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
      * @throws android.content.res.Resources.NotFoundException
      *         Wenn kein Datensatz mit dieser ID gefunden wurde.
      */
-    public AWLibGeschaeftsObjekt(AWLibAbstractDBDefinition tbd, Long id)
+    public AWLibApplicationGeschaeftsObjekt(AWLibAbstractDBDefinition tbd, Long id)
             throws LineNotFoundException {
         this(tbd);
         fillContent(id);
@@ -105,7 +107,7 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
      * @param tbd
      *         AWLibAbstractDBDefinition
      */
-    public AWLibGeschaeftsObjekt(AWLibAbstractDBDefinition tbd) {
+    public AWLibApplicationGeschaeftsObjekt(AWLibAbstractDBDefinition tbd) {
         this.tbd = tbd;
         selection = tbd.columnName(R.string._id) + " = ?";
         for (int resID : tbd.getResIDs()) {
@@ -124,7 +126,8 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
     }
 
     /**
-     * Liefert einen Cursor auf die uebergebenen Argumente zurueck
+     * Zugriff auf Applicationsdatenbank. Liefert einen Cursor auf die uebergebenen Argumente
+     * zurueck
      *
      * @param projection
      *         Tabellenspalten
@@ -138,10 +141,30 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
      * @return Cursor Cursor
      */
     public static Cursor getCursor(AWLibAbstractDBDefinition tbd, String[] projection,
-                                   String selection,
-                                   String[] selectionArgs, String sortOrder) {
+                                   String selection, String[] selectionArgs, String sortOrder) {
+        return AWLIbApplication.getDBHelper().getWritableDatabase()
+                .query(tbd.name(), projection, selection, selectionArgs, sortOrder, null, null);
+    }
+
+    /**
+     * Zugriff auf AWLibdatenbank. Liefert einen Cursor auf die uebergebenen Argumente zurueck
+     *
+     * @param projection
+     *         Tabellenspalten
+     * @param selection
+     *         selection
+     * @param selectionArgs
+     *         Argumente zur Selection
+     * @param sortOrder
+     *         Sortierung
+     *
+     * @return Cursor Cursor
+     */
+    public static Cursor getCursorAWLibDatabase(AWLibAbstractDBDefinition tbd, String[] projection,
+                                                String selection, String[] selectionArgs,
+                                                String sortOrder) {
         Uri uri = tbd.getUri();
-        return AWLIbApplication.getApplicationContentResolver()
+        return AWLIbApplication.getAWLibContentResolver()
                 .query(uri, projection, selection, selectionArgs, sortOrder);
     }
 
@@ -199,8 +222,8 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
 
     public int delete(AbstractDBChangeHelper db) {
         if (id == null) {
-            AWLIbApplication
-                    .LogError("AWLibGeschaeftsObjekt noch nicht angelegt! Delete nicht moeglich.");
+            AWLIbApplication.LogError(
+                    "AWLibApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht moeglich.");
         }
         int result;
         result = db.delete(tbd, selection, selectionArgs);
@@ -233,7 +256,7 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AWLibGeschaeftsObjekt that = (AWLibGeschaeftsObjekt) o;
+        AWLibApplicationGeschaeftsObjekt that = (AWLibApplicationGeschaeftsObjekt) o;
         if (tbd != that.tbd) {
             return false;
         }
@@ -405,7 +428,7 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
 
     /**
      * Liest das Datum aus dem Geschaeftsobjekt und liefert es als Date zurueck. Siehe {@link
-     * AWLibGeschaeftsObjekt#getAsDate(String)}
+     * AWLibApplicationGeschaeftsObjekt#getAsDate(String)}
      */
     public final Date getAsDate(int resID) {
         return getAsDate(getAsString(resID));
@@ -455,8 +478,8 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
     }
 
     /**
-     * Wie {@link AWLibGeschaeftsObjekt#getAsLong(int)}, liefert aber den Defaultwert zuruck, wenn
-     * die Spalte nicht belegt iist.
+     * Wie {@link AWLibApplicationGeschaeftsObjekt#getAsLong(int)}, liefert aber den Defaultwert
+     * zuruck, wenn die Spalte nicht belegt iist.
      */
     public final long getAsLong(int resID, long defaultWert) {
         Long value = getAsLong(resID);
@@ -513,14 +536,14 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
     public long insert(AbstractDBChangeHelper db) {
         if (isInserted()) {
             throw new IllegalStateException(
-                    "AWLibGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
+                    "AWLibApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
         }
         id = db.insert(tbd, null, currentContent);
         if (id != -1) {
             currentContent.put(tbd.columnName(R.string._id), id);
         } else {
             AWLIbApplication
-                    .Log("Insert in AWLibGeschaeftsObjekt " + CLASSNAME + " fehlgeschlagen! Werte: " +
+                    .Log("Insert in AWLibApplicationGeschaeftsObjekt " + CLASSNAME + " fehlgeschlagen! Werte: " +
                             currentContent.toString());
             currentContent.clear();
         }
@@ -613,7 +636,7 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
      * @param geschaeftobjektToCopy
      *         Geschaeftspbjekt, dessen Daten kopiert werden sollen
      */
-    public void putAll(AWLibGeschaeftsObjekt geschaeftobjektToCopy) {
+    public void putAll(AWLibApplicationGeschaeftsObjekt geschaeftobjektToCopy) {
         ContentValues oldContent = geschaeftobjektToCopy.getContent();
         for (String value : tbd.columnNames()) {
             currentContent.put(value, oldContent.getAsString(value));
@@ -640,9 +663,9 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
     }
 
     /**
-     * Setzt die Zieltabelle neu anhand der AWLibAbstractDBDefinition. Ist die Zieltabelle eine andere als
-     * die urspruenliche Tabelle, Dabei wird dann das Geschaeftsobject als noch nicht eingefuegt
-     * markiert (id wird auf null gesetzt) und entfernt.
+     * Setzt die Zieltabelle neu anhand der AWLibAbstractDBDefinition. Ist die Zieltabelle eine
+     * andere als die urspruenliche Tabelle, Dabei wird dann das Geschaeftsobject als noch nicht
+     * eingefuegt markiert (id wird auf null gesetzt) und entfernt.
      *
      * @param to
      *         Zieltabelle
@@ -676,7 +699,7 @@ public abstract class AWLibGeschaeftsObjekt implements AWLibInterface, Parcelabl
         int result = 0;
         if (id == null) {
             throw new IllegalStateException(
-                    "AWLibGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
+                    "AWLibApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
         }
         if (isDirty) {
             currentContent.put(tbd.columnName(R.string._id), getID());

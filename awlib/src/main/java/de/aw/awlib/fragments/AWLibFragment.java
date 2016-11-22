@@ -42,7 +42,7 @@ import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AbstractDBChangeHelper;
-import de.aw.awlib.gv.AWLibGeschaeftsObjekt;
+import de.aw.awlib.gv.AWLibApplicationGeschaeftsObjekt;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
@@ -80,7 +80,7 @@ public abstract class AWLibFragment extends DialogFragment
     protected boolean isCanceled;
     protected int[] viewResIDs;
     protected int[] fromResIDs;
-    protected AWLibGeschaeftsObjekt awlib_gv;
+    protected AWLibApplicationGeschaeftsObjekt awlib_gv;
     protected MainAction mainAction;
     private DialogInterface.OnCancelListener mOnCancelListener;
     /**

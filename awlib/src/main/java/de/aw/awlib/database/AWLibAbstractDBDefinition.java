@@ -59,8 +59,6 @@ public interface AWLibAbstractDBDefinition extends Parcelable {
 
     Uri getUri();
 
-    int getUriCode();
-
     boolean isView();
 
     String name();

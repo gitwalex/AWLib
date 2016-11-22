@@ -19,6 +19,8 @@ package de.aw.awlib.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.support.annotation.CallSuper;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,10 +30,10 @@ import de.aw.awlib.application.AWLIbApplication;
 /**
  * Helper fuer Database-CUD. Fuer Read ist der ContentResolver zu nutzen
  */
-public abstract class AbstractDBChangeHelper {
+public class AbstractDBChangeHelper {
     protected final Context context;
     private final SQLiteDatabase db;
-    private Set<AWLibAbstractDBDefinition> usedTables = new HashSet<>();
+    private Set<Uri> usedTables = new HashSet<>();
 
     public AbstractDBChangeHelper() {
         this.context = AWLIbApplication.getContext();
@@ -52,8 +54,18 @@ public abstract class AbstractDBChangeHelper {
      * AbstractDBChangeHelper#notifyCursors(Set)} gerufen.
      */
     public int delete(AWLibAbstractDBDefinition tbd, String selection, String[] selectionArgs) {
-        usedTables.add(tbd);
-        int rows = db.delete(tbd.name(), selection, selectionArgs);
+        return delete(tbd.getUri(), selection, selectionArgs);
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#delete(String, String, String[])}
+     * <p>
+     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
+     * AbstractDBChangeHelper#notifyCursors(Set)} gerufen.
+     */
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        usedTables.add(uri);
+        int rows = db.delete(uri.getLastPathSegment(), selection, selectionArgs);
         if (!db.inTransaction()) {
             notifyCursors(usedTables);
         }
@@ -92,8 +104,18 @@ public abstract class AbstractDBChangeHelper {
      */
     public long insert(AWLibAbstractDBDefinition tbd, String nullColumnHack,
                        ContentValues content) {
-        usedTables.add(tbd);
-        long id = db.insert(tbd.name(), nullColumnHack, content);
+        return insert(tbd.getUri(), nullColumnHack, content);
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#insert(String, String, ContentValues)}
+     * <p>
+     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
+     * AbstractDBChangeHelper#notifyCursors(Set)} gerufen.
+     */
+    public long insert(Uri uri, String nullColumnHack, ContentValues content) {
+        usedTables.add(uri);
+        long id = db.insert(uri.getLastPathSegment(), nullColumnHack, content);
         if (!db.inTransaction()) {
             notifyCursors(usedTables);
         }
@@ -131,7 +153,9 @@ public abstract class AbstractDBChangeHelper {
      * @param tables
      *         Tabellen, die waehrend der gesamten Transaktion benutzt wurden
      */
-    protected abstract void notifyCursors(Set<AWLibAbstractDBDefinition> tables);
+    @CallSuper
+    protected void notifyCursors(Set<Uri> tables) {
+    }
 
     /**
      * siehe {@link SQLiteDatabase#setTransactionSuccessful()}
@@ -148,8 +172,19 @@ public abstract class AbstractDBChangeHelper {
      */
     public int update(AWLibAbstractDBDefinition tbd, ContentValues content, String selection,
                       String[] selectionArgs) {
-        usedTables.add(tbd);
-        int rows = db.update(tbd.name(), content, selection, selectionArgs);
+        return update(tbd.getUri(), content, selection, selectionArgs);
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#update(String, ContentValues, String, String[])}
+     * <p>
+     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
+     * AbstractDBChangeHelper#notifyCursors(Set)} gerufen.
+     */
+    public int update(Uri uri, ContentValues content, String selection, String[] selectionArgs) {
+        usedTables.add(uri);
+        String table = uri.getLastPathSegment();
+        int rows = db.update(table, content, selection, selectionArgs);
         if (!db.inTransaction()) {
             notifyCursors(usedTables);
         }

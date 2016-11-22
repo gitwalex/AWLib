@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.application.ApplicationConfig;
-import de.aw.awlib.gv.AWLibGeschaeftsObjekt;
+import de.aw.awlib.gv.AWLibApplicationGeschaeftsObjekt;
 
 /**
  * Helper fuer die SQLite-Database
@@ -46,7 +46,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
                                         String editTable, SQLiteQuery query) {
                     AWLibSQLiteCursor c = new AWLibSQLiteCursor(masterQuery, editTable, query);
                     long timer = System.nanoTime();
-                    if (!AWLibGeschaeftsObjekt.isImport() && AWLIbApplication.EnableCursorLogging) {
+                    if (!AWLibApplicationGeschaeftsObjekt
+                            .isImport() && AWLIbApplication.EnableCursorLogging) {
                         long elapsed = c.getFinishTime() - timer;
                         boolean longRunning = elapsed > 50000;
                         if (longRunning) {

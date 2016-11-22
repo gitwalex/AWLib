@@ -15,12 +15,6 @@
         android:theme="@style/AWLibTheme">
         <activity android:name=".activities.AWLibActivityActions">
         </activity>
-        <provider
-            android:name=".database_private.AWLibContentProvider"
-            android:authorities="de.aw.awlibcontentprovider"
-            android:exported="true"
-            android:grantUriPermissions="false"
-            />
 
         <activity android:name=".activities.AWLibActivityDebug">
         </activity>

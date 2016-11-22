@@ -19,6 +19,7 @@ package de.aw.awlib.application;
 import android.app.Application;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
+import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -42,6 +43,7 @@ import java.lang.reflect.Field;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibActivityDebug;
+import de.aw.awlib.database.AbstractDBHelper;
 
 import static de.aw.awlib.activities.AWLibInterface.linefeed;
 
@@ -94,6 +96,11 @@ public abstract class AWLIbApplication extends Application {
         mContext = new WeakReference<Context>(this);
         mApplicationConfig = getApplicationConfig(DE_AW_APPLICATIONPATH);
         mAWLibConfig = new ApplicationConfig(DE_AW_APPLICATIONPATH) {
+            @Override
+            public AbstractDBHelper getDBHelper() {
+                return AbstractDBHelper.getInstance();
+            }
+
             @Override
             public String theApplicationDirectory() {
                 return "";
@@ -154,6 +161,10 @@ public abstract class AWLIbApplication extends Application {
         }
     }
 
+    public static ContentProvider getAWLibContentResolver() {
+        return null;
+    }
+
     public static String getAboutHTML() {
         return mApplicationConfig.getAboutHTML();
     }
@@ -184,6 +195,10 @@ public abstract class AWLIbApplication extends Application {
 
     public static String getCopyrightHTML() {
         return mApplicationConfig.getCopyrightHTML();
+    }
+
+    public static AbstractDBHelper getDBHelper() {
+        return mApplicationConfig.getDBHelper();
     }
 
     public static int getDatenbankVersion() {

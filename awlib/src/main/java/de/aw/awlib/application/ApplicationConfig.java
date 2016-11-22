@@ -5,6 +5,8 @@ import android.support.annotation.CallSuper;
 
 import java.io.File;
 
+import de.aw.awlib.database.AbstractDBHelper;
+
 import static de.aw.awlib.application.AWLIbApplication.getApplicationBackupPath;
 import static de.aw.awlib.application.AWLIbApplication.getApplicationExportPath;
 import static de.aw.awlib.application.AWLIbApplication.getApplicationImportPath;
@@ -71,6 +73,8 @@ public abstract class ApplicationConfig {
     public String getCopyrightHTML() {
         return "no_copyright.html";
     }
+
+    public abstract AbstractDBHelper getDBHelper();
 
     /**
      * @return Das DebugFlag der Application

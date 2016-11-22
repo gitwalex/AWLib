@@ -53,6 +53,7 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
             };
         }
     };
+
     /**
      * Flag, ob initialize(context) aufgerufen wurde.
      */
@@ -106,7 +107,6 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
      * Alle resIDs der Tabelle/View
      */
     private final int[] resIDs;
-
     AWLibDBDefinition() {
         this.tableitems = getTableItems();
         resIDs = new int[tableitems.length];
@@ -634,12 +634,9 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
         return null;
     }
 
-    /**
-     * @return liefert die URI zu der Tabelle zuruck. Wird von {@link AWLibContentProvider#getContentURI(int)}
-     * geliefert.
-     */
+    @Override
     public Uri getUri() {
-        return AWLibContentProvider.getContentURI(ordinal());
+        return null;
     }
 
     /**
