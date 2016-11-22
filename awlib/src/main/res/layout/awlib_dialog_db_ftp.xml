@@ -16,21 +16,15 @@
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
 
-    <ProgressBar
-        android:id="@+id/awlib_pbDlg_db_ftp"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"
-        android:visibility="invisible"/>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/llServerSelection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -85,30 +79,31 @@
                 android:gravity="right|center_vertical|center_horizontal|end"
                 android:text="@string/awlib_btnAccept"/>
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/awlib_llServerError"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/dbServerMessage"
-                android:textAppearance="@style/TextViewMain.Medium"/>
-
-            <TextView
-                android:id="@+id/awlib_tvServerError"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="@style/TextViewMain.Medium"/>
-        </LinearLayout>
-
-        <include layout="@layout/awlib_default_recycler_view"/>
     </LinearLayout>
 
-</RelativeLayout>
+    <LinearLayout
+        android:id="@+id/awlib_llServerError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/dbServerMessage"
+            android:textAppearance="@style/TextViewMain.Medium"/>
+
+        <TextView
+            android:id="@+id/awlib_tvServerError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextViewMain.Medium"/>
+    </LinearLayout>
+
+    <include layout="@layout/awlib_default_recycler_view"
+        />
+</LinearLayout>
+

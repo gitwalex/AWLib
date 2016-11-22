@@ -17,8 +17,6 @@
 package de.aw.awlib.database_private;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -53,7 +51,6 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
             };
         }
     };
-
     /**
      * Flag, ob initialize(context) aufgerufen wurde.
      */
@@ -107,6 +104,7 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
      * Alle resIDs der Tabelle/View
      */
     private final int[] resIDs;
+
     AWLibDBDefinition() {
         this.tableitems = getTableItems();
         resIDs = new int[tableitems.length];
@@ -520,12 +518,6 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
      */
     public String getCreateViewSQL() {
         return null;
-    }
-
-    public Cursor getCursor(SQLiteDatabase database, String[] projection, String selection,
-                            String[] selectionArgs, String orderBy) {
-        return database
-                .query(name() + " t1", projection, selection, selectionArgs, null, null, orderBy);
     }
 
     /**

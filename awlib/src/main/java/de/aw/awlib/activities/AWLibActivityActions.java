@@ -35,7 +35,7 @@ import de.aw.awlib.R;
 import de.aw.awlib.events.AWLibEvent;
 import de.aw.awlib.events.EventDBRestore;
 import de.aw.awlib.fragments.AWLibFileChooser;
-import de.aw.awlib.preferences.DialogFTP;
+import de.aw.awlib.fragments.AWLibRemoteFileChooser;
 import de.aw.awlib.recyclerview.OnArrayRecyclerViewListener;
 
 /**
@@ -115,7 +115,7 @@ public class AWLibActivityActions extends AWLibMainActivity implements OnArrayRe
                         titleResID = R.string.fileChooserTitleDoRestore;
                         break;
                     case configRemoteFileServer:
-                        f = DialogFTP.newInstance();
+                        f = AWLibRemoteFileChooser.newInstance();
                         break;
                     default:
                         throw new IllegalArgumentException(

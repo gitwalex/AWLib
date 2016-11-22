@@ -69,6 +69,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
                     return c;
                 }
             };
+    private static ApplicationConfig mApplicationConfig;
     /**
      * DBHelperTemplate ist ein Singleton.
      */
@@ -82,6 +83,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
         super(AWLIbApplication.getContext(), config.getApplicationDatabaseFilename(),
                 (cursorFactory == null) ? mCursorFactory : cursorFactory,
                 config.theDatenbankVersion());
+        mApplicationConfig = config;
         this.context = AWLIbApplication.getContext();
         resolver = context.getContentResolver();
     }
@@ -121,7 +123,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      * @return WriteableDatabase
      */
     public static SQLiteDatabase getDatabase() {
-        return AWLIbApplication.getDBHelper().getWritableDatabase();
+        return mApplicationConfig.getDBHelper().getWritableDatabase();
     }
 
     /**

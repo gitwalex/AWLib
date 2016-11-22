@@ -18,6 +18,7 @@ package de.aw.awlib.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
@@ -73,16 +74,12 @@ public abstract class AWLibMainActivity extends AppCompatActivity
      * @see "stackoverflow.com/questions/1109022/close-hide-the-android-soft-keyboard"
      */
     public static void hide_keyboard(Activity activity) {
-        InputMethodManager inputMethodManager =
-                (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
+        InputMethodManager imm =
+                (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         View view = activity.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token
-        // from it
-        if (view == null) {
-            view = new View(activity);
+        if (view != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     public FloatingActionButton getDefaultFAB() {
@@ -215,6 +212,12 @@ public abstract class AWLibMainActivity extends AppCompatActivity
             setResult(RESULT_OK);
         }
         return isConsumed;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        hide_keyboard(this);
     }
 
     /**

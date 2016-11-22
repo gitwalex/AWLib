@@ -16,8 +16,6 @@
  */
 package de.aw.awlib.database;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Parcelable;
 
@@ -39,9 +37,6 @@ public interface AWLibAbstractDBDefinition extends Parcelable {
     int[] getCreateTableResIDs();
 
     String getCreateViewSQL();
-
-    Cursor getCursor(SQLiteDatabase database, String[] from, String selection,
-                     String[] selectionArgs, String sortOrder);
 
     char getFormat(int resID);
 

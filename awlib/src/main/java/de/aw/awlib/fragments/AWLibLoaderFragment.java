@@ -26,8 +26,8 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.View;
 
+import de.aw.awlib.R;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
-import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
@@ -59,10 +59,7 @@ import de.aw.awlib.database.AbstractDBHelper;
  */
 public abstract class AWLibLoaderFragment extends AWLibFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
-    @Override
-    public AbstractDBHelper getDBHelper() {
-        return null;
-    }
+    private View mProgressbar;
 
     @Override
     final protected boolean onBindView(View view, int resID) {
@@ -71,8 +68,6 @@ public abstract class AWLibLoaderFragment extends AWLibFragment
 
     /**
      * Startet den Loader neu
-     *
-     * @param newConfig
      */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -106,6 +101,9 @@ public abstract class AWLibLoaderFragment extends AWLibFragment
     @Override
     @CallSuper
     public Loader<Cursor> onCreateLoader(int p1, Bundle args) {
+        if (mProgressbar != null) {
+            mProgressbar.setVisibility(View.VISIBLE);
+        }
         AWLibAbstractDBDefinition tbd = args.getParcelable(DBDEFINITION);
         assert tbd != null;
         Uri mUri = tbd.getUri();
@@ -140,18 +138,30 @@ public abstract class AWLibLoaderFragment extends AWLibFragment
         return new CursorLoader(getActivity(), mUri, projection, selection, selectionArgs, orderBy);
     }
 
+    @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (mProgressbar != null) {
+            mProgressbar.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> p1) {
     }
 
+    @CallSuper
     @Override
     public void onStart() {
         super.onStart();
         startOrRestartLoader(layout, args);
+    }
+
+    @CallSuper
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mProgressbar = view.findViewById(R.id.awlib_default_recyclerview_progressbar);
     }
 
     /**

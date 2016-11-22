@@ -28,6 +28,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
@@ -74,6 +75,7 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
 
     /**
      * @param cursor
+     *         Cursor
      * @param position
      *         aktuelle position in RecyclerView
      *
@@ -231,6 +233,7 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
         return new AWLibViewHolder(rowView);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -350,6 +353,7 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
      */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.awlib_defaultRecyclerView);
         mRecyclerView.setTag(this.getClass().getSimpleName());
         // Setzen der RecyclerView-ID. Standard: layout-Value. Alternativ:
@@ -366,6 +370,8 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnRecyclerItemClickListener(this);
         mAdapter.setOnRecyclerItemLongClickListener(this);
+        getActivity().getWindow()
+                .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }
 
     @Override

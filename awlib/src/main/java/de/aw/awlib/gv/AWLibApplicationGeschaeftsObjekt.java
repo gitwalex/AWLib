@@ -34,6 +34,7 @@ import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.database_private.AWLibDBDefinition;
 
 /**
  * MonMa AWLibApplicationGeschaeftsObjekt
@@ -143,6 +144,26 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
     public static Cursor getCursor(AWLibAbstractDBDefinition tbd, String[] projection,
                                    String selection, String[] selectionArgs, String sortOrder) {
         return AWLIbApplication.getDBHelper().getWritableDatabase()
+                .query(tbd.name(), projection, selection, selectionArgs, sortOrder, null, null);
+    }
+
+    /**
+     * Zugriff auf Maindatenbank. Liefert einen Cursor auf die uebergebenen Argumente zurueck
+     *
+     * @param projection
+     *         Tabellenspalten
+     * @param selection
+     *         selection
+     * @param selectionArgs
+     *         Argumente zur Selection
+     * @param sortOrder
+     *         Sortierung
+     *
+     * @return Cursor Cursor
+     */
+    public static Cursor getCursor(AWLibDBDefinition tbd, String[] projection, String selection,
+                                   String[] selectionArgs, String sortOrder) {
+        return AWLIbApplication.getMainApplicationConfig().getDBHelper().getWritableDatabase()
                 .query(tbd.name(), projection, selection, selectionArgs, sortOrder, null, null);
     }
 

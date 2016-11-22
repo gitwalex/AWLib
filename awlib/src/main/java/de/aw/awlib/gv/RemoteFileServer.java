@@ -19,6 +19,7 @@ package de.aw.awlib.gv;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPFileFilter;
 import org.apache.commons.net.ftp.FTPSClient;
 
 import java.io.File;
@@ -134,10 +135,15 @@ public class RemoteFileServer {
      * @throws IOException
      *         bei Fehlern.
      */
-    public FTPFile[] listFiles(String directory) throws ConnectionFailsException {
+    public FTPFile[] listFiles(String directory, FTPFileFilter filter)
+            throws ConnectionFailsException {
         FTPClient client = getFTPClient();
         try {
-            return client.listFiles(directory);
+            if (filter != null) {
+                return client.listFiles(directory, filter);
+            } else {
+                return client.listFiles(directory);
+            }
         } catch (IOException e) {
             throw new ConnectionFailsException(client);
         }
@@ -146,13 +152,16 @@ public class RemoteFileServer {
     /**
      * Ermittelt alle Files auf dem Remote-Server im Root-Directory
      *
+     * @param filter
+     *         FileFilter
+     *
      * @return FTPFile-Array
      *
      * @throws IOException
      *         bei Fehlern.
      */
-    public FTPFile[] listFiles() throws ConnectionFailsException {
-        return listFiles("/");
+    public FTPFile[] listFiles(FTPFileFilter filter) throws ConnectionFailsException {
+        return listFiles("/", filter);
     }
 
     /**
