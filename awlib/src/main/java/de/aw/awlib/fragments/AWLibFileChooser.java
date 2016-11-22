@@ -69,7 +69,6 @@ public class AWLibFileChooser extends AWLibArrayRecyclerViewFragment<File> {
         fragment.setArguments(args);
         return fragment;
     }
-
     /**
      * Erstellt eine Liste der Files innerhalb eines Directories. Ist das File ungleich dem in
      * {@link AWLibFileChooser#newInstance(String)} angegebenen Directory, wird am Anfang der Liste
@@ -239,7 +238,9 @@ public class AWLibFileChooser extends AWLibArrayRecyclerViewFragment<File> {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        createFileList(new File(mDirectoy));
+        if (mDirectoy != null) {
+            createFileList(new File(mDirectoy));
+        }
     }
 
     @Override
