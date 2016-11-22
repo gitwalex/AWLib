@@ -16,6 +16,7 @@
  */
 package de.aw.awlib.database;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -33,10 +34,12 @@ import de.aw.awlib.application.AWLIbApplication;
 public class AbstractDBChangeHelper {
     protected final Context context;
     private final SQLiteDatabase db;
+    private final ContentResolver resolver;
     private Set<Uri> usedTables = new HashSet<>();
 
     public AbstractDBChangeHelper() {
         this.context = AWLIbApplication.getContext();
+        resolver = context.getContentResolver();
         db = AbstractDBHelper.getDatabase();
     }
 
@@ -45,6 +48,7 @@ public class AbstractDBChangeHelper {
      */
     public void beginTransaction() {
         db.beginTransaction();
+        usedTables.clear();
     }
 
     /**
@@ -114,10 +118,26 @@ public class AbstractDBChangeHelper {
      * AbstractDBChangeHelper#notifyCursors(Set)} gerufen.
      */
     public long insert(Uri uri, String nullColumnHack, ContentValues content) {
-        usedTables.add(uri);
         long id = db.insert(uri.getLastPathSegment(), nullColumnHack, content);
         if (!db.inTransaction()) {
-            notifyCursors(usedTables);
+            notifyCursors(uri);
+        } else {
+            usedTables.add(uri);
+        }
+        return id;
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#insertWithOnConflict(String, String, ContentValues, int)}
+     */
+    public long insertWithOnConflict(Uri uri, String nullColumnHack, ContentValues values,
+                                     int conflictAlgorithm) {
+        long id = db.insertWithOnConflict(uri.getLastPathSegment(), nullColumnHack, values,
+                conflictAlgorithm);
+        if (!db.inTransaction()) {
+            notifyCursors(uri);
+        } else {
+            usedTables.add(uri);
         }
         return id;
     }
@@ -127,7 +147,7 @@ public class AbstractDBChangeHelper {
      */
     public long insertWithOnConflict(AWLibAbstractDBDefinition tbd, String nullColumnHack,
                                      ContentValues values, int conflictAlgorithm) {
-        return db.insertWithOnConflict(tbd.name(), nullColumnHack, values, conflictAlgorithm);
+        return insertWithOnConflict(tbd.getUri(), nullColumnHack, values, conflictAlgorithm);
     }
 
     /**
@@ -138,23 +158,37 @@ public class AbstractDBChangeHelper {
      * <pre>
      * <code>
      *
-     *     ContentResolver resolver = context.getContentResolver();
-     *     for (AWLibAbstractDBDefinition tbd usedTables) {
-     *     resolver.notifyChange(tbd.getUri(), null);
-     *     switch (tbd.name()) {}
-     *     case
-     *     "Tabellenname":
-     *      resolver.notifyChange(tabellenname.getUri(), null);
-     *
+     * super.notifyCursors(usedTables);
+     * ContentResolver resolver = context.getContentResolver();
+     * for (Uri uri : usedTables) {
+     * DBDefinition tbd = DBDefinition.valueOf(uri.getLastPathSegment());
+     * switch (tbd) {
+     * case BankRegelm:
+     *      resolver.notifyChange(tbd.getUri(), null);
+     *      break;
+     * ...
      *
      * </code>
      * </pre>
      *
      * @param tables
-     *         Tabellen, die waehrend der gesamten Transaktion benutzt wurden
+     *         Tabellen, die waehrend der gesamten Transaktion benutzt wurden. Alle Cursor zu diesen
+     *         Tabellen werden ueber eine Aenderung informiert.
      */
     @CallSuper
     protected void notifyCursors(Set<Uri> tables) {
+        for (Uri uri : usedTables) {
+            notifyCursors(uri);
+        }
+    }
+
+    /**
+     * @param uri
+     *         Tabelle, die benutzt wurde. Alle Cursor zu dieser Tabelle werden ueber eine Aenderung
+     *         informiert.
+     */
+    protected void notifyCursors(Uri uri) {
+        resolver.notifyChange(uri, null);
     }
 
     /**
@@ -182,11 +216,12 @@ public class AbstractDBChangeHelper {
      * AbstractDBChangeHelper#notifyCursors(Set)} gerufen.
      */
     public int update(Uri uri, ContentValues content, String selection, String[] selectionArgs) {
-        usedTables.add(uri);
         String table = uri.getLastPathSegment();
         int rows = db.update(table, content, selection, selectionArgs);
         if (!db.inTransaction()) {
-            notifyCursors(usedTables);
+            notifyCursors(uri);
+        } else {
+            usedTables.add(uri);
         }
         return rows;
     }

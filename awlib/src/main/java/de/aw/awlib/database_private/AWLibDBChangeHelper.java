@@ -1,8 +1,9 @@
 package de.aw.awlib.database_private;
 
+import android.net.Uri;
+
 import java.util.Set;
 
-import de.aw.awlib.database.AWLibAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBChangeHelper;
 
 /**
@@ -10,6 +11,7 @@ import de.aw.awlib.database.AbstractDBChangeHelper;
  */
 public class AWLibDBChangeHelper extends AbstractDBChangeHelper {
     @Override
-    protected void notifyCursors(Set<AWLibAbstractDBDefinition> tables) {
+    protected void notifyCursors(Set<Uri> tables) {
+        super.notifyCursors(tables);
     }
 }
