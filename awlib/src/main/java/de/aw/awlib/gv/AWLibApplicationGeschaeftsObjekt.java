@@ -32,8 +32,8 @@ import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
-import de.aw.awlib.database.AbstractDBChangeHelper;
 import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * MonMa AWLibApplicationGeschaeftsObjekt
@@ -220,7 +220,7 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
         return newValue;
     }
 
-    public int delete(AbstractDBChangeHelper db) {
+    public int delete(AbstractDBHelper db) {
         if (id == null) {
             AWLIbApplication.LogError(
                     "AWLibApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht moeglich.");
@@ -533,7 +533,7 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
         return id.intValue();
     }
 
-    public long insert(AbstractDBChangeHelper db) {
+    public long insert(AbstractDBHelper db) {
         if (isInserted()) {
             throw new IllegalStateException(
                     "AWLibApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
@@ -695,7 +695,7 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
         return sb.toString();
     }
 
-    public int update(AbstractDBChangeHelper db) {
+    public int update(AbstractDBHelper db) {
         int result = 0;
         if (id == null) {
             throw new IllegalStateException(

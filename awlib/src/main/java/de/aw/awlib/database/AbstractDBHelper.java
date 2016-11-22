@@ -16,14 +16,21 @@
  */
 package de.aw.awlib.database;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQuery;
+import android.net.Uri;
+import android.support.annotation.CallSuper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import de.aw.awlib.activities.AWLibInterface;
@@ -65,18 +72,22 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
     /**
      * DBHelperTemplate ist ein Singleton.
      */
-    private static AbstractDBHelper ch;
+    protected final Context context;
+    private final ContentResolver resolver;
+    private SQLiteDatabase db;
+    private Set<Uri> usedTables = new HashSet<>();
 
     protected AbstractDBHelper(ApplicationConfig config,
                                SQLiteDatabase.CursorFactory cursorFactory) {
         super(AWLIbApplication.getContext(), config.getApplicationDatabaseFilename(),
                 (cursorFactory == null) ? mCursorFactory : cursorFactory,
                 config.theDatenbankVersion());
-        ch = this;
+        this.context = AWLIbApplication.getContext();
+        resolver = context.getContentResolver();
     }
 
     public static void doVacuum() {
-        SQLiteDatabase db = getInstance().getWritableDatabase();
+        SQLiteDatabase db = getDatabase();
         db.execSQL("vacuum");
     }
 
@@ -110,14 +121,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      * @return WriteableDatabase
      */
     public static SQLiteDatabase getDatabase() {
-        return AbstractDBHelper.getInstance().getWritableDatabase();
-    }
-
-    public static AbstractDBHelper getInstance() {
-        if (ch == null) {
-            throw new IllegalStateException("DBHelperTemplate noch nicht initialisiert.");
-        }
-        return ch;
+        return AWLIbApplication.getDBHelper().getWritableDatabase();
     }
 
     /**
@@ -176,6 +180,58 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
     }
 
     /**
+     * siehe {@link SQLiteDatabase#beginTransaction()}
+     */
+    public void beginTransaction() {
+        db = getWritableDatabase();
+        db.beginTransaction();
+        usedTables.clear();
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#delete(String, String, String[])}
+     * <p>
+     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
+     * AbstractDBHelper#notifyCursors(Set)} gerufen.
+     */
+    public int delete(AWLibAbstractDBDefinition tbd, String selection, String[] selectionArgs) {
+        return delete(tbd.getUri(), selection, selectionArgs);
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#delete(String, String, String[])}
+     * <p>
+     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
+     * AbstractDBHelper#notifyCursors(Set)} gerufen.
+     */
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        if (db == null) {
+            db = getWritableDatabase();
+        }
+        int rows = db.delete(uri.getLastPathSegment(), selection, selectionArgs);
+        if (!db.inTransaction()) {
+            notifyCursors(uri);
+        } else {
+            usedTables.add(uri);
+        }
+        return rows;
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#endTransaction()}
+     * <p>
+     * Transaktionen koennen geschachtelt werden. Erst wenn keine Transaktion mehr ansteht, wird
+     * {@link AbstractDBHelper#notifyCursors(Set< AWLibAbstractDBDefinition >)} gerufen.
+     */
+    public void endTransaction() {
+        db.endTransaction();
+        if (!db.inTransaction()) {
+            notifyCursors(usedTables);
+            db = null;
+        }
+    }
+
+    /**
      * @param database
      *         Database
      *
@@ -219,6 +275,148 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
             c.close();
         }
         return viewNames;
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#inTransaction()}
+     */
+    public boolean inTransaction() {
+        return db.inTransaction();
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#insert(String, String, ContentValues)}
+     * <p>
+     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
+     * AbstractDBHelper#notifyCursors(Set)} gerufen.
+     */
+    public long insert(AWLibAbstractDBDefinition tbd, String nullColumnHack,
+                       ContentValues content) {
+        return insert(tbd.getUri(), nullColumnHack, content);
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#insert(String, String, ContentValues)}
+     * <p>
+     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
+     * AbstractDBHelper#notifyCursors(Set)} gerufen.
+     */
+    public long insert(Uri uri, String nullColumnHack, ContentValues content) {
+        if (db == null) {
+            db = getWritableDatabase();
+        }
+        long id = db.insert(uri.getLastPathSegment(), nullColumnHack, content);
+        if (!db.inTransaction()) {
+            notifyCursors(uri);
+        } else {
+            usedTables.add(uri);
+        }
+        return id;
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#insertWithOnConflict(String, String, ContentValues, int)}
+     */
+    public long insertWithOnConflict(Uri uri, String nullColumnHack, ContentValues values,
+                                     int conflictAlgorithm) {
+        if (db == null) {
+            db = getWritableDatabase();
+        }
+        long id = db.insertWithOnConflict(uri.getLastPathSegment(), nullColumnHack, values,
+                conflictAlgorithm);
+        if (!db.inTransaction()) {
+            notifyCursors(uri);
+        } else {
+            usedTables.add(uri);
+        }
+        return id;
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#insertWithOnConflict(String, String, ContentValues, int)}
+     */
+    public long insertWithOnConflict(AWLibAbstractDBDefinition tbd, String nullColumnHack,
+                                     ContentValues values, int conflictAlgorithm) {
+        return insertWithOnConflict(tbd.getUri(), nullColumnHack, values, conflictAlgorithm);
+    }
+
+    /**
+     * Wird immer am Ende einer (kompletten) Transaktion gerufen, d.h, wenn eine Transaktion
+     * geschachtelt ist, wird erst nach Ende der ersten begonnen Transaktion diese Methode gerufen.
+     * <p>
+     * Dies funktioniert z.B. mit folgendem Code:
+     * <pre>
+     * <code>
+     *
+     * super.notifyCursors(usedTables);
+     * ContentResolver resolver = context.getContentResolver();
+     * for (Uri uri : usedTables) {
+     * DBDefinition tbd = DBDefinition.valueOf(uri.getLastPathSegment());
+     * switch (tbd) {
+     * case BankRegelm:
+     *      resolver.notifyChange(tbd.getUri(), null);
+     *      break;
+     * ...
+     *
+     * </code>
+     * </pre>
+     *
+     * @param tables
+     *         Tabellen, die waehrend der gesamten Transaktion benutzt wurden. Alle Cursor zu diesen
+     *         Tabellen werden ueber eine Aenderung informiert.
+     */
+    @CallSuper
+    protected void notifyCursors(Set<Uri> tables) {
+        for (Uri uri : usedTables) {
+            notifyCursors(uri);
+        }
+    }
+
+    /**
+     * @param uri
+     *         Tabelle, die benutzt wurde. Alle Cursor zu dieser Tabelle werden ueber eine Aenderung
+     *         informiert.
+     */
+    protected void notifyCursors(Uri uri) {
+        resolver.notifyChange(uri, null);
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#setTransactionSuccessful()}
+     */
+    public void setTransactionSuccessful() {
+        db.setTransactionSuccessful();
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#update(String, ContentValues, String, String[])}
+     * <p>
+     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
+     * AbstractDBHelper#notifyCursors(Set)} gerufen.
+     */
+    public int update(AWLibAbstractDBDefinition tbd, ContentValues content, String selection,
+                      String[] selectionArgs) {
+        return update(tbd.getUri(), content, selection, selectionArgs);
+    }
+
+    /**
+     * siehe {@link SQLiteDatabase#update(String, ContentValues, String, String[])}
+     * <p>
+     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
+     * AbstractDBHelper#notifyCursors(Set)} gerufen.
+     */
+    public int update(Uri uri, ContentValues content, String selection, String[] selectionArgs) {
+        if (db == null) {
+            db = getWritableDatabase();
+        }
+        String table = uri.getLastPathSegment();
+        int rows = db.update(table, content, selection, selectionArgs);
+        if (!db.inTransaction()) {
+            notifyCursors(uri);
+        } else {
+            usedTables.add(uri);
+        }
+        return rows;
     }
 }
 

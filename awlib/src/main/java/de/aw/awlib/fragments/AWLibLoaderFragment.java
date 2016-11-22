@@ -27,7 +27,7 @@ import android.support.v4.content.Loader;
 import android.view.View;
 
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
-import de.aw.awlib.database.AbstractDBChangeHelper;
+import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
@@ -60,7 +60,7 @@ import de.aw.awlib.database.AbstractDBChangeHelper;
 public abstract class AWLibLoaderFragment extends AWLibFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
     @Override
-    public AbstractDBChangeHelper getDBHelper() {
+    public AbstractDBHelper getDBHelper() {
         return null;
     }
 

@@ -41,7 +41,7 @@ import android.widget.TextView;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.application.AWLIbApplication;
-import de.aw.awlib.database.AbstractDBChangeHelper;
+import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.gv.AWLibApplicationGeschaeftsObjekt;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
@@ -119,7 +119,7 @@ public abstract class AWLibFragment extends DialogFragment
      * @throws IllegalStateException
      *         wenn das erbende Fragment keinen AbstractDBHelper liefert.
      */
-    public AbstractDBChangeHelper getDBHelper() {
+    public AbstractDBHelper getDBHelper() {
         throw new IllegalStateException("Fragment muss getDBHelper() ueberschreiben");
     }
 
@@ -186,7 +186,7 @@ public abstract class AWLibFragment extends DialogFragment
             case AlertDialog.BUTTON_POSITIVE:
                 switch (mainAction) {
                     case ADD:
-                        AbstractDBChangeHelper db = getDBHelper();
+                        AbstractDBHelper db = getDBHelper();
                         awlib_gv.insert(db);
                         break;
                     case EDIT:

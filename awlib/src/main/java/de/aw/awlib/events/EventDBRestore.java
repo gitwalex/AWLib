@@ -27,7 +27,6 @@ import de.aw.awlib.AWLibResultCodes;
 import de.aw.awlib.AWLibUtils;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.application.AWLIbApplication;
-import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * Klasse fuer Sicheren/Restoren DB
@@ -54,9 +53,9 @@ public class EventDBRestore implements AWLibResultCodes, AWLibInterface {
                 targetFileName = mContext.getDatabasePath(AWLIbApplication.getDatenbankname())
                         .getAbsolutePath();
             }
-            AbstractDBHelper.getInstance().close();
+            AWLIbApplication.getDBHelper().close();
             result = AWLibUtils.restoreZipArchivToFile(targetFileName, params[0]);
-            AbstractDBHelper.getInstance();
+            AWLIbApplication.getDBHelper();
             return result;
         }
 

@@ -44,6 +44,7 @@ import java.lang.reflect.Field;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibActivityDebug;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.database_private.AWLibDBHelper;
 
 import static de.aw.awlib.activities.AWLibInterface.linefeed;
 
@@ -85,8 +86,6 @@ public abstract class AWLIbApplication extends Application {
     private static final String IMPORTPATH = "/import";
     private static final String STACKTRACEPATH = "/stackTrace.txt";
     private static String APPLICATIONPATH;
-    private static String APPLICATIONDATAPATH;
-    private static String AWLIBDATAPATH;
     private static WeakReference<Context> mContext;
     private static boolean mDebugFlag;
     private static ApplicationConfig mApplicationConfig;
@@ -98,7 +97,7 @@ public abstract class AWLIbApplication extends Application {
         mAWLibConfig = new ApplicationConfig(DE_AW_APPLICATIONPATH) {
             @Override
             public AbstractDBHelper getDBHelper() {
-                return AbstractDBHelper.getInstance();
+                return AWLibDBHelper.getInstance();
             }
 
             @Override
@@ -117,8 +116,6 @@ public abstract class AWLIbApplication extends Application {
         }
         mDebugFlag = mApplicationConfig.getDebugFlag();
         APPLICATIONPATH = mApplicationConfig.getApplicationPath();
-        APPLICATIONDATAPATH = mApplicationConfig.getApplicationDataPath();
-        AWLIBDATAPATH = mAWLibConfig.getApplicationDataPath();
         folder = new File(APPLICATIONPATH);
         if (!folder.exists()) {
             folder.mkdir();
