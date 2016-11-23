@@ -196,12 +196,13 @@ public abstract class AWLibFragment extends DialogFragment
                     default:
                         break;
                 }
+                dismiss();
                 break;
             case AlertDialog.BUTTON_NEGATIVE:
+                dialog.cancel();
                 break;
             default:
         }
-        dialog.cancel();
     }
 
     /**
@@ -227,40 +228,25 @@ public abstract class AWLibFragment extends DialogFragment
     }
 
     /**
-     * Erstellt einen Dialog mit Positive und Negative-Button. Die View fuer den Dailog wird in
-     * {@link AWLibFragment#onCreateDialogView(LayoutInflater)} ermittelt und ind den Dailog
-     * eingestellt.  Der Dailog wird so eingestellt, dass ein Resize der View moeglich ist. Als
-     * ButtonListener wird das AWLibFragment eingestellt, daher ist ggfs, die Methode zu
-     * ueberschreiben
+     * Erstellt einen Dialog mit Positive und Negative-Button. Die View fuer den Dailog uerbe LAYOUT
+     * in args  ermittelt und ind den Dailog eingestellt.  Der Dailog wird so eingestellt, dass ein
+     * Resize der View moeglich ist. Als ButtonListener wird das AWLibFragment eingestellt, daher
+     * ist ggfs, die Methode zu ueberschreiben
      */
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setPositiveButton(R.string.awlib_btnAccept, this)
-                .setNegativeButton(R.string.awlib_btnCancel, this);
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View childView = onCreateDialogView(inflater);
-        builder.setView(childView);
+        View childView = inflater.inflate(layout, null);
         onViewCreated(childView, savedInstanceState);
-        Dialog dialog = builder.create();
+        builder.setView(childView);
+        Dialog dialog = builder.setPositiveButton(R.string.awlib_btnAccept, this)
+                .setNegativeButton(R.string.awlib_btnCancel, this).setView(childView).create();
         // Wenn das Dialogfenster teilweise von der eingeblendeten Tatstatur
         // ueberlappt wird, resize des Fensters zulassen.
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         return dialog;
-    }
-
-    /**
-     * Wird aus {@link AWLibFragment#onCreateDialog(Bundle)} gerufen. Die zurueckgelieferte View
-     * wird als View fuer den Dialog verwendet.
-     *
-     * @param inflater
-     *         Infllater
-     *
-     * @return View fuer Dialog
-     */
-    protected View onCreateDialogView(LayoutInflater inflater) {
-        return inflater.inflate(layout, null);
     }
 
     /**
@@ -430,33 +416,20 @@ public abstract class AWLibFragment extends DialogFragment
 
     public class MyTextWatcher implements TextWatcher {
         private final EditText view;
-        private final int gvResID;
-        private String oldText = null;
+        private final int identifier;
 
-        public MyTextWatcher(EditText view, int gvResID) {
+        public MyTextWatcher(EditText view, int identifier) {
             this.view = view;
-            this.gvResID = gvResID;
+            this.identifier = identifier;
         }
 
         @Override
         public void afterTextChanged(Editable s) {
             String newText = s.toString();
-            switch (mainAction) {
-                case EDIT:
-                    if (!TextUtils.isEmpty(newText) && !newText.equals(oldText)) {
-                        awlib_gv.put(gvResID, newText);
-                        oldText = newText;
-                        // Text geaendert!.
-                    } else {
-                        awlib_gv.remove(gvResID);
-                        oldText = null;
-                    }
-                    break;
-                case ADD:
-                    awlib_gv.put(gvResID, newText);
-                    oldText = newText;
-                default:
-                    break;
+            if (!TextUtils.isEmpty(newText)) {
+                awlib_gv.put(identifier, newText);
+            } else {
+                awlib_gv.remove(identifier);
             }
             AWLibFragment.this.afterTextChanged(view);
         }

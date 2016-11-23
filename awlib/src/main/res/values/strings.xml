@@ -48,6 +48,7 @@
     <string name="awlib_deleteFile">Datei löschen</string>
     <string name="awlib_openFile">Öffnen</string>
     <string name="awlib_datensatzGesichert">Datensatz gespeichert</string>
+    <string name="titleFileServerKonfigurieren">Serverdaten</string>
 
 
 </resources>

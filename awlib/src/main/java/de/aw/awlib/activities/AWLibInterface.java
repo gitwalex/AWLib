@@ -116,7 +116,7 @@ public interface AWLibInterface {
             /**
              * Daten fuer einen Server
              */
-            , SERVERDATEN = "SERVERDATEN";
+            , REMOTEFILESERVER = "REMOTEFILESERVER";
     int
             /**
              *

@@ -13,7 +13,16 @@
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AWLibTheme">
-        <activity android:name=".activities.AWLibActivityActions">
+        <provider
+            android:name=".database.AWLibContentProvider"
+            android:authorities="de.aw.awlibcontentprovider"
+            android:grantUriPermissions="false"
+            />
+
+        <activity
+            android:name=".activities.AWLibActivityActions"
+            android:parentActivityName=".activities.AWLibPreferenceActivity">
+
         </activity>
 
         <activity android:name=".activities.AWLibActivityDebug">

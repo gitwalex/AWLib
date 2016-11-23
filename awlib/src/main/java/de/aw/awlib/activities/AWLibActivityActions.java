@@ -23,7 +23,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
@@ -32,17 +31,27 @@ import android.view.View;
 import java.io.File;
 
 import de.aw.awlib.R;
+import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.events.AWLibEvent;
 import de.aw.awlib.events.EventDBRestore;
 import de.aw.awlib.fragments.AWLibFileChooser;
+import de.aw.awlib.fragments.AWLibFragmentActionBar;
 import de.aw.awlib.fragments.AWLibRemoteFileChooser;
+import de.aw.awlib.gv.RemoteFileServer;
 import de.aw.awlib.recyclerview.OnArrayRecyclerViewListener;
 
 /**
  * Activity fuer verschiedene Aktionen
  */
-public class AWLibActivityActions extends AWLibMainActivity implements OnArrayRecyclerViewListener {
+public class AWLibActivityActions extends AWLibMainActivity
+        implements OnArrayRecyclerViewListener, AWLibFragmentActionBar.OnActionFinishListener {
     private AWLibEvent event;
+
+    @Override
+    public void onActionFinishClicked(int layoutID, int itemResID) {
+        super.onActionFinishClicked(layoutID, itemResID);
+        finish();
+    }
 
     @Override
     public void onArrayRecyclerItemClick(RecyclerView parent, View view, Object object) {
@@ -108,14 +117,14 @@ public class AWLibActivityActions extends AWLibMainActivity implements OnArrayRe
                 switch (event) {
                     case showBackupFiles:
                         // Datenbank wiederherstellen
-                        String backupFolderName =
-                                Environment.getExternalStorageDirectory().getAbsolutePath();
-                        //AWLIbApplication.getApplicationBackupPath();
+                        String backupFolderName = AWLIbApplication.getApplicationBackupPath();
                         f = AWLibFileChooser.newInstance(backupFolderName);
                         titleResID = R.string.fileChooserTitleDoRestore;
                         break;
                     case configRemoteFileServer:
-                        f = AWLibRemoteFileChooser.newInstance();
+                        RemoteFileServer mRemoteFileServer = new RemoteFileServer();
+                        args.putParcelable(REMOTEFILESERVER, mRemoteFileServer);
+                        f = AWLibRemoteFileChooser.newInstance(mRemoteFileServer);
                         break;
                     default:
                         throw new IllegalArgumentException(

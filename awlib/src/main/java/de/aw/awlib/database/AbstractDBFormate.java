@@ -22,6 +22,7 @@ import android.util.SparseArray;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.aw.awlib.R;
 import de.aw.awlib.application.AWLIbApplication;
 
 /**
@@ -59,6 +60,9 @@ public abstract class AbstractDBFormate {
 
     protected AbstractDBFormate() {
         Context context = AWLIbApplication.getContext();
+        int resID = R.string._id;
+        mapResID2Formate.put(resID, 'I');
+        mapColumnNae2ResID.put(context.getString(resID), resID);
         String[] s = {"TTEXT", "DDate", "NNUMERIC", "MNUMERIC", "BBoolean", "CNUMERIC", "PNUMERIC",
                 "KNUMERIC", "IINTEGER", "OBLOB"};
         for (String f : s) {
@@ -70,7 +74,7 @@ public abstract class AbstractDBFormate {
 		 * 2. mapColumnName2ResID
 		 */
         for (int[] map : getItems()) {
-            int resID = map[0];
+            resID = map[0];
             mapResID2Formate.put(resID, (char) map[1]);
             mapColumnNae2ResID.put(context.getString(resID), resID);
         }
@@ -85,9 +89,8 @@ public abstract class AbstractDBFormate {
     public Character getFormat(Integer resID) {
         Character format = mapResID2Formate.get(resID);
         if (format == null) {
-            Context context = AWLIbApplication.getContext();
-            String name = context.getResources().getResourceEntryName(resID);
-            throw new IllegalArgumentException("Kein Format fuer " + name + "(" + resID + ")");
+            format = 'T';
+            AWLIbApplication.Log("Kein Format fuer " + resID + ". Default 'T'");
         }
         return format;
     }

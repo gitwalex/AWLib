@@ -42,5 +42,11 @@ public class AWLibDBHelper extends AbstractDBHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        switch (oldVersion) {
+            case 1:
+                AWLibDBAlterHelper helper =
+                        new AWLibDBAlterHelper(AWLIbApplication.getContext(), db);
+                AWLibDBDefinition tbd = AWLibDBDefinition.RemoteServer;
+        }
     }
 }

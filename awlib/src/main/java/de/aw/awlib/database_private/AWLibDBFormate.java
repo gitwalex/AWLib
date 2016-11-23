@@ -16,7 +16,6 @@
  */
 package de.aw.awlib.database_private;
 
-import de.aw.awlib.R;
 import de.aw.awlib.database.AbstractDBFormate;
 
 /**
@@ -39,10 +38,6 @@ public class AWLibDBFormate extends AbstractDBFormate {
      * @return Liste der columns. [0] = resID, [1] = format
      */
     public int[][] getItems() {
-        return new int[][]{//
-                {R.string._id, 'I'} // ID,
-                , {R.string.column_serverurl, 'T'}//
-                , {R.string.column_userID, 'T'}//
-        };
+        return new int[][]{};
     }
 }

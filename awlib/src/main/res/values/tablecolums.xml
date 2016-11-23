@@ -20,6 +20,6 @@
     <string name="_id">_id</string>
     <string name="column_serverurl">serverurl</string>
     <string name="column_userID">userID</string>
-
-
+    <string name="column_connectionType">conType</string>
+    <string name="column_maindirectory">mainDir</string>
 </resources>

@@ -16,6 +16,11 @@
  */
 package de.aw.awlib.gv;
 
+import android.content.SharedPreferences;
+import android.os.Parcel;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -27,18 +32,37 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import de.aw.awlib.R;
+import de.aw.awlib.database.AWLibAbstractDBDefinition;
+import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.database_private.AWLibDBDefinition;
+
 /**
  * RemoteServer. Transfer von Files, filelist...
  */
-public class RemoteFileServer {
-    private final String mURL;
-    private final String mUserID;
-    private final String mUserPassword;
-    private final ConnectionType mConnectionType;
+public class RemoteFileServer extends AWLibApplicationGeschaeftsObjekt {
+    public static final Creator<RemoteFileServer> CREATOR = new Creator<RemoteFileServer>() {
+        @Override
+        public RemoteFileServer createFromParcel(Parcel source) {
+            return new RemoteFileServer(source);
+        }
+
+        @Override
+        public RemoteFileServer[] newArray(int size) {
+            return new RemoteFileServer[size];
+        }
+    };
+    private static final AWLibDBDefinition tbd = AWLibDBDefinition.RemoteServer;
+    private final SharedPreferences prefs;
     private FTPClient mClient;
+    private ConnectionType mConnectionType;
+    private String mMainDirectory;
+    private String mURL;
+    private String mUserID;
+    private String mUserPassword;
 
     /**
-     * Neuer RemoteServer. Testet sofort die Verbindung.
+     * Neuer RemoteServer.
      *
      * @param serverURL
      *         URL des Servers
@@ -48,17 +72,59 @@ public class RemoteFileServer {
      *         Passort
      * @param connectionType
      *         Typ der Verbindung gemaess {@link ConnectionType}
-     *
-     * @throws ConnectionFailsException
-     *         Wenn die Verbindung fehlgeschlagen ist
      */
-    public RemoteFileServer(String serverURL, String username, String passwort,
-                            ConnectionType connectionType) throws ConnectionFailsException {
+    public RemoteFileServer(@NonNull String serverURL, @NonNull String username,
+                            @NonNull String passwort, ConnectionType connectionType) {
+        super(tbd);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         mURL = serverURL;
         mUserID = username;
         mUserPassword = passwort;
         mConnectionType = connectionType;
-        mClient = getFTPClient();
+        put(R.string.column_connectionType, mConnectionType.name());
+        put(R.string.column_serverurl, mURL);
+        put(R.string.column_userID, mUserID);
+    }
+
+    public RemoteFileServer() {
+        super(tbd);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    }
+
+    public RemoteFileServer(AWLibAbstractDBDefinition tbd, Long id) throws LineNotFoundException {
+        super(tbd, id);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mURL = getAsString(R.string.column_serverurl);
+        mUserID = getAsString(R.string.column_serverurl);
+        mMainDirectory = getAsString(R.string.column_maindirectory);
+        this.mConnectionType = ConnectionType.valueOf(getAsString(R.string.column_connectionType));
+        if (mURL != null) {
+            mUserPassword = prefs.getString(mURL, null);
+        }
+    }
+
+    protected RemoteFileServer(Parcel in) {
+        super(in);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        this.mURL = in.readString();
+        this.mUserID = in.readString();
+        this.mUserPassword = in.readString();
+        this.mMainDirectory = in.readString();
+        int tmpMConnectionType = in.readInt();
+        this.mConnectionType =
+                tmpMConnectionType == -1 ? null : ConnectionType.values()[tmpMConnectionType];
+    }
+
+    @Override
+    public int delete(AbstractDBHelper db) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(mURL).apply();
+        return super.delete(db);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     /**
@@ -70,37 +136,39 @@ public class RemoteFileServer {
      * @throws ConnectionFailsException,
      *         wenn die Verbindung fehlgeschlagen ist.
      */
-    private FTPClient getFTPClient() throws ConnectionFailsException {
-        FTPClient client = mClient;
+    private void getFTPClient() throws ConnectionFailsException {
         if (mConnectionType != null) {
             if (mClient == null) {
                 switch (mConnectionType) {
                     case SSL:
-                        client = new FTPSClient();
+                        mClient = new FTPSClient();
                         break;
                     case NONSSL:
-                        client = new FTPClient();
+                        mClient = new FTPClient();
                 }
             }
             try {
-                if (!client.isConnected()) {
-                    client.connect(mURL, 21);
-                    client.enterLocalPassiveMode();
-                    if (!client.login(mUserID, mUserPassword)) {
-                        throw new ConnectionFailsException(client);
+                if (!mClient.isConnected()) {
+                    mClient.connect(mURL, 21);
+                    mClient.enterLocalPassiveMode();
+                    if (!mClient.login(mUserID, mUserPassword)) {
+                        throw new ConnectionFailsException(mClient);
                     }
-                    if (client instanceof FTPSClient) {
+                    if (mClient instanceof FTPSClient) {
                         // Set protection buffer size
-                        ((FTPSClient) client).execPBSZ(0);
+                        ((FTPSClient) mClient).execPBSZ(0);
                         // Set data channel protection to private
-                        ((FTPSClient) client).execPROT("P");
+                        ((FTPSClient) mClient).execPROT("P");
                     }
                 }
             } catch (IOException e) {
-                throw new ConnectionFailsException(client);
+                throw new ConnectionFailsException(mClient);
             }
         }
-        return client;
+    }
+
+    public String getMainDirectory() {
+        return mMainDirectory;
     }
 
     /**
@@ -124,29 +192,18 @@ public class RemoteFileServer {
         return mUserPassword;
     }
 
-    /**
-     * Ermittelt alle Files auf dem Remote-Server zu einem Directory
-     *
-     * @param directory
-     *         Directory
-     *
-     * @return FTPFile-Array
-     *
-     * @throws IOException
-     *         bei Fehlern.
-     */
-    public FTPFile[] listFiles(String directory, FTPFileFilter filter)
-            throws ConnectionFailsException {
-        FTPClient client = getFTPClient();
-        try {
-            if (filter != null) {
-                return client.listFiles(directory, filter);
-            } else {
-                return client.listFiles(directory);
-            }
-        } catch (IOException e) {
-            throw new ConnectionFailsException(client);
+    @Override
+    public long insert(AbstractDBHelper db) {
+        if (!isValid()) {
+            return -1;
         }
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(mURL, mUserPassword).apply();
+        return super.insert(db);
+    }
+
+    public boolean isValid() {
+        return mURL != null && mUserID != null && mUserPassword != null;
     }
 
     /**
@@ -162,6 +219,74 @@ public class RemoteFileServer {
      */
     public FTPFile[] listFiles(FTPFileFilter filter) throws ConnectionFailsException {
         return listFiles("/", filter);
+    }
+
+    /**
+     * Ermittelt alle Files auf dem Remote-Server zu einem Directory
+     *
+     * @param directory
+     *         Directory
+     *
+     * @return FTPFile-Array
+     *
+     * @throws IOException
+     *         bei Fehlern.
+     */
+    public FTPFile[] listFiles(String directory, FTPFileFilter filter)
+            throws ConnectionFailsException {
+        try {
+            if (filter != null) {
+                return mClient.listFiles(directory, filter);
+            } else {
+                return mClient.listFiles(directory);
+            }
+        } catch (IOException e) {
+            throw new ConnectionFailsException(mClient);
+        }
+    }
+
+    @Override
+    public boolean put(int resID, Object value) {
+        if (resID == R.string.column_serverurl) {
+            mURL = (String) value;
+        } else if (resID == R.string.column_userID) {
+            mUserID = (String) value;
+        } else if (resID == R.string.column_maindirectory) {
+            mMainDirectory = (String) value;
+        } else if (resID == R.string.column_connectionType) {
+            mConnectionType = ConnectionType.valueOf((String) value);
+            return true;
+        }
+        return super.put(resID, value);
+    }
+
+    public void setMainDirectory(String mMainDirectory) {
+        put(R.string.column_maindirectory, mMainDirectory);
+    }
+
+    /**
+     * @return Passwort
+     */
+    public void setUserPassword(String password) {
+        mUserPassword = password;
+    }
+
+    public boolean testConnection() throws ConnectionFailsException {
+        if (mConnectionType == null) {
+            put(R.string.column_connectionType, ConnectionType.SSL.name());
+            try {
+                getFTPClient();
+            } catch (ConnectionFailsException e) {
+                //TODO Execption bearbeiten
+                e.printStackTrace();
+                put(R.string.column_connectionType, ConnectionType.NONSSL.name());
+                getFTPClient();
+            }
+        } else {
+            getFTPClient();
+            return true;
+        }
+        return true;
     }
 
     /**
@@ -182,30 +307,49 @@ public class RemoteFileServer {
      */
     public boolean transferFileToServer(File file, String remoteDirectory)
             throws ConnectionFailsException {
-        FTPClient client = getFTPClient();
         FileInputStream fis = null;
         boolean result = false;
         try {
             fis = new FileInputStream(file);
-            client.changeWorkingDirectory(remoteDirectory);
-            client.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
-            client.setFileTransferMode(FTP.BINARY_FILE_TYPE);
-            result = client.storeFile(file.getName(), fis);
+            mClient.changeWorkingDirectory(remoteDirectory);
+            mClient.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
+            mClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
+            result = mClient.storeFile(file.getName(), fis);
         } catch (FileNotFoundException e) {
-            throw new ConnectionFailsException(client);
+            throw new ConnectionFailsException(mClient);
         } finally {
             try {
                 fis.close();
-                if (client.isConnected()) {
-                    client.logout();
-                    client.disconnect();
+                if (mClient.isConnected()) {
+                    mClient.logout();
+                    mClient.disconnect();
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 result = false;
             }
             return result;
         }
+    }
+
+    @Override
+    public int update(AbstractDBHelper db) {
+        if (!isValid()) {
+            return 0;
+        }
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(mURL, mUserPassword).apply();
+        return super.update(db);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeString(this.mURL);
+        dest.writeString(this.mUserID);
+        dest.writeString(this.mUserPassword);
+        dest.writeString(this.mMainDirectory);
+        dest.writeInt(this.mConnectionType == null ? -1 : this.mConnectionType.ordinal());
     }
 
     /**

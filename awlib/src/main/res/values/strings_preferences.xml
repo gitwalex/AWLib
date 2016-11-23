@@ -58,7 +58,7 @@
     <string name="pkServerUID">User</string>
     <string name="titleServerUID">User</string>
     <string name="pkServerPW">Password</string>
-    <string name="dbServerTest">Verbindung testen</string>
+    <string name="btnServerDataEdit">Zugangsdaten ändern</string>
     <string name="dbServerZugangsdaten">Server Zugangsdaten</string>
     <string name="dbServerMessage">Der Server meldet: </string>
     <string name="dbServerMessageErfolgreich">Test erfolgreich!</string>

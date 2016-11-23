@@ -33,6 +33,7 @@ import java.util.Map;
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
+import de.aw.awlib.database.AWLibContentProvider;
 import de.aw.awlib.database.AWLibDBAlterHelper;
 
 /**
@@ -48,7 +49,20 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
             return new int[]{R.string._id//
                     , R.string.column_serverurl//
                     , R.string.column_userID//
+                    , R.string.column_connectionType//
+                    , R.string.column_maindirectory//
             };
+        }
+    };
+    public static final Creator<AWLibDBDefinition> CREATOR = new Creator<AWLibDBDefinition>() {
+        @Override
+        public AWLibDBDefinition createFromParcel(Parcel in) {
+            return AWLibDBDefinition.values()[in.readInt()];
+        }
+
+        @Override
+        public AWLibDBDefinition[] newArray(int size) {
+            return new AWLibDBDefinition[size];
         }
     };
     /**
@@ -104,6 +118,7 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
      * Alle resIDs der Tabelle/View
      */
     private final int[] resIDs;
+    private final Uri mUri;
 
     AWLibDBDefinition() {
         this.tableitems = getTableItems();
@@ -118,6 +133,14 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
         for (int map : createTableItems) {
             createResIDs[i++] = map;
         }
+        mUri = Uri.parse("content://" + AWLibContentProvider.AUTHORITY + "/" + name());
+    }
+
+    AWLibDBDefinition(Parcel in) {
+        createResIDs = in.createIntArray();
+        tableitems = in.createIntArray();
+        resIDs = in.createIntArray();
+        mUri = Uri.parse("content://" + AWLibContentProvider.AUTHORITY + "/" + name());
     }
 
     /**
@@ -628,7 +651,7 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
 
     @Override
     public Uri getUri() {
-        return null;
+        return mUri;
     }
 
     /**
