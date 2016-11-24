@@ -319,8 +319,10 @@ public class RemoteFileServer extends AWLibApplicationGeschaeftsObjekt {
             throw new ConnectionFailsException(mClient);
         } finally {
             try {
-                fis.close();
-                if (mClient.isConnected()) {
+                if (fis != null) {
+                    fis.close();
+                }
+                if (mClient != null && mClient.isConnected()) {
                     mClient.logout();
                     mClient.disconnect();
                 }

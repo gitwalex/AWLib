@@ -506,6 +506,11 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
         return 0;
     }
 
+    @Override
+    public boolean doCreate() {
+        return true;
+    }
+
     /**
      * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
      *

@@ -23,6 +23,7 @@ import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Debug;
 import android.os.Environment;
@@ -47,6 +48,7 @@ import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.database_private.AWLibDBHelper;
 
 import static de.aw.awlib.activities.AWLibInterface.linefeed;
+import static de.aw.awlib.events.EventDBSave.checkDBSaveAlarm;
 
 /**
  * AWLIbApplication: Einschalten von StrictModus, wenn im debug-mode. Erstellt eine HProf-Log bei
@@ -57,11 +59,11 @@ public abstract class AWLIbApplication extends Application {
     /**
      * Debugging Cursor einschalten
      */
-    public static final boolean EnableCursorLogging = false;
+    public static final boolean EnableCursorLogging = true;
     /**
      * true: Debugging FragmentManager einschalten
      */
-    public static final boolean EnableFragmentManagerLogging = false;
+    public static final boolean EnableFragmentManagerLogging = true;
     /**
      * true: Debugging LoaderManager einschalten
      */
@@ -246,6 +248,8 @@ public abstract class AWLIbApplication extends Application {
     public void onCreate() {
         super.onCreate();
         PreferenceManager.setDefaultValues(this, R.xml.awlib_preferences_allgemein, false);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        checkDBSaveAlarm(this, prefs);
         if (mDebugFlag) {
             try {
                 // Im Debug-Mode Pruefen lassen, welche Constraints verletzt werden.

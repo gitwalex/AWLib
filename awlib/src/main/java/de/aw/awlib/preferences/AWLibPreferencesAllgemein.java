@@ -148,11 +148,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkSavePeriodic).equals(key)) {
-            if (preference.getSharedPreferences().getBoolean(preference.getKey(), false)) {
-                EventDBSave.setDBSaveAlarm(getContext(), preference.getSharedPreferences());
-            } else {
-                EventDBSave.cancelDBSaveAlarm(getContext(), preference.getSharedPreferences());
-            }
+            EventDBSave.checkDBSaveAlarm(getContext(), preference.getSharedPreferences());
         }
         return false;
     }

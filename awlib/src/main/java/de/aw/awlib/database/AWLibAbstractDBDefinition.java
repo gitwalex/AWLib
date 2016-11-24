@@ -30,6 +30,8 @@ public interface AWLibAbstractDBDefinition extends Parcelable {
 
     void createDatabase(AWLibDBAlterHelper dbAlterHelper);
 
+    boolean doCreate();
+
     String getCommaSeperatedList(int[] columns);
 
     int[] getCreateTableItems();

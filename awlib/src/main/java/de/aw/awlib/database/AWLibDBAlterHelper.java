@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.aw.awlib.R;
+import de.aw.awlib.application.AWLIbApplication;
 
 /**
  * Helper-Klasse fuer Aenderungen/Neuanlagen in der DB
@@ -223,20 +224,23 @@ public class AWLibDBAlterHelper {
      *         AWLibAbstractDBDefinition
      */
     public void alterTableOnlyDeletedColumns(AWLibAbstractDBDefinition tbd) {
-        String tempTableName = "temp" + tbd.name();
-        String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
-        String oldColumnNames = tbd.getCommaSeperatedList(tbd.getCreateTableResIDs());
-        String copyValuesSQL =
-                "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
-                        oldColumnNames +
-                        " FROM " +
-                        tbd.name();
-        database.execSQL(createTempTable);
-        database.execSQL(copyValuesSQL);
-        dropTable(tbd.name());
-        renameTable(tempTableName, tbd.name());
-        createIndex(tbd);
-        tbd.createDatabase(this);
+        AWLIbApplication.Log("Alter Table: " + tbd.name());
+        if (tbd.doCreate()) {
+            String tempTableName = "temp" + tbd.name();
+            String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
+            String oldColumnNames = tbd.getCommaSeperatedList(tbd.getCreateTableResIDs());
+            String copyValuesSQL =
+                    "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
+                            oldColumnNames +
+                            " FROM " +
+                            tbd.name();
+            database.execSQL(createTempTable);
+            database.execSQL(copyValuesSQL);
+            dropTable(tbd.name());
+            renameTable(tempTableName, tbd.name());
+            createIndex(tbd);
+            tbd.createDatabase(this);
+        }
     }
 
     /**
@@ -315,8 +319,8 @@ public class AWLibDBAlterHelper {
      *         AWLibAbstractDBDefinition
      */
     public void createIndex(AWLibAbstractDBDefinition tbd) {
-        String orderIndex = getCreateIndexSQL(tbd, "O" + tbd.name(), tbd.getOrderByItems(), false);
-        database.execSQL(orderIndex);
+        //        String orderIndex = getCreateIndexSQL(tbd, "O" + tbd.name(), tbd.getOrderByItems(), false);
+        //        database.execSQL(orderIndex);
         alterIndex(tbd);
         alterUniqueIndex(tbd);
     }

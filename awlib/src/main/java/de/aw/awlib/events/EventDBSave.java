@@ -72,7 +72,7 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
                 BACKUPPATH + (formatter.format(date)).replace(".", "_").replace(":", "_") + ".zip");
     }
 
-    public static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
+    private static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
         AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AWLibEventService.class);
         intent.setAction(AWLIBACTION);
@@ -83,7 +83,32 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
         editor.remove(context.getString(R.string.nextDoDBSave)).apply();
     }
 
-    public static void setDBSaveAlarm(Context context, SharedPreferences prefs) {
+    /**
+     * Prueft, ob die automatische Sicherung der DB in den Preferences gewuenscht ist, dann ggfs.
+     * Alarm setzen. Ansonsten einen ggfs. vorhandenen Alarm cancel.
+     *
+     * @param context
+     *         Context
+     * @param prefs
+     *         SharedPreferences
+     */
+    public static void checkDBSaveAlarm(Context context, SharedPreferences prefs) {
+        if (prefs.getBoolean(context.getString(R.string.pkSavePeriodic), false)) {
+            setDBSaveAlarm(context, prefs);
+        } else {
+            cancelDBSaveAlarm(context, prefs);
+        }
+    }
+
+    /**
+     * Setzt den Termin fuer die naechste Automatische Datenbanksicherung,
+     *
+     * @param context
+     *         Context
+     * @param prefs
+     *         SharedPreferences
+     */
+    private static void setDBSaveAlarm(Context context, SharedPreferences prefs) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(System.currentTimeMillis());
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -113,11 +138,8 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences prefs = android.support.v7.preference.PreferenceManager
-                .getDefaultSharedPreferences(context);
-        if (prefs.getBoolean(context.getString(R.string.pkSavePeriodic), false)) {
-            setDBSaveAlarm(context, prefs);
-        }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        setDBSaveAlarm(context, prefs);
     }
 
     public void save() {
