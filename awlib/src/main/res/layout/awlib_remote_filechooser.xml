@@ -31,20 +31,6 @@
         android:indeterminate="true"
         android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/awlib_tvDBServerName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/pkServerURL"
-        android:textAppearance="@style/TextViewMain.Medium"/>
-
-    <TextView
-        android:id="@+id/awlib_tvDBUserName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/pkServerUID"
-        android:textAppearance="@style/TextViewMain.Medium"/>
-
 
     <LinearLayout
         android:id="@+id/awlib_llServerError"

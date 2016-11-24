@@ -19,10 +19,10 @@ package de.aw.awlib.fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,17 +38,21 @@ import java.util.Comparator;
 import java.util.List;
 
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibMainActivity;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.database_private.AWLibDBHelper;
 import de.aw.awlib.gv.RemoteFileServer;
+import de.aw.awlib.gv.RemoteFileServerExecuter;
 import de.aw.awlib.recyclerview.AWLibArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
+import de.aw.awlib.utils.FileServerExecuter;
+
+import static android.net.Uri.withAppendedPath;
 
 /**
  * Dialog zur Abfrage von Zugangsdaten fuer externe Sicherung der DB.
  */
-public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFile> {
+public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFile>
+        implements RemoteFileServerExecuter.ExecutionListener {
     protected static final String DIRECTORYNAME = "DIRECTORYNAME";
     private static final int layout = R.layout.awlib_remote_filechooser;
     private static final int[] viewResIDs =
@@ -70,15 +74,14 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         }
     };
     private static final int BACKTOPARENT = 1;
-    protected String mDirectoy;
+    private final ArrayList<String> mDirectoyList = new ArrayList<>();
     private AWLibFragmentActionBar.OnActionFinishListener mOnActionFinishListener;
     private View mProgressServerConnection;
     private RemoteFileServer mRemoteFileServer;
+    private RemoteFileServerExecuter mRemoteFileServerExecuter;
     private View mServerErrorLayout;
     private TextView mServerErrorTexte;
-    private TextView mServerURLTextView;
     private Uri mUri = Uri.parse("/");
-    private TextView mUserIDTextView;
 
     /**
      * Erstellt eine neue Instanz eines FileChooser, zeigt die Daten des uebergebenen
@@ -102,6 +105,13 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         return AWLibDBHelper.getInstance();
     }
 
+    private RemoteFileServerExecuter getExecuter() {
+        if (mRemoteFileServerExecuter == null) {
+            mRemoteFileServerExecuter = new RemoteFileServerExecuter(mRemoteFileServer, this);
+        }
+        return mRemoteFileServerExecuter;
+    }
+
     @Override
     public int getItemViewType(int position, FTPFile object) {
         if (position == 0 && object.getName().equals("..")) {
@@ -119,17 +129,19 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         if (file.isDirectory()) {
             String filename = file.getName();
             if (filename.equals("..")) {
-                String path = mUri.getPath();
-                String lastPath = mUri.getLastPathSegment();
-                path = path.replace("/" + lastPath, "");
-                if (TextUtils.isEmpty(path)) {
-                    path = "/";
+                if (mDirectoyList.size() != 0) {
+                    mDirectoyList.remove(mDirectoyList.size() - 1);
                 }
-                mUri = Uri.parse(path);
+                mUri = Uri.parse("/");
+                for (int i = 0; i < mDirectoyList.size(); i++) {
+                    String dir = mDirectoyList.get(i);
+                    mUri = withAppendedPath(mUri, dir);
+                }
             } else {
-                mUri = Uri.withAppendedPath(mUri, filename);
+                mDirectoyList.add(filename);
+                mUri = withAppendedPath(mUri, filename);
             }
-            new CreateFileList(mUri);
+            getExecuter().listFilesInDirectory(mUri.getEncodedPath(), mFileFilter);
         } else {
             super.onArrayRecyclerItemClick(recyclerView, view, object);
         }
@@ -143,6 +155,14 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
                                                 Object object) {
         final FTPFile file = (FTPFile) object;
         if (file.isDirectory()) {
+            mUri = withAppendedPath(mUri, file.getName());
+            mRemoteFileServer.setMainDirectory(mUri.getEncodedPath());
+            if (mRemoteFileServer.isInserted()) {
+                mRemoteFileServer.update(getDBHelper());
+            } else {
+                mRemoteFileServer.insert(getDBHelper());
+            }
+            mOnActionFinishListener.onActionFinishClicked(layout, view.getId());
             return true;
         }
         return super.onArrayRecyclerItemLongClick(recyclerView, view, object);
@@ -159,6 +179,10 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         }
     }
 
+    public boolean onBackpressed() {
+        return mDirectoyList.size() == 0;
+    }
+
     @Override
     protected boolean onBindView(AWLibViewHolder holder, View view, int resID, FTPFile file) {
         TextView tv;
@@ -172,11 +196,14 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
                     consumed = true;
                 } else if (resID == R.id.awlib_fileName) {
                     tv = (TextView) view;
-                    tv.setText(file.getName());
+                    if (mDirectoyList.size() == 0) {
+                        tv.setText(".");
+                    } else {
+                        tv.setText(file.getName());
+                    }
                     consumed = true;
                 } else if (resID == R.id.awlib_fileData) {
-                    tv = (TextView) view;
-                    tv.setText(mUri.getPath());
+                    view.setVisibility(View.GONE);
                     consumed = true;
                 }
                 break;
@@ -194,6 +221,7 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
                     tv.setText(file.getName());
                     consumed = true;
                 } else if (resID == R.id.awlib_fileData) {
+                    view.setVisibility(View.VISIBLE);
                     tv = (TextView) view;
                     tv.setText(Formatter.formatFileSize(getContext(), file.getSize()));
                     consumed = true;
@@ -209,7 +237,7 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
     }
 
     /**
-     * In den SharedPreferences wird das Ergebnis abgelegt.
+     *
      */
     @Override
     public void onDismiss(DialogInterface dialog) {
@@ -223,9 +251,28 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
                     f.show(getFragmentManager(), null);
                 }
             } else {
-                testConnection();
+                getExecuter().listFilesInDirectory(mUri.getEncodedPath(), mFileFilter);
             }
         }
+    }
+
+    public void onPostExecute(FileServerExecuter.ConnectionFailsException result) {
+        mProgressServerConnection.setVisibility(View.INVISIBLE);
+        if (result == null) {
+            setFileList(mRemoteFileServerExecuter.getFiles());
+            ActionBar bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+            if (bar != null) {
+                bar.setTitle(mRemoteFileServer.getURL());
+                bar.setSubtitle(mUri.getEncodedPath());
+            }
+        } else {
+            mServerErrorLayout.setVisibility(View.VISIBLE);
+            mServerErrorTexte.setText(result.getStatusMessage());
+        }
+    }
+
+    public void onPreExecute() {
+        mProgressServerConnection.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -244,9 +291,27 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         super.onViewCreated(view, savedInstanceState);
         mServerErrorLayout = view.findViewById(R.id.awlib_llServerError);
         mServerErrorTexte = (TextView) view.findViewById(R.id.awlib_tvServerError);
-        mServerURLTextView = (TextView) view.findViewById(R.id.awlib_tvDBServerName);
-        mUserIDTextView = (TextView) view.findViewById(R.id.awlib_tvDBUserName);
         mProgressServerConnection = view.findViewById(R.id.pbDlgServerConnection);
+    }
+
+    protected void setFileList(FTPFile[] files) {
+        List<FTPFile> mFiles = Arrays.asList(files);
+        Collections.sort(mFiles, new Comparator<FTPFile>() {
+            @Override
+            public int compare(FTPFile lhs, FTPFile rhs) {
+                if (lhs.isDirectory() && !rhs.isDirectory()) {
+                    // Directory before File
+                    return -1;
+                } else if (!lhs.isDirectory() && rhs.isDirectory()) {
+                    // File after directory
+                    return 1;
+                } else {
+                    // Otherwise in Alphabetic order...
+                    return lhs.getName().compareTo(rhs.getName());
+                }
+            }
+        });
+        mAdapter.swapValues(mFiles);
     }
 
     @Override
@@ -255,122 +320,6 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         args.putInt(LAYOUT, layout);
         args.putIntArray(VIEWRESIDS, viewResIDs);
         args.putInt(VIEWHOLDERLAYOUT, viewHolderLayout);
-    }
-
-    private void testConnection() {
-        new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(Void... params) {
-                try {
-                    return mRemoteFileServer.testConnection();
-                } catch (final RemoteFileServer.ConnectionFailsException e) {
-                    //TODO Execption bearbeiten
-                    e.printStackTrace();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            StringBuilder s = new StringBuilder();
-                            for (String val : e.getStatus()) {
-                                s.append(val).append(linefeed);
-                            }
-                            mServerErrorTexte.setText(s.toString());
-                        }
-                    });
-                    return false;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Boolean result) {
-                mProgressServerConnection.setVisibility(View.GONE);
-                if (!result) {
-                    mServerErrorLayout.setVisibility(View.VISIBLE);
-                } else {
-                    new CreateFileList(mUri);
-                }
-            }
-
-            @Override
-            protected void onPreExecute() {
-                mServerURLTextView.setText(mRemoteFileServer.getURL());
-                mUserIDTextView.setText(mRemoteFileServer.getUserID());
-                mProgressServerConnection.setVisibility(View.VISIBLE);
-            }
-        }.execute();
-    }
-
-    /**
-     * Erstellt eine Liste der Files innerhalb eines Directories. Ist das File ungleich dem in
-     * {@link AWLibFileChooser#newInstance(String)} angegebenen Directory, wird am Anfang der Liste
-     * der Parent des uebergebenen Files eingefuegt. Damit kann eine Navigation erfolgen.
-     * <p>
-     * Die erstellte Liste wird direkt in den Adapter einestellt.
-     * <p>
-     * Ausserdem wird im Subtitle der Toolbar der Name des akuellten Verzeichnisses eingeblendet.
-     */
-    private class CreateFileList extends AsyncTask<Uri, Void, List<FTPFile>> {
-        private final Uri newDirectory;
-
-        /**
-         * Erstellt eine Liste der Files innerhalb eines Directories. Ist das File ungleich dem in
-         * {@link AWLibFileChooser#newInstance(String)} angegebenen Directory, wird am Anfang der
-         * Liste der Parent des uebergebenen Files eingefuegt. Damit kann eine Navigation erfolgen.
-         * <p>
-         * Die erstellte Liste wird direkt in den Adapter einestellt.
-         * <p>
-         * Ausserdem wird im Subtitle der Toolbar der Name des akuellten Verzeichnisses
-         * eingeblendet.
-         *
-         * @param directory
-         *         directory, zu dem die Liste erstellt werden soll
-         */
-        public CreateFileList(Uri directory) {
-            newDirectory = directory;
-            execute(directory);
-        }
-
-        @Override
-        protected List<FTPFile> doInBackground(Uri... params) {
-            Uri directory = params[0];
-            try {
-                FTPFile[] files;
-                files = mRemoteFileServer.listFiles(directory.getEncodedPath(), mFileFilter);
-                List<FTPFile> mFiles = Arrays.asList(files);
-                Collections.sort(mFiles, new Comparator<FTPFile>() {
-                    @Override
-                    public int compare(FTPFile lhs, FTPFile rhs) {
-                        if (lhs.isDirectory() && !rhs.isDirectory()) {
-                            // Directory before File
-                            return -1;
-                        } else if (!lhs.isDirectory() && rhs.isDirectory()) {
-                            // File after directory
-                            return 1;
-                        } else {
-                            // Otherwise in Alphabetic order...
-                            return lhs.getName().compareTo(rhs.getName());
-                        }
-                    }
-                });
-                return new ArrayList<>(mFiles);
-            } catch (RemoteFileServer.ConnectionFailsException e) {
-                //TODO Execption bearbeiten
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(List<FTPFile> value) {
-            mProgressServerConnection.setVisibility(View.GONE);
-            ((AWLibMainActivity) getActivity()).getSupportActionBar()
-                    .setSubtitle(newDirectory.getEncodedPath());
-            mAdapter.swapValues(value);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mProgressServerConnection.setVisibility(View.VISIBLE);
-        }
     }
 }
 

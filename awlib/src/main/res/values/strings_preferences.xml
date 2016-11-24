@@ -66,5 +66,6 @@
     <string name="nextDoDBSave">nextDoDBSave</string>
     <string name="pkServerConnectionType">ConnectionType</string>
     <string name="pkServerRemoteDirectory">RemoteDirectory</string>
+    <string name="cbConnectionType">verschlüsselte Verbindung</string>
 
 </resources>
