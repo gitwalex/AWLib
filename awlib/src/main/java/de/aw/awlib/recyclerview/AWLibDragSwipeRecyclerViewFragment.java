@@ -17,6 +17,7 @@
 package de.aw.awlib.recyclerview;
 
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.v4.view.MotionEventCompat;
@@ -34,6 +35,7 @@ import android.view.View;
  * @see CursorDragDropRecyclerViewAdapter
  */
 public class AWLibDragSwipeRecyclerViewFragment extends AWLibCursorRecyclerViewFragment {
+    private Drawable backgroundOnStartDrag;
     private SimpleItemTouchHelperCallback callbackTouchHelper;
     private boolean isDragable;
     private boolean isSwipeable;
@@ -72,6 +74,9 @@ public class AWLibDragSwipeRecyclerViewFragment extends AWLibCursorRecyclerViewF
                     if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
                         AWLibDragSwipeRecyclerViewFragment.this.onStartDrag(holder);
                     }
+                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_UP) {
+                        AWLibDragSwipeRecyclerViewFragment.this.onStopDrag(holder);
+                    }
                     return false;
                 }
             });
@@ -79,7 +84,12 @@ public class AWLibDragSwipeRecyclerViewFragment extends AWLibCursorRecyclerViewF
     }
 
     private void onStartDrag(AWLibViewHolder holder) {
+        holder.itemView.setPressed(true);
         mTouchHelper.startDrag(holder);
+    }
+
+    private void onStopDrag(AWLibViewHolder holder) {
+        holder.itemView.setPressed(false);
     }
 
     /**

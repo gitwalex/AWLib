@@ -121,6 +121,27 @@ public class AWLibDBAlterHelper {
     }
 
     /**
+     * Legt einen Index an.
+     *
+     * @param tbd
+     *         Tabelle
+     * @param indexName
+     *         Name des Index
+     * @param indexColumns
+     *         Spalten des Index, Komme getrennt
+     * @param selection
+     *         Selection fuer den Index
+     */
+    public void alterIndex(AWLibAbstractDBDefinition tbd, String indexName, String indexColumns,
+                           String selection) {
+        dropIndex(tbd);
+        String sql = "CREATE ";
+        sql = sql + "INDEX IF NOT EXISTS " + indexName + " on " + tbd.name() + " (" + indexColumns +
+                ")" + selection;
+        database.execSQL(sql);
+    }
+
+    /**
      * Legt eine Tabelle mit neuen Spalten an. Inhalte werden kopiert, die zu kopierenden Felder
      * werden ueber fromColumn vorgegeben
      *

@@ -34,28 +34,6 @@ public class AbstractDBFormate {
      */
     private static final SparseArray<Character> mapResID2Formate = new SparseArray<>();
     private static AbstractDBFormate mInstance;
-    /**
-     * "TTEXT", "DDate", "NNUMERIC", "BBoolean", "CNUMERIC", "PNUMERIC", "KNUMERIC"};
-     * <p>
-     * Liste der moeglichen Formate.
-     * <p>
-     * T = normaler Text
-     * <p>
-     * N = Numerisch
-     * <p>
-     * C = Numerisch als Currency, Long, anzahl Stellen wie Nachkommastellen Locale.getCurrency
-     * <p>
-     * K = Numerisch als Currency, Long, aktuell Anzahl Stellen wie Nachkommastellen
-     * Locale.getCurrency
-     * <p>
-     * D = Datum
-     * <p>
-     * B = Boolean
-     * <p>
-     * P = Numerisch als Prozent
-     * <p>
-     * K = Numerisch mit 5 NAchkommastellen (Kurs)
-     */
     private final Map<Character, String> formate = new HashMap<>();
     private final Map<String, Integer> mapColumnNae2ResID = new HashMap<>();
 
@@ -98,7 +76,6 @@ public class AbstractDBFormate {
         Character format = mapResID2Formate.get(resID);
         if (format == null) {
             format = 'T';
-            AWLIbApplication.Log("Kein Format fuer " + resID + ". Default 'T'");
         }
         return format;
     }
@@ -108,7 +85,27 @@ public class AbstractDBFormate {
      * Geschaeftobject der Wert mit dem entsprechenden in die Tabellenspalte geschrieben.
      *
      * @return Liste der columns. [0] = resID, [1] = format
-     */
+     * <p>
+     * <p>
+     * Liste der moeglichen Formate.
+     * <p>
+     * T = normaler Text
+     * <p>
+     * N = Numerisch
+     * <p>
+     * C = Numerisch als Currency, Long, anzahl Stellen wie Nachkommastellen Locale.getCurrency
+     * <p>
+     * K = Numerisch als Currency, Long, aktuell Anzahl Stellen wie Nachkommastellen
+     * Locale.getCurrency
+     * <p>
+     * D = Datum
+     * <p>
+     * B = Boolean
+     * <p>
+     * P = Numerisch als Prozent
+     * <p>
+     * K = Numerisch mit 5 Nachkommastellen (Kurs)
+     **/
     public int[][] getItems() {
         return new int[][]{};
     }

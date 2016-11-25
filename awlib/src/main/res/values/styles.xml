@@ -48,19 +48,19 @@
         <item name="contentPadding">1dp</item>
     </style>
 
-    <style name="CardFinanzuebersicht" parent="RecyclerView">
+    <style name="CardFinanzuebersicht" parent="AWLibCardView">
         <item name="contentPadding">20dp</item>
         <item name="android:layout_marginTop">5dp</item>
     </style>
 
-    <style name="CardSplitBuchungen" parent="RecyclerView">
+    <style name="CardSplitBuchungen" parent="AWLibCardView">
         <item name="contentPadding">0dp</item>
         <item name="android:paddingBottom">20dp</item>
         <item name="android:layout_marginLeft">5dp</item>
         <item name="android:layout_marginRight">5dp</item>
     </style>
 
-    <style name="CardBuchungliste" parent="RecyclerView">
+    <style name="CardBuchungliste" parent="AWLibCardView">
         <item name="contentPadding">10dp</item>
     </style>
 
@@ -100,24 +100,25 @@
         <item name="android:paddingRight">20dp</item>
     </style>
 
-    <style name="RecyclerView" parent="@style/CardView">
+    <style name="AWLibCardView" parent="@style/CardView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">1dp</item>
         <item name="android:layout_marginLeft">20dp</item>
         <item name="android:layout_marginRight">20dp</item>
         <item name="android:layout_marginTop">1dp</item>
+        <item name="android:background">@drawable/awlib_item_selector</item>
         <item name="cardCornerRadius">3dp</item>
         <item name="cardElevation">4dp</item>
         <item name="cardUseCompatPadding">true</item>
         <item name="contentPadding">5dp</item>
     </style>
     <!-- Style fuer ListViews-->
-    <style name="ListView" parent="RecyclerView">
+    <style name="ListView" parent="AWLibCardView">
         <item name="contentPadding">10dp</item>
     </style>
     <!-- Style fuer CardViews, die Details zeigen-->
-    <style name="CardDetailAnsicht" parent="RecyclerView">
+    <style name="CardDetailAnsicht" parent="AWLibCardView">
         <item name="contentPadding">10dp</item>
     </style>
     <!-- Zeichnet eine horizentrale linie mit 2dp Dicke -->
@@ -127,7 +128,8 @@
         <item name="android:orientation">horizontal</item>
         <item name="android:background">?android:attr/listDivider</item>
     </style>
-    <!-- Zeichnet eine verticale linie mit 2dp Dicke --><style name="verticalDivider">
+    <!-- Zeichnet eine verticale linie mit 2dp Dicke -->
+    <style name="verticalDivider">
     <item name="android:layout_width">10dp</item>
     <item name="android:layout_height">match_parent</item>
     <item name="android:orientation">vertical</item>

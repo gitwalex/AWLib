@@ -19,7 +19,6 @@ package de.aw.awlib.gv;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
@@ -34,7 +33,6 @@ import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
-import de.aw.awlib.database_private.AWLibDBDefinition;
 
 /**
  * MonMa AWLibApplicationGeschaeftsObjekt
@@ -65,8 +63,8 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
     /**
      * Abbild der jeweiligen Zeile der Datenbank. Werden nicht direkt geaendert.
      */
-    protected ContentValues currentContent = new ContentValues();
-    protected boolean isDirty;
+    private ContentValues currentContent = new ContentValues();
+    private boolean isDirty;
     /**
      * Tabellendefinition, fuer die dieser AWLibApplicationGeschaeftsObjekt gilt. Wird im
      * Konstruktor belegt.
@@ -127,8 +125,7 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
     }
 
     /**
-     * Zugriff auf Applicationsdatenbank. Liefert einen Cursor auf die uebergebenen Argumente
-     * zurueck
+     * Zugriff auf Datenbank. Liefert einen Cursor auf die uebergebenen Argumente zurueck
      *
      * @param projection
      *         Tabellenspalten
@@ -143,50 +140,8 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
      */
     public static Cursor getCursor(AWLibAbstractDBDefinition tbd, String[] projection,
                                    String selection, String[] selectionArgs, String sortOrder) {
-        return AWLIbApplication.getDBHelper().getWritableDatabase()
-                .query(tbd.name(), projection, selection, selectionArgs, sortOrder, null, null);
-    }
-
-    /**
-     * Zugriff auf Maindatenbank. Liefert einen Cursor auf die uebergebenen Argumente zurueck
-     *
-     * @param projection
-     *         Tabellenspalten
-     * @param selection
-     *         selection
-     * @param selectionArgs
-     *         Argumente zur Selection
-     * @param sortOrder
-     *         Sortierung
-     *
-     * @return Cursor Cursor
-     */
-    public static Cursor getCursor(AWLibDBDefinition tbd, String[] projection, String selection,
-                                   String[] selectionArgs, String sortOrder) {
-        return AWLIbApplication.getMainApplicationConfig().getDBHelper().getWritableDatabase()
-                .query(tbd.name(), projection, selection, selectionArgs, sortOrder, null, null);
-    }
-
-    /**
-     * Zugriff auf AWLibdatenbank. Liefert einen Cursor auf die uebergebenen Argumente zurueck
-     *
-     * @param projection
-     *         Tabellenspalten
-     * @param selection
-     *         selection
-     * @param selectionArgs
-     *         Argumente zur Selection
-     * @param sortOrder
-     *         Sortierung
-     *
-     * @return Cursor Cursor
-     */
-    public static Cursor getCursorAWLibDatabase(AWLibAbstractDBDefinition tbd, String[] projection,
-                                                String selection, String[] selectionArgs,
-                                                String sortOrder) {
-        Uri uri = tbd.getUri();
-        return AWLIbApplication.getAWLibContentResolver()
-                .query(uri, projection, selection, selectionArgs, sortOrder);
+        return AWLIbApplication.getApplicationContentResolver()
+                .query(tbd.getUri(), projection, selection, selectionArgs, sortOrder, null);
     }
 
     public static boolean isImport() {
@@ -278,10 +233,7 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
             return false;
         }
         AWLibApplicationGeschaeftsObjekt that = (AWLibApplicationGeschaeftsObjekt) o;
-        if (tbd != that.tbd) {
-            return false;
-        }
-        return currentContent.equals(that.currentContent);
+        return tbd == that.tbd && currentContent.equals(that.currentContent);
     }
 
     /**
