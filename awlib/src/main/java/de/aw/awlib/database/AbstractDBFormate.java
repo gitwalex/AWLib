@@ -28,11 +28,12 @@ import de.aw.awlib.application.AWLIbApplication;
 /**
  * Formate fuer die einzelnen Columns der DB
  */
-public abstract class AbstractDBFormate {
+public class AbstractDBFormate {
     /**
      * Map der ResIDs auf das Format der Spalte
      */
     private static final SparseArray<Character> mapResID2Formate = new SparseArray<>();
+    private static AbstractDBFormate mInstance;
     /**
      * "TTEXT", "DDate", "NNUMERIC", "BBoolean", "CNUMERIC", "PNUMERIC", "KNUMERIC"};
      * <p>
@@ -80,6 +81,13 @@ public abstract class AbstractDBFormate {
         }
     }
 
+    public static AbstractDBFormate getInstance() {
+        if (mInstance == null) {
+            mInstance = new AbstractDBFormate();
+        }
+        return mInstance;
+    }
+
     /**
      * @param resID
      *         resID
@@ -96,9 +104,14 @@ public abstract class AbstractDBFormate {
     }
 
     /**
+     * Hier sollten alle comumnItems aufgefuerht werden, deren Format nicht Text ist. Dann wird im
+     * Geschaeftobject der Wert mit dem entsprechenden in die Tabellenspalte geschrieben.
+     *
      * @return Liste der columns. [0] = resID, [1] = format
      */
-    public abstract int[][] getItems();
+    public int[][] getItems() {
+        return new int[][]{};
+    }
 
     public Integer getResID(String resName) {
         return mapColumnNae2ResID.get(resName.trim());

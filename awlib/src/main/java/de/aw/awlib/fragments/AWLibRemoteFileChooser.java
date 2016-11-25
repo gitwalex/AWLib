@@ -41,10 +41,11 @@ import de.aw.awlib.R;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.database_private.AWLibDBHelper;
 import de.aw.awlib.gv.RemoteFileServer;
-import de.aw.awlib.gv.RemoteFileServerExecuter;
 import de.aw.awlib.recyclerview.AWLibArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
-import de.aw.awlib.utils.FileServerExecuter;
+import de.aw.awlib.utils.RemoteFileServerAdapter;
+import de.aw.awlib.utils.RemoteFileServerHandler;
+import de.aw.awlib.utils.RemoteFileServerHandler.ExecutionListener;
 
 import static android.net.Uri.withAppendedPath;
 
@@ -52,7 +53,7 @@ import static android.net.Uri.withAppendedPath;
  * Dialog zur Abfrage von Zugangsdaten fuer externe Sicherung der DB.
  */
 public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFile>
-        implements RemoteFileServerExecuter.ExecutionListener {
+        implements ExecutionListener {
     protected static final String DIRECTORYNAME = "DIRECTORYNAME";
     private static final int layout = R.layout.awlib_remote_filechooser;
     private static final int[] viewResIDs =
@@ -78,7 +79,7 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
     private AWLibFragmentActionBar.OnActionFinishListener mOnActionFinishListener;
     private View mProgressServerConnection;
     private RemoteFileServer mRemoteFileServer;
-    private RemoteFileServerExecuter mRemoteFileServerExecuter;
+    private RemoteFileServerAdapter mRemoteFileServerAdapter;
     private View mServerErrorLayout;
     private TextView mServerErrorTexte;
     private Uri mUri = Uri.parse("/");
@@ -105,11 +106,11 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         return AWLibDBHelper.getInstance();
     }
 
-    private RemoteFileServerExecuter getExecuter() {
-        if (mRemoteFileServerExecuter == null) {
-            mRemoteFileServerExecuter = new RemoteFileServerExecuter(mRemoteFileServer, this);
+    private RemoteFileServerAdapter getExecuter() {
+        if (mRemoteFileServerAdapter == null) {
+            mRemoteFileServerAdapter = new RemoteFileServerAdapter(mRemoteFileServer, this);
         }
-        return mRemoteFileServerExecuter;
+        return mRemoteFileServerAdapter;
     }
 
     @Override
@@ -162,7 +163,7 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
             } else {
                 mRemoteFileServer.insert(getDBHelper());
             }
-            mOnActionFinishListener.onActionFinishClicked(layout, view.getId());
+            mOnActionFinishListener.onActionFinishClicked(layout, 0);
             return true;
         }
         return super.onArrayRecyclerItemLongClick(recyclerView, view, object);
@@ -256,10 +257,10 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         }
     }
 
-    public void onPostExecute(FileServerExecuter.ConnectionFailsException result) {
+    public void onPostExecute(RemoteFileServerHandler.ConnectionFailsException result) {
         mProgressServerConnection.setVisibility(View.INVISIBLE);
         if (result == null) {
-            setFileList(mRemoteFileServerExecuter.getFiles());
+            setFileList(mRemoteFileServerAdapter.getFiles());
             ActionBar bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             if (bar != null) {
                 bar.setTitle(mRemoteFileServer.getURL());

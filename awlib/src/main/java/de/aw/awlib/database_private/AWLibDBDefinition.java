@@ -35,6 +35,7 @@ import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
 import de.aw.awlib.database.AWLibContentProvider;
 import de.aw.awlib.database.AWLibDBAlterHelper;
+import de.aw.awlib.database.AbstractDBFormate;
 
 /**
  * @author Alexander Winkler
@@ -69,7 +70,7 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
      * Flag, ob initialize(context) aufgerufen wurde.
      */
     private static boolean isInitialized;
-    private static AWLibDBFormate mDBFormat;
+    private static AbstractDBFormate mDBFormat;
 
     /**
      * Initialisiert DBDefinition. Vor der ersten Nutzung aufzurufen
@@ -97,7 +98,7 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
                 tbd.mapResID2columnNames.put(map, resIDString);
             }
         }
-        mDBFormat = AWLibDBFormate.getInstance();
+        mDBFormat = AbstractDBFormate.getInstance();
         isInitialized = true;
     }
 
@@ -133,13 +134,6 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
         for (int map : createTableItems) {
             createResIDs[i++] = map;
         }
-        mUri = Uri.parse("content://" + AWLibContentProvider.AUTHORITY + "/" + name());
-    }
-
-    AWLibDBDefinition(Parcel in) {
-        createResIDs = in.createIntArray();
-        tableitems = in.createIntArray();
-        resIDs = in.createIntArray();
         mUri = Uri.parse("content://" + AWLibContentProvider.AUTHORITY + "/" + name());
     }
 
@@ -210,25 +204,6 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
             indexSQL.append(", ").append(columns[j]);
         }
         return indexSQL.toString();
-    }
-
-    /**
-     * Erweiterung der value()-Methode der ENUM. Wirft {@link IllegalArgumentException}.
-     *
-     * @param ordinal
-     *         Nummer der AWLibDBDefinition
-     *
-     * @return AWLibDBDefinition zu ordinal.
-     *
-     * @throws IllegalArgumentException
-     *         wenn zu ordinal keine AWLibDBDefinition gefunden wurde
-     */
-    public static AWLibDBDefinition getMatch(int ordinal) {
-        try {
-            return values()[ordinal];
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Keine entsprechende DataBaseDefinition gefunden");
-        }
     }
 
     /**
@@ -660,13 +635,6 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
     }
 
     /**
-     * @return liefert den URI-Code zu der Tabelle zuruck. Dies ist der ordinal der Tabelle.
-     */
-    public int getUriCode() {
-        return ordinal();
-    }
-
-    /**
      * Indicator, ob AWLibDBDefinition eine View ist. Default false
      *
      * @return false. Wenn DBDefintion eine View ist, muss dies zwingend ueberschreiben werden,
@@ -679,15 +647,5 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(ordinal());
-    }
-
-    /**
-     * Wird geworfen, wenn eine ResID nicht gefunden wurde.
-     */
-    @SuppressWarnings("serial")
-    public class ResIDNotFoundException extends RuntimeException {
-        public ResIDNotFoundException(String detailMessage) {
-            super(detailMessage);
-        }
     }
 }

@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.application.AWLIbApplication;
 
 /**
  * Bearbeitet Events innerhalb MonMa.
@@ -63,7 +63,7 @@ public class AWLibEventService extends IntentService implements AWLibInterface {
                 }
                 break;
             case doVaccum:
-                AbstractDBHelper.doVacuum();
+                AWLIbApplication.getDBHelper().doVacuum();
                 break;
         }
     }

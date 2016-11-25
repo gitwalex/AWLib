@@ -35,16 +35,16 @@ import de.aw.awlib.database_private.AWLibDBHelper;
 public class AWLibContentProvider extends ContentProvider implements AWLibInterface {
     public static final String AUTHORITY = "de.aw.awlibcontentprovider";
     private boolean batchMode;
-    private AWLibDBHelper db;
+    private AbstractDBHelper db;
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
         String authority = uri.getAuthority();
-        if (!AUTHORITY.equals(authority)) {
-            throw new IllegalArgumentException(
-                    "Fuer die Authority " + authority + " bin ich nicht zustaendig");
+        if (AUTHORITY.equals(authority)) {
+            db = AWLibDBHelper.getInstance();
+        } else {
+            db = AWLIbApplication.getDBHelper();
         }
-        db = AWLibDBHelper.getInstance();
         batchMode = true;
         db.beginTransaction();
         int result = 0;
@@ -69,12 +69,12 @@ public class AWLibContentProvider extends ContentProvider implements AWLibInterf
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         String authority = uri.getAuthority();
-        if (!AUTHORITY.equals(authority)) {
-            throw new IllegalArgumentException(
-                    "Fuer die Authority " + authority + " bin ich nicht zustaendig");
-        }
         if (!batchMode) {
-            db = AWLibDBHelper.getInstance();
+            if (AUTHORITY.equals(authority)) {
+                db = AWLibDBHelper.getInstance();
+            } else {
+                db = AWLIbApplication.getDBHelper();
+            }
         }
         int rowsDeleted = db.delete(uri, selection, selectionArgs);
         if (!batchMode) {
@@ -91,12 +91,12 @@ public class AWLibContentProvider extends ContentProvider implements AWLibInterf
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
         String authority = uri.getAuthority();
-        if (!AUTHORITY.equals(authority)) {
-            throw new IllegalArgumentException(
-                    "Fuer die Authority " + authority + " bin ich nicht zustaendig");
-        }
         if (!batchMode) {
-            db = AWLibDBHelper.getInstance();
+            if (AUTHORITY.equals(authority)) {
+                db = AWLibDBHelper.getInstance();
+            } else {
+                db = AWLIbApplication.getDBHelper();
+            }
         }
         long id = db.insert(uri, null, values);
         if (!batchMode) {
@@ -114,13 +114,13 @@ public class AWLibContentProvider extends ContentProvider implements AWLibInterf
     public Cursor query(@NonNull Uri uri, String[] from, String selection, String[] selectionArgs,
                         String sortOrder) {
         String authority = uri.getAuthority();
-        if (!AUTHORITY.equals(authority)) {
-            throw new IllegalArgumentException(
-                    "Fuer die Authority " + authority + " bin ich nicht zustaendig");
+        if (AUTHORITY.equals(authority)) {
+            db = AWLibDBHelper.getInstance();
+        } else {
+            db = AWLIbApplication.getDBHelper();
         }
-        SQLiteDatabase database = AWLibDBHelper.getInstance().getReadableDatabase();
+        SQLiteDatabase database = db.getReadableDatabase();
         String table = uri.getLastPathSegment();
-        AWLIbApplication.LogError(table);
         Cursor c = database.query(table + " t1", from, selection, selectionArgs, null, null,
                 sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
@@ -131,12 +131,12 @@ public class AWLibContentProvider extends ContentProvider implements AWLibInterf
     public int update(@NonNull Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
         String authority = uri.getAuthority();
-        if (!AUTHORITY.equals(authority)) {
-            throw new IllegalArgumentException(
-                    "Fuer die Authority " + authority + " bin ich nicht zustaendig");
-        }
         if (!batchMode) {
-            db = AWLibDBHelper.getInstance();
+            if (AUTHORITY.equals(authority)) {
+                db = AWLibDBHelper.getInstance();
+            } else {
+                db = AWLIbApplication.getDBHelper();
+            }
         }
         int rowsUpdated = db.update(uri, values, selection, selectionArgs);
         if (!batchMode) {

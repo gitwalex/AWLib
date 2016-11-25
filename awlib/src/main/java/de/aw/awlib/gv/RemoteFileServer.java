@@ -25,9 +25,9 @@ import de.aw.awlib.R;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.database_private.AWLibDBDefinition;
-import de.aw.awlib.utils.FileServerExecuter.ConnectionType;
+import de.aw.awlib.utils.RemoteFileServerHandler.ConnectionType;
 
-import static de.aw.awlib.utils.FileServerExecuter.ConnectionType.SSL;
+import static de.aw.awlib.utils.RemoteFileServerHandler.ConnectionType.SSL;
 
 /**
  * Stammdaten fuer einen RemoteFileServer.
@@ -122,12 +122,12 @@ public class RemoteFileServer extends AWLibApplicationGeschaeftsObjekt {
         return 0;
     }
 
-    public ConnectionType getConnectionType() {
-        return mConnectionType;
+    public String getBackupDirectory() {
+        return mMainDirectory;
     }
 
-    public String getMainDirectory() {
-        return mMainDirectory;
+    public ConnectionType getConnectionType() {
+        return mConnectionType;
     }
 
     /**

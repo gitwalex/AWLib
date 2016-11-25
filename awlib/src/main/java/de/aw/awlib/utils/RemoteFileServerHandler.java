@@ -10,30 +10,31 @@ import org.apache.commons.net.ftp.FTPSClient;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import de.aw.awlib.gv.RemoteFileServerExecuter;
-
 import static de.aw.awlib.activities.AWLibInterface.linefeed;
-import static de.aw.awlib.utils.FileServerExecuter.Options.ListFilesInDirectory;
-import static de.aw.awlib.utils.FileServerExecuter.Options.TransferFile;
+import static de.aw.awlib.utils.RemoteFileServerHandler.Options.ListFilesInDirectory;
+import static de.aw.awlib.utils.RemoteFileServerHandler.Options.TransferFile;
 
 /**
- * Created by alex on 24.11.2016.
+ * Handler fuer Zugriffe auf einen FileServer. Alle Transaktionen werden in einem separatem
+ * AsyncTask durchgefuehrt.
  */
-public class FileServerExecuter extends
-        AsyncTask<FileServerExecuter.Options, Void, FileServerExecuter.ConnectionFailsException> {
-    private final RemoteFileServerExecuter mRemoteFileServerExecuter;
+public class RemoteFileServerHandler extends
+        AsyncTask<RemoteFileServerHandler.Options, Void, RemoteFileServerHandler.ConnectionFailsException> {
+    private final RemoteFileServerAdapter mRemoteFileServerAdapter;
+    private final ExecutionListener mExecutionListener;
     private FTPClient mClient;
     private String mDestDirectoryName;
     private String mDirectory;
     private FTPFileFilter mFilter;
     private File mTransferFile;
 
-    public FileServerExecuter(RemoteFileServerExecuter remoteFileServerExecuter) {
-        mRemoteFileServerExecuter = remoteFileServerExecuter;
-        mClient = mRemoteFileServerExecuter.getFTPClient();
+    RemoteFileServerHandler(RemoteFileServerAdapter remoteFileServerAdapter,
+                            ExecutionListener executionListener) {
+        mRemoteFileServerAdapter = remoteFileServerAdapter;
+        mClient = mRemoteFileServerAdapter.getFTPClient();
+        mExecutionListener = executionListener;
     }
 
     /**
@@ -46,10 +47,10 @@ public class FileServerExecuter extends
     private void connectClient() throws ConnectionFailsException {
         try {
             if (!mClient.isConnected()) {
-                mClient.connect(mRemoteFileServerExecuter.getUrl(), 21);
+                mClient.connect(mRemoteFileServerAdapter.getUrl(), 21);
                 mClient.enterLocalPassiveMode();
-                if (!mClient.login(mRemoteFileServerExecuter.getUserID(),
-                        mRemoteFileServerExecuter.getUserPassword())) {
+                if (!mClient.login(mRemoteFileServerAdapter.getUserID(),
+                        mRemoteFileServerAdapter.getUserPassword())) {
                     throw new ConnectionFailsException(mClient);
                 }
                 if (mClient instanceof FTPSClient) {
@@ -64,39 +65,40 @@ public class FileServerExecuter extends
         }
     }
 
+    /**
+     * Baut die Verbindung zum Server wieder ab.
+     */
+    private void disconnectClient() {
+        if (mClient != null && mClient.isConnected()) {
+            try {
+                mClient.logout();
+                mClient.disconnect();
+            } catch (IOException e) {
+                //TODO Execption bearbeiten
+                e.printStackTrace();
+            }
+        }
+    }
+
     protected ConnectionFailsException doInBackground(Options... params) {
         try {
+            connectClient();
             switch (params[0]) {
                 case ListAllFiles:
                 case ListFilesInDirectory:
-                    FTPFile[] result = listFiles(mDirectory, mFilter);
-                    mRemoteFileServerExecuter.setFiles(result);
+                    FTPFile[] result = executeListFiles(mDirectory, mFilter);
+                    mRemoteFileServerAdapter.setFiles(result);
                     break;
                 case TransferFile:
-                    transferFileToServer(mTransferFile, mDestDirectoryName);
+                    executeTransferFileToServer(mTransferFile, mDestDirectoryName);
                     break;
             }
             return null;
         } catch (ConnectionFailsException e) {
             return e;
+        } finally {
+            disconnectClient();
         }
-    }
-
-    public void executeListAllFiles(FTPFileFilter filter) {
-        mDirectory = "/";
-        executeListFilesInDiretory(mDirectory, filter);
-    }
-
-    public void executeListFilesInDiretory(String directory, FTPFileFilter filter) {
-        mDirectory = directory;
-        mFilter = filter;
-        execute(ListFilesInDirectory);
-    }
-
-    public void executeTransferFile(File transferFile, String destDirectoryName) {
-        mTransferFile = transferFile;
-        mDestDirectoryName = destDirectoryName;
-        execute(TransferFile);
     }
 
     /**
@@ -110,8 +112,8 @@ public class FileServerExecuter extends
      * @throws ConnectionFailsException
      *         bei Fehlern.
      */
-    private FTPFile[] listFiles(FTPFileFilter filter) throws ConnectionFailsException {
-        return listFiles("/", filter);
+    private FTPFile[] executeListFiles(FTPFileFilter filter) throws ConnectionFailsException {
+        return executeListFiles("/", filter);
     }
 
     /**
@@ -125,9 +127,8 @@ public class FileServerExecuter extends
      * @throws ConnectionFailsException
      *         bei Fehlern.
      */
-    private FTPFile[] listFiles(String directory, FTPFileFilter filter)
+    private FTPFile[] executeListFiles(String directory, FTPFileFilter filter)
             throws ConnectionFailsException {
-        connectClient();
         FTPFile[] files;
         try {
             if (filter != null) {
@@ -135,24 +136,10 @@ public class FileServerExecuter extends
             } else {
                 files = mClient.listFiles(directory);
             }
-            if (mClient != null && mClient.isConnected()) {
-                mClient.logout();
-                mClient.disconnect();
-            }
         } catch (IOException e) {
             throw new ConnectionFailsException(mClient);
         }
         return files;
-    }
-
-    @Override
-    protected void onPostExecute(ConnectionFailsException result) {
-        mRemoteFileServerExecuter.onPostExecute(result);
-    }
-
-    @Override
-    protected void onPreExecute() {
-        mRemoteFileServerExecuter.onPreExecute();
     }
 
     /**
@@ -166,14 +153,11 @@ public class FileServerExecuter extends
      *
      * @return true, wenn erfolgreich
      *
-     * @throws IOException
-     *         bei Fehlern
      * @throws ConnectionFailsException
      *         bei Fehlern
      */
-    private boolean transferFileToServer(File file, String remoteDirectory)
+    private boolean executeTransferFileToServer(File file, String remoteDirectory)
             throws ConnectionFailsException {
-        connectClient();
         FileInputStream fis = null;
         boolean result = false;
         try {
@@ -182,23 +166,84 @@ public class FileServerExecuter extends
             mClient.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
             mClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
             result = mClient.storeFile(file.getName(), fis);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new ConnectionFailsException(mClient);
         } finally {
-            try {
-                if (fis != null) {
+            if (fis != null) {
+                try {
                     fis.close();
+                } catch (IOException e) {
+                    //TODO Execption bearbeiten
+                    e.printStackTrace();
                 }
-                if (mClient != null && mClient.isConnected()) {
-                    mClient.logout();
-                    mClient.disconnect();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                result = false;
             }
-            return result;
         }
+        return result;
+    }
+
+    /**
+     * Listet alle Files im RootDirectory des Servers
+     *
+     * @param filter
+     *         FileFilter. Kann null sein
+     */
+    public void listFiles(FTPFileFilter filter) {
+        mDirectory = "/";
+        listFilesInDiretory(mDirectory, filter);
+    }
+
+    /**
+     * Listet alle Files im angegebenen Directory des Servers
+     *
+     * @param filter
+     *         FileFilter. Kann null sein
+     */
+    public void listFilesInDiretory(String directory, FTPFileFilter filter) {
+        mDirectory = directory;
+        mFilter = filter;
+        execute(ListFilesInDirectory);
+    }
+
+    /**
+     * Ruft {@link ExecutionListener#onPostExecute(ConnectionFailsException)}
+     */
+    @Override
+    protected void onPostExecute(ConnectionFailsException result) {
+        mExecutionListener.onPostExecute(result);
+    }
+
+    /**
+     * Ruft {@link ExecutionListener#onPreExecute()}
+     */
+    @Override
+    protected void onPreExecute() {
+        mExecutionListener.onPreExecute();
+    }
+
+    /**
+     * Uebertraegt ein File auf den Server.
+     *
+     * @param transferFile
+     *         File, welche uebertragen werden soll
+     * @param destDirectoryName
+     *         ZielDirectory
+     */
+    public void transferFile(File transferFile, String destDirectoryName) {
+        mTransferFile = transferFile;
+        mDestDirectoryName = destDirectoryName;
+        execute(TransferFile);
+    }
+
+    /**
+     * Ubertraegt ein File auf das Backupdirectory des Servers
+     *
+     * @param transferFile
+     *         File, welches Uebertragen werden soll
+     */
+    public void transferFileToBackup(File transferFile) {
+        mTransferFile = transferFile;
+        mDestDirectoryName = mRemoteFileServerAdapter.getBackupDirectory();
+        execute(TransferFile);
     }
 
     /**
@@ -215,6 +260,9 @@ public class FileServerExecuter extends
         NONSSL
     }
 
+    /**
+     * Moegliche Serveraktionen
+     */
     enum Options {
         /**
          * Listet alle Files auf dem Server
@@ -228,6 +276,25 @@ public class FileServerExecuter extends
          * Uebertraegt ein File zum Server
          */
         TransferFile
+    }
+
+    /**
+     * Listener fuer auf dem Server laufende Transaktion
+     */
+    public interface ExecutionListener {
+        /**
+         * Wird nach Ende der Transaktion gerufen.
+         *
+         * @param result
+         *         Die {@link de.aw.awlib.utils.RemoteFileServerHandler.ConnectionFailsException},
+         *         wenn Fehler aufgetretn sind. Ansonsten null.
+         */
+        void onPostExecute(RemoteFileServerHandler.ConnectionFailsException result);
+
+        /**
+         * Wird vor Beginn der Transaktion gerufen.
+         */
+        void onPreExecute();
     }
 
     /**
@@ -252,6 +319,10 @@ public class FileServerExecuter extends
             return status;
         }
 
+        /**
+         * @return Liefert einen aufbereiteten String mit den StatusMessages. Jede einzelne Zeile
+         * des Status + linefeed
+         */
         public String getStatusMessage() {
             StringBuilder s = new StringBuilder();
             for (String val : getStatus()) {

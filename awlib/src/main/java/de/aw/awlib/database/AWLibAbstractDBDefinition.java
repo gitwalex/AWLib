@@ -22,6 +22,8 @@ import android.os.Parcelable;
 /**
  */
 public interface AWLibAbstractDBDefinition extends Parcelable {
+    String AUTHORITY = "de.aw.appcontentprovider";
+
     String columnName(int newColumn);
 
     String[] columnNames();

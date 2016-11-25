@@ -11,9 +11,9 @@ import android.widget.EditText;
 
 import de.aw.awlib.R;
 import de.aw.awlib.gv.RemoteFileServer;
-import de.aw.awlib.utils.FileServerExecuter;
+import de.aw.awlib.utils.RemoteFileServerHandler;
 
-import static de.aw.awlib.utils.FileServerExecuter.ConnectionType.SSL;
+import static de.aw.awlib.utils.RemoteFileServerHandler.ConnectionType.SSL;
 
 /**
  * Created by alex on 23.11.2016.
@@ -72,7 +72,7 @@ public class AWLibRemoteServerConnectionData extends AWLibFragment {
                             mRemoteFileServer.put(R.string.column_connectionType, SSL.name());
                         } else {
                             mRemoteFileServer.put(R.string.column_connectionType,
-                                    FileServerExecuter.ConnectionType.NONSSL.name());
+                                    RemoteFileServerHandler.ConnectionType.NONSSL.name());
                         }
                     }
                 });
