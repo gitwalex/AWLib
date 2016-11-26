@@ -16,6 +16,7 @@
  */
 package de.aw.awlib.recyclerview;
 
+import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -35,8 +36,11 @@ public interface AWOnCursorRecyclerViewListener {
      *         Position der View in der RecyclerView
      * @param id
      *         ID der ausgewaehlten ID
+     * @param viewHolderLayoutID
+     *         ID des viewHolderLayouts
      */
-    void onRecyclerItemClick(RecyclerView parent, View view, int position, long id);
+    void onRecyclerItemClick(RecyclerView parent, View view, int position, long id,
+                             @LayoutRes int viewHolderLayoutID);
 
     /**
      * Convenience- Methode fuer onLongClick(View v). Liefert zu der View weitere Parameter mit
@@ -49,6 +53,9 @@ public interface AWOnCursorRecyclerViewListener {
      *         Position der View in der RecyclerView
      * @param id
      *         ID der ausgewaehlten ID
+     * @param viewHolderLayoutID
+     *         ID des viewHolderLayouts
      */
-    boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position, long id);
+    boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position, long id,
+                                    @LayoutRes int viewHolderLayoutID);
 }

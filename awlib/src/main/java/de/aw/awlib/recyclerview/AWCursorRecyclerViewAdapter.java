@@ -46,15 +46,13 @@ import android.view.ViewGroup;
  */
 public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHolder>
         implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
-    private final CursorViewHolderBinder cursorViewHolderBinder;
     private final String mRowIDColumn;
     private final AdapterDataObserver mDataObserver;
+    private final AWCursorRecyclerViewFragment cursorRecyclerViewFragment;
     private Cursor mCursor;
     private boolean mDataValid;
     private RecyclerView mRecyclerView;
     private int mRowIdColumnIndex;
-    private AWOnCursorRecyclerViewListener onRecyclerItemClickListener;
-    private AWOnCursorRecyclerViewListener onRecyclerItemLongClickListener;
 
     /**
      * Initialisiert Adapter. Cursor muss eine Spalte '_id' enthalten.
@@ -62,7 +60,7 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
      * @param binder
      *         CursorViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      */
-    protected AWCursorRecyclerViewAdapter(@NonNull CursorViewHolderBinder binder) {
+    protected AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder) {
         this(binder, "_id");
     }
 
@@ -74,10 +72,10 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
      * @param idColumn
      *         Spalte, die als ID verwendet werden soll
      */
-    protected AWCursorRecyclerViewAdapter(@NonNull CursorViewHolderBinder binder,
+    protected AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder,
                                           @NonNull String idColumn) {
+        cursorRecyclerViewFragment = binder;
         mDataObserver = new AdapterDataObserver();
-        cursorViewHolderBinder = binder;
         mRowIDColumn = idColumn;
         setHasStableIds(true);
     }
@@ -107,7 +105,7 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
     @Override
     public int getItemViewType(int position) {
         mCursor.moveToPosition(position);
-        return cursorViewHolderBinder.getItemViewType(mCursor, position);
+        return cursorRecyclerViewFragment.getItemViewType(mCursor, position);
     }
 
     @Override
@@ -136,26 +134,26 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
         if (!mCursor.moveToPosition(position)) {
             throw new IllegalStateException("couldn't move cursor to position " + position);
         }
-        cursorViewHolderBinder.onBindViewHolder(viewHolder, position, mCursor);
+        cursorRecyclerViewFragment.onBindViewHolder(viewHolder, position, mCursor);
     }
 
     @Override
     public void onClick(AWLibViewHolder holder) {
-        if (onRecyclerItemClickListener != null) {
+        if (cursorRecyclerViewFragment != null) {
             View v = holder.getView();
             int position = mRecyclerView.getChildAdapterPosition(v);
             long id = mRecyclerView.getChildItemId(v);
-            onRecyclerItemClickListener.onRecyclerItemClick(mRecyclerView, v, position, id);
+            cursorRecyclerViewFragment.onRecyclerItemClick(mRecyclerView, v, position, id);
         }
     }
 
     /**
-     * Ist der Cursor gueltig, wird der {@link CursorViewHolderBinder#onCreateViewHolder(ViewGroup,
+     * Ist der Cursor gueltig, wird das {@link AWCursorRecyclerViewFragment#onCreateViewHolder(ViewGroup,
      * int)} aus dem Konstructor aufgerufen
      */
     @Override
     public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
-        AWLibViewHolder holder = cursorViewHolderBinder.onCreateViewHolder(viewGroup, itemType);
+        AWLibViewHolder holder = cursorRecyclerViewFragment.onCreateViewHolder(viewGroup, itemType);
         holder.setOnClickListener(this);
         holder.setOnLongClickListener(this);
         return holder;
@@ -169,24 +167,10 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
 
     @Override
     public boolean onLongClick(AWLibViewHolder holder) {
-        if (onRecyclerItemLongClickListener != null) {
-            View v = holder.getView();
-            int position = mRecyclerView.getChildAdapterPosition(v);
-            long id = mRecyclerView.getChildItemId(v);
-            return onRecyclerItemLongClickListener
-                    .onRecyclerItemLongClick(mRecyclerView, v, position, id);
-        }
-        return false;
-    }
-
-    public void setOnRecyclerItemClickListener(
-            AWOnCursorRecyclerViewListener onRecyclerItemClickListener) {
-        this.onRecyclerItemClickListener = onRecyclerItemClickListener;
-    }
-
-    public void setOnRecyclerItemLongClickListener(
-            AWOnCursorRecyclerViewListener onRecyclerItemLongClickListener) {
-        this.onRecyclerItemLongClickListener = onRecyclerItemLongClickListener;
+        View v = holder.getView();
+        int position = mRecyclerView.getChildAdapterPosition(v);
+        long id = mRecyclerView.getChildItemId(v);
+        return cursorRecyclerViewFragment.onRecyclerItemLongClick(mRecyclerView, v, position, id);
     }
 
     /**
@@ -211,47 +195,6 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
         }
         notifyDataSetChanged();
         return oldCursor;
-    }
-
-    /**
-     * Bindet Daten eines Cursors an einen AWLibViewHolder
-     */
-    protected interface CursorViewHolderBinder {
-        /**
-         * Wird vom Adapter gerufen, um den ViewType zu ermitteln
-         *
-         * @param cursor
-         * @param position
-         *         aktuelle position in RecyclerView
-         *
-         * @return ViewType
-         */
-        int getItemViewType(Cursor cursor, int position);
-
-        /**
-         * Belegt Views eines ViewHolders mit Daten.
-         *
-         * @param viewHolder
-         *         AWLibViewHolder
-         * @param position
-         *         position innerhalb RecyclerView
-         * @param cursor
-         *         aktueller Cursor
-         */
-        void onBindViewHolder(AWLibViewHolder viewHolder, int position, Cursor cursor);
-
-        /**
-         * Erstellt auf Anforderung einen neuen AWLibViewHolder anhand des listLayout fuer die
-         * Liste.
-         *
-         * @param viewGroup
-         *         ViewGroup
-         * @param itemType
-         *         Typ der View gemaess {@link RecyclerView.Adapter#getItemViewType(int)}
-         *
-         * @return neuen Viewholder
-         */
-        AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType);
     }
 
     /**

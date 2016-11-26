@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -51,8 +52,6 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  * Folgende Funktionen:
  * <p>
  * Bereitstellung eines Bundle 'args' fuer alle abgeleiteten Klassen
- * <p>
- * Setzen HasOptionsMenu(): Alle Fragmente haben OptionsMenu
  */
 public abstract class AWFragment extends DialogFragment
         implements AWInterface, AWFragmentInterface, DialogInterface.OnClickListener {
@@ -82,11 +81,11 @@ public abstract class AWFragment extends DialogFragment
     protected int[] fromResIDs;
     protected AWApplicationGeschaeftsObjekt awlib_gv;
     protected MainAction mainAction;
-    private DialogInterface.OnCancelListener mOnCancelListener;
+    private OnAWFragmentCancelListener mOnCancelListener;
     /**
      *
      */
-    private DialogInterface.OnDismissListener mOnDismissListener;
+    private OnAWFragmentDismissListener mOnDismissListener;
     /**
      * Dient zur Berechnung der Startdauer
      */
@@ -172,7 +171,7 @@ public abstract class AWFragment extends DialogFragment
     public void onCancel(DialogInterface dialog) {
         isCanceled = true;
         if (mOnCancelListener != null) {
-            mOnCancelListener.onCancel(dialog);
+            mOnCancelListener.onCancel(layout, dialog);
         }
         super.onCancel(dialog);
     }
@@ -291,7 +290,7 @@ public abstract class AWFragment extends DialogFragment
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         if (!isCanceled && mOnDismissListener != null) {
-            mOnDismissListener.onDismiss(dialog);
+            mOnDismissListener.onDismiss(layout, dialog);
         }
     }
 
@@ -406,12 +405,44 @@ public abstract class AWFragment extends DialogFragment
         args.putInt(LAYOUT, layout);
     }
 
-    public void setOnCancelListener(DialogInterface.OnCancelListener listener) {
+    public void setOnCancelListener(OnAWFragmentCancelListener listener) {
         mOnCancelListener = listener;
     }
 
-    public void setOnDismissListener(DialogInterface.OnDismissListener listener) {
+    public void setOnDismissListener(OnAWFragmentDismissListener listener) {
         mOnDismissListener = listener;
+    }
+
+    /**
+     * Erweiterter Dialog-Cancel-Listener. Liefert zusaetzlich zum Dialog auch die layoutID mit.
+     */
+    public interface OnAWFragmentCancelListener {
+        /**
+         * Wird gerufen, wenn ein Dialog gecancelt wurde.Liefert zusaetzlich zum Dialog auch die
+         * layoutID mit.
+         *
+         * @param layoutID
+         *         layout des Fragments
+         * @param dialog
+         *         Dialog
+         */
+        void onCancel(@LayoutRes int layoutID, DialogInterface dialog);
+    }
+
+    /**
+     * Erweiterter Dialog-Dismiss-Listener. Liefert zusaetzlich zum Dialog auch die layoutID mit.
+     */
+    public interface OnAWFragmentDismissListener {
+        /**
+         * Wird gerufen, wenn ein Dialog beendet wurde.Liefert zusaetzlich zum Dialog auch die
+         * layoutID mit.
+         *
+         * @param layoutID
+         *         layout des Fragments
+         * @param dialog
+         *         Dialog
+         */
+        void onDismiss(@LayoutRes int layoutID, DialogInterface dialog);
     }
 
     public class MyTextWatcher implements TextWatcher {

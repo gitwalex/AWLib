@@ -143,7 +143,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
             return true;
         } else if (getString(R.string.pkExterneSicherung).equals(key)) {
             Intent intent = new Intent(getActivity(), AWActivityActions.class);
-            intent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.configRemoteFileServer);
+            intent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.showRemoteFileServer);
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkSavePeriodic).equals(key)) {

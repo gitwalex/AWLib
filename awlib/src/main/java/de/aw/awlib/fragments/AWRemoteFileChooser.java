@@ -52,7 +52,8 @@ import static android.net.Uri.withAppendedPath;
  * Dialog zur Abfrage von Zugangsdaten fuer externe Sicherung der DB.
  */
 public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
-        implements ExecutionListener {
+        implements ExecutionListener, AWFragment.OnAWFragmentDismissListener,
+        AWFragment.OnAWFragmentCancelListener {
     protected static final String DIRECTORYNAME = "DIRECTORYNAME";
     private static final int layout = R.layout.awlib_remote_filechooser;
     private static final int[] viewResIDs =
@@ -231,16 +232,18 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
     }
 
     @Override
+    public void onCancel(int layoutID, DialogInterface dialog) {
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRemoteFileServer = args.getParcelable(REMOTEFILESERVER);
+        getExecuter().listFilesInDirectory(mUri.getEncodedPath(), mFileFilter);
     }
 
-    /**
-     *
-     */
     @Override
-    public void onDismiss(DialogInterface dialog) {
+    public void onDismiss(int layoutID, DialogInterface dialog) {
         if (!isCanceled) {
             if (!mRemoteFileServer.isValid()) {
                 if (!mRemoteFileServer.isValid()) {
@@ -268,17 +271,6 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
         } else {
             mServerErrorLayout.setVisibility(View.VISIBLE);
             mServerErrorTexte.setText(result.getStatusMessage());
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (!mRemoteFileServer.isValid()) {
-            AWRemoteServerConnectionData f =
-                    AWRemoteServerConnectionData.newInstance(mRemoteFileServer);
-            f.setOnDismissListener(this);
-            f.show(getFragmentManager(), null);
         }
     }
 

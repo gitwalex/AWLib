@@ -34,7 +34,7 @@ public enum AWEvent implements Parcelable {
     /**
      * Event restore Datenbank
      */
-    , showBackupFiles, configRemoteFileServer;
+    , showBackupFiles, showRemoteFileServer, configRemoteFileServer;
     public static final Parcelable.Creator<AWEvent> CREATOR =
             new android.os.Parcelable.Creator<AWEvent>() {
                 public AWEvent createFromParcel(Parcel in) {

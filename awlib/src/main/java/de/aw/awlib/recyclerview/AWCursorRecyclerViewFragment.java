@@ -45,9 +45,7 @@ import de.aw.awlib.fragments.AWLoaderFragment;
  * Als Standard erhaelt die RecyclerView als ID den Wert des Layout. Durch args.setInt(VIEWID,
  * value) erhaelt die RecyclerView eine andere ID.
  */
-public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment
-        implements AWCursorRecyclerViewAdapter.CursorViewHolderBinder, View.OnClickListener,
-        View.OnLongClickListener, AWOnCursorRecyclerViewListener {
+public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     public final static int minCardWidth = 800;
     public final int DEFAULTVIEWTYPE = 0;
     protected RecyclerView mRecyclerView;
@@ -81,7 +79,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment
      *
      * @return Liefert als ViewType {@link AWCursorRecyclerViewFragment#DEFAULTVIEWTYPE} zurueck
      */
-    @Override
     public int getItemViewType(Cursor cursor, int position) {
         return DEFAULTVIEWTYPE;
     }
@@ -176,9 +173,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment
      * @throws IllegalStateException
      *         Wenn eine View bearbeitet wird, die TextView ist und fillView(...) hat false
      *         zurueckgegeben.
-     * @see AWCursorRecyclerViewAdapter.CursorViewHolderBinder#onBindViewHolder
      */
-    @Override
     public final void onBindViewHolder(AWLibViewHolder holder, int position, Cursor cursor) {
         onPreBindViewHolder(cursor, holder);
         for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
@@ -206,10 +201,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment
         }
     }
 
-    @Override
-    public void onClick(View v) {
-    }
-
     /**
      * Uebernehmen der Argumente
      *
@@ -226,7 +217,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment
         tbd = args.getParcelable(DBDEFINITION);
     }
 
-    @Override
     public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         final View rowView = inflater.inflate(viewHolderLayout, viewGroup, false);
@@ -246,8 +236,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment
             if (mAdapter == null) {
                 mAdapter = getCursorAdapter();
                 mRecyclerView.setAdapter(mAdapter);
-                mAdapter.setOnRecyclerItemClickListener(this);
-                mAdapter.setOnRecyclerItemLongClickListener(this);
             }
             mAdapter.swapCursor(cursor); // swap the new cursor in.
         }
@@ -265,11 +253,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment
         if (mAdapter != null) {
             mAdapter.swapCursor(null);
         }
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        return false;
     }
 
     @Override
@@ -298,24 +281,23 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment
     }
 
     /**
-     * Wird aus onClick(...) gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs.
-     * die Activity gerufen, die einen {@link AWOnCursorRecyclerViewListener} implementiert hat.
+     * Wird vom Adapter gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs. die
+     * Activity gerufen, die einen {@link AWOnCursorRecyclerViewListener} implementiert hat.
      */
-    @Override
     public void onRecyclerItemClick(RecyclerView recyclerView, View view, int position, long id) {
         if (onCursorRecyclerViewListener != null) {
-            onCursorRecyclerViewListener.onRecyclerItemClick(mRecyclerView, view, position, id);
+            onCursorRecyclerViewListener
+                    .onRecyclerItemClick(mRecyclerView, view, position, id, viewHolderLayout);
         }
     }
 
     /**
-     * Wird aus onLongClick(...) gerufen, wenn ein Item der RecyclerView long-geclickt wurde.
+     * Wird vom Adapter gerufen, wenn ein Item der RecyclerView long-geclickt wurde.
      */
-    @Override
     public boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position,
                                            long id) {
         return onCursorRecyclerViewListener != null && onCursorRecyclerViewListener
-                .onRecyclerItemLongClick(mRecyclerView, view, position, id);
+                .onRecyclerItemLongClick(mRecyclerView, view, position, id, viewHolderLayout);
     }
 
     @Override
@@ -368,8 +350,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = getCursorAdapter();
         mRecyclerView.setAdapter(mAdapter);
-        mAdapter.setOnRecyclerItemClickListener(this);
-        mAdapter.setOnRecyclerItemLongClickListener(this);
         getActivity().getWindow()
                 .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }

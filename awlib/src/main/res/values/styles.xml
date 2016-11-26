@@ -130,11 +130,11 @@
     </style>
     <!-- Zeichnet eine verticale linie mit 2dp Dicke -->
     <style name="verticalDivider">
-    <item name="android:layout_width">10dp</item>
-    <item name="android:layout_height">match_parent</item>
-    <item name="android:orientation">vertical</item>
-    <item name="android:background">?android:attr/listDivider</item>
-</style>
+        <item name="android:layout_width">10dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
 
     <style name="TextViewMain.Large" parent="android:style/TextAppearance">
         <!-- TextView: Large.  -->

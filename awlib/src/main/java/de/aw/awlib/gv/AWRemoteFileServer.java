@@ -22,7 +22,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
 import de.aw.awlib.R;
-import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.database_private.AWDBDefinition;
 import de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType;
@@ -83,7 +82,7 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     }
 
-    public AWRemoteFileServer(AWAbstractDBDefinition tbd, Long id) throws LineNotFoundException {
+    public AWRemoteFileServer(long id) throws LineNotFoundException {
         super(tbd, id);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         mURL = getAsString(R.string.column_serverurl);

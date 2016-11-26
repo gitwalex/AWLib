@@ -23,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
@@ -35,17 +36,25 @@ import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.events.AWEvent;
 import de.aw.awlib.events.EventDBRestore;
 import de.aw.awlib.fragments.AWFileChooser;
+import de.aw.awlib.fragments.AWFragment;
 import de.aw.awlib.fragments.AWFragmentActionBar;
+import de.aw.awlib.fragments.AWFragmentRemoteFileServer;
 import de.aw.awlib.fragments.AWRemoteFileChooser;
+import de.aw.awlib.fragments.AWRemoteServerConnectionData;
+import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWOnArrayRecyclerViewListener;
+import de.aw.awlib.recyclerview.AWOnCursorRecyclerViewListener;
 
 /**
  * Activity fuer verschiedene Aktionen
  */
 public class AWActivityActions extends AWMainActivity
-        implements AWOnArrayRecyclerViewListener, AWFragmentActionBar.OnActionFinishListener {
+        implements AWOnArrayRecyclerViewListener, AWFragmentActionBar.OnActionFinishListener,
+        AWFragment.OnAWFragmentDismissListener, AWFragment.OnAWFragmentCancelListener,
+        AWOnCursorRecyclerViewListener {
     private AWEvent event;
+    private AWRemoteFileServer mRemoteServer;
 
     @Override
     public void onActionFinishClicked(int layoutID, int itemResID) {
@@ -104,6 +113,26 @@ public class AWActivityActions extends AWMainActivity
     }
 
     @Override
+    public void onCancel(@LayoutRes int layoutID, DialogInterface dialog) {
+        if (layoutID == R.layout.awlib_dialog_remote_fileserver) {
+            getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (event) {
+            case showRemoteFileServer:
+                mRemoteServer = new AWRemoteFileServer();
+                AWFragment f = AWRemoteServerConnectionData.newInstance(mRemoteServer);
+                f.setOnDismissListener(this);
+                f.setOnCancelListener(this);
+                f.show(getSupportFragmentManager(), event.name());
+                break;
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         event = args.getParcelable(AWLIBEVENT);
@@ -126,6 +155,11 @@ public class AWActivityActions extends AWMainActivity
                         args.putParcelable(REMOTEFILESERVER, mRemoteFileServer);
                         f = AWRemoteFileChooser.newInstance(mRemoteFileServer);
                         break;
+                    case showRemoteFileServer:
+                        f = new AWFragmentRemoteFileServer();
+                        getDefaultFAB().setVisibility(View.VISIBLE);
+                        getDefaultFAB().setOnClickListener(this);
+                        break;
                     default:
                         throw new IllegalArgumentException(
                                 "Kein Fragment fuer " + getMainAction().name() + " vorgesehen");
@@ -139,5 +173,42 @@ public class AWActivityActions extends AWMainActivity
                 getSupportActionBar().setTitle(titleResID);
             }
         }
+    }
+
+    @Override
+    public void onDismiss(@LayoutRes int layoutID, DialogInterface dialog) {
+        AWFragment f = null;
+        if (layoutID == R.layout.awlib_dialog_remote_fileserver) {
+            f = AWRemoteFileChooser.newInstance(mRemoteServer);
+        }
+        if (f != null) {
+            getSupportFragmentManager().beginTransaction().replace(container, f, event.name())
+                    .addToBackStack(null).commit();
+        }
+    }
+
+    @Override
+    public void onRecyclerItemClick(RecyclerView parent, View view, int position, long id,
+                                    int viewHolderLayoutID) {
+        AWFragment f = null;
+        if (viewHolderLayoutID == R.layout.awlib_remote_fileserver) {
+            try {
+                mRemoteServer = new AWRemoteFileServer(id);
+                f = AWRemoteFileChooser.newInstance(mRemoteServer);
+            } catch (AWApplicationGeschaeftsObjekt.LineNotFoundException e) {
+                //TODO Execption bearbeiten
+                e.printStackTrace();
+            }
+        }
+        if (f != null) {
+            getSupportFragmentManager().beginTransaction().replace(container, f, event.name())
+                    .addToBackStack(null).commit();
+        }
+    }
+
+    @Override
+    public boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position,
+                                           long id, int viewHolderLayoutID) {
+        return false;
     }
 }

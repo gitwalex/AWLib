@@ -108,16 +108,6 @@ public class AWRemoteFileServerHandler {
     }
 
     /**
-     * @return Liefert in Abhaengigkeit des {@link AWRemoteFileServerHandler.ConnectionType} einen
-     * FTPClient zurueck.
-     */
-    private FTPClient getFTPClient() {
-        if (mClient == null) {
-        }
-        return mClient;
-    }
-
-    /**
      * @return Liefert die in {@link AWRemoteFileServerHandler#listFilesInDirectory(String,
      * FTPFileFilter)} oder {@link AWRemoteFileServerHandler#listFiles(FTPFileFilter)} ermittelten
      * Files.
