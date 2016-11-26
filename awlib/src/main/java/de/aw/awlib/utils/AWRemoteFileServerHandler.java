@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import de.aw.awlib.gv.RemoteFileServer;
+import de.aw.awlib.gv.AWRemoteFileServer;
 
 import static de.aw.awlib.activities.AWInterface.linefeed;
 
@@ -21,18 +21,25 @@ import static de.aw.awlib.activities.AWInterface.linefeed;
  * AsyncTask durchgefuehrt.
  */
 public class AWRemoteFileServerHandler {
-    private final RemoteFileServer mRemoteFileServer;
+    private final AWRemoteFileServer mRemoteFileServer;
     private final ExecutionListener mExecutionListener;
-    private final ConnectionType mConnectionType;
-    private FTPClient mClient;
+    private final FTPClient mClient;
     private FTPFile[] mFiles;
 
-    public AWRemoteFileServerHandler(RemoteFileServer remoteFileServer,
+    public AWRemoteFileServerHandler(AWRemoteFileServer remoteFileServer,
                                      ExecutionListener executionListener) {
         mRemoteFileServer = remoteFileServer;
-        mClient = getFTPClient();
         mExecutionListener = executionListener;
-        mConnectionType = remoteFileServer.getConnectionType();
+        switch (remoteFileServer.getConnectionType()) {
+            case SSL:
+                mClient = new FTPSClient();
+                break;
+            case NONSSL:
+                mClient = new FTPClient();
+                break;
+            default:
+                mClient = null;
+        }
     }
 
     /**
@@ -106,13 +113,6 @@ public class AWRemoteFileServerHandler {
      */
     private FTPClient getFTPClient() {
         if (mClient == null) {
-            switch (mConnectionType) {
-                case SSL:
-                    mClient = new FTPSClient();
-                    break;
-                case NONSSL:
-                    mClient = new FTPClient();
-            }
         }
         return mClient;
     }

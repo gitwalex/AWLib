@@ -30,18 +30,18 @@ import de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType;
 import static de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType.SSL;
 
 /**
- * Stammdaten fuer einen RemoteFileServer.
+ * Stammdaten fuer einen AWRemoteFileServer.
  */
-public class RemoteFileServer extends AWApplicationGeschaeftsObjekt {
-    public static final Creator<RemoteFileServer> CREATOR = new Creator<RemoteFileServer>() {
+public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
+    public static final Creator<AWRemoteFileServer> CREATOR = new Creator<AWRemoteFileServer>() {
         @Override
-        public RemoteFileServer createFromParcel(Parcel source) {
-            return new RemoteFileServer(source);
+        public AWRemoteFileServer createFromParcel(Parcel source) {
+            return new AWRemoteFileServer(source);
         }
 
         @Override
-        public RemoteFileServer[] newArray(int size) {
-            return new RemoteFileServer[size];
+        public AWRemoteFileServer[] newArray(int size) {
+            return new AWRemoteFileServer[size];
         }
     };
     private static final AWDBDefinition tbd = AWDBDefinition.RemoteServer;
@@ -64,8 +64,8 @@ public class RemoteFileServer extends AWApplicationGeschaeftsObjekt {
      * @param connectionType
      *         Typ der Verbindung gemaess {@link ConnectionType}
      */
-    public RemoteFileServer(@NonNull String serverURL, @NonNull String username,
-                            @NonNull String passwort, ConnectionType connectionType) {
+    public AWRemoteFileServer(@NonNull String serverURL, @NonNull String username,
+                              @NonNull String passwort, ConnectionType connectionType) {
         super(tbd);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         mURL = serverURL;
@@ -77,13 +77,13 @@ public class RemoteFileServer extends AWApplicationGeschaeftsObjekt {
         put(R.string.column_userID, mUserID);
     }
 
-    public RemoteFileServer() {
+    public AWRemoteFileServer() {
         super(tbd);
         put(R.string.column_connectionType, SSL.name());
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     }
 
-    public RemoteFileServer(AWAbstractDBDefinition tbd, Long id) throws LineNotFoundException {
+    public AWRemoteFileServer(AWAbstractDBDefinition tbd, Long id) throws LineNotFoundException {
         super(tbd, id);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         mURL = getAsString(R.string.column_serverurl);
@@ -95,7 +95,7 @@ public class RemoteFileServer extends AWApplicationGeschaeftsObjekt {
         }
     }
 
-    protected RemoteFileServer(Parcel in) {
+    protected AWRemoteFileServer(Parcel in) {
         super(in);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         this.mURL = in.readString();

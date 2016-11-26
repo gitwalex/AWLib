@@ -40,7 +40,7 @@ import java.util.List;
 import de.aw.awlib.R;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.database_private.AWDBHelper;
-import de.aw.awlib.gv.RemoteFileServer;
+import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 import de.aw.awlib.utils.AWRemoteFileServerHandler;
@@ -77,7 +77,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
     private final ArrayList<String> mDirectoyList = new ArrayList<>();
     private AWFragmentActionBar.OnActionFinishListener mOnActionFinishListener;
     private View mProgressServerConnection;
-    private RemoteFileServer mRemoteFileServer;
+    private AWRemoteFileServer mRemoteFileServer;
     private AWRemoteFileServerHandler mRemoteFileServerHandler;
     private View mServerErrorLayout;
     private TextView mServerErrorTexte;
@@ -92,7 +92,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
      * @throws IllegalStateException
      *         wenn das Verzeichnis kein Directory ist
      */
-    public static AWRemoteFileChooser newInstance(RemoteFileServer fileServer) {
+    public static AWRemoteFileChooser newInstance(AWRemoteFileServer fileServer) {
         Bundle args = new Bundle();
         args.putParcelable(REMOTEFILESERVER, fileServer);
         AWRemoteFileChooser fragment = new AWRemoteFileChooser();

@@ -37,7 +37,7 @@ import de.aw.awlib.events.EventDBRestore;
 import de.aw.awlib.fragments.AWFileChooser;
 import de.aw.awlib.fragments.AWFragmentActionBar;
 import de.aw.awlib.fragments.AWRemoteFileChooser;
-import de.aw.awlib.gv.RemoteFileServer;
+import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWOnArrayRecyclerViewListener;
 
 /**
@@ -122,7 +122,7 @@ public class AWActivityActions extends AWMainActivity
                         titleResID = R.string.fileChooserTitleDoRestore;
                         break;
                     case configRemoteFileServer:
-                        RemoteFileServer mRemoteFileServer = new RemoteFileServer();
+                        AWRemoteFileServer mRemoteFileServer = new AWRemoteFileServer();
                         args.putParcelable(REMOTEFILESERVER, mRemoteFileServer);
                         f = AWRemoteFileChooser.newInstance(mRemoteFileServer);
                         break;

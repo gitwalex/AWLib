@@ -10,7 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import de.aw.awlib.R;
-import de.aw.awlib.gv.RemoteFileServer;
+import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.utils.AWRemoteFileServerHandler;
 
 import static de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType.SSL;
@@ -25,9 +25,9 @@ public class AWRemoteServerConnectionData extends AWFragment {
     private static final int[] fromResIDs =
             new int[]{R.string.column_serverurl, R.string.column_userID};
     private EditText mPasswortEditText;
-    private RemoteFileServer mRemoteFileServer;
+    private AWRemoteFileServer mRemoteFileServer;
 
-    public static AWRemoteServerConnectionData newInstance(RemoteFileServer fileServer) {
+    public static AWRemoteServerConnectionData newInstance(AWRemoteFileServer fileServer) {
         Bundle args = new Bundle();
         args.putParcelable(REMOTEFILESERVER, fileServer);
         args.putParcelable(AWLIBACTION, MainAction.SHOW);
