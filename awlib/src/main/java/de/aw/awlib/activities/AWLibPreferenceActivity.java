@@ -28,7 +28,7 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 
 import de.aw.awlib.R;
-import de.aw.awlib.preferences.AWLibPreferencesAllgemein;
+import de.aw.awlib.preferences.AWPreferencesAllgemein;
 
 /**
  * Activity fuer Preferences
@@ -38,7 +38,7 @@ import de.aw.awlib.preferences.AWLibPreferencesAllgemein;
  * <p>
  * Wird kein Adapter geliefert, wird nur ein Fragment gezeigt. Welches, wird ueber {@link
  * AWLibPreferenceActivity#getAWLibPreferencesAllgemein()} festgelegt. Wird diese Methode nicht
- * ueberschreiben, wird das {@link AWLibPreferencesAllgemein} angezeigt.
+ * ueberschreiben, wird das {@link AWPreferencesAllgemein} angezeigt.
  */
 @SuppressWarnings("ConstantConditions")
 public class AWLibPreferenceActivity extends AWLibMainActivity {
@@ -46,12 +46,12 @@ public class AWLibPreferenceActivity extends AWLibMainActivity {
 
     /**
      * Liefert ein Fragment zueruck, welches als einzelnes PreferencsFragment gezeigt wird. Wird
-     * diese Methode nicht ueberschreiben, wird das {@link AWLibPreferencesAllgemein} angezeigt.
+     * diese Methode nicht ueberschreiben, wird das {@link AWPreferencesAllgemein} angezeigt.
      *
-     * @return ein AWLibPreferencesAllgemein-Fragment
+     * @return ein AWPreferencesAllgemein-Fragment
      */
-    public AWLibPreferencesAllgemein getAWLibPreferencesAllgemein() {
-        return new AWLibPreferencesAllgemein();
+    public AWPreferencesAllgemein getAWLibPreferencesAllgemein() {
+        return new AWPreferencesAllgemein();
     }
 
     /**

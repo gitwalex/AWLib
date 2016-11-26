@@ -16,11 +16,11 @@
  */
 package de.aw.awlib.preferences;
 
-import de.aw.awlib.fragments.AWLibPreferenceFragment;
+import de.aw.awlib.fragments.AWPreferenceFragment;
 
 /**
  * Interface fuer Preferences, wenn die Summary-Zeile ueberschrieben werden soll. Wird in {@link
- * AWLibPreferenceFragment#updatePrefSummary(android.support.v7.preference.Preference)} gerufen.
+ * AWPreferenceFragment#updatePrefSummary(android.support.v7.preference.Preference)} gerufen.
  * Created by alex on 12.09.2015.
  */
 public interface MainPreferenceInterface {

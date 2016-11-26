@@ -28,14 +28,14 @@ import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
 import de.aw.awlib.R;
-import de.aw.awlib.fragments.AWLibFragment;
+import de.aw.awlib.fragments.AWFragment;
 
 /**
  * EditTextPreferenceTime: Liest eine Uhrzeit und speichert diese als Long in Preferences. Gibt es
  * einen Default-Wert (Format: HH:mm), wird dieser uebernommen. Ist das Format falsch oder kein
  * DefaultWert vorgegeben, dann wird 00:00 angenommen
  */
-public class PreferenceEditTimeDialog extends AWLibFragment
+public class PreferenceEditTimeDialog extends AWFragment
         implements TimePickerDialog.OnTimeSetListener {
     private int mHour;
     private String mKey;

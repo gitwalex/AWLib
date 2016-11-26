@@ -32,7 +32,7 @@ package de.aw.awlib.extensions;
  *
  *
  *
- * CursorRecyclerViewAdapter:
+ * AWCursorRecyclerViewAdapter:
  *
  * Adapter fuer RecyclerView, der Cursor unterstuetzt.
  *

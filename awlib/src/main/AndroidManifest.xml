@@ -14,18 +14,18 @@
         android:supportsRtl="true"
         android:theme="@style/AWLibTheme">
         <provider
-            android:name=".database.AWLibContentProvider"
+            android:name=".database.AWContentProvider"
             android:authorities="de.aw.awlibcontentprovider;de.aw.appcontentprovider"
             android:exported="true"
             />
 
         <activity
-            android:name=".activities.AWLibActivityActions"
+            android:name=".activities.AWActivityActions"
             android:parentActivityName=".activities.AWLibPreferenceActivity">
 
         </activity>
 
-        <activity android:name=".activities.AWLibActivityDebug">
+        <activity android:name=".activities.AWActivityDebug">
         </activity>
         <activity android:name=".activities.AWLibWebViewActivity">
         </activity>
@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name=".events.AWLibEventService"
+            android:name=".events.AWEventService"
             android:label="@string/awlib_eventservice"
             />
 

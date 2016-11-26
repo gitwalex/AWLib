@@ -32,9 +32,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.application.AWLIbApplication;
+import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
-import de.aw.awlib.gv.AWLibApplicationGeschaeftsObjekt;
+import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 
 /**
  * Helper fuer die SQLite-Database
@@ -49,15 +49,15 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
                 @Override
                 public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
                                         String editTable, SQLiteQuery query) {
-                    AWLibSQLiteCursor c = new AWLibSQLiteCursor(masterQuery, editTable, query);
+                    AWSQLiteCursor c = new AWSQLiteCursor(masterQuery, editTable, query);
                     long timer = System.nanoTime();
-                    if (!AWLibApplicationGeschaeftsObjekt
-                            .isImport() && AWLIbApplication.EnableCursorLogging) {
+                    if (!AWApplicationGeschaeftsObjekt
+                            .isImport() && AWApplication.EnableCursorLogging) {
                         long elapsed = c.getFinishTime() - timer;
                         boolean longRunning = elapsed > 10000000L;
                         if (longRunning) {
                             // Langlaufende Query - als Error loggen
-                            AWLIbApplication.LogError("Dauer der Query " + query.toString() + ": " +
+                            AWApplication.LogError("Dauer der Query " + query.toString() + ": " +
                                     TimeUnit.NANOSECONDS.convert(elapsed, TimeUnit.NANOSECONDS));
                         }
                     }
@@ -72,7 +72,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
 
     protected AbstractDBHelper(ApplicationConfig config,
                                SQLiteDatabase.CursorFactory cursorFactory) {
-        super(AWLIbApplication.getContext(), config.getApplicationDatabaseFilename(),
+        super(AWApplication.getContext(), config.getApplicationDatabaseFilename(),
                 (cursorFactory == null) ? mCursorFactory : cursorFactory,
                 config.theDatenbankVersion());
     }
@@ -92,7 +92,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public int delete(AWLibAbstractDBDefinition tbd, String selection, String[] selectionArgs) {
+    public int delete(AWAbstractDBDefinition tbd, String selection, String[] selectionArgs) {
         return delete(tbd.getUri(), selection, selectionArgs);
     }
 
@@ -141,11 +141,11 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      * Liefert die Liste der Spalten einer Tabelle zuruck.
      *
      * @param tbd
-     *         AWLibAbstractDBDefinition
+     *         AWAbstractDBDefinition
      *
      * @return Liste der Columns.
      */
-    public List<String> getColumnsForTable(AWLibAbstractDBDefinition tbd) {
+    public List<String> getColumnsForTable(AWAbstractDBDefinition tbd) {
         List<String> columns = new ArrayList<>();
         Cursor c = getWritableDatabase().rawQuery("PRAGMA table_info (" + tbd.name() + ")", null);
         try {
@@ -180,7 +180,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      * Ermittelt die Anzahl der Zeilen, die durch die Selection potentiell zurueckgeliefert werden.
      *
      * @param tbd
-     *         AWLibAbstractDBDefinition der Tabelle
+     *         AWAbstractDBDefinition der Tabelle
      * @param selection
      *         Selection
      * @param selectionArgs
@@ -188,7 +188,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      *
      * @return Anzahl der  Zeilen.
      */
-    public long getNumberOfRows(AWLibAbstractDBDefinition tbd, String selection,
+    public long getNumberOfRows(AWAbstractDBDefinition tbd, String selection,
                                 String[] selectionArgs) {
         String[] projection = new String[]{"COUNT(*)"};
         Cursor c = getWritableDatabase()
@@ -290,7 +290,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public long insert(AWLibAbstractDBDefinition tbd, String nullColumnHack,
+    public long insert(AWAbstractDBDefinition tbd, String nullColumnHack,
                        ContentValues content) {
         return insert(tbd.getUri(), nullColumnHack, content);
     }
@@ -335,7 +335,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
     /**
      * siehe {@link SQLiteDatabase#insertWithOnConflict(String, String, ContentValues, int)}
      */
-    public long insertWithOnConflict(AWLibAbstractDBDefinition tbd, String nullColumnHack,
+    public long insertWithOnConflict(AWAbstractDBDefinition tbd, String nullColumnHack,
                                      ContentValues values, int conflictAlgorithm) {
         return insertWithOnConflict(tbd.getUri(), nullColumnHack, values, conflictAlgorithm);
     }
@@ -367,7 +367,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      */
     @CallSuper
     protected void notifyCursors(Uri uri) {
-        AWLIbApplication.getContext().getContentResolver().notifyChange(uri, null);
+        AWApplication.getContext().getContentResolver().notifyChange(uri, null);
     }
 
     /**
@@ -383,7 +383,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLib
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public int update(AWLibAbstractDBDefinition tbd, ContentValues content, String selection,
+    public int update(AWAbstractDBDefinition tbd, ContentValues content, String selection,
                       String[] selectionArgs) {
         return update(tbd.getUri(), content, selection, selectionArgs);
     }

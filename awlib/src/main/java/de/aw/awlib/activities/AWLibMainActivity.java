@@ -34,7 +34,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import de.aw.awlib.R;
-import de.aw.awlib.views.AWLibBottomSheetCalculator;
+import de.aw.awlib.views.AWBottomSheetCalculator;
 
 /**
  * Template fuer Activities. Implementiert das globale Menu sowie die entsprechenden Reaktionen
@@ -200,7 +200,7 @@ public abstract class AWLibMainActivity extends AppCompatActivity
         Intent intent;
         int i = item.getItemId();
         if (i == R.id.awlib_menu_item_calculator) {
-            AWLibBottomSheetCalculator calc = new AWLibBottomSheetCalculator();
+            AWBottomSheetCalculator calc = new AWBottomSheetCalculator();
             calc.show(getSupportFragmentManager(), null);
             isConsumed = true;
         } else if (i == R.id.awlib_menu_item_hilfe) {

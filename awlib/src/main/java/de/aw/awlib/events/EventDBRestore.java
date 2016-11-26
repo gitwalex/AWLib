@@ -23,15 +23,15 @@ import android.os.AsyncTask;
 
 import java.io.File;
 
-import de.aw.awlib.AWLibResultCodes;
-import de.aw.awlib.AWLibUtils;
+import de.aw.awlib.AWResultCodes;
+import de.aw.awlib.AWUtils;
 import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.application.AWLIbApplication;
+import de.aw.awlib.application.AWApplication;
 
 /**
  * Klasse fuer Sicheren/Restoren DB
  */
-public class EventDBRestore implements AWLibResultCodes, AWLibInterface {
+public class EventDBRestore implements AWResultCodes, AWLibInterface {
     private final Context mContext;
 
     public EventDBRestore(Context context) {
@@ -47,22 +47,22 @@ public class EventDBRestore implements AWLibResultCodes, AWLibInterface {
         protected Integer doInBackground(File... params) {
             int result;
             String targetFileName;
-            if (AWLIbApplication.getDebugFlag()) {
-                targetFileName = AWLIbApplication.getApplicationDatabaseFilename();
+            if (AWApplication.getDebugFlag()) {
+                targetFileName = AWApplication.getApplicationDatabaseFilename();
             } else {
-                targetFileName = mContext.getDatabasePath(AWLIbApplication.getDatenbankname())
+                targetFileName = mContext.getDatabasePath(AWApplication.getDatenbankname())
                         .getAbsolutePath();
             }
-            AWLIbApplication.getDBHelper().close();
-            result = AWLibUtils.restoreZipArchivToFile(targetFileName, params[0]);
-            AWLIbApplication.getDBHelper();
+            AWApplication.getDBHelper().close();
+            result = AWUtils.restoreZipArchivToFile(targetFileName, params[0]);
+            AWApplication.getDBHelper();
             return result;
         }
 
         @Override
         protected void onPostExecute(Integer result) {
             if (result == RESULT_OK) {
-                AWLIbApplication.onRestoreDB();
+                AWApplication.onRestoreDB();
                 PackageManager pm = mContext.getPackageManager();
                 Intent intent = pm.getLaunchIntentForPackage(mContext.getPackageName());
                 mContext.startActivity(intent);

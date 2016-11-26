@@ -34,28 +34,27 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import de.aw.awlib.AWLibNotification;
-import de.aw.awlib.AWLibResultCodes;
-import de.aw.awlib.AWLibUtils;
+import de.aw.awlib.AWNotification;
+import de.aw.awlib.AWResultCodes;
+import de.aw.awlib.AWUtils;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.application.AWLIbApplication;
-import de.aw.awlib.database.AWLibDBConvert;
+import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.database.AWDBConvert;
 
 /**
  * Klasse fuer Sicheren/Restoren DB
  */
-public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, AWLibInterface {
+public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWLibInterface {
     private static final String ALARMTIME = "ALARMTIME";
     private static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
-    private static final String BACKUPPATH = AWLIbApplication.getApplicationBackupPath() + "/";
-    private static final String DATABASEFILENAME =
-            AWLIbApplication.getApplicationDatabaseFilename();
+    private static final String BACKUPPATH = AWApplication.getApplicationBackupPath() + "/";
+    private static final String DATABASEFILENAME = AWApplication.getApplicationDatabaseFilename();
     private final Context mContext;
     private final SharedPreferences prefs;
     private final Date date;
     private File backupFile;
-    private AWLibNotification mNotification;
+    private AWNotification mNotification;
 
     public EventDBSave(Service service) {
         this(service.getApplicationContext());
@@ -74,7 +73,7 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
 
     private static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
         AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AWLibEventService.class);
+        Intent intent = new Intent(context, AWEventService.class);
         intent.setAction(AWLIBACTION);
         PendingIntent alarmIntent =
                 PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -118,9 +117,9 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
         long nextDBSave = cal.getTimeInMillis();
         editor.putLong(context.getString(R.string.nextDoDBSave), nextDBSave).apply();
         AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent newIntent = new Intent(context, AWLibEventService.class);
+        Intent newIntent = new Intent(context, AWEventService.class);
         newIntent.setAction(AWLIBEVENT);
-        newIntent.putExtra(AWLIBEVENT, (Parcelable) AWLibEvent.DoDatabaseSave);
+        newIntent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.DoDatabaseSave);
         newIntent.putExtra(ALARMTIME, nextDBSave);
         PendingIntent newAlarmIntent =
                 PendingIntent.getService(context, 0, newIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -149,7 +148,7 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
     private class EventDBSaveExecute extends AsyncTask<File, Void, Integer> {
         @Override
         protected Integer doInBackground(File... params) {
-            return AWLibUtils.addToZipArchive(params[0], DATABASEFILENAME);
+            return AWUtils.addToZipArchive(params[0], DATABASEFILENAME);
         }
 
         @Override
@@ -159,8 +158,8 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
                 case RESULT_OK:
                     result = mContext.getString(R.string.dbSaved);
                     SharedPreferences.Editor editor = prefs.edit();
-                    String mDate = AWLibDBConvert.convertDate(date);
-                    editor.putString(AWLibEvent.DoDatabaseSave.name(), mDate).apply();
+                    String mDate = AWDBConvert.convertDate(date);
+                    editor.putString(AWEvent.DoDatabaseSave.name(), mDate).apply();
                     break;
                 case RESULT_FILE_ERROR:
                     result = mContext.getString(R.string.dbFileError);
@@ -178,7 +177,7 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
         protected void onPreExecute() {
             String ticker = mContext.getString(R.string.tickerDBSicherung);
             String contentTitle = mContext.getString(R.string.contentTextDBSicherung);
-            mNotification = new AWLibNotification(mContext, contentTitle);
+            mNotification = new AWNotification(mContext, contentTitle);
             mNotification.setTicker(ticker);
             mNotification.setHasProgressBar(true);
             mNotification.createNotification(contentTitle);

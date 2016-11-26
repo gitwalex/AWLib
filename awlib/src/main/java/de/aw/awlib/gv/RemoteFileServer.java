@@ -22,17 +22,17 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
 import de.aw.awlib.R;
-import de.aw.awlib.database.AWLibAbstractDBDefinition;
+import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBHelper;
-import de.aw.awlib.database_private.AWLibDBDefinition;
-import de.aw.awlib.utils.RemoteFileServerHandler.ConnectionType;
+import de.aw.awlib.database_private.AWDBDefinition;
+import de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType;
 
-import static de.aw.awlib.utils.RemoteFileServerHandler.ConnectionType.SSL;
+import static de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType.SSL;
 
 /**
  * Stammdaten fuer einen RemoteFileServer.
  */
-public class RemoteFileServer extends AWLibApplicationGeschaeftsObjekt {
+public class RemoteFileServer extends AWApplicationGeschaeftsObjekt {
     public static final Creator<RemoteFileServer> CREATOR = new Creator<RemoteFileServer>() {
         @Override
         public RemoteFileServer createFromParcel(Parcel source) {
@@ -44,7 +44,7 @@ public class RemoteFileServer extends AWLibApplicationGeschaeftsObjekt {
             return new RemoteFileServer[size];
         }
     };
-    private static final AWLibDBDefinition tbd = AWLibDBDefinition.RemoteServer;
+    private static final AWDBDefinition tbd = AWDBDefinition.RemoteServer;
     private final SharedPreferences prefs;
     private ConnectionType mConnectionType;
     private String mMainDirectory;
@@ -83,7 +83,7 @@ public class RemoteFileServer extends AWLibApplicationGeschaeftsObjekt {
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     }
 
-    public RemoteFileServer(AWLibAbstractDBDefinition tbd, Long id) throws LineNotFoundException {
+    public RemoteFileServer(AWAbstractDBDefinition tbd, Long id) throws LineNotFoundException {
         super(tbd, id);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         mURL = getAsString(R.string.column_serverurl);

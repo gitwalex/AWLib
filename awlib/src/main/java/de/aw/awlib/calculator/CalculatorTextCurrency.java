@@ -26,16 +26,16 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
 import de.aw.awlib.R;
-import de.aw.awlib.database.AWLibDBConvert;
-import de.aw.awlib.views.AWLibTextCurrency;
+import de.aw.awlib.database.AWDBConvert;
+import de.aw.awlib.views.AWTextCurrency;
 
 /**
  * Zeigt einen Betrag in der jeweiligen Waehrung an. Als Defult wird bei negativen Werten der Text
  * in rot gezeigt. Das kann durch {@link CalculatorTextCurrency#setColorMode(boolean)} geaendert
  * werden.
  */
-public class CalculatorTextCurrency extends AWLibTextCurrency
-        implements AWLibCalculatorView.ResultListener, View.OnClickListener {
+public class CalculatorTextCurrency extends AWTextCurrency
+        implements AWCalculatorView.ResultListener, View.OnClickListener {
     private PopupWindow calculatorPopUp;
     private Double initialValue;
     private int mIndex;
@@ -96,7 +96,7 @@ public class CalculatorTextCurrency extends AWLibTextCurrency
             //noinspection deprecation
             setTextAppearance(getContext(), R.style.TextViewMain_Medium);
         }
-        AWLibCalculatorView mCalculator = new AWLibCalculatorView(getContext());
+        AWCalculatorView mCalculator = new AWCalculatorView(getContext());
         if (initialValue != null) {
             mCalculator.setInitialValue(initialValue);
         }
@@ -148,7 +148,7 @@ public class CalculatorTextCurrency extends AWLibTextCurrency
             if (mOnValueChangeListener != null) {
                 mOnValueChangeListener.onLongValueChanged(this, amount);
             }
-            initialValue = amount / AWLibDBConvert.mCurrencyDigits;
+            initialValue = amount / AWDBConvert.mCurrencyDigits;
         }
     }
 

@@ -25,7 +25,7 @@ import android.view.WindowManager;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.fragments.AWLibFragment;
+import de.aw.awlib.fragments.AWFragment;
 
 /**
  * Template fuer MonMaFragmente
@@ -33,7 +33,7 @@ import de.aw.awlib.fragments.AWLibFragment;
  * Folgende Funktionen: - Bereitstellung eines Bundle 'args' fuer alle abgeleiteten Klassen - Setzen
  * HasOptionsMenu(): Alle Fragmente haben OptionsMenu
  */
-public class PreferenceDialogFragment extends AWLibFragment
+public class PreferenceDialogFragment extends AWFragment
         implements AWLibInterface, DialogInterface.OnClickListener {
     private static final String TITLE = "TITLE", HINWEIS = "HINWEIS";
     protected MainAction action;

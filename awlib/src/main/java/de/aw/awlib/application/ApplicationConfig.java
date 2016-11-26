@@ -7,9 +7,9 @@ import java.io.File;
 
 import de.aw.awlib.database.AbstractDBHelper;
 
-import static de.aw.awlib.application.AWLIbApplication.getApplicationBackupPath;
-import static de.aw.awlib.application.AWLIbApplication.getApplicationExportPath;
-import static de.aw.awlib.application.AWLIbApplication.getApplicationImportPath;
+import static de.aw.awlib.application.AWApplication.getApplicationBackupPath;
+import static de.aw.awlib.application.AWApplication.getApplicationExportPath;
+import static de.aw.awlib.application.AWApplication.getApplicationImportPath;
 
 /**
  * Konfigurationsklasse fuer AWLib-Applications.

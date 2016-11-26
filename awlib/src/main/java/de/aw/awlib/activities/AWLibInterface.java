@@ -22,7 +22,8 @@ package de.aw.awlib.activities;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import de.aw.awlib.fragments.AWLibFileChooser;
+import de.aw.awlib.events.AWEvent;
+import de.aw.awlib.fragments.AWFileChooser;
 
 /**
  * @author alex
@@ -102,7 +103,7 @@ public interface AWLibInterface {
              */
             , ACTIONBARSUBTITLE = "ACTIONBARSUBTITLE"
             /**
-             * Events fuer {@link de.aw.awlib.events.AWLibEvent}
+             * Events fuer {@link AWEvent}
              */
             , AWLIBEVENT = "AWLIBEVENT"
             /**
@@ -110,7 +111,7 @@ public interface AWLibInterface {
              */
             , AWLIBACTION = "AWLIBACTION"
             /**
-             * Filter fuer einen Filenamen. Wird in {@link AWLibFileChooser} verwendet.
+             * Filter fuer einen Filenamen. Wird in {@link AWFileChooser} verwendet.
              */
             , FILENAMEFILTER = "FILENAMEFILTER"
             /**
