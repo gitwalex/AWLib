@@ -39,7 +39,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
@@ -55,7 +55,7 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  * Setzen HasOptionsMenu(): Alle Fragmente haben OptionsMenu
  */
 public abstract class AWFragment extends DialogFragment
-        implements AWLibInterface, AWFragmentInterface, DialogInterface.OnClickListener {
+        implements AWInterface, AWFragmentInterface, DialogInterface.OnClickListener {
     /**
      * TAG Fuer die Fragmente
      */

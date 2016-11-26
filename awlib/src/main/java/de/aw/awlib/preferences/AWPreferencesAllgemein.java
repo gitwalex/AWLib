@@ -35,8 +35,8 @@ import java.text.DateFormat;
 import de.aw.awlib.BuildConfig;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityActions;
-import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.activities.AWLibWebViewActivity;
+import de.aw.awlib.activities.AWInterface;
+import de.aw.awlib.activities.AWWebViewActivity;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.events.AWEvent;
@@ -52,7 +52,7 @@ import static de.aw.awlib.events.AWEvent.DoDatabaseSave;
  * @author alex
  */
 public class AWPreferencesAllgemein extends AWPreferenceFragment
-        implements Preference.OnPreferenceClickListener, AWLibInterface {
+        implements Preference.OnPreferenceClickListener, AWInterface {
     private static final int[] mPrefs =
             new int[]{R.string.pkDBVacuum, R.string.pkDBSave, R.string.pkDBRestore,
                     R.string.pkSavePeriodic, R.string.pkCopyright, R.string.pkAbout,
@@ -132,12 +132,12 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkCopyright).equals(key)) {
-            Intent intent = new Intent(getActivity(), AWLibWebViewActivity.class);
+            Intent intent = new Intent(getActivity(), AWWebViewActivity.class);
             intent.putExtra(ID, AWApplication.getCopyrightHTML());
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkAbout).equals(key)) {
-            Intent intent = new Intent(getActivity(), AWLibWebViewActivity.class);
+            Intent intent = new Intent(getActivity(), AWWebViewActivity.class);
             intent.putExtra(ID, AWApplication.getAboutHTML());
             getActivity().startActivity(intent);
             return true;

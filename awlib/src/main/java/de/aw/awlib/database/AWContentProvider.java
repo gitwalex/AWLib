@@ -23,7 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database_private.AWDBHelper;
 
@@ -32,7 +32,7 @@ import de.aw.awlib.database_private.AWDBHelper;
  *
  * @author alex
  */
-public class AWContentProvider extends ContentProvider implements AWLibInterface {
+public class AWContentProvider extends ContentProvider implements AWInterface {
     public static final String AUTHORITY = "de.aw.awlibcontentprovider";
     private boolean batchMode;
     private AbstractDBHelper db;

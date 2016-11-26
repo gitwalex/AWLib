@@ -26,7 +26,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
 
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.database.AWDBConvert;
 
 /**
@@ -35,7 +35,7 @@ import de.aw.awlib.database.AWDBConvert;
  * ColorModes kann vorgegeben werden, ob negative Werte rot (default) oder immer schwarz angezeigt
  * werden.
  */
-public class AWEditCurrency extends EditText implements AWLibInterface {
+public class AWEditCurrency extends EditText implements AWInterface {
     private static final String AMOUNT = "AMOUNT", STATE = "STATE", HASFOCUS = "HASFOCUS";
     private long amount = 0L;
     private boolean colorMode = true;

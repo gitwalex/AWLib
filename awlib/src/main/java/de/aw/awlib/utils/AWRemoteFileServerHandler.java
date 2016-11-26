@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import de.aw.awlib.gv.RemoteFileServer;
 
-import static de.aw.awlib.activities.AWLibInterface.linefeed;
+import static de.aw.awlib.activities.AWInterface.linefeed;
 
 /**
  * Handler fuer Zugriffe auf einen FileServer. Alle Transaktionen werden in einem separatem

@@ -28,12 +28,12 @@ import android.support.v4.app.NotificationCompat;
 
 import java.util.List;
 
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 
 /**
  * Erstellt und ersetzt Notifications
  */
-public class AWNotification implements AWLibInterface {
+public class AWNotification implements AWInterface {
     private static int lastNotifyID = 1;
     private final Context context;
     private String contentTitle;
@@ -49,7 +49,7 @@ public class AWNotification implements AWLibInterface {
      *
      * @param startActivity
      *         Activity, die bei click auf Notification gestartet werden soll. Kann null sein, dann
-     *         wird die AWLibMainActivity gestartet.
+     *         wird die AWMainActivity gestartet.
      */
     public AWNotification(@NonNull Context context, @NonNull String contentTitle,
                           Class startActivity) {

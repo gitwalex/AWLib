@@ -43,7 +43,7 @@ import de.aw.awlib.recyclerview.AWOnArrayRecyclerViewListener;
 /**
  * Activity fuer verschiedene Aktionen
  */
-public class AWActivityActions extends AWLibMainActivity
+public class AWActivityActions extends AWMainActivity
         implements AWOnArrayRecyclerViewListener, AWFragmentActionBar.OnActionFinishListener {
     private AWEvent event;
 

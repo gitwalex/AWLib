@@ -16,8 +16,8 @@
  */
 package de.aw.awlib.fragments;
 
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 
-public interface AWFragmentInterface extends AWLibInterface {
+public interface AWFragmentInterface extends AWInterface {
     String getTAG();
 }

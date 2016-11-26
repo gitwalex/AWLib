@@ -28,7 +28,7 @@ import de.aw.awlib.fragments.AWFileChooser;
 /**
  * @author alex
  */
-public interface AWLibInterface {
+public interface AWInterface {
     String
             /**
              *

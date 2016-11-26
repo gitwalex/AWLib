@@ -20,12 +20,12 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 
 /**
  * Created by alex on 02.03.2015.
  */
-public class AWEditText extends EditText implements AWLibInterface {
+public class AWEditText extends EditText implements AWInterface {
     private String aktuellerText;
     private int mBroadcastIndex;
     private AWAutoCompleteTextView.OnTextChangedListener mOnTextChangedListener;

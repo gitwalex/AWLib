@@ -31,7 +31,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.FilterQueryProvider;
 
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 
 /**
@@ -42,7 +42,7 @@ import de.aw.awlib.database.AWAbstractDBDefinition;
  * @see AWAutoCompleteTextView#sendMessage()
  */
 public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
-        implements AWLibInterface, SimpleCursorAdapter.CursorToStringConverter, FilterQueryProvider,
+        implements AWInterface, SimpleCursorAdapter.CursorToStringConverter, FilterQueryProvider,
         AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor>,
         AutoCompleteTextView.Validator {
     private static final String CONSTRAINT = "CONSTRAINT", USERSCELECTION = "USERSELECTION",

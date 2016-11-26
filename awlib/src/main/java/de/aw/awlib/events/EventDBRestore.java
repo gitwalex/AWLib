@@ -25,13 +25,13 @@ import java.io.File;
 
 import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.AWUtils;
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 
 /**
  * Klasse fuer Sicheren/Restoren DB
  */
-public class EventDBRestore implements AWResultCodes, AWLibInterface {
+public class EventDBRestore implements AWResultCodes, AWInterface {
     private final Context mContext;
 
     public EventDBRestore(Context context) {

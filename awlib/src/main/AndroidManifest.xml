@@ -21,15 +21,15 @@
 
         <activity
             android:name=".activities.AWActivityActions"
-            android:parentActivityName=".activities.AWLibPreferenceActivity">
+            android:parentActivityName=".activities.AWPreferenceActivity">
 
         </activity>
 
         <activity android:name=".activities.AWActivityDebug">
         </activity>
-        <activity android:name=".activities.AWLibWebViewActivity">
+        <activity android:name=".activities.AWWebViewActivity">
         </activity>
-        <activity android:name=".activities.AWLibPreferenceActivity">
+        <activity android:name=".activities.AWPreferenceActivity">
         </activity>
 
         <service

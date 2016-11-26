@@ -33,15 +33,15 @@ import de.aw.awlib.preferences.AWPreferencesAllgemein;
 /**
  * Activity fuer Preferences
  * <p>
- * Wird {@link AWLibPreferenceActivity#getPreferencePagerAdapter(FragmentManager)} ueberschrieben,
+ * Wird {@link AWPreferenceActivity#getPreferencePagerAdapter(FragmentManager)} ueberschrieben,
  * wird der Adaper benutzt und dessen Fragmente angezeigt.
  * <p>
  * Wird kein Adapter geliefert, wird nur ein Fragment gezeigt. Welches, wird ueber {@link
- * AWLibPreferenceActivity#getAWLibPreferencesAllgemein()} festgelegt. Wird diese Methode nicht
+ * AWPreferenceActivity#getAWLibPreferencesAllgemein()} festgelegt. Wird diese Methode nicht
  * ueberschreiben, wird das {@link AWPreferencesAllgemein} angezeigt.
  */
 @SuppressWarnings("ConstantConditions")
-public class AWLibPreferenceActivity extends AWLibMainActivity {
+public class AWPreferenceActivity extends AWMainActivity {
     private static final int layout = R.layout.awlib_activity_preferences;
 
     /**
@@ -56,7 +56,7 @@ public class AWLibPreferenceActivity extends AWLibMainActivity {
 
     /**
      * Liefert einen Adapter zurueck. In der Default-Implementierung wird null zurueckgeliefert,
-     * dann wird das Fragment aus {@link }{@link AWLibPreferenceActivity#getAWLibPreferencesAllgemein()}
+     * dann wird das Fragment aus {@link }{@link AWPreferenceActivity#getAWLibPreferencesAllgemein()}
      * angezeigt.
      *
      * @param fm
@@ -80,10 +80,10 @@ public class AWLibPreferenceActivity extends AWLibMainActivity {
     }
 
     /**
-     * Wird ein Adapter in {@link AWLibPreferenceActivity#getPreferencePagerAdapter(FragmentManager)}
+     * Wird ein Adapter in {@link AWPreferenceActivity#getPreferencePagerAdapter(FragmentManager)}
      * geliefert, wird dieser zur Anzeige der Preferences genutzt.
      * <p>
-     * Andernfalls das Fragment welches in {@link AWLibPreferenceActivity#getAWLibPreferencesAllgemein()}
+     * Andernfalls das Fragment welches in {@link AWPreferenceActivity#getAWLibPreferencesAllgemein()}
      * geliefert wird.
      */
     @SuppressLint("MissingSuperCall")

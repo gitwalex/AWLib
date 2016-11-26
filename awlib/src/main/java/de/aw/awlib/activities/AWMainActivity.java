@@ -42,8 +42,8 @@ import de.aw.awlib.views.AWBottomSheetCalculator;
  * OverFlow-Butten angezeigt wird. Es wird ein Bundle args bereitgestellt, welches immer gesichert
  * bzw. restored wird.
  */
-public abstract class AWLibMainActivity extends AppCompatActivity
-        implements AWLibInterface, View.OnClickListener {
+public abstract class AWMainActivity extends AppCompatActivity
+        implements AWInterface, View.OnClickListener {
     /**
      * Layout fuer alle Activities. Beinhaltet ein FrameLayout als container ("container") und einen
      * DetailLayout ("containerDetail").
@@ -204,7 +204,7 @@ public abstract class AWLibMainActivity extends AppCompatActivity
             calc.show(getSupportFragmentManager(), null);
             isConsumed = true;
         } else if (i == R.id.awlib_menu_item_hilfe) {
-            intent = new Intent(this, AWLibWebViewActivity.class);
+            intent = new Intent(this, AWWebViewActivity.class);
             intent.putExtra(ID, getHelpFile());
             startActivity(intent);
             isConsumed = true;

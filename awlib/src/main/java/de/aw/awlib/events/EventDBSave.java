@@ -38,14 +38,14 @@ import de.aw.awlib.AWNotification;
 import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.AWUtils;
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
 
 /**
  * Klasse fuer Sicheren/Restoren DB
  */
-public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWLibInterface {
+public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWInterface {
     private static final String ALARMTIME = "ALARMTIME";
     private static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
     private static final String BACKUPPATH = AWApplication.getApplicationBackupPath() + "/";

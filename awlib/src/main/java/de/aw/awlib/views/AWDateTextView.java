@@ -30,7 +30,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.database.AWDBConvert;
 
 /**
@@ -38,7 +38,7 @@ import de.aw.awlib.database.AWDBConvert;
  * dem OnDateTextViewListener bekanntgegeben
  */
 public class AWDateTextView extends TextView
-        implements AWLibInterface, OnDateSetListener, OnClickListener {
+        implements AWInterface, OnDateSetListener, OnClickListener {
     private Calendar cal = Calendar.getInstance();
     private OnDateTextViewListener mOnDateSetListener;
     private int year, month, day;

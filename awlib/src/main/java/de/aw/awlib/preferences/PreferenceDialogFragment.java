@@ -24,7 +24,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.WindowManager;
 
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.fragments.AWFragment;
 
 /**
@@ -34,7 +34,7 @@ import de.aw.awlib.fragments.AWFragment;
  * HasOptionsMenu(): Alle Fragmente haben OptionsMenu
  */
 public class PreferenceDialogFragment extends AWFragment
-        implements AWLibInterface, DialogInterface.OnClickListener {
+        implements AWInterface, DialogInterface.OnClickListener {
     private static final String TITLE = "TITLE", HINWEIS = "HINWEIS";
     protected MainAction action;
     private Bundle args;

@@ -26,11 +26,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibMainActivity;
+import de.aw.awlib.activities.AWMainActivity;
 
 /**
  * Template fuer Actions. Setzt in der Toolbar ein NavigationsIcon, startet die Action und
- * informiert die rufende Activity ueber {@link AWLibMainActivity#onActionFinishClicked(int, int)}.
+ * informiert die rufende Activity ueber {@link AWMainActivity#onActionFinishClicked(int, int)}.
  * Der Titel der Toolbar muss von Activity gesetzt werden.
  */
 public abstract class AWFragmentActionBar extends AWFragment {
@@ -78,7 +78,7 @@ public abstract class AWFragmentActionBar extends AWFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mToolbar = ((AWLibMainActivity) getActivity()).getToolbar();
+        mToolbar = ((AWMainActivity) getActivity()).getToolbar();
         mToolbar.setNavigationIcon(getActionBarImageRessource());
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

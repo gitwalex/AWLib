@@ -28,7 +28,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 
 /**
@@ -37,7 +37,7 @@ import de.aw.awlib.database.AWAbstractDBDefinition;
  * wird.
  */
 public abstract class AWAbstractLoaderTextView extends TextView
-        implements AWLibInterface, LoaderManager.LoaderCallbacks<Cursor>,
+        implements AWInterface, LoaderManager.LoaderCallbacks<Cursor>,
         OnSharedPreferenceChangeListener {
     private final Bundle args = new Bundle();
     private boolean isInitialized;

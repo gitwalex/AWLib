@@ -26,7 +26,7 @@ import de.aw.awlib.R;
  * zeigt eine interne html-Seite. Im Intent wird unter ID der Name des html-files erwartet und im
  * Verzeichnis assets/html gesucht.
  */
-public class AWLibWebViewActivity extends FragmentActivity implements AWLibInterface {
+public class AWWebViewActivity extends FragmentActivity implements AWInterface {
     private static final String path = "file:///android_asset/html/";
     private WebView webView;
 

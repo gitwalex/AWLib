@@ -28,7 +28,7 @@ import java.util.Date;
 
 import de.aw.awlib.AWException;
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
@@ -48,7 +48,7 @@ import de.aw.awlib.database.AbstractDBHelper;
  *
  * @author alex
  */
-public abstract class AWApplicationGeschaeftsObjekt implements AWLibInterface, Parcelable {
+public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parcelable {
     /**
      * Flag, ob gerade Daten importiert werden.
      */

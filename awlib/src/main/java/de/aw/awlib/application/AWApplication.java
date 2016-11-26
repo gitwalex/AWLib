@@ -47,7 +47,7 @@ import de.aw.awlib.activities.AWActivityDebug;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.database_private.AWDBHelper;
 
-import static de.aw.awlib.activities.AWLibInterface.linefeed;
+import static de.aw.awlib.activities.AWInterface.linefeed;
 import static de.aw.awlib.events.EventDBSave.checkDBSaveAlarm;
 
 /**

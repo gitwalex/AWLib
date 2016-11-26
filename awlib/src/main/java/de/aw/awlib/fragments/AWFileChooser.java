@@ -19,7 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibMainActivity;
+import de.aw.awlib.activities.AWMainActivity;
 import de.aw.awlib.recyclerview.AWArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
@@ -106,7 +106,7 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
             value.add(0, file.getParentFile());
         }
         mFile = file;
-        ((AWLibMainActivity) getActivity()).getSupportActionBar()
+        ((AWMainActivity) getActivity()).getSupportActionBar()
                 .setSubtitle(file.getAbsolutePath());
         mAdapter.swapValues(value);
     }

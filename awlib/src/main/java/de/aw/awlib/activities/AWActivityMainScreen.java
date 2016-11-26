@@ -49,7 +49,7 @@ import de.aw.awlib.R;
  * <p>
  */
 @SuppressWarnings("ConstantConditions")
-public abstract class AWActivityMainScreen extends AWLibMainActivity
+public abstract class AWActivityMainScreen extends AWMainActivity
         implements NavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
     private static final int layout = R.layout.awlib_activity_main_screen;
     private DrawerLayout mDrawerLayout;
@@ -177,7 +177,7 @@ public abstract class AWActivityMainScreen extends AWLibMainActivity
         int i = item.getItemId();
         if (i == R.id.awlib_nav_Settings) {
             Intent intent = new Intent();
-            intent.setClass(AWActivityMainScreen.this, AWLibPreferenceActivity.class);
+            intent.setClass(AWActivityMainScreen.this, AWPreferenceActivity.class);
             startActivity(intent);
             return true;
         }
@@ -237,7 +237,7 @@ public abstract class AWActivityMainScreen extends AWLibMainActivity
         mDrawerLayout.removeDrawerListener(mDrawerToggle);
         if (pager != null) {
             pager.removeOnPageChangeListener(this);
-            args.putInt(AWLibInterface.LASTSELECTEDPOSITION, pager.getCurrentItem());
+            args.putInt(AWInterface.LASTSELECTEDPOSITION, pager.getCurrentItem());
         }
     }
 
@@ -261,7 +261,7 @@ public abstract class AWActivityMainScreen extends AWLibMainActivity
         mDrawerLayout.addDrawerListener(mDrawerToggle);
         if (pager != null) {
             pager.addOnPageChangeListener(this);
-            pager.setCurrentItem(args.getInt(AWLibInterface.LASTSELECTEDPOSITION, 0));
+            pager.setCurrentItem(args.getInt(AWInterface.LASTSELECTEDPOSITION, 0));
         }
     }
 

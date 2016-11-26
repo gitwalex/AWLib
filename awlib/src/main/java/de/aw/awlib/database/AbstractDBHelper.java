@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
@@ -39,7 +39,7 @@ import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 /**
  * Helper fuer die SQLite-Database
  */
-public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWLibInterface {
+public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInterface {
     /**
      * CursorFactory. Loggt die Query und die Dauer der Abfrage in nanosekunden, wenn im Debug-Modus
      * und nicht Import.

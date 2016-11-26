@@ -27,13 +27,13 @@ import java.io.File;
 import java.util.concurrent.ExecutionException;
 
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWLibInterface;
+import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 
 /**
  * Bearbeitet Events innerhalb MonMa.
  */
-public class AWEventService extends IntentService implements AWLibInterface {
+public class AWEventService extends IntentService implements AWInterface {
     public AWEventService() {
         super("AWEventService");
     }
