@@ -185,12 +185,13 @@ public abstract class AWFragment extends DialogFragment
             case AlertDialog.BUTTON_POSITIVE:
                 switch (mainAction) {
                     case ADD:
-                        AbstractDBHelper db = getDBHelper();
-                        awlib_gv.insert(db);
-                        break;
                     case EDIT:
-                        db = getDBHelper();
-                        awlib_gv.update(db);
+                        AbstractDBHelper db = getDBHelper();
+                        if (awlib_gv.isInserted()) {
+                            awlib_gv.update(db);
+                        } else {
+                            awlib_gv.insert(db);
+                        }
                         break;
                     default:
                         break;
