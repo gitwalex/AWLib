@@ -107,7 +107,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
     }
 
     private AWRemoteFileServerHandler getExecuter() {
-        if (mRemoteFileServer == null) {
+        if (mRemoteFileServerHandler == null) {
             mRemoteFileServerHandler = new AWRemoteFileServerHandler(mRemoteFileServer, this);
         }
         return mRemoteFileServerHandler;
@@ -239,7 +239,6 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRemoteFileServer = args.getParcelable(REMOTEFILESERVER);
-        getExecuter().listFilesInDirectory(mUri.getEncodedPath(), mFileFilter);
     }
 
     @Override
@@ -272,6 +271,12 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
             mServerErrorLayout.setVisibility(View.VISIBLE);
             mServerErrorTexte.setText(result.getStatusMessage());
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getExecuter().listFilesInDirectory(mUri.getEncodedPath(), mFileFilter);
     }
 
     public void onStartFileServerTask() {
