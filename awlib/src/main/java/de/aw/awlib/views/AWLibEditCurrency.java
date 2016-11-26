@@ -27,7 +27,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 
 /**
  * EditText, welcher Currency anzeigt. Hat das Feld den Focus, wird der Text als double angezeigt.
@@ -66,7 +66,7 @@ public class AWLibEditCurrency extends EditText implements AWLibInterface {
     public Long getValue() {
         if (hasFocus()) {
             try {
-                amount = AbstractDBConvert
+                amount = AWLibDBConvert
                         .convertCurrency(Double.parseDouble(getText().toString().trim()));
             } catch (NumberFormatException e) {
                 // Passiert, wenn Textfeld leer ist.
@@ -94,7 +94,7 @@ public class AWLibEditCurrency extends EditText implements AWLibInterface {
             setValueAsDouble();
         } else {
             // Wert in der jeweiligen Currency zeigen
-            setText(AbstractDBConvert.convertCurrency(amount));
+            setText(AWLibDBConvert.convertCurrency(amount));
         }
         super.onFocusChanged(focused, direction, previouslyFocusedRect);
     }
@@ -125,7 +125,7 @@ public class AWLibEditCurrency extends EditText implements AWLibInterface {
         if (hasFocus() & lengthAfter != lengthBefore) {
             long newAmount = 0;
             try {
-                newAmount = AbstractDBConvert
+                newAmount = AWLibDBConvert
                         .convertCurrency(Double.parseDouble(text.toString().trim()));
             } catch (NumberFormatException e) {
             }
@@ -177,13 +177,13 @@ public class AWLibEditCurrency extends EditText implements AWLibInterface {
         if (hasFocus()) {
             setValueAsDouble();
         } else {
-            setText(AbstractDBConvert.convertCurrency(amount));
+            setText(AWLibDBConvert.convertCurrency(amount));
         }
     }
 
     private void setValueAsDouble() {
         if (hasFocus()) {
-            Double d = amount / AbstractDBConvert.mCurrencyDigits;
+            Double d = amount / AWLibDBConvert.mCurrencyDigits;
             setText(d.toString());
         }
     }

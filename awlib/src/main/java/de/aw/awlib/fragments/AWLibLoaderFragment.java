@@ -60,7 +60,6 @@ import de.aw.awlib.database.AWLibAbstractDBDefinition;
 public abstract class AWLibLoaderFragment extends AWLibFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String ISRUNNING = "ISRUNNING";
-    private boolean isRunning;
     private View mProgressbar;
 
     @Override
@@ -103,7 +102,6 @@ public abstract class AWLibLoaderFragment extends AWLibFragment
     @Override
     @CallSuper
     public Loader<Cursor> onCreateLoader(int p1, Bundle args) {
-        isRunning = true;
         if (mProgressbar != null) {
             mProgressbar.setVisibility(View.VISIBLE);
         }
@@ -147,7 +145,6 @@ public abstract class AWLibLoaderFragment extends AWLibFragment
         if (mProgressbar != null) {
             mProgressbar.setVisibility(View.INVISIBLE);
         }
-        isRunning = false;
     }
 
     @Override
@@ -155,9 +152,11 @@ public abstract class AWLibLoaderFragment extends AWLibFragment
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        args.putBoolean(ISRUNNING, isRunning);
-        super.onSaveInstanceState(outState);
+    public void onPause() {
+        super.onPause();
+        if (mProgressbar != null) {
+            mProgressbar.setVisibility(View.INVISIBLE);
+        }
     }
 
     @CallSuper

@@ -22,7 +22,7 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.TextView;
 
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 
 /**
  * Zeigt einen Betrag in der jeweiligen Waehrung an. Als Defult wird bei negativen Werten der Text
@@ -82,7 +82,7 @@ public class AWLibTextCurrency extends TextView {
      */
     public void setValue(long amount) {
         value = amount;
-        setText(AbstractDBConvert.convertCurrency(value));
+        setText(AWLibDBConvert.convertCurrency(value));
         if (colorMode && value < 0) {
             setTextColor(Color.RED);
         } else {

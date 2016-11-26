@@ -43,7 +43,6 @@ import de.aw.awlib.database_private.AWLibDBHelper;
 import de.aw.awlib.gv.RemoteFileServer;
 import de.aw.awlib.recyclerview.AWLibArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
-import de.aw.awlib.utils.RemoteFileServerAdapter;
 import de.aw.awlib.utils.RemoteFileServerHandler;
 import de.aw.awlib.utils.RemoteFileServerHandler.ExecutionListener;
 
@@ -79,7 +78,7 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
     private AWLibFragmentActionBar.OnActionFinishListener mOnActionFinishListener;
     private View mProgressServerConnection;
     private RemoteFileServer mRemoteFileServer;
-    private RemoteFileServerAdapter mRemoteFileServerAdapter;
+    private RemoteFileServerHandler mRemoteFileServerHandler;
     private View mServerErrorLayout;
     private TextView mServerErrorTexte;
     private Uri mUri = Uri.parse("/");
@@ -106,11 +105,11 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         return AWLibDBHelper.getInstance();
     }
 
-    private RemoteFileServerAdapter getExecuter() {
-        if (mRemoteFileServerAdapter == null) {
-            mRemoteFileServerAdapter = new RemoteFileServerAdapter(mRemoteFileServer, this);
+    private RemoteFileServerHandler getExecuter() {
+        if (mRemoteFileServer == null) {
+            mRemoteFileServerHandler = new RemoteFileServerHandler(mRemoteFileServer, this);
         }
-        return mRemoteFileServerAdapter;
+        return mRemoteFileServerHandler;
     }
 
     @Override
@@ -257,10 +256,10 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         }
     }
 
-    public void onPostExecute(RemoteFileServerHandler.ConnectionFailsException result) {
+    public void onEndFileServerTask(RemoteFileServerHandler.ConnectionFailsException result) {
         mProgressServerConnection.setVisibility(View.INVISIBLE);
         if (result == null) {
-            setFileList(mRemoteFileServerAdapter.getFiles());
+            setFileList(mRemoteFileServerHandler.getFiles());
             ActionBar bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             if (bar != null) {
                 bar.setTitle(mRemoteFileServer.getURL());
@@ -272,10 +271,6 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
         }
     }
 
-    public void onPreExecute() {
-        mProgressServerConnection.setVisibility(View.VISIBLE);
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -285,6 +280,10 @@ public class AWLibRemoteFileChooser extends AWLibArrayRecyclerViewFragment<FTPFi
             f.setOnDismissListener(this);
             f.show(getFragmentManager(), null);
         }
+    }
+
+    public void onStartFileServerTask() {
+        mProgressServerConnection.setVisibility(View.VISIBLE);
     }
 
     @Override

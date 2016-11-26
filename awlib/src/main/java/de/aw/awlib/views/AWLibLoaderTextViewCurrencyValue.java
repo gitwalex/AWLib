@@ -20,7 +20,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.AttributeSet;
 
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 
 /**
  * Convenience-Klasse fuer TextView, die mit einem Loader hinterlegt ist. ID der TextView wird
@@ -45,7 +45,7 @@ public class AWLibLoaderTextViewCurrencyValue extends AWLibAbstractLoaderTextVie
     @Override
     protected String convertValue(Cursor data) {
         mValue = data.getLong(0);
-        return AbstractDBConvert.convertCurrency(mValue);
+        return AWLibDBConvert.convertCurrency(mValue);
     }
 
     public long getValue() {

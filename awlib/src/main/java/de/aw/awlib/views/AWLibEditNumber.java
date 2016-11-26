@@ -22,11 +22,11 @@ import android.text.InputType;
 import android.util.AttributeSet;
 
 import de.aw.awlib.calculator.CalculatorTextCurrency;
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 
 /**
  * EditText fuer Werte, die in der DB als Number abgelegt werden (also mit {@link
- * AbstractDBConvert#mNumberDigits} Stellen.
+ * AWLibDBConvert#mNumberDigits} Stellen.
  */
 public class AWLibEditNumber extends AWLibEditText {
     private CalculatorTextCurrency.OnLongValueChangedListener mOnLongValueChangedListener;
@@ -46,7 +46,7 @@ public class AWLibEditNumber extends AWLibEditText {
 
     /**
      * @return Liefert den aktuellen Wert zurueck. Der Wert beinhalten die gemaess {@link
-     * AbstractDBConvert#mNumberDigits} vorgesehenen Stellen.
+     * AWLibDBConvert#mNumberDigits} vorgesehenen Stellen.
      */
     public long getLongValue() {
         return mValue;
@@ -72,7 +72,7 @@ public class AWLibEditNumber extends AWLibEditText {
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
         try {
             String val = text.toString().replaceAll("\\.", "");
-            mValue = (long) (Double.parseDouble(val) * AbstractDBConvert.mNumberDigits);
+            mValue = (long) (Double.parseDouble(val) * AWLibDBConvert.mNumberDigits);
             if (mOnLongValueChangedListener != null) {
                 mOnLongValueChangedListener.onLongValueChanged(this, mValue);
             }
@@ -89,7 +89,7 @@ public class AWLibEditNumber extends AWLibEditText {
     public void setValue(long value) {
         if (value != mValue) {
             mValue = value;
-            setText(((Double) (value / AbstractDBConvert.mNumberDigits)).toString());
+            setText(((Double) (value / AWLibDBConvert.mNumberDigits)).toString());
         }
     }
 }

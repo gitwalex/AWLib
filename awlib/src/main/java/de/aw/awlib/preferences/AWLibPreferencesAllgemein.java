@@ -38,7 +38,7 @@ import de.aw.awlib.activities.AWLibActivityActions;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.activities.AWLibWebViewActivity;
 import de.aw.awlib.application.AWLIbApplication;
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 import de.aw.awlib.events.AWLibEvent;
 import de.aw.awlib.events.AWLibEventService;
 import de.aw.awlib.events.EventDBSave;
@@ -164,7 +164,7 @@ public class AWLibPreferencesAllgemein extends AWLibPreferenceFragment
     private void setRegelmSicherungSummary(Preference pref, SharedPreferences prefs) {
         if (prefs.getBoolean(getString(R.string.pkSavePeriodic), false)) {
             long value = prefs.getLong(getString(R.string.nextDoDBSave), 0);
-            String date = AbstractDBConvert.convertDate(value);
+            String date = AWLibDBConvert.convertDate(value);
             pref.setSummary(getString(R.string.smryDBSavePeriodicOn) + date);
         } else {
             pref.setSummary(prefs.getString(getString(R.string.nextDoDBSave),

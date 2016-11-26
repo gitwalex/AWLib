@@ -33,7 +33,7 @@ import android.widget.TextView;
 
 import de.aw.awlib.R;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 import de.aw.awlib.fragments.AWLibLoaderFragment;
 
 /**
@@ -194,7 +194,7 @@ public abstract class AWLibCursorRecyclerViewFragment extends AWLibLoaderFragmen
                                         "] ist keine TextView und muss in bindView belegt werden.");
                     }
                     tv = (TextView) view;
-                    String text = AbstractDBConvert
+                    String text = AWLibDBConvert
                             .convert(tbd, fromResIDs[viewPosition], cursor.getString(viewPosition));
                     tv.setText(text);
                 } catch (ClassCastException e) {

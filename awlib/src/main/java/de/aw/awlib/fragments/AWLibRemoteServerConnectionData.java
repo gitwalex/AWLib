@@ -16,7 +16,7 @@ import de.aw.awlib.utils.RemoteFileServerHandler;
 import static de.aw.awlib.utils.RemoteFileServerHandler.ConnectionType.SSL;
 
 /**
- * Created by alex on 23.11.2016.
+ * Dialog fuer Abfrage von Zugangsdaten zu einem FileServer.
  */
 public class AWLibRemoteServerConnectionData extends AWLibFragment {
     private static final int layout = R.layout.awlib_dialog_remote_fileserver;
@@ -24,7 +24,6 @@ public class AWLibRemoteServerConnectionData extends AWLibFragment {
             new int[]{R.id.awlib_etDBServerName, R.id.awlib_etDBUserName};
     private static final int[] fromResIDs =
             new int[]{R.string.column_serverurl, R.string.column_userID};
-    private CheckBox mConnectionTypeCheckBox;
     private EditText mPasswortEditText;
     private RemoteFileServer mRemoteFileServer;
 
@@ -40,7 +39,9 @@ public class AWLibRemoteServerConnectionData extends AWLibFragment {
     @Override
     public void onClick(DialogInterface dialog, int which) {
         mRemoteFileServer.setUserPassword(mPasswortEditText.getText().toString());
-        super.onClick(dialog, which);
+        if (mRemoteFileServer.isValid()) {
+            super.onClick(dialog, which);
+        }
     }
 
     @Override
@@ -63,7 +64,7 @@ public class AWLibRemoteServerConnectionData extends AWLibFragment {
         super.onViewCreated(view, savedInstanceState);
         mPasswortEditText = (EditText) view.findViewById(R.id.awlib_etDBUserPW);
         mPasswortEditText.setText(mRemoteFileServer.getUserPassword());
-        mConnectionTypeCheckBox = (CheckBox) view.findViewById(R.id.cbConnectionType);
+        CheckBox mConnectionTypeCheckBox = (CheckBox) view.findViewById(R.id.cbConnectionType);
         mConnectionTypeCheckBox
                 .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override

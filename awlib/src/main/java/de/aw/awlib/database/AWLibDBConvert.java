@@ -31,7 +31,7 @@ import de.aw.awlib.application.AWLIbApplication;
 /**
  * Klasse zum konvertieren von Daten in ein anderes Format
  */
-public class AbstractDBConvert {
+public class AWLibDBConvert {
     public static final DateFormat DATEFORMAT = DateFormat.getDateInstance();
     private static final Locale mLocale = Locale.getDefault();
     public static final DateFormat mSqliteDateFormat = new SimpleDateFormat("yyyy-MM-dd", mLocale);

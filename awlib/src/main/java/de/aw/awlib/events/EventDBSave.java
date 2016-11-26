@@ -40,7 +40,7 @@ import de.aw.awlib.AWLibUtils;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.application.AWLIbApplication;
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 
 /**
  * Klasse fuer Sicheren/Restoren DB
@@ -159,7 +159,7 @@ public class EventDBSave extends BroadcastReceiver implements AWLibResultCodes, 
                 case RESULT_OK:
                     result = mContext.getString(R.string.dbSaved);
                     SharedPreferences.Editor editor = prefs.edit();
-                    String mDate = AbstractDBConvert.convertDate(date);
+                    String mDate = AWLibDBConvert.convertDate(date);
                     editor.putString(AWLibEvent.DoDatabaseSave.name(), mDate).apply();
                     break;
                 case RESULT_FILE_ERROR:

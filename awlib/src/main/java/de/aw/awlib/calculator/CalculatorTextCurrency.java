@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
 import de.aw.awlib.R;
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 import de.aw.awlib.views.AWLibTextCurrency;
 
 /**
@@ -148,7 +148,7 @@ public class CalculatorTextCurrency extends AWLibTextCurrency
             if (mOnValueChangeListener != null) {
                 mOnValueChangeListener.onLongValueChanged(this, amount);
             }
-            initialValue = amount / AbstractDBConvert.mCurrencyDigits;
+            initialValue = amount / AWLibDBConvert.mCurrencyDigits;
         }
     }
 

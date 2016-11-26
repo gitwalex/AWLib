@@ -35,7 +35,7 @@ import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
 import de.aw.awlib.database.AWLibContentProvider;
 import de.aw.awlib.database.AWLibDBAlterHelper;
-import de.aw.awlib.database.AbstractDBFormate;
+import de.aw.awlib.database.AWLibDBFormate;
 
 /**
  * @author Alexander Winkler
@@ -70,7 +70,7 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
      * Flag, ob initialize(context) aufgerufen wurde.
      */
     private static boolean isInitialized;
-    private static AbstractDBFormate mDBFormat;
+    private static AWLibDBFormate mDBFormat;
 
     /**
      * Initialisiert DBDefinition. Vor der ersten Nutzung aufzurufen
@@ -98,7 +98,7 @@ public enum AWLibDBDefinition implements Parcelable, AWLibAbstractDBDefinition {
                 tbd.mapResID2columnNames.put(map, resIDString);
             }
         }
-        mDBFormat = AbstractDBFormate.getInstance();
+        mDBFormat = AWLibDBFormate.getInstance();
         isInitialized = true;
     }
 

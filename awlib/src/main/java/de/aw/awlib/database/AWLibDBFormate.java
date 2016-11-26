@@ -28,16 +28,16 @@ import de.aw.awlib.application.AWLIbApplication;
 /**
  * Formate fuer die einzelnen Columns der DB
  */
-public class AbstractDBFormate {
+public class AWLibDBFormate {
     /**
      * Map der ResIDs auf das Format der Spalte
      */
     private static final SparseArray<Character> mapResID2Formate = new SparseArray<>();
-    private static AbstractDBFormate mInstance;
+    private static AWLibDBFormate mInstance;
     private final Map<Character, String> formate = new HashMap<>();
     private final Map<String, Integer> mapColumnNae2ResID = new HashMap<>();
 
-    protected AbstractDBFormate() {
+    protected AWLibDBFormate() {
         Context context = AWLIbApplication.getContext();
         int resID = R.string._id;
         mapResID2Formate.put(resID, 'I');
@@ -59,9 +59,9 @@ public class AbstractDBFormate {
         }
     }
 
-    public static AbstractDBFormate getInstance() {
+    public static AWLibDBFormate getInstance() {
         if (mInstance == null) {
-            mInstance = new AbstractDBFormate();
+            mInstance = new AWLibDBFormate();
         }
         return mInstance;
     }

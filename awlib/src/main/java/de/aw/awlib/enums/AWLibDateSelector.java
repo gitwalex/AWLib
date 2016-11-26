@@ -22,7 +22,7 @@ import java.util.Date;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWLIbApplication;
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 
 /**
  * Auswahl des Datums fuer Reports
@@ -263,14 +263,14 @@ public enum AWLibDateSelector {
          * @return Liefert das EndeDatum zur Anzeige in View
          */
         public String getDisplayEndDate() {
-            return AbstractDBConvert.convertDate(endDate);
+            return AWLibDBConvert.convertDate(endDate);
         }
 
         /**
          * @return Liefert das StartDatum zur Anzeige in View
          */
         public String getDisplayStartDate() {
-            return AbstractDBConvert.convertDate(startDate);
+            return AWLibDBConvert.convertDate(startDate);
         }
 
         /**

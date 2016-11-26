@@ -31,7 +31,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import de.aw.awlib.activities.AWLibInterface;
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 
 /**
  * TextView fuer Eingabe Datum. Bei Klick wird ein DatePickerDialog gezeigt und eine Aenderung durch
@@ -107,7 +107,7 @@ public class AWLibDateTextView extends TextView
         year = cal.get(Calendar.YEAR);
         month = cal.get(Calendar.MONTH);
         day = cal.get(Calendar.DAY_OF_MONTH);
-        super.setText(AbstractDBConvert.convertDate(date));
+        super.setText(AWLibDBConvert.convertDate(date));
     }
 
     /**
@@ -120,7 +120,7 @@ public class AWLibDateTextView extends TextView
      *         wenn das Datum nicht geparst werden kann
      */
     public void setDate(String date) throws ParseException {
-        Date d = AbstractDBConvert.mSqliteDateFormat.parse(date);
+        Date d = AWLibDBConvert.mSqliteDateFormat.parse(date);
         setDate(d);
     }
 

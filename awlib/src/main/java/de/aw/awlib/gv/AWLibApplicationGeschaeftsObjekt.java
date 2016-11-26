@@ -31,7 +31,7 @@ import de.aw.awlib.R;
 import de.aw.awlib.activities.AWLibInterface;
 import de.aw.awlib.application.AWLIbApplication;
 import de.aw.awlib.database.AWLibAbstractDBDefinition;
-import de.aw.awlib.database.AbstractDBConvert;
+import de.aw.awlib.database.AWLibDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
 
 /**
@@ -178,7 +178,7 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
             char format = tbd.getFormat(resID);
             switch (format) {
                 case 'B':
-                    if (AbstractDBConvert.convertBoolean(newValue)) {
+                    if (AWLibDBConvert.convertBoolean(newValue)) {
                         newValue = "1";
                     } else {
                         newValue = "0";
@@ -186,7 +186,7 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
                     break;
                 case 'D':
                     if (value instanceof Date) {
-                        newValue = AbstractDBConvert.convertDate2SQLiteDate((Date) value);
+                        newValue = AWLibDBConvert.convertDate2SQLiteDate((Date) value);
                     }
                     break;
                 case 'O':
@@ -375,7 +375,7 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
     public final Boolean getAsBoolean(int resID) {
         String key = tbd.columnName(resID);
         String value = currentContent.getAsString(key);
-        return AbstractDBConvert.convertBoolean(value);
+        return AWLibDBConvert.convertBoolean(value);
     }
 
     public final byte[] getAsByteArray(int resID) {
@@ -393,7 +393,7 @@ public abstract class AWLibApplicationGeschaeftsObjekt implements AWLibInterface
      */
     public final Date getAsDate(String datum) {
         try {
-            return new java.sql.Date(AbstractDBConvert.mSqliteDateFormat.parse(datum).getTime());
+            return new java.sql.Date(AWLibDBConvert.mSqliteDateFormat.parse(datum).getTime());
         } catch (ParseException e) {
             return null;
         }
