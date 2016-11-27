@@ -29,6 +29,7 @@ import android.os.Debug;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.ViewConfiguration;
 
@@ -41,6 +42,7 @@ import java.io.PrintStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.util.Date;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityDebug;
@@ -148,7 +150,8 @@ public abstract class AWApplication extends Application {
         try {
             FileOutputStream fileout = new FileOutputStream(logFile, true);
             OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
-            outputWriter.write(message);
+            CharSequence date = DateFormat.format("yyyy-MM-dd hh:mm:ss", new Date());
+            outputWriter.write(date + ": " + message);
             outputWriter.write(linefeed);
             outputWriter.close();
         } catch (IOException e) {
@@ -228,7 +231,8 @@ public abstract class AWApplication extends Application {
         File stackTraceFile = new File(APPLICATIONPATH + STACKTRACEPATH);
         FileOutputStream fileout = new FileOutputStream(stackTraceFile);
         OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
-        outputWriter.write(stackTrace);
+        CharSequence date = DateFormat.format("yyyy-MM-dd hh:mm:ss", new Date());
+        outputWriter.write(date + ": " + stackTrace);
         outputWriter.close();
         String exceptionAsString = stackTrace + e.getMessage();
         Intent intent = new Intent(this, AWActivityDebug.class);

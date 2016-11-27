@@ -62,6 +62,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
     private int layout = R.layout.awlib_default_recycler_view;
+    private View noEntryView;
     private AWOnCursorRecyclerViewListener onCursorRecyclerViewListener;
     private AWAbstractDBDefinition tbd;
     private int viewHolderLayout;
@@ -185,8 +186,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
                 try {
                     if (!(viewPosition < fromResIDs.length)) {
                         throw new IllegalStateException(
-                                "View mit ResID " + resID + " [" + getString(resID) +
-                                        "] ist keine TextView und muss in bindView belegt werden.");
+                                "Anzahl der viewResID ist groesser als die der fromResIDs");
                     }
                     tv = (TextView) view;
                     String text = AWDBConvert
@@ -223,22 +223,21 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         return new AWLibViewHolder(rowView);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         super.onLoadFinished(loader, cursor);
         indexColumn = cursor.getColumnIndexOrThrow(tbd.columnName(R.string._id));
         if (cursor.getCount() == 0) {
-            getView().findViewById(R.id.awlib_tvNoEntries).setVisibility(View.VISIBLE);
+            noEntryView.setVisibility(View.VISIBLE);
         } else {
-            getView().findViewById(R.id.awlib_tvNoEntries).setVisibility(View.GONE);
-            if (mAdapter == null) {
-                mAdapter = getCursorAdapter();
-                mRecyclerView.setAdapter(mAdapter);
-            }
-            mAdapter.swapCursor(cursor); // swap the new cursor in.
+            noEntryView.setVisibility(View.GONE);
         }
+        if (mAdapter == null) {
+            mAdapter = getCursorAdapter();
+            mRecyclerView.setAdapter(mAdapter);
+        }
+        mAdapter.swapCursor(cursor); // swap the new cursor in.
     }
 
     /*
@@ -249,7 +248,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
          */
     @Override
     public void onLoaderReset(Loader<Cursor> p1) {
-        super.onLoaderReset(p1);
         if (mAdapter != null) {
             mAdapter.swapCursor(null);
         }
@@ -350,6 +348,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = getCursorAdapter();
         mRecyclerView.setAdapter(mAdapter);
+        noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                 .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }

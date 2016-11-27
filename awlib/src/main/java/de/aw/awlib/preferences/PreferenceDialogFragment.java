@@ -36,8 +36,6 @@ import de.aw.awlib.fragments.AWFragment;
 public class PreferenceDialogFragment extends AWFragment
         implements AWInterface, DialogInterface.OnClickListener {
     private static final String TITLE = "TITLE", HINWEIS = "HINWEIS";
-    protected MainAction action;
-    private Bundle args;
 
     /**
      * @param title
@@ -58,12 +56,6 @@ public class PreferenceDialogFragment extends AWFragment
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        args = getArguments();
     }
 
     @NonNull

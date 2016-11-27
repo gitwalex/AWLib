@@ -58,7 +58,6 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     private int layout = R.layout.awlib_default_recycler_view;
     private AWOnArrayRecyclerViewListener onArrayRecyclerViewListener;
     private int viewHolderLayout;
-    private int[] viewResIDs;
 
     public AWArrayRecyclerViewAdapter<T> getArrayAdapter() {
         return new AWArrayRecyclerViewAdapter<>(this);
@@ -203,17 +202,11 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     public void onClick(View v) {
     }
 
-    /**
-     * Uebernehmen der Argumente
-     *
-     * @see android.app.Fragment#onCreate(Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         layout = args.getInt(LAYOUT);
         viewHolderLayout = args.getInt(VIEWHOLDERLAYOUT);
-        viewResIDs = args.getIntArray(VIEWRESIDS);
         mSelectedID = args.getLong(SELECTEDVIEWHOLDERITEM, NOID);
     }
 
@@ -253,7 +246,7 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     @Override
     public void onResume() {
         super.onResume();
-        int position = args.getInt(LASTSELECTEDPOSITION);
+        int position = args.getInt(LASTSELECTEDPOSITION, 0);
         mRecyclerView.scrollToPosition(position);
     }
 

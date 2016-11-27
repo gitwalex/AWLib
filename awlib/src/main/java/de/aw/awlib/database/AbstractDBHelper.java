@@ -54,11 +54,12 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                     if (!AWApplicationGeschaeftsObjekt
                             .isImport() && AWApplication.EnableCursorLogging) {
                         long elapsed = c.getFinishTime() - timer;
-                        boolean longRunning = elapsed > 10000000L;
+                        boolean longRunning = elapsed > 3000000L;
                         if (longRunning) {
                             // Langlaufende Query - als Error loggen
-                            AWApplication.LogError("Dauer der Query " + query.toString() + ": " +
-                                    TimeUnit.NANOSECONDS.convert(elapsed, TimeUnit.NANOSECONDS));
+                            AWApplication.LogError("Dauer der Query: " + TimeUnit.NANOSECONDS
+                                    .convert(elapsed, TimeUnit.NANOSECONDS) + "[" + query
+                                    .toString() + "]");
                         }
                     }
                     return c;

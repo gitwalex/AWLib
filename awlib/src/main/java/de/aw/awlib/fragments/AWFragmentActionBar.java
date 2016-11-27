@@ -30,11 +30,10 @@ import de.aw.awlib.activities.AWMainActivity;
 
 /**
  * Template fuer Actions. Setzt in der Toolbar ein NavigationsIcon, startet die Action und
- * informiert die rufende Activity ueber {@link AWMainActivity#onActionFinishClicked(int, int)}.
- * Der Titel der Toolbar muss von Activity gesetzt werden.
+ * informiert die rufende Activity ueber {@link AWMainActivity#onActionFinishClicked(int, int)}. Der
+ * Titel der Toolbar muss von Activity gesetzt werden.
  */
 public abstract class AWFragmentActionBar extends AWFragment {
-    private String mActionBarSubtitle;
     private OnActionFinishListener mOnActionFinishClickedListener;
     private Toolbar mToolbar;
 
@@ -83,21 +82,10 @@ public abstract class AWFragmentActionBar extends AWFragment {
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AWMainActivity.hide_keyboard(getActivity());
                 AWFragmentActionBar.this.onActionFinishClicked(getActionBarImageRessource());
             }
         });
-        mToolbar.setSubtitle(mActionBarSubtitle);
-    }
-
-    protected void setActionBarSubTitle(String title) {
-        mActionBarSubtitle = title;
-        if (mToolbar != null) {
-            mToolbar.setSubtitle(title);
-        }
-    }
-
-    protected void setActionBarSubTitle(int resID) {
-        setActionBarSubTitle(getString(resID));
     }
 
     /**

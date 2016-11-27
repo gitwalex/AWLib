@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -104,7 +105,17 @@ public abstract class AWFragment extends DialogFragment
         AWApplication.LogError(message);
     }
 
-    protected void afterTextChanged(TextView view) {
+    /**
+     * Wird aus {@link MyTextWatcher#afterTextChanged(TextView, int, String)} aufgerufen.
+     *
+     * @param view
+     *         View, deren Text geaendert wurde
+     * @param identifier
+     *         identifier gemaess Konstructor
+     * @param newText
+     *         Neuer Text
+     */
+    protected void afterTextChanged(TextView view, int identifier, String newText) {
     }
 
     protected String getActionBarSubTitle() {
@@ -132,15 +143,6 @@ public abstract class AWFragment extends DialogFragment
         return TAG;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        String actionBarSubTitle = getActionBarSubTitle();
-        if (actionBarSubTitle != null) {
-            setSubtitle(actionBarSubTitle);
-        }
-    }
-
     /**
      * Die aktuellen Preferences werden ermittelt und in prefs gespeichert
      */
@@ -166,6 +168,11 @@ public abstract class AWFragment extends DialogFragment
         return false;
     }
 
+    /**
+     * Wird ein Dialog gecancelt, wird der mOnCancelListener gerufen (wenn vorhanden)
+     * <p>
+     * Ausserdem ist dann isCanceled true.
+     */
     @Override
     public void onCancel(DialogInterface dialog) {
         isCanceled = true;
@@ -176,7 +183,7 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Wenn OK gewaehlt, wird der Geschaeftsvorfall gespeichert
+     * Wenn OK gewaehlt, wird der Geschaeftsvorfall gespeichert und eine SnackBar gezeigt.
      */
     @Override
     public void onClick(DialogInterface dialog, int which) {
@@ -191,6 +198,8 @@ public abstract class AWFragment extends DialogFragment
                         } else {
                             awlib_gv.insert(db);
                         }
+                        Snackbar.make(getView(), getString(R.string.awlib_datensatzGesichert),
+                                Snackbar.LENGTH_SHORT).show();
                         break;
                     default:
                         break;
@@ -214,23 +223,33 @@ public abstract class AWFragment extends DialogFragment
         if (savedInstanceState != null) {
             args.putAll(savedInstanceState);
         } else {
-            setInternalArguments(args);
             Bundle argumente = getArguments();
             if (argumente != null) {
                 args.putAll(argumente);
             }
+            setInternalArguments(args);
         }
         layout = args.getInt(LAYOUT, NOLAYOUT);
         mainAction = args.getParcelable(AWLIBACTION);
         viewResIDs = args.getIntArray(VIEWRESIDS);
         fromResIDs = args.getIntArray(FROMRESIDS);
+        String actionBarSubTitle = getActionBarSubTitle();
+        if (actionBarSubTitle != null) {
+            setSubtitle(actionBarSubTitle);
+        }
     }
 
     /**
-     * Erstellt einen Dialog mit Positive und Negative-Button. Die View fuer den Dailog uerbe LAYOUT
-     * in args  ermittelt und ind den Dailog eingestellt.  Der Dailog wird so eingestellt, dass ein
-     * Resize der View moeglich ist. Als ButtonListener wird das AWFragment eingestellt, daher ist
-     * ggfs, die Methode zu ueberschreiben
+     * Erstellt einen Dialog mit Positive und Negative-Button. Die View fuer den Dailog wird ueber
+     * LAYOUT in args ermittelt und ind den Dialog eingestellt.  Der Dailog wird so eingestellt,
+     * dass ein Resize der View moeglich ist. Als ButtonListener wird das AWFragment eingestellt,
+     * daher ist ggfs, die Methode {@link AWFragment#onClick(DialogInterface, int)} zu
+     * ueberschreiben.
+     * <p>
+     * Nach Erstellen der View wird {@link AWFragment#onViewCreated(View, Bundle)} gerufen.
+     * <p>
+     * Ausserdem wird setRetainInstance(true) gesetzt, damit der Dialog bei einem
+     * ConfigurationChange nicht verschwindet
      */
     @NonNull
     @Override
@@ -245,6 +264,7 @@ public abstract class AWFragment extends DialogFragment
         // Wenn das Dialogfenster teilweise von der eingeblendeten Tatstatur
         // ueberlappt wird, resize des Fensters zulassen.
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        setRetainInstance(true);
         return dialog;
     }
 
@@ -267,6 +287,9 @@ public abstract class AWFragment extends DialogFragment
         return null;
     }
 
+    /**
+     * Nur loggen, dass Fragment destroeyed wurde.
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -286,6 +309,9 @@ public abstract class AWFragment extends DialogFragment
         super.onDestroyView();
     }
 
+    /**
+     * Bei Dismiss wird ein OnDismissListener informiert(wenn vorhanden).
+     */
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
@@ -295,7 +321,8 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Deregistrieung als OnSharedPreferenceListener
+     * Deregistrierung als OnSharedPreferenceListener, wenn die Klasse eine Instanz von
+     * OnSharedPreferenceChangeListener ist
      */
     @Override
     public void onPause() {
@@ -320,8 +347,7 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Sichern des bereitgestellten Bundles args. Wird in onCreate() wiederhergestellt. Hier wird
-     * auch die aktuelle action gesichert.
+     * Sichern des bereitgestellten Bundles args. Wird in onCreate() wiederhergestellt.
      */
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -329,6 +355,9 @@ public abstract class AWFragment extends DialogFragment
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * Ausgabe Dauer des Starts des Fragments
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -340,35 +369,40 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Wird ein Dialog angezeigt, wird die View mit den notwendigen Daten versorgt. Aufrufende
-     * Klasse kann in bindView() die View selbst belegen. Ansonsten wird davon ausgegangen, dass es
-     * sich um EditText-Views handelt. Diese Views werden mit den Daten der korrespondieren Tabelle
-     * versorgt. gerufen. Ausserdem wird direkt ein TextWatcher auf das EditText gesetzt, damit die
-     * Werte sofort in den GV uebernommen werden.
+     * Wird ein Dialog angezeigt und ein Array viewResIDs ist nicht null, wird die View mit Daten
+     * versorgt. Aufrufende Klasse kann in bindView() die View selbst belegen.
      * <p>
-     * Ausserdem wird setRetainInstance(true) gesetzt, damit de Dialog bei einem ConfigurationChange
-     * nicht verschwindet
+     * Nur wenn die (Text-/EditText-) View nicht selbst belegt wurde, passiert folgendes:
+     * <p>
+     * Handelt es sich bei der View um eine EditText-View, wird ein {@link MyTextWatcher} auf die
+     * View gesetzt. Ausserdem werden die Werte direkt in den GV uebernommen (nur, wenn awlib_gv
+     * nicht null ist).
+     * <p>
+     * Handelt es sich bei der View um eine TextView und awlib_gv ist nicht null, wird der Text aus
+     * dem gv anhand der fromresID geholt und als Text eingestellt.
+     * <p>
+     * Damit dieses Feature benutzt werden kann sind folgende Voraussetzungen zu erfuellen:
+     * <p>
+     * VIEWRESIDS in args ist mit den resIDs der View belegt.
+     * <p>
+     * FROMRESIDS in args ist mit den entsprechend korrespondierenen fromResIDs zu viewResIDs
+     * belegt.
      */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        if (getShowsDialog()) {
-            setRetainInstance(true);
-            if (viewResIDs != null) {
-                AWLibViewHolder holder = new AWLibViewHolder(view);
-                for (int i = 0; i < viewResIDs.length; i++) {
-                    View target = holder.findViewById(viewResIDs[i]);
-                    if (!onBindView(target, viewResIDs[i])) {
-                        if (target instanceof EditText) {
-                            int fromResID = fromResIDs[i];
-                            EditText v = (EditText) target;
-                            if (awlib_gv != null) {
-                                String text = awlib_gv.getAsString(fromResID);
-                                if (text != null) {
-                                    v.setText(text);
-                                }
-                            }
-                            v.addTextChangedListener(new MyTextWatcher(v, fromResID));
-                        }
+        if (getShowsDialog() && viewResIDs != null) {
+            AWLibViewHolder holder = new AWLibViewHolder(view);
+            for (int i = 0; i < viewResIDs.length; i++) {
+                View target = holder.findViewById(viewResIDs[i]);
+                if (!onBindView(target, viewResIDs[i])) {
+                    int fromResID = fromResIDs[i];
+                    if (target instanceof TextView && awlib_gv != null) {
+                        TextView v = (TextView) target;
+                        v.setText(awlib_gv.getAsString(fromResID));
+                    }
+                    if (target instanceof EditText) {
+                        EditText v = (EditText) target;
+                        v.addTextChangedListener(new MyTextWatcher(v, fromResID));
                     }
                 }
             }
@@ -392,9 +426,18 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * /** Als Default wird die Action SHOW gesetzt. Methode wird aus onCreate gerufen, wenn
-     * savedStateInstance null ist. Im ubergebenen Bundle koennen dann Argumente zum Initialisieren
-     * genau dieses Fragments gesetzt werden.
+     * Methode wird aus onCreate gerufen. Im ubergebenen Bundle sind alle Argumente gespeichert, die
+     * im Lifecycle des Fragments eingefuegt/gesichert wurden.
+     * <p>
+     * Zweckmaessigerweise wird zuerst super.setInternalArguments(args) gerufen. Danach sind in args
+     * die Argumente vorhanden.  Es koennen auch noch weitere Argumente zum Initialisieren genau
+     * dieses Fragments gesetzt werden.
+     * <p>
+     * Argumente, die von einem vererbten Fragment gesetzt werden, sind aber noch nicht vorhanden.
+     * Werden diese benoetigt, sollten diese fruehestens in onCreate(saveStateInstance) aus args
+     * geholt werden.
+     * <p>
+     * Als Default wird die MainAction SHOW gesetzt.
      *
      * @param args
      *         Bundel, welches in {@link Fragment#onSaveInstanceState(Bundle)} gesichert wird.
@@ -405,10 +448,18 @@ public abstract class AWFragment extends DialogFragment
         args.putInt(LAYOUT, layout);
     }
 
+    /**
+     * @param listener
+     *         erweiterter {@link OnAWFragmentCancelListener}
+     */
     public void setOnCancelListener(OnAWFragmentCancelListener listener) {
         mOnCancelListener = listener;
     }
 
+    /**
+     * @param listener
+     *         erweiterter {@link OnAWFragmentDismissListener}
+     */
     public void setOnDismissListener(OnAWFragmentDismissListener listener) {
         mOnDismissListener = listener;
     }
@@ -439,12 +490,13 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Erweiterter Dialog-Cancel-Listener. Liefert zusaetzlich zum Dialog auch die layoutID mit.
+     * Erweiterter Dialog-Cancel-Listener. Liefert zusaetzlich zum Dialog auch die layoutID des
+     * Fragments mit.
      */
     public interface OnAWFragmentCancelListener {
         /**
          * Wird gerufen, wenn ein Dialog gecancelt wurde.Liefert zusaetzlich zum Dialog auch die
-         * layoutID mit.
+         * layoutID des Fragments mit.
          *
          * @param layoutID
          *         layout des Fragments
@@ -455,12 +507,13 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Erweiterter Dialog-Dismiss-Listener. Liefert zusaetzlich zum Dialog auch die layoutID mit.
+     * Erweiterter Dialog-Dismiss-Listener. Liefert zusaetzlich zum Dialog auch die layoutID des
+     * Fragments mit.
      */
     public interface OnAWFragmentDismissListener {
         /**
          * Wird gerufen, wenn ein Dialog beendet wurde.Liefert zusaetzlich zum Dialog auch die
-         * layoutID mit.
+         * layoutID des Fragments mit.
          *
          * @param layoutID
          *         layout des Fragments
@@ -470,15 +523,36 @@ public abstract class AWFragment extends DialogFragment
         void onDismiss(@LayoutRes int layoutID, DialogInterface dialog);
     }
 
+    /**
+     * TextWatcher, der auf in der View vorhandene EditTexte gelegt wird.
+     */
     public class MyTextWatcher implements TextWatcher {
         private final EditText view;
         private final int identifier;
 
+        /**
+         * @param view
+         *         EditText
+         * @param identifier
+         *         die ResID der Spalte des Geschaeftobjectes, in die der Text geschrieben wird.
+         *         Dies wird immer in afterTextChanged(s) durchgefuehrt.
+         */
         public MyTextWatcher(EditText view, int identifier) {
             this.view = view;
             this.identifier = identifier;
         }
 
+        /**
+         * Solbald sich der Text geaendert hat, wird in die durch den identifier vorgegebene Spalte
+         * des Geschaeftspbjectes der Wert mittels put(resID, text) geschrieben.
+         * <p>
+         * Ist kein Text vorhanden, wird mittels remove(resID) der Wert aus der Spalte entfernt.
+         * <p>
+         * Ausserdem wird {@link AWFragment#afterTextChanged(TextView, int, String)} aufgerufen.
+         *
+         * @param s
+         *         Text der EditTextView
+         */
         @Override
         public void afterTextChanged(Editable s) {
             String newText = s.toString();
@@ -487,13 +561,19 @@ public abstract class AWFragment extends DialogFragment
             } else {
                 awlib_gv.remove(identifier);
             }
-            AWFragment.this.afterTextChanged(view);
+            AWFragment.this.afterTextChanged(view, identifier, newText);
         }
 
+        /**
+         * Leer
+         */
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
 
+        /**
+         * Leer
+         */
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
         }

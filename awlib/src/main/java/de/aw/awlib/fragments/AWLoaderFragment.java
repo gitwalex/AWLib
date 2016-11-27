@@ -76,6 +76,12 @@ public abstract class AWLoaderFragment extends AWFragment
         startOrRestartLoader(layout, args);
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        startOrRestartLoader(layout, args);
+    }
+
     /**
      * Aufbau des Select-Statements.
      * <p/>
@@ -157,13 +163,6 @@ public abstract class AWLoaderFragment extends AWFragment
         if (mProgressbar != null) {
             mProgressbar.setVisibility(View.INVISIBLE);
         }
-    }
-
-    @CallSuper
-    @Override
-    public void onStart() {
-        super.onStart();
-        startOrRestartLoader(layout, args);
     }
 
     @CallSuper

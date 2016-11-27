@@ -49,17 +49,6 @@ public class PreferenceEditTimeDialog extends AWFragment
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Bundle args = getArguments();
-        mKey = args.getString("key");
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String[] split = prefs.getString(mKey, "00:00").split(":");
-        mHour = Integer.parseInt(split[0]);
-        mMinute = Integer.parseInt(split[1]);
-    }
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -84,5 +73,14 @@ public class PreferenceEditTimeDialog extends AWFragment
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         mHour = hourOfDay;
         mMinute = minute;
+    }
+
+    @Override
+    protected void setInternalArguments(Bundle args) {
+        super.setInternalArguments(args);
+        mKey = args.getString("key");
+        String[] split = prefs.getString(mKey, "00:00").split(":");
+        mHour = Integer.parseInt(split[0]);
+        mMinute = Integer.parseInt(split[1]);
     }
 }

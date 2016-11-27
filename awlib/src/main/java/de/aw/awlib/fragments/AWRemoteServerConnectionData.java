@@ -44,12 +44,6 @@ public class AWRemoteServerConnectionData extends AWFragment {
         }
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mRemoteFileServer = args.getParcelable(REMOTEFILESERVER);
-        awlib_gv = mRemoteFileServer;
-    }
 
     @NonNull
     @Override
@@ -86,5 +80,7 @@ public class AWRemoteServerConnectionData extends AWFragment {
         args.putInt(LAYOUT, layout);
         args.putIntArray(VIEWRESIDS, viewResIDs);
         args.putIntArray(FROMRESIDS, fromResIDs);
+        mRemoteFileServer = args.getParcelable(REMOTEFILESERVER);
+        awlib_gv = mRemoteFileServer;
     }
 }
