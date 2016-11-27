@@ -32,8 +32,6 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     void createDatabase(AWDBAlterHelper dbAlterHelper);
 
-    boolean doCreate();
-
     String getCommaSeperatedList(int[] columns);
 
     int[] getCreateTableItems();
@@ -44,8 +42,6 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     char getFormat(int resID);
 
-    int[] getIndex();
-
     int[] getOrderByItems();
 
     String getOrderString();
@@ -53,8 +49,6 @@ public interface AWAbstractDBDefinition extends Parcelable {
     int[] getResIDs();
 
     String getSQLiteFormat(int newColumn);
-
-    int[] getUniqueIndex();
 
     Uri getUri();
 

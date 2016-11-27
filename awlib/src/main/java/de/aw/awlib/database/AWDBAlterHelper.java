@@ -57,34 +57,6 @@ public class AWDBAlterHelper {
     }
 
     /**
-     * Aendert einen Index. Die Indices werden durchnummeriert.
-     *
-     * @param tbd
-     *         DBDefinition
-     */
-    public void alterIndex(AWAbstractDBDefinition tbd) {
-        alterIndex(tbd, "I" + indexNumber);
-        indexNumber++;
-        SharedPreferences.Editor prefsEditor = prefs.edit();
-        prefsEditor.putInt(indexNumberKey, indexNumber).apply();
-    }
-
-    /**
-     * Aendert einen Index
-     *
-     * @param tbd
-     *         AWAbstractDBDefinition
-     * @param indexName
-     *         Name des Index
-     */
-    public void alterIndex(AWAbstractDBDefinition tbd, String indexName) {
-        int[] indexItems = tbd.getIndex();
-        if (indexItems != null) {
-            alterIndex(tbd, indexName, indexItems);
-        }
-    }
-
-    /**
      * Aendert einen Index
      *
      * @param tbd
@@ -160,7 +132,6 @@ public class AWDBAlterHelper {
         database.execSQL(copyValuesSQL);
         dropTable(tbd.name());
         renameTable(tempTableName, tbd.name());
-        createIndex(tbd);
         tbd.createDatabase(this);
     }
 
@@ -179,7 +150,6 @@ public class AWDBAlterHelper {
         String format = tbd.getSQLiteFormat(newColumn);
         String sql = "ALTER TABLE " + tbd.name() + " ADD " + colName + " " + format;
         database.execSQL(sql);
-        createIndex(tbd);
         tbd.createDatabase(this);
     }
 
@@ -214,7 +184,6 @@ public class AWDBAlterHelper {
     public void alterTableAddColumn(AWAbstractDBDefinition tbd, String newColumn) {
         String sql = "ALTER TABLE " + tbd.name() + " ADD " + newColumn + " TEXT";
         database.execSQL(sql);
-        createIndex(tbd);
         tbd.createDatabase(this);
     }
 
@@ -231,7 +200,6 @@ public class AWDBAlterHelper {
         database.execSQL(copyValuesSQL);
         dropTable(tbd.name());
         renameTable(tempTableName, tbd.name());
-        createIndex(tbd);
         tbd.createDatabase(this);
     }
 
@@ -245,48 +213,19 @@ public class AWDBAlterHelper {
      */
     public void alterTableOnlyDeletedColumns(AWAbstractDBDefinition tbd) {
         AWApplication.Log("Alter Table: " + tbd.name());
-        if (tbd.doCreate()) {
-            String tempTableName = "temp" + tbd.name();
-            String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
-            String oldColumnNames = tbd.getCommaSeperatedList(tbd.getCreateTableResIDs());
-            String copyValuesSQL =
-                    "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
-                            oldColumnNames +
-                            " FROM " +
-                            tbd.name();
-            database.execSQL(createTempTable);
-            database.execSQL(copyValuesSQL);
-            dropTable(tbd.name());
-            renameTable(tempTableName, tbd.name());
-            createIndex(tbd);
-            tbd.createDatabase(this);
-        }
-    }
-
-    /**
-     * Aendert einen Index. Die Indices werden durchnummeriert.
-     *
-     * @param tbd
-     *         AWAbstractDBDefinition
-     */
-    public void alterUniqueIndex(AWAbstractDBDefinition tbd) {
-        alterUniqueIndex(tbd, "U" + uniqueIndexNumber);
-        uniqueIndexNumber++;
-        SharedPreferences.Editor prefsEditor = prefs.edit();
-        prefsEditor.putInt(uniqueIndexNumberKey, uniqueIndexNumber).apply();
-    }
-
-    /**
-     * Aendert einen UniqueIndex
-     *
-     * @param tbd
-     *         AWAbstractDBDefinition
-     */
-    public void alterUniqueIndex(AWAbstractDBDefinition tbd, String indexName) {
-        int[] uniqueIndexItems = tbd.getUniqueIndex();
-        if (uniqueIndexItems != null) {
-            alterUniqueIndex(tbd, indexName, uniqueIndexItems);
-        }
+        String tempTableName = "temp" + tbd.name();
+        String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
+        String oldColumnNames = tbd.getCommaSeperatedList(tbd.getCreateTableResIDs());
+        String copyValuesSQL =
+                "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
+                        oldColumnNames +
+                        " FROM " +
+                        tbd.name();
+        database.execSQL(createTempTable);
+        database.execSQL(copyValuesSQL);
+        dropTable(tbd.name());
+        renameTable(tempTableName, tbd.name());
+        tbd.createDatabase(this);
     }
 
     /**
@@ -331,19 +270,6 @@ public class AWDBAlterHelper {
     }
 
     /**
-     * Legt alle Indices zu einer Tabelle wieder an.
-     *
-     * @param tbd
-     *         AWAbstractDBDefinition
-     */
-    public void createIndex(AWAbstractDBDefinition tbd) {
-        //        String orderIndex = getCreateIndexSQL(tbd, "O" + tbd.name(), tbd.getOrderByItems(), false);
-        //        database.execSQL(orderIndex);
-        alterIndex(tbd);
-        alterUniqueIndex(tbd);
-    }
-
-    /**
      * Legt eine neue Tabelle an. Eine vorhandene Tabelle mit diesem Namen wird geloescht. ein
      * eventuell vorhandener Index bzw. UniqueIndex wird mit angelegt.
      *
@@ -354,7 +280,7 @@ public class AWDBAlterHelper {
         dropTable(tbd.name());
         String sql = "CREATE TABLE IF NOT EXISTS " + tbd.name() + " " + getCreateTableSQL(tbd);
         database.execSQL(sql);
-        createIndex(tbd);
+        tbd.createDatabase(this);
     }
 
     /**

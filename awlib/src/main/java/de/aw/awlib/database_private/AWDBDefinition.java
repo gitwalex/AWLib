@@ -481,11 +481,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
         return 0;
     }
 
-    @Override
-    public boolean doCreate() {
-        return true;
-    }
-
     /**
      * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
      *
@@ -540,13 +535,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
                     "AWDBDefinition nicht initialisiert. Zuerst Aufruf initalize(context)");
         }
         return mDBFormat.getFormat(resID);
-    }
-
-    /**
-     * @return Liefert die Spalten eines Index
-     */
-    public int[] getIndex() {
-        return null;
     }
 
     /**
@@ -620,13 +608,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      */
     public int[] getTableItems() {
         return getCreateTableItems();
-    }
-
-    /**
-     * @return Items des UniqueIndex.  Default: null
-     */
-    public int[] getUniqueIndex() {
-        return null;
     }
 
     @Override

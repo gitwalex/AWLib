@@ -115,11 +115,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         return rows;
     }
 
-    public void doVacuum() {
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("vacuum");
-    }
-
     /**
      * siehe {@link SQLiteDatabase#endTransaction()}
      * <p>
@@ -290,8 +285,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public long insert(AWAbstractDBDefinition tbd, String nullColumnHack,
-                       ContentValues content) {
+    public long insert(AWAbstractDBDefinition tbd, String nullColumnHack, ContentValues content) {
         return insert(tbd.getUri(), nullColumnHack, content);
     }
 
@@ -368,6 +362,17 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     @CallSuper
     protected void notifyCursors(Uri uri) {
         AWApplication.getContext().getContentResolver().notifyChange(uri, null);
+    }
+
+    /**
+     * Komprimiert die Datenbank und fuehrt 'runstats' aus.
+     */
+    public void optimize(SQLiteDatabase db) {
+        if (db == null) {
+            db = getWritableDatabase();
+        }
+        db.execSQL("Analyze");
+        db.execSQL("vacuum");
     }
 
     /**
