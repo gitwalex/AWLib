@@ -20,8 +20,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
 import android.view.View;
@@ -262,11 +260,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
         mProgressServerConnection.setVisibility(View.INVISIBLE);
         if (result == null) {
             setFileList(mRemoteFileServerHandler.getFiles());
-            ActionBar bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-            if (bar != null) {
-                bar.setTitle(mRemoteFileServer.getURL());
-                bar.setSubtitle(mUri.getEncodedPath());
-            }
+            setSubtitle(mUri.getEncodedPath());
         } else {
             mServerErrorLayout.setVisibility(View.VISIBLE);
             mServerErrorTexte.setText(result.getStatusMessage());

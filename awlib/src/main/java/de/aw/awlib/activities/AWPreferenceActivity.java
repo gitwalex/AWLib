@@ -102,7 +102,7 @@ public class AWPreferenceActivity extends AWMainActivity {
             tabLayout.setVisibility(View.VISIBLE);
             tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
             tabLayout.setupWithViewPager(pager);
-            getSupportActionBar().setTitle(R.string.settings);
+            setTitle(R.string.settings);
         } else {
             findViewById(R.id.container4fragment).setVisibility(View.VISIBLE);
             fm.beginTransaction().add(R.id.container4fragment, getAWLibPreferencesAllgemein())

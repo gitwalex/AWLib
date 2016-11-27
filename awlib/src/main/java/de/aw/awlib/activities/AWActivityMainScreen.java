@@ -278,8 +278,8 @@ public abstract class AWActivityMainScreen extends AWMainActivity
 
         public void onDrawerClosed(View view) {
             super.onDrawerClosed(view);
+            setTitle(AWActivityMainScreen.this.getNavigationTitel());
             ActionBar bar = getSupportActionBar();
-            bar.setTitle(AWActivityMainScreen.this.getNavigationTitel());
             bar.setSubtitle(savedSubtitel);
         }
 
@@ -288,8 +288,8 @@ public abstract class AWActivityMainScreen extends AWMainActivity
          */
         public void onDrawerOpened(View drawerView) {
             super.onDrawerOpened(drawerView);
+            setTitle(R.string.Bearbeiten);
             ActionBar bar = getSupportActionBar();
-            bar.setTitle(R.string.Bearbeiten);
             savedSubtitel = bar.getSubtitle();
             bar.setSubtitle(null);
         }

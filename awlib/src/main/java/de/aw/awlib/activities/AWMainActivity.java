@@ -163,12 +163,12 @@ public abstract class AWMainActivity extends AppCompatActivity
         mDefaultFAB = (FloatingActionButton) findViewById(R.id.awlib_defaultFAB);
         mToolbar = (Toolbar) findViewById(R.id.awlib_toolbar);
         setSupportActionBar(mToolbar);
-        ActionBar bar = getSupportActionBar();
-        assert bar != null;
         if (savedInstanceState != null) {
             args.putAll(savedInstanceState);
-            bar.setTitle(args.getString(ACTIONBARTITLE));
+            setTitle(args.getString(ACTIONBARTITLE));
         }
+        ActionBar bar = getSupportActionBar();
+        assert bar != null;
         bar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
         bar.setHomeButtonEnabled(true);
         supportInvalidateOptionsMenu();
@@ -231,5 +231,30 @@ public abstract class AWMainActivity extends AppCompatActivity
         }
         outState.putAll(args);
         super.onSaveInstanceState(outState);
+    }
+
+    /**
+     * Setzt den Title in der SupportActionBar
+     *
+     * @param title
+     *         Text des Subtitles
+     */
+    public void setTitel(String title) {
+        ActionBar bar = getSupportActionBar();
+        if (bar != null) {
+            bar.setSubtitle(title);
+            args.putString(ACTIONBARTITLE, title);
+        }
+    }
+
+    /**
+     * Setzt den Title in der SupportActionBar
+     *
+     * @param titleResID
+     *         resID des Subtitles
+     */
+    public void setTitel(int titleResID) {
+        String title = getString(titleResID);
+        setTitle(title);
     }
 }

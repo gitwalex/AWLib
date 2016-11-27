@@ -154,6 +154,7 @@ public class AWActivityActions extends AWMainActivity
                         AWRemoteFileServer mRemoteFileServer = new AWRemoteFileServer();
                         args.putParcelable(REMOTEFILESERVER, mRemoteFileServer);
                         f = AWRemoteFileChooser.newInstance(mRemoteFileServer);
+                        setTitle(mRemoteFileServer.getURL());
                         break;
                     case showRemoteFileServer:
                         f = new AWFragmentRemoteFileServer();
@@ -170,7 +171,7 @@ public class AWActivityActions extends AWMainActivity
                 ft.commit();
             }
             if (titleResID != null) {
-                getSupportActionBar().setTitle(titleResID);
+                setTitle(titleResID);
             }
         }
     }

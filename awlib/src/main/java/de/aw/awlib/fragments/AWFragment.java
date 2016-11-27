@@ -26,8 +26,8 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -41,6 +41,7 @@ import android.widget.TextView;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
+import de.aw.awlib.activities.AWMainActivity;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
@@ -136,9 +137,7 @@ public abstract class AWFragment extends DialogFragment
         super.onActivityCreated(savedInstanceState);
         String actionBarSubTitle = getActionBarSubTitle();
         if (actionBarSubTitle != null) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar()
-                    .setSubtitle(actionBarSubTitle);
-            args.putString(ACTIONBARSUBTITLE, actionBarSubTitle);
+            setSubtitle(actionBarSubTitle);
         }
     }
 
@@ -412,6 +411,31 @@ public abstract class AWFragment extends DialogFragment
 
     public void setOnDismissListener(OnAWFragmentDismissListener listener) {
         mOnDismissListener = listener;
+    }
+
+    /**
+     * Setzt den Subtitle in der SupportActionBar
+     *
+     * @param subTitle
+     *         Text des Subtitles
+     */
+    public void setSubtitle(String subTitle) {
+        ActionBar bar = ((AWMainActivity) getActivity()).getSupportActionBar();
+        if (bar != null) {
+            bar.setSubtitle(subTitle);
+            args.putString(ACTIONBARSUBTITLE, subTitle);
+        }
+    }
+
+    /**
+     * Setzt den Subtitle in der SupportActionBar
+     *
+     * @param subTitleResID
+     *         resID des Subtitles
+     */
+    public void setSubtitle(int subTitleResID) {
+        String subtitle = getString(subTitleResID);
+        setSubtitle(subtitle);
     }
 
     /**
