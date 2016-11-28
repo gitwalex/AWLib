@@ -27,7 +27,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -165,7 +164,7 @@ public abstract class AWMainActivity extends AppCompatActivity
         setSupportActionBar(mToolbar);
         if (savedInstanceState != null) {
             args.putAll(savedInstanceState);
-            setTitle(args.getString(ACTIONBARTITLE));
+            setSubTitle(args.getCharSequence(ACTIONBARSUBTITLE));
         }
         ActionBar bar = getSupportActionBar();
         assert bar != null;
@@ -220,41 +219,42 @@ public abstract class AWMainActivity extends AppCompatActivity
         hide_keyboard(this);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setSubTitle(args.getString(ACTIONBARSUBTITLE));
+    }
+
     /**
      * Sicherung aller Argumente sowie des aktuellen AppTitels
      */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        CharSequence title = getSupportActionBar().getTitle();
-        if (!TextUtils.isEmpty(title)) {
-            args.putCharSequence(ACTIONBARTITLE, title);
-        }
         outState.putAll(args);
         super.onSaveInstanceState(outState);
     }
 
     /**
-     * Setzt den Title in der SupportActionBar
+     * Setzt den SubTitle in der SupportActionBar
      *
-     * @param title
+     * @param subTitle
      *         Text des Subtitles
      */
-    public void setTitel(String title) {
+    public void setSubTitle(CharSequence subTitle) {
         ActionBar bar = getSupportActionBar();
         if (bar != null) {
-            bar.setSubtitle(title);
-            args.putString(ACTIONBARTITLE, title);
+            bar.setSubtitle(subTitle);
         }
+        args.putCharSequence(ACTIONBARSUBTITLE, subTitle);
     }
 
     /**
-     * Setzt den Title in der SupportActionBar
+     * Setzt den SubTitle in der SupportActionBar
      *
-     * @param titleResID
+     * @param subTitleResID
      *         resID des Subtitles
      */
-    public void setTitel(int titleResID) {
-        String title = getString(titleResID);
-        setTitle(title);
+    public void setSubTitle(int subTitleResID) {
+        setSubTitle(getString(subTitleResID));
     }
 }

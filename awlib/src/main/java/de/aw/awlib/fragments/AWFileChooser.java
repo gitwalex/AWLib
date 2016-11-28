@@ -105,7 +105,7 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
             value.add(0, file.getParentFile());
         }
         mFile = file;
-        setSubtitle(file.getAbsolutePath());
+        setTitle(file.getAbsolutePath());
         mAdapter.swapValues(value);
     }
 

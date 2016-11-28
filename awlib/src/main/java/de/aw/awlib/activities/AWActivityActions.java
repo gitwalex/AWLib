@@ -139,7 +139,7 @@ public class AWActivityActions extends AWMainActivity
         if (event == null) {
             finish();
         } else {
-            Integer titleResID = null;
+            Integer subTitleResID = null;
             if (savedInstanceState == null) {
                 Fragment f;
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -148,13 +148,13 @@ public class AWActivityActions extends AWMainActivity
                         // Datenbank wiederherstellen
                         String backupFolderName = AWApplication.getApplicationBackupPath();
                         f = AWFileChooser.newInstance(backupFolderName);
-                        titleResID = R.string.fileChooserTitleDoRestore;
+                        subTitleResID = R.string.fileChooserTitleDoRestore;
                         break;
                     case configRemoteFileServer:
                         AWRemoteFileServer mRemoteFileServer = new AWRemoteFileServer();
                         args.putParcelable(REMOTEFILESERVER, mRemoteFileServer);
                         f = AWRemoteFileChooser.newInstance(mRemoteFileServer);
-                        setTitle(mRemoteFileServer.getURL());
+                        setSubTitle(mRemoteFileServer.getURL());
                         break;
                     case showRemoteFileServer:
                         f = new AWFragmentRemoteFileServer();
@@ -170,8 +170,8 @@ public class AWActivityActions extends AWMainActivity
                 }
                 ft.commit();
             }
-            if (titleResID != null) {
-                setTitle(titleResID);
+            if (subTitleResID != null) {
+                setSubTitle(subTitleResID);
             }
         }
     }

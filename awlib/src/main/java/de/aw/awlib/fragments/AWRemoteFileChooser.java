@@ -260,7 +260,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
         mProgressServerConnection.setVisibility(View.INVISIBLE);
         if (result == null) {
             setFileList(mRemoteFileServerHandler.getFiles());
-            setSubtitle(mUri.getEncodedPath());
+            setTitle(mUri.getEncodedPath());
         } else {
             mServerErrorLayout.setVisibility(View.VISIBLE);
             mServerErrorTexte.setText(result.getStatusMessage());

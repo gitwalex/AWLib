@@ -33,8 +33,8 @@ import de.aw.awlib.preferences.AWPreferencesAllgemein;
 /**
  * Activity fuer Preferences
  * <p>
- * Wird {@link AWPreferenceActivity#getPreferencePagerAdapter(FragmentManager)} ueberschrieben,
- * wird der Adaper benutzt und dessen Fragmente angezeigt.
+ * Wird {@link AWPreferenceActivity#getPreferencePagerAdapter(FragmentManager)} ueberschrieben, wird
+ * der Adaper benutzt und dessen Fragmente angezeigt.
  * <p>
  * Wird kein Adapter geliefert, wird nur ein Fragment gezeigt. Welches, wird ueber {@link
  * AWPreferenceActivity#getAWLibPreferencesAllgemein()} festgelegt. Wird diese Methode nicht

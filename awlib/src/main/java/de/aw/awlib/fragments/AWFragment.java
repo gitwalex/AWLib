@@ -88,6 +88,7 @@ public abstract class AWFragment extends DialogFragment
      *
      */
     private OnAWFragmentDismissListener mOnDismissListener;
+    private CharSequence mSavedActionBarSubtitle;
     /**
      * Dient zur Berechnung der Startdauer
      */
@@ -116,10 +117,6 @@ public abstract class AWFragment extends DialogFragment
      *         Neuer Text
      */
     protected void afterTextChanged(TextView view, int identifier, String newText) {
-    }
-
-    protected String getActionBarSubTitle() {
-        return args.getString(ACTIONBARSUBTITLE, null);
     }
 
     /**
@@ -234,10 +231,6 @@ public abstract class AWFragment extends DialogFragment
         mainAction = args.getParcelable(AWLIBACTION);
         viewResIDs = args.getIntArray(VIEWRESIDS);
         fromResIDs = args.getIntArray(FROMRESIDS);
-        String actionBarSubTitle = getActionBarSubTitle();
-        if (actionBarSubTitle != null) {
-            setSubtitle(actionBarSubTitle);
-        }
     }
 
     /**
@@ -323,7 +316,9 @@ public abstract class AWFragment extends DialogFragment
 
     /**
      * Deregistrierung als OnSharedPreferenceListener, wenn die Klasse eine Instanz von
-     * OnSharedPreferenceChangeListener ist
+     * OnSharedPreferenceChangeListener ist.
+     * <p>
+     * Wiederherstellen eines Subtitles, wenn vorhanden.
      */
     @Override
     public void onPause() {
@@ -332,6 +327,7 @@ public abstract class AWFragment extends DialogFragment
             prefs.unregisterOnSharedPreferenceChangeListener(
                     (SharedPreferences.OnSharedPreferenceChangeListener) this);
         }
+        setSubTitle(mSavedActionBarSubtitle);
     }
 
     /**
@@ -344,6 +340,10 @@ public abstract class AWFragment extends DialogFragment
         if (this instanceof SharedPreferences.OnSharedPreferenceChangeListener) {
             prefs.registerOnSharedPreferenceChangeListener(
                     (SharedPreferences.OnSharedPreferenceChangeListener) this);
+        }
+        CharSequence title = args.getCharSequence(ACTIONBARTITLE);
+        if (title != null) {
+            setTitle(title);
         }
     }
 
@@ -466,28 +466,54 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Setzt den Subtitle in der SupportActionBar
+     * Setzt den SubTitle in der SupportActionBar. Rettet vorher den aktuellen Subtitle, der wird
+     * dann in onPause() wiederhergestellt.
      *
      * @param subTitle
      *         Text des Subtitles
      */
-    public void setSubtitle(String subTitle) {
+    public void setSubTitle(CharSequence subTitle) {
         ActionBar bar = ((AWMainActivity) getActivity()).getSupportActionBar();
         if (bar != null) {
+            mSavedActionBarSubtitle = bar.getSubtitle();
             bar.setSubtitle(subTitle);
-            args.putString(ACTIONBARSUBTITLE, subTitle);
         }
+        args.putCharSequence(ACTIONBARSUBTITLE, subTitle);
     }
 
     /**
-     * Setzt den Subtitle in der SupportActionBar
+     * Setzt den SubTitle in der SupportActionBar Rettet vorher den aktuellen Subtitle, der wird
+     * dann in onPause() wiederhergestellt.
      *
      * @param subTitleResID
      *         resID des Subtitles
      */
-    public void setSubtitle(int subTitleResID) {
-        String subtitle = getString(subTitleResID);
-        setSubtitle(subtitle);
+    public void setSubTitle(int subTitleResID) {
+        setSubTitle(getString(subTitleResID));
+    }
+
+    /**
+     * Setzt den Title in der SupportActionBar
+     *
+     * @param title
+     *         Text des STitles
+     */
+    public void setTitle(CharSequence title) {
+        ActionBar bar = ((AWMainActivity) getActivity()).getSupportActionBar();
+        if (bar != null) {
+            bar.setTitle(title);
+        }
+        args.putCharSequence(ACTIONBARTITLE, title);
+    }
+
+    /**
+     * Setzt den Title in der SupportActionBar
+     *
+     * @param titleResID
+     *         resID des Titles
+     */
+    public void setTitle(int titleResID) {
+        setTitle(getString(titleResID));
     }
 
     /**
