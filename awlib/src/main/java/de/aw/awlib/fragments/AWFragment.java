@@ -144,12 +144,19 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Die aktuellen Preferences werden ermittelt und in prefs gespeichert
+     * Die aktuellen Preferences werden ermittelt und in prefs gespeichert. Ausserdem werden die
+     * Argumente aus {@link Fragment#getArguments()} gelesen und in args gespeichert. Danach wird
+     * {@link AWFragment#setInternalArguments(Bundle)} } gerufen.
      */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Bundle argumente = getArguments();
+        if (argumente != null) {
+            args.putAll(argumente);
+        }
+        setInternalArguments(args);
     }
 
     /**
@@ -222,12 +229,6 @@ public abstract class AWFragment extends DialogFragment
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             args.putAll(savedInstanceState);
-        } else {
-            Bundle argumente = getArguments();
-            if (argumente != null) {
-                args.putAll(argumente);
-            }
-            setInternalArguments(args);
         }
         layout = args.getInt(LAYOUT, NOLAYOUT);
         mainAction = args.getParcelable(AWLIBACTION);
@@ -426,12 +427,12 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Methode wird aus onCreate gerufen. Im ubergebenen Bundle sind alle Argumente gespeichert, die
-     * im Lifecycle des Fragments eingefuegt/gesichert wurden.
+     * Methode wird aus onAttach gerufen. Im uebergebenen Bundle sind alle Argumente gespeichert,
+     * die ggfs. in newInstance(...) belegt wurden.
      * <p>
      * Zweckmaessigerweise wird zuerst super.setInternalArguments(args) gerufen. Danach sind in args
-     * die Argumente vorhanden.  Es koennen auch noch weitere Argumente zum Initialisieren genau
-     * dieses Fragments gesetzt werden.
+     * die Argumente der Vererbungshirache vorhanden, welche auch ueberschrieben werden koennen. Es
+     * koennen weitere Argumente zum Initialisieren genau dieses Fragments gesetzt werden.
      * <p>
      * Argumente, die von einem vererbten Fragment gesetzt werden, sind aber noch nicht vorhanden.
      * Werden diese benoetigt, sollten diese fruehestens in onCreate(saveStateInstance) aus args
@@ -440,7 +441,7 @@ public abstract class AWFragment extends DialogFragment
      * Als Default wird die MainAction SHOW gesetzt.
      *
      * @param args
-     *         Bundel, welches in {@link Fragment#onSaveInstanceState(Bundle)} gesichert wird.
+     *         Bundle mit Argumenten.
      */
     @CallSuper
     protected void setInternalArguments(Bundle args) {
