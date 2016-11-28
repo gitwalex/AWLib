@@ -83,11 +83,18 @@ public abstract class AWFragment extends DialogFragment
     protected int[] fromResIDs;
     protected AWApplicationGeschaeftsObjekt awlib_gv;
     protected MainAction mainAction;
+    /**
+     * Merker, ob der ActionBarSubtitle ueberschrieben wurde.
+     */
+    private boolean isSavedActionBarSubtitle;
     private OnAWFragmentCancelListener mOnCancelListener;
     /**
      *
      */
     private OnAWFragmentDismissListener mOnDismissListener;
+    /**
+     * Gemerkter ActionBarSubTitle. Wird in onPause() wiederhergestellt.
+     */
     private CharSequence mSavedActionBarSubtitle;
     /**
      * Dient zur Berechnung der Startdauer
@@ -327,7 +334,9 @@ public abstract class AWFragment extends DialogFragment
             prefs.unregisterOnSharedPreferenceChangeListener(
                     (SharedPreferences.OnSharedPreferenceChangeListener) this);
         }
-        setSubTitle(mSavedActionBarSubtitle);
+        if (isSavedActionBarSubtitle) {
+            setSubTitle(mSavedActionBarSubtitle);
+        }
     }
 
     /**
@@ -475,7 +484,10 @@ public abstract class AWFragment extends DialogFragment
     public void setSubTitle(CharSequence subTitle) {
         ActionBar bar = ((AWMainActivity) getActivity()).getSupportActionBar();
         if (bar != null) {
-            mSavedActionBarSubtitle = bar.getSubtitle();
+            if (!isSavedActionBarSubtitle) {
+                mSavedActionBarSubtitle = bar.getSubtitle();
+                isSavedActionBarSubtitle = true;
+            }
             bar.setSubtitle(subTitle);
         }
         args.putCharSequence(ACTIONBARSUBTITLE, subTitle);
