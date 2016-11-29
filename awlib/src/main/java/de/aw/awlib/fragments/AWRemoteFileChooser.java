@@ -161,7 +161,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
             } else {
                 mRemoteFileServer.insert(getDBHelper());
             }
-            mOnActionFinishListener.onActionFinishClicked(layout, 0);
+            mOnActionFinishListener.onActionFinishClicked(layout);
             return true;
         }
         return super.onArrayRecyclerItemLongClick(recyclerView, view, object);

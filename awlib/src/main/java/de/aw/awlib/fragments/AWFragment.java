@@ -82,7 +82,6 @@ public abstract class AWFragment extends DialogFragment
     protected int[] viewResIDs;
     protected int[] fromResIDs;
     protected AWApplicationGeschaeftsObjekt awlib_gv;
-    protected MainAction mainAction;
     /**
      * Merker, ob der ActionBarSubtitle ueberschrieben wurde.
      */
@@ -96,6 +95,7 @@ public abstract class AWFragment extends DialogFragment
      * Gemerkter ActionBarSubTitle. Wird in onPause() wiederhergestellt.
      */
     private CharSequence mSavedActionBarSubtitle;
+    private MainAction mainAction;
     /**
      * Dient zur Berechnung der Startdauer
      */
@@ -114,7 +114,7 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Wird aus {@link MyTextWatcher#afterTextChanged(TextView, int, String)} aufgerufen.
+     * Wird aus {@link MyTextWatcher#afterTextChanged(Editable)} aufgerufen.
      *
      * @param view
      *         View, deren Text geaendert wurde
@@ -145,6 +145,19 @@ public abstract class AWFragment extends DialogFragment
     @Override
     public final String getTAG() {
         return TAG;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        String title = args.getString(ACTIONBARTITLE);
+        if (title != null) {
+            setTitle(title);
+        }
+        String subTitle = args.getString(ACTIONBARSUBTITLE);
+        if (subTitle != null) {
+            setSubTitle(subTitle);
+        }
     }
 
     /**
@@ -209,7 +222,7 @@ public abstract class AWFragment extends DialogFragment
                         } else {
                             awlib_gv.insert(db);
                         }
-                        Snackbar.make(getView(), getString(R.string.awlib_datensatzGesichert),
+                        Snackbar.make(getView(), getString(R.string.awlib_datensatzSaved),
                                 Snackbar.LENGTH_SHORT).show();
                         break;
                     default:
@@ -227,6 +240,8 @@ public abstract class AWFragment extends DialogFragment
     /**
      * Setzen der durch setArguments(args) erhaltenen bzw. Ruecksichern der Argumente im Bundle
      * args.
+     * <p>
+     * Gibt es keine MainAction unter AWLIBACTION, wird MainAction.SHOW verwendet.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -235,9 +250,12 @@ public abstract class AWFragment extends DialogFragment
             args.putAll(savedInstanceState);
         }
         layout = args.getInt(LAYOUT, NOLAYOUT);
-        mainAction = args.getParcelable(AWLIBACTION);
         viewResIDs = args.getIntArray(VIEWRESIDS);
         fromResIDs = args.getIntArray(FROMRESIDS);
+        mainAction = args.getParcelable(AWLIBACTION);
+        if (mainAction == null) {
+            mainAction = MainAction.SHOW;
+        }
     }
 
     /**
@@ -446,16 +464,12 @@ public abstract class AWFragment extends DialogFragment
      * Argumente, die von einem vererbten Fragment gesetzt werden, sind aber noch nicht vorhanden.
      * Werden diese benoetigt, sollten diese fruehestens in onCreate(saveStateInstance) aus args
      * geholt werden.
-     * <p>
-     * Als Default wird die MainAction SHOW gesetzt.
      *
      * @param args
      *         Bundle mit Argumenten.
      */
     @CallSuper
     protected void setInternalArguments(Bundle args) {
-        args.putParcelable(AWLIBACTION, MainAction.SHOW);
-        args.putInt(LAYOUT, layout);
     }
 
     /**

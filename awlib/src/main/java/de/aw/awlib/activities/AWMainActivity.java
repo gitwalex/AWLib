@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -103,22 +102,6 @@ public abstract class AWMainActivity extends AppCompatActivity
      */
     public Toolbar getToolbar() {
         return mToolbar;
-    }
-
-    /**
-     * Methode wird von Fragmemt gerufen, wenn eine Action beendet wird. Als Default wird bei
-     * Auswahl des ActionFinishedButton der Subtitle in der Toolbar sowie das Fragment vom Stack
-     * gepopt / entfernt
-     *
-     * @param layoutID
-     *         layoutID des Fragments
-     * @param itemResID
-     *         itemResID, die ausgewaehlt wurde, wenn eine Action durch Usereingriff beendet wurde
-     */
-    @CallSuper
-    public void onActionFinishClicked(int layoutID, int itemResID) {
-        getToolbar().setSubtitle(null);
-        getToolbar().setNavigationIcon(null);
     }
 
     @Override

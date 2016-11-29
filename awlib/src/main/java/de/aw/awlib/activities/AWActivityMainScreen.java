@@ -52,7 +52,7 @@ import de.aw.awlib.R;
 public abstract class AWActivityMainScreen extends AWMainActivity
         implements NavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
     private static final int layout = R.layout.awlib_activity_main_screen;
-    private DrawerLayout mDrawerLayout;
+    protected DrawerLayout mDrawerLayout;
     private DrawerToggle mDrawerToggle;
     private ViewPager pager;
 
@@ -174,6 +174,7 @@ public abstract class AWActivityMainScreen extends AWMainActivity
     @CallSuper
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        mDrawerLayout.closeDrawers();
         int i = item.getItemId();
         if (i == R.id.awlib_nav_Settings) {
             Intent intent = new Intent();

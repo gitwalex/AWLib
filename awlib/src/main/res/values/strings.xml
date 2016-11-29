@@ -47,8 +47,10 @@
     <string name="NoInternetConnection">Keine Internetverbindng</string>
     <string name="awlib_deleteFile">Datei löschen</string>
     <string name="awlib_openFile">Öffnen</string>
-    <string name="awlib_datensatzGesichert">Datensatz gespeichert</string>
+    <string name="awlib_datensatzSaved">Datensatz gespeichert</string>
+    <string name="awlib_datensatzDeleted">Datensatz gelöscht</string>
     <string name="titleFileServerKonfigurieren">Serverdaten</string>
+    <string name="awlib_menu_item_save">Speichern</string>
 
 
 </resources>

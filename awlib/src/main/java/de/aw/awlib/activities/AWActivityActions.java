@@ -57,8 +57,7 @@ public class AWActivityActions extends AWMainActivity
     private AWRemoteFileServer mRemoteServer;
 
     @Override
-    public void onActionFinishClicked(int layoutID, int itemResID) {
-        super.onActionFinishClicked(layoutID, itemResID);
+    public void onActionFinishClicked(int layoutID) {
         finish();
     }
 

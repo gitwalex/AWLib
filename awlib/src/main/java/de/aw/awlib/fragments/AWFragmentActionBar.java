@@ -17,43 +17,29 @@
 package de.aw.awlib.fragments;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.IntegerRes;
+import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWMainActivity;
 
 /**
  * Template fuer Actions. Setzt in der Toolbar ein NavigationsIcon, startet die Action und
- * informiert die rufende Activity ueber {@link AWMainActivity#onActionFinishClicked(int, int)}. Der
+ * informiert die rufende Activity ueber {@link AWMainActivity#onActionFinishClicked(int)}. Der
  * Titel der Toolbar muss von Activity gesetzt werden.
  */
 public abstract class AWFragmentActionBar extends AWFragment {
     private OnActionFinishListener mOnActionFinishClickedListener;
-    private Toolbar mToolbar;
 
     /**
-     * @return Liefert die RessourceID des Drawables, welches neben dem Text gezeigt werden soll.
-     * Als Default wird das Speichern-Symbol (R.drawable.ic_action_save) geliefert.
+     * Wird gerufen, wenn das Menuitem 'Save' gewaehlt wurde. Ruft die Activity mit der layoutID
      */
-    protected int getActionBarImageRessource() {
-        return R.drawable.ic_action_save;
-    }
-
-    protected void onActionFinishClicked(int itemResID) {
-        mOnActionFinishClickedListener.onActionFinishClicked(layout, itemResID);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        ActionBar bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        bar.setHomeAsUpIndicator(getActionBarImageRessource());
+    @CallSuper
+    protected void onActionFinishClicked() {
+        mOnActionFinishClickedListener.onActionFinishClicked(layout);
     }
 
     /**
@@ -74,18 +60,28 @@ public abstract class AWFragmentActionBar extends AWFragment {
         }
     }
 
+    /**
+     * Fuegt ein Save-MenuItem hinzu
+     */
+    @CallSuper
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        mToolbar = ((AWMainActivity) getActivity()).getToolbar();
-        mToolbar.setNavigationIcon(getActionBarImageRessource());
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AWMainActivity.hide_keyboard(getActivity());
-                AWFragmentActionBar.this.onActionFinishClicked(getActionBarImageRessource());
-            }
-        });
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.awlib_action_save, menu);
+    }
+
+    /**
+     * Wird 'Save' gewaehlt, wird {@link AWFragmentActionBar#onActionFinishClicked()} gerufen.
+     */
+    @CallSuper
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.awlib_menu_item_save) {
+            onActionFinishClicked();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -97,9 +93,7 @@ public abstract class AWFragmentActionBar extends AWFragment {
          *
          * @param layout
          *         layoutID des Fragments
-         * @param itemResiD
-         *         resID, die geclicked wurde
          */
-        void onActionFinishClicked(@LayoutRes int layout, @IntegerRes int itemResiD);
+        void onActionFinishClicked(@LayoutRes int layout);
     }
 }

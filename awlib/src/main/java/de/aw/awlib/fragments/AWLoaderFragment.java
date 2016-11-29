@@ -16,7 +16,6 @@
  */
 package de.aw.awlib.fragments;
 
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -63,23 +62,14 @@ public abstract class AWLoaderFragment extends AWFragment
     private View mProgressbar;
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        startOrRestartLoader(layout, args);
+    }
+
+    @Override
     final protected boolean onBindView(View view, int resID) {
         return super.onBindView(view, resID);
-    }
-
-    /**
-     * Startet den Loader neu
-     */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        startOrRestartLoader(layout, args);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        startOrRestartLoader(layout, args);
     }
 
     /**
