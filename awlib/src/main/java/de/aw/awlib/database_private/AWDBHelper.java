@@ -3,6 +3,7 @@ package de.aw.awlib.database_private;
 import android.database.sqlite.SQLiteDatabase;
 
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBAlterHelper;
 import de.aw.awlib.database.AbstractDBHelper;
 
@@ -24,8 +25,18 @@ public class AWDBHelper extends AbstractDBHelper {
     }
 
     @Override
+    public AWAbstractDBDefinition[] getAllDBDefinition() {
+        return AWDBDefinition.values();
+    }
+
+    @Override
+    public AWAbstractDBDefinition getDBDefinition(String tablename) {
+        return AWDBDefinition.valueOf(tablename);
+    }
+
+    @Override
     public void onCreate(SQLiteDatabase database) {
-        AWDBAlterHelper dbhelper = new AWDBAlterHelper(AWApplication.getContext(), database);
+        AWDBAlterHelper dbhelper = new AWDBAlterHelper(database);
         for (AWDBDefinition tbd : AWDBDefinition.values()) {
             if (!tbd.isView()) {
                 dbhelper.createTable(tbd);
@@ -43,7 +54,7 @@ public class AWDBHelper extends AbstractDBHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         switch (oldVersion) {
             case 1:
-                AWDBAlterHelper helper = new AWDBAlterHelper(AWApplication.getContext(), db);
+                AWDBAlterHelper helper = new AWDBAlterHelper(db);
                 AWDBDefinition tbd = AWDBDefinition.RemoteServer;
         }
     }

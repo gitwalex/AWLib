@@ -33,6 +33,14 @@ public interface AWResultCodes {
      */
     RESULT_FILE_ERROR = -4,//
     /**
+     * Fehler, wenn Eine TBD nicht gefunden werden kann
+     */
+    RESULT_FEHLER_TBD = -5,//
+    /**
+     * Fehlr, wenn eine gesuchte Splate in TBD nicht vohanden ist.
+     */
+    RESULT_SPALTE_IN_TBD_NICHT_VORHANDEN = -7,//
+    /**
      * File not found
      */
     RESULT_FILE_NOTFOUND = -6,//

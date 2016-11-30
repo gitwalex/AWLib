@@ -24,9 +24,9 @@ import android.os.AsyncTask;
 import java.io.File;
 
 import de.aw.awlib.AWResultCodes;
-import de.aw.awlib.AWUtils;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.utils.AWUtils;
 
 /**
  * Klasse fuer Sicheren/Restoren DB

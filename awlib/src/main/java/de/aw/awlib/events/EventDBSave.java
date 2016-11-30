@@ -36,11 +36,11 @@ import java.util.concurrent.ExecutionException;
 
 import de.aw.awlib.AWNotification;
 import de.aw.awlib.AWResultCodes;
-import de.aw.awlib.AWUtils;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
+import de.aw.awlib.utils.AWUtils;
 
 /**
  * Klasse fuer Sicheren/Restoren DB

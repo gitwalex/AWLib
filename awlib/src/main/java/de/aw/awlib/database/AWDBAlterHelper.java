@@ -16,11 +16,8 @@
  */
 package de.aw.awlib.database;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -33,13 +30,8 @@ import de.aw.awlib.application.AWApplication;
  * Helper-Klasse fuer Aenderungen/Neuanlagen in der DB
  */
 public class AWDBAlterHelper {
-    private static int indexNumber;
-    private static int uniqueIndexNumber;
     private final SQLiteDatabase database;
-    private final String uniqueIndexNumberKey = "DBUniqueIndexNumber";
-    private final String indexNumberKey = "DBIndexNumber";
-    private final SharedPreferences prefs;
-    private final Context context;
+    String idColumn = AWApplication.getContext().getString(R.string._id);
 
     /**
      * Initialisiert AWDBAlterHelper. Die letzte vergebene indexNummer/uniqueIndexNummer wird aus
@@ -48,12 +40,8 @@ public class AWDBAlterHelper {
      * @param database
      *         database
      */
-    public AWDBAlterHelper(Context context, SQLiteDatabase database) {
+    public AWDBAlterHelper(SQLiteDatabase database) {
         this.database = database;
-        this.context = context;
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        indexNumber = prefs.getInt(indexNumberKey, 0);
-        uniqueIndexNumber = prefs.getInt(uniqueIndexNumberKey, 0);
     }
 
     /**
@@ -386,7 +374,6 @@ public class AWDBAlterHelper {
         for (int resID : tableindex) {
             columns.add(tbd.columnName(resID));
         }
-        String idColumn = context.getString(R.string._id);
         columns.remove(idColumn);
         StringBuilder indexSQL = new StringBuilder(columns.get(0));
         for (int j = 1; j < columns.size(); j++) {

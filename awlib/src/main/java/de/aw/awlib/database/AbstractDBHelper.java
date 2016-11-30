@@ -134,6 +134,13 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     }
 
     /**
+     * Liefert alle AWAbstractDBDefinition  zurusck
+     *
+     * @return AWAbstractDBDefinition als Array
+     */
+    public abstract AWAbstractDBDefinition[] getAllDBDefinition();
+
+    /**
      * Liefert die Liste der Spalten einer Tabelle zuruck.
      *
      * @param tbd
@@ -156,6 +163,16 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         }
         return columns;
     }
+
+    /**
+     * Liefert eine AWAbstractDBDefinition zu einem Tablename zurusck
+     *
+     * @param tablename
+     *         Name der Tabelle als String
+     *
+     * @return AWAbstractDBDefinition
+     */
+    public abstract AWAbstractDBDefinition getDBDefinition(String tablename);
 
     /**
      * Liefert Informationen zu den Columns einer Tabelle zurueck

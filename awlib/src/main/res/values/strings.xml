@@ -51,6 +51,7 @@
     <string name="awlib_datensatzDeleted">Datensatz gelöscht</string>
     <string name="titleFileServerKonfigurieren">Serverdaten</string>
     <string name="awlib_menu_item_save">Speichern</string>
+    <string name="exportErfolgreich">Export erfolgreich</string>
 
 
 </resources>
