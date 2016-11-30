@@ -17,7 +17,6 @@
 package de.aw.awlib.activities;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -63,23 +62,6 @@ public abstract class AWMainActivity extends AppCompatActivity
     private Toolbar mToolbar;
     private MainAction mainAction;
 
-    /**
-     * Hides a Keyboard
-     *
-     * @param activity
-     *         current Activity
-     *
-     * @see "stackoverflow.com/questions/1109022/close-hide-the-android-soft-keyboard"
-     */
-    public static void hide_keyboard(Activity activity) {
-        InputMethodManager imm =
-                (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        View view = activity.getCurrentFocus();
-        if (view != null) {
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
-
     public FloatingActionButton getDefaultFAB() {
         return mDefaultFAB;
     }
@@ -102,6 +84,20 @@ public abstract class AWMainActivity extends AppCompatActivity
      */
     public Toolbar getToolbar() {
         return mToolbar;
+    }
+
+    /**
+     * Hides a Keyboard
+     *
+     * @see "stackoverflow.com/questions/1109022/close-hide-the-android-soft-keyboard"
+     */
+    public void hide_keyboard() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm =
+                    (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     @Override
@@ -197,19 +193,13 @@ public abstract class AWMainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        hide_keyboard(this);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         setSubTitle(args.getString(ACTIONBARSUBTITLE));
     }
 
     /**
-     * Sicherung aller Argumente sowie des aktuellen AppTitels
+     * Sicherung aller Argumente
      */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {

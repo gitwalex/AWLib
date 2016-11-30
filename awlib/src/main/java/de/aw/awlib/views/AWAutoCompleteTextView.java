@@ -19,10 +19,6 @@ package de.aw.awlib.views;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Rect;
-import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.AttributeSet;
 import android.view.View;
@@ -43,23 +39,19 @@ import de.aw.awlib.database.AWAbstractDBDefinition;
  */
 public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         implements AWInterface, SimpleCursorAdapter.CursorToStringConverter, FilterQueryProvider,
-        AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor>,
-        AutoCompleteTextView.Validator {
-    private static final String CONSTRAINT = "CONSTRAINT", USERSCELECTION = "USERSELECTION",
-            USERSELECTIONARGS = "USERSELECTIONARGS";
-    private static int staticLoaderID;
+        AdapterView.OnItemClickListener, AutoCompleteTextView.Validator {
     private static int[] viewResIDs = new int[]{android.R.id.text1};
     protected OnTextChangedListener mOnTextChangeListener;
-    private Bundle args = new Bundle();
     private int columnIndex;
     private int fromResID;
     private boolean isValidatorSet;
     private int mBroadcastIndex;
-    private int mLoaderID;
-    private LoaderManager mLoaderManager;
+    private CharSequence mConstraint;
+    private String mMainColumn;
+    private String mOrderBy;
+    private String[] mProjection;
+    private String mSelection;
     private SimpleCursorAdapter mSimpleCursorAdapter;
-    private String mainColumn;
-    private String[] projection;
     private String selectedText = null;
     private long selectionID;
     private AWAbstractDBDefinition tbd;
@@ -74,6 +66,21 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
 
     public AWAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    private void buildSelectionArguments(String mUserSelection, String[] mUserSelectionArgs) {
+        mSelection = tbd.columnName(fromResID) + " Like ? ";
+        mOrderBy = "LENGTH(" + mMainColumn + ")";
+        if (mUserSelection != null) {
+            if (mUserSelectionArgs != null) {
+                for (String sel : mUserSelectionArgs) {
+                    mUserSelection = mUserSelection.replaceFirst("\\?", "'" + sel + "'");
+                }
+            }
+            mSelection = mSelection + " AND (" + mUserSelection + ")";
+        }
+        mSelection = mSelection + "  GROUP BY " + mMainColumn;
+        mOrderBy = mOrderBy + ", " + mMainColumn;
     }
 
     @Override
@@ -125,8 +132,6 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     /**
      * Initialisiert AutoCompleteTextView.
      *
-     * @param loaderManager
-     *         LoaderManager
      * @param tbd
      *         DBDefinition. Aus dieser Tabelle wird das Feld gelesen
      * @param selection
@@ -139,25 +144,17 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
      * @throws NullPointerException,
      *         wenn LoaderManager null ist.
      */
-    public void initialize(LoaderManager loaderManager, OnTextChangedListener mOnTextChangeListener,
-                           AWAbstractDBDefinition tbd, String selection, String[] selectionArgs,
-                           int fromResID) {
-        if (loaderManager == null) {
-            throw new NullPointerException("LoaderManager darf nicht null sein");
-        }
+    public void initialize(OnTextChangedListener mOnTextChangeListener, AWAbstractDBDefinition tbd,
+                           String selection, String[] selectionArgs, int fromResID) {
         this.mOnTextChangeListener = mOnTextChangeListener;
         this.tbd = tbd;
         this.fromResID = fromResID;
-        mainColumn = tbd.columnName(this.fromResID);
-        projection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
-        args.putString(USERSCELECTION, selection);
-        args.putStringArray(USERSELECTIONARGS, selectionArgs);
-        args.putStringArray(PROJECTION, projection);
-        args.putString(ORDERBY, mainColumn);
-        mLoaderManager = loaderManager;
+        mMainColumn = tbd.columnName(this.fromResID);
+        mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
+        buildSelectionArguments(selection, selectionArgs);
         mSimpleCursorAdapter =
                 new SimpleCursorAdapter(getContext(), android.R.layout.simple_dropdown_item_1line,
-                        null, projection, viewResIDs, 0);
+                        null, mProjection, viewResIDs, 0);
         mSimpleCursorAdapter.setCursorToStringConverter(this);
         mSimpleCursorAdapter.setFilterQueryProvider(this);
         setAdapter(mSimpleCursorAdapter);
@@ -172,41 +169,12 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        projection = args.getStringArray(PROJECTION);
-        String constraint = args.getString(CONSTRAINT, "");
-        String selection = tbd.columnName(fromResID) + " Like ? ";
-        String[] selectionArgs = new String[]{"%" + constraint + "%"};
-        String userSelection = args.getString(USERSCELECTION);
-        if (userSelection != null) {
-            String[] userSelectionArgs = args.getStringArray(USERSELECTIONARGS);
-            if (userSelectionArgs != null) {
-                for (String sel : userSelectionArgs) {
-                    userSelection = userSelection.replaceFirst("\\?", "'" + sel + "'");
-                }
-            }
-            selection = selection + " AND (" + userSelection + ")";
-        }
-        selection = selection + "  GROUP BY " + mainColumn;
-        String mOrderBy = "LENGTH(" + mainColumn + ")";
-        String orderBy = args.getString(ORDERBY);
-        if (orderBy == null) {
-            orderBy = mOrderBy;
-        } else {
-            orderBy = mOrderBy + ", " + orderBy;
-        }
-        return new CursorLoader(getContext(), tbd.getUri(), projection, selection, selectionArgs,
-                orderBy);
-    }
-
-    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
         setThreshold(3);
         setOnItemClickListener(this);
         setSelectAllOnFocus(true);
         selectAll();
-        mLoaderID = staticLoaderID++;
     }
 
     /**
@@ -240,14 +208,43 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     }
 
     /**
+     * Restartet die TextView mit neuen Argumenten
+     *
+     * @param selection
+     *         neue selection
+     * @param selectionArgs
+     *         neue SelectionArgs
+     */
+    protected void restart(String selection, String[] selectionArgs) {
+        if (selection != null) {
+            buildSelectionArguments(selection, selectionArgs);
+        }
+        runQuery(mConstraint);
+    }
+
+    /**
+     * Nach tippen wird hier nachgelesen. Es wird mit 'LIKE %constraint%' ausgewaehlt.
+     * <p>
      * Hat der Cursor Daten und validierung ist eingeschaltet (es ist kein neuer Wert zugelassen),
      * wird die erste ID aus dem Cursor geholt und der  Text auf den entsprechenden Wert des Cursors
      * gesetzt. Ausserdem wird dann gleich eine Message versendet, wenn es nur genau einen Wert
      * gibt.
+     *
+     * @param constraint
+     *         Text
+     *
+     * @return den neuen Cursor
      */
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public Cursor runQuery(CharSequence constraint) {
         selectionID = NOID;
+        if (constraint == null) {
+            constraint = "";
+        }
+        mConstraint = constraint;
+        String[] mSelectionArgs = new String[]{"%" + mConstraint + "%"};
+        Cursor data = getContext().getContentResolver()
+                .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs, mOrderBy);
         if (data != null && data.moveToFirst()) {
             if (isValidatorSet) {
                 selectionID = data.getLong(1);
@@ -259,48 +256,7 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         }
         setDropDownHeight(getLineHeight() * 18);
         columnIndex = data.getColumnIndexOrThrow(tbd.columnName(fromResID));
-        mSimpleCursorAdapter.swapCursor(data);
-    }
-
-    /**
-     * Adapter leeren
-     */
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mSimpleCursorAdapter.swapCursor(null);
-    }
-
-    /**
-     * Restartet die TextView mit neuen Argumenten
-     *
-     * @param selection
-     *         neue selectio
-     * @param selectionArgs
-     *         neue SelectionArgs
-     */
-    protected void restart(String selection, String[] selectionArgs) {
-        args.putString(USERSCELECTION, selection);
-        args.putStringArray(USERSELECTIONARGS, selectionArgs);
-        startOrRestartLoader(mLoaderID, args);
-    }
-
-    /**
-     * Nach tippen wird hier nachgelesen. Es wird mit 'LIKE %constraint%' ausgewaehlt.
-     *
-     * @param constraint
-     *         Bisheriger Text
-     *
-     * @return null. Der neue Cursor wird durch {@link AWAutoCompleteTextView#startOrRestartLoader(int,
-     * Bundle)} erstellt.
-     */
-    @Override
-    public Cursor runQuery(CharSequence constraint) {
-        if (constraint == null) {
-            constraint = "";
-        }
-        args.putString(CONSTRAINT, constraint.toString());
-        startOrRestartLoader(mLoaderID, args);
-        return null;
+        return data;
     }
 
     /**
@@ -355,23 +311,6 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
 
     public void setSelectedText(String text) {
         selectedText = text;
-    }
-
-    /**
-     * Startet oder restartet den Loader
-     *
-     * @param id
-     *         id des Loaders
-     * @param args
-     *         args fuer Loader
-     */
-    private void startOrRestartLoader(int id, Bundle args) {
-        Loader<Cursor> loader = mLoaderManager.getLoader(id);
-        if (loader != null && !loader.isReset()) {
-            mLoaderManager.restartLoader(id, args, this);
-        } else {
-            mLoaderManager.initLoader(id, args, this);
-        }
     }
 
     /**
