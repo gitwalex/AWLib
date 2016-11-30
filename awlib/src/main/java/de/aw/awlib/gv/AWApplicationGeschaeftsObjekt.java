@@ -71,6 +71,26 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     private AWAbstractDBDefinition tbd;
 
+    /**
+     * Legt ein neues Geschaeftsobject auf Basis eines anderen GO an. Alle Werte, die in dem neuen
+     * GO moeglich sind, werden kopiert.
+     *
+     * @param tbd
+     *         AWAbstractDBDefinition
+     * @param go
+     *         Geschaeftsobject, dessen Daten kopiert werden sollen.
+     */
+    protected AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd,
+                                            AWApplicationGeschaeftsObjekt go) {
+        this(tbd);
+        for (int resID : tbd.getResIDs()) {
+            Object value = go.currentContent.get(getContext().getString(resID));
+            if (value != null) {
+                put(resID, value);
+            }
+        }
+    }
+
     protected AWApplicationGeschaeftsObjekt(Parcel in) {
         this.selection = in.readString();
         this.id = (Long) in.readValue(Long.class.getClassLoader());
@@ -600,21 +620,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         }
         isDirty = true;
         return true;
-    }
-
-    /**
-     * Kopiert alle Daten, die in der Tabelle moeglich und im uebergebenen Geschaeftsobject
-     * vorhanden sind. Eine ggfs. vorhandenen ID wird entfernt.
-     *
-     * @param geschaeftobjektToCopy
-     *         Geschaeftspbjekt, dessen Daten kopiert werden sollen
-     */
-    public void putAll(AWApplicationGeschaeftsObjekt geschaeftobjektToCopy) {
-        ContentValues oldContent = geschaeftobjektToCopy.getContent();
-        for (String value : tbd.columnNames()) {
-            currentContent.put(value, oldContent.getAsString(value));
-        }
-        currentContent.remove(tbd.columnName(R.string._id));
     }
 
     /**
