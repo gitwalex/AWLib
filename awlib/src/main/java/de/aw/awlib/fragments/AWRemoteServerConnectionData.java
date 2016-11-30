@@ -1,7 +1,6 @@
 package de.aw.awlib.fragments;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -36,21 +35,18 @@ public class AWRemoteServerConnectionData extends AWFragment {
         return fragment;
     }
 
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        mRemoteFileServer.setUserPassword(mPasswortEditText.getText().toString());
-        if (mRemoteFileServer.isValid()) {
-            super.onClick(dialog, which);
-        }
-    }
-
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dlg = super.onCreateDialog(savedInstanceState);
         dlg.setTitle(R.string.titleFileServerKonfigurieren);
         return dlg;
+    }
+
+    @Override
+    protected boolean onOKButtonClicked() {
+        mRemoteFileServer.setUserPassword(mPasswortEditText.getText().toString());
+        return mRemoteFileServer.isValid();
     }
 
     @Override

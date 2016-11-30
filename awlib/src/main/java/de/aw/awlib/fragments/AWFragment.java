@@ -56,7 +56,7 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  * Bereitstellung eines Bundle 'args' fuer alle abgeleiteten Klassen
  */
 public abstract class AWFragment extends DialogFragment
-        implements AWInterface, AWFragmentInterface, DialogInterface.OnClickListener {
+        implements AWInterface, AWFragmentInterface {
     /**
      * TAG Fuer die Fragmente
      */
@@ -207,37 +207,6 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Wenn OK gewaehlt, wird der Geschaeftsvorfall gespeichert und eine SnackBar gezeigt.
-     */
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        switch (which) {
-            case AlertDialog.BUTTON_POSITIVE:
-                switch (mainAction) {
-                    case ADD:
-                    case EDIT:
-                        AbstractDBHelper db = getDBHelper();
-                        if (awlib_gv.isInserted()) {
-                            awlib_gv.update(db);
-                        } else {
-                            awlib_gv.insert(db);
-                        }
-                        Snackbar.make(getView(), getString(R.string.awlib_datensatzSaved),
-                                Snackbar.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        break;
-                }
-                dismiss();
-                break;
-            case AlertDialog.BUTTON_NEGATIVE:
-                dialog.cancel();
-                break;
-            default:
-        }
-    }
-
-    /**
      * Setzen der durch setArguments(args) erhaltenen bzw. Ruecksichern der Argumente im Bundle
      * args.
      * <p>
@@ -262,8 +231,8 @@ public abstract class AWFragment extends DialogFragment
      * Erstellt einen Dialog mit Positive und Negative-Button. Die View fuer den Dailog wird ueber
      * LAYOUT in args ermittelt und ind den Dialog eingestellt.  Der Dailog wird so eingestellt,
      * dass ein Resize der View moeglich ist. Als ButtonListener wird das AWFragment eingestellt,
-     * daher ist ggfs, die Methode {@link AWFragment#onClick(DialogInterface, int)} zu
-     * ueberschreiben.
+     * daher ist ggfs, die Methode {@link AWFragment#onOKButtonClicked()}  zu ueberschreiben. Nur
+     * wenn die Methode true zurueck gibt, wird der Datensatz gespeichert.
      * <p>
      * Nach Erstellen der View wird {@link AWFragment#onViewCreated(View, Bundle)} gerufen.
      * <p>
@@ -278,8 +247,39 @@ public abstract class AWFragment extends DialogFragment
         View childView = inflater.inflate(layout, null);
         onViewCreated(childView, savedInstanceState);
         builder.setView(childView);
-        Dialog dialog = builder.setPositiveButton(R.string.awlib_btnAccept, this)
-                .setNegativeButton(R.string.awlib_btnCancel, this).setView(childView).create();
+        Dialog dialog = builder.setPositiveButton(R.string.awlib_btnAccept,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (AWFragment.this.onOKButtonClicked()) {
+                            switch (mainAction) {
+                                case ADD:
+                                case EDIT:
+                                    AbstractDBHelper db = getDBHelper();
+                                    if (awlib_gv.isInserted()) {
+                                        awlib_gv.update(db);
+                                    } else {
+                                        awlib_gv.insert(db);
+                                    }
+                                    View view = getView();
+                                    if (view != null) {
+                                        Snackbar.make(view,
+                                                getString(R.string.awlib_datensatzSaved),
+                                                Snackbar.LENGTH_SHORT).show();
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.awlib_btnCancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Nix tun
+                    }
+                }).setView(childView).create();
         // Wenn das Dialogfenster teilweise von der eingeblendeten Tatstatur
         // ueberlappt wird, resize des Fensters zulassen.
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -337,6 +337,10 @@ public abstract class AWFragment extends DialogFragment
         if (!isCanceled && mOnDismissListener != null) {
             mOnDismissListener.onDismiss(layout, dialog);
         }
+    }
+
+    protected boolean onOKButtonClicked() {
+        return true;
     }
 
     /**
