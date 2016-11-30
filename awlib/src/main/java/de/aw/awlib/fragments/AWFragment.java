@@ -74,10 +74,6 @@ public abstract class AWFragment extends DialogFragment
      * SharedPreferences werden allen abgeleiteten Fragmenten bereitgestellt
      */
     protected SharedPreferences prefs;
-    /**
-     * Hiew wird die awlib_containerID gespeichert, in die das Fragment engehaengt wird.
-     */
-    protected int awlib_containerID;
     protected boolean isCanceled;
     protected int[] viewResIDs;
     protected int[] fromResIDs;
@@ -177,22 +173,6 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Ermoeglicht das manuelle binden der View.
-     *
-     * @param view
-     *         View, die gebunden werden soll
-     * @param resID
-     *         resID der View
-     *
-     * @return true, wenn die View hier gebunden wurde. Wenn false, wird davon ausgegangen, dass es
-     * sich um eine TextView handelt, der Text wird dann dort eingestellt. siehe auch
-     * onViewCreated()
-     */
-    protected boolean onBindView(View view, int resID) {
-        return false;
-    }
-
-    /**
      * Wird ein Dialog gecancelt, wird der mOnCancelListener gerufen (wenn vorhanden)
      * <p>
      * Ausserdem ist dann isCanceled true.
@@ -203,7 +183,6 @@ public abstract class AWFragment extends DialogFragment
         if (mOnCancelListener != null) {
             mOnCancelListener.onCancel(layout, dialog);
         }
-        super.onCancel(dialog);
     }
 
     /**
@@ -295,9 +274,6 @@ public abstract class AWFragment extends DialogFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (!getShowsDialog()) {
-            if (container != null) {
-                awlib_containerID = container.getId();
-            }
             if (layout == NOLAYOUT) {
                 return null;
             }
@@ -426,16 +402,14 @@ public abstract class AWFragment extends DialogFragment
             AWLibViewHolder holder = new AWLibViewHolder(view);
             for (int i = 0; i < viewResIDs.length; i++) {
                 View target = holder.findViewById(viewResIDs[i]);
-                if (!onBindView(target, viewResIDs[i])) {
-                    int fromResID = fromResIDs[i];
-                    if (target instanceof TextView && awlib_gv != null) {
-                        TextView v = (TextView) target;
-                        v.setText(awlib_gv.getAsString(fromResID));
-                    }
-                    if (target instanceof EditText) {
-                        EditText v = (EditText) target;
-                        v.addTextChangedListener(new MyTextWatcher(v, fromResID));
-                    }
+                int fromResID = fromResIDs[i];
+                if (target instanceof TextView && awlib_gv != null) {
+                    TextView v = (TextView) target;
+                    v.setText(awlib_gv.getAsString(fromResID));
+                }
+                if (target instanceof EditText) {
+                    EditText v = (EditText) target;
+                    v.addTextChangedListener(new MyTextWatcher(v, fromResID));
                 }
             }
         }

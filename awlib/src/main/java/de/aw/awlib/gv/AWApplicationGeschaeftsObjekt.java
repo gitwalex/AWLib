@@ -48,6 +48,7 @@ import de.aw.awlib.database.AbstractDBHelper;
  *
  * @author alex
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parcelable {
     /**
      * Flag, ob gerade Daten importiert werden.

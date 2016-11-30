@@ -180,11 +180,6 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
         return false;
     }
 
-    @Override
-    protected final boolean onBindView(View view, int resID) {
-        return super.onBindView(view, resID);
-    }
-
     /**
      * Ruft fuer jede einzelne viewResID {@link AWArrayRecyclerViewFragment#onBindView(AWLibViewHolder,
      * View, int, Object)}

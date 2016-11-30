@@ -67,11 +67,6 @@ public abstract class AWLoaderFragment extends AWFragment
         startOrRestartLoader(layout, args);
     }
 
-    @Override
-    final protected boolean onBindView(View view, int resID) {
-        return super.onBindView(view, resID);
-    }
-
     /**
      * Aufbau des Select-Statements.
      * <p/>
