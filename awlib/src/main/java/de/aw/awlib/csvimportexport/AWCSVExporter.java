@@ -45,7 +45,6 @@ import de.aw.awlib.database.AWDBConvert;
 public class AWCSVExporter {
     private final String filename;
     private final NumberFormat nf;
-    //private final Context context;
 
     /**
      * Konstruktor. Erwartet Activity und filename. Export wird angestossen durch {@link

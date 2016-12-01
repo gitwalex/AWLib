@@ -18,7 +18,6 @@ package de.aw.awlib.events;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -56,13 +55,9 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
     private File backupFile;
     private AWNotification mNotification;
 
-    public EventDBSave(Service service) {
-        this(service.getApplicationContext());
-    }
-
-    public EventDBSave(Context context) {
-        mContext = context;
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    public EventDBSave() {
+        mContext = AWApplication.getContext();
+        prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         date = new Date(System.currentTimeMillis());
         Locale locale = Locale.getDefault();
         DateFormat formatter =
@@ -138,7 +133,7 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        setDBSaveAlarm(context, prefs);
+        checkDBSaveAlarm(context, prefs);
     }
 
     public void save() {

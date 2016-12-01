@@ -55,8 +55,7 @@ import de.aw.awlib.database.AbstractDBHelper;
  * entsprechen grds. auch moeglichen Spalten in der Tabelle - Spaltenwerte etnsprechen vom Format
  * her dem entsprechenden Spaltennamen - Spalten sind in der Zieltabelle alle vorhanden
  * <p/>
- * Werte, die obigen Grundsaetzen entprechen, werden in myEntries gespeichert. Alle anderen in
- * MyErrorEntries.
+ * Werte, die obigen Grundsaetzen entprechen, werden in myEntries gespeichert.
  */
 public class AWCSVImporter implements AWResultCodes {
     private final NumberFormat nf = DecimalFormat.getInstance(Locale.getDefault());

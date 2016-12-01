@@ -49,7 +49,7 @@ public class AWEventService extends IntentService implements AWInterface {
         switch (event) {
             case DoDatabaseSave:
                 try {
-                    File file = new EventDBSave(this).execute();
+                    File file = new EventDBSave().execute();
                     Context context = getApplicationContext();
                     SharedPreferences prefs =
                             PreferenceManager.getDefaultSharedPreferences(context);
