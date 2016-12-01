@@ -186,7 +186,7 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
     }
 
     /**
-     * @return Passwort
+     * setzt Passwort
      */
     public void setUserPassword(String password) {
         mUserPassword = password;

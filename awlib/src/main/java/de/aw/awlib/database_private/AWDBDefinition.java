@@ -43,6 +43,7 @@ import de.aw.awlib.database.AWDBFormate;
  *         Aufzaehlung der Tabellen der Datenbank. 1. Parameter ist ein Integer-Array der resIds
  *         (R.string.xxx)der Tabellenspalten
  */
+@SuppressWarnings("unused")
 public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
     RemoteServer() {
         @Override

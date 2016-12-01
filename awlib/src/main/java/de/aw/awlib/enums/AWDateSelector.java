@@ -256,7 +256,7 @@ public enum AWDateSelector {
                 return false;
             }
             return vonBisDate.startDate.toString().equals(startDate.toString()) | vonBisDate.endDate
-                    .toString().equals(endDate);
+                    .equals(endDate);
         }
 
         /**

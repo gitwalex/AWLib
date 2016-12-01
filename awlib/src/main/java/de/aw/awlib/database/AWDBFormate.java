@@ -35,13 +35,14 @@ public class AWDBFormate {
     private static final SparseArray<Character> mapResID2Formate = new SparseArray<>();
     private static AWDBFormate mInstance;
     private final Map<Character, String> formate = new HashMap<>();
-    private final Map<String, Integer> mapColumnNae2ResID = new HashMap<>();
+    private final Map<String, Integer> mapColumnName2ResID = new HashMap<>();
 
+    @SuppressWarnings("WeakerAccess")
     protected AWDBFormate() {
         Context context = AWApplication.getContext();
         int resID = R.string._id;
         mapResID2Formate.put(resID, 'I');
-        mapColumnNae2ResID.put(context.getString(resID), resID);
+        mapColumnName2ResID.put(context.getString(resID), resID);
         String[] s = {"TTEXT", "DDate", "NNUMERIC", "MNUMERIC", "BBoolean", "CNUMERIC", "PNUMERIC",
                 "KNUMERIC", "IINTEGER", "OBLOB"};
         for (String f : s) {
@@ -55,7 +56,13 @@ public class AWDBFormate {
         for (int[] map : getItems()) {
             resID = map[0];
             mapResID2Formate.put(resID, (char) map[1]);
-            mapColumnNae2ResID.put(context.getString(resID), resID);
+        }
+        AWAbstractDBDefinition[] tbds = AWApplication.getDBHelper().getAllDBDefinition();
+        for (AWAbstractDBDefinition tbd : tbds) {
+            int[] columns = tbd.getCreateTableResIDs();
+            for (int mResID : columns) {
+                mapColumnName2ResID.put(context.getString(mResID), mResID);
+            }
         }
     }
 
@@ -111,7 +118,7 @@ public class AWDBFormate {
     }
 
     public Integer getResID(String resName) {
-        return mapColumnNae2ResID.get(resName.trim());
+        return mapColumnName2ResID.get(resName.trim());
     }
 
     public String getSQLiteFormat(Integer resId) {

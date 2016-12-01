@@ -17,11 +17,13 @@
 package de.aw.awlib.csvimportexport;
 
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import com.opencsv.CSVWriter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -33,60 +35,146 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
+import de.aw.awlib.database.AWDBFormate;
+
+import static de.aw.awlib.AWResultCodes.RESULT_OK;
 
 /**
- * Erstellt einen Export der Tabellendaten. Aufbau wie folgt:
+ * Erstellt einen Export der Daten eines Cursors. Aufbau wie folgt:
  * <p/>
- * 1. Zeile Spaltennamen 2.- (n-1) Zeile: Inhalte der Spalten n. Tabellenname
+ * 1. Zeile Spaltennamen
+ * <p>
+ * 2.- (n-1) Zeile: Inhalte der Spalten
+ * <p>
+ * n. Tabellenname
  */
 public class AWCSVExporter {
-    private final String filename;
-    private final NumberFormat nf;
+    private static final NumberFormat nf;
 
-    /**
-     * Konstruktor. Erwartet Activity und filename. Export wird angestossen durch {@link
-     * AWCSVExporter#doExport(AWAbstractDBDefinition, Cursor, int[])}
-     *
-     * @param filename
-     *         filename des Exportfiles.
-     */
-    public AWCSVExporter(@NonNull String filename) {
+    static {
         nf = NumberFormat.getInstance(Locale.getDefault());
         nf.setGroupingUsed(false);
-        Date date = new Date(System.currentTimeMillis());
-        Locale locale = Locale.getDefault();
-        DateFormat formatter =
-                (DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale));
-        String dateString = formatter.format(date).replace(".", "_");
-        this.filename = ((filename + "-" + dateString) + ".csv").replace(":", "");
+    }
+
+    private final ExportCursorListener mExportCursorListener;
+    private String fullFilename;
+
+    public AWCSVExporter(@NonNull ExportCursorListener listener) {
+        mExportCursorListener = listener;
+    }
+
+    /**
+     * Exportiert eine Tabelle in ein exportfile. Das Exportfile ist unter {@link
+     * AWApplication#getApplicationExportPath()} } zu finden
+     *
+     * @param tbd
+     *         Tabelle zum export
+     * @param fromResIDs
+     *         Liste der resIDS, die exportiert werden sollen. Wenn null, werden alle Spalten der
+     *         Tabelle exportiert
+     * @param selection
+     *         selection.
+     * @param selectionArgs
+     *         selectionArgs
+     * @param groupBy
+     *         GroupBy-Clause
+     */
+    public void doExport(@NonNull AWAbstractDBDefinition tbd, int[] fromResIDs, String selection,
+                         String[] selectionArgs, String groupBy) {
+        if (fromResIDs == null) {
+            fromResIDs = tbd.getResIDs();
+        }
+        if (groupBy != null) {
+            if (selection == null) {
+                selection = " 1 = 1 ";
+            }
+            selection += " GROUP BY " + groupBy;
+        }
+        String[] projection = tbd.columnNames(fromResIDs);
+        Cursor c = AWApplication.getContext().getContentResolver()
+                .query(tbd.getUri(), projection, selection, selectionArgs, null);
+        doExport(tbd, c);
     }
 
     /**
      * Exportiert Inhalte eines Cursors.
      *
      * @param tbd
-     *         Tabelle, die gelesen wird. Name wird ans Ende des Reports angehaengt
+     *         Tabelle, die gelesen wird. Name wird ans Ende des Exports angehaengt
      * @param c
      *         Cursor, dessen Inhalte exportiert werden sollen
-     * @param fromResIDs
-     *         Tabellenspalten, die exportiert werden. Werden benoetigt, um das Format korrekt
-     *         dazustellen. Reihenfolge muss mit den Spalten des Cursors uebereinstimmen
-     *
-     * @throws IOException
-     *         Wenn was schiefgegangen ist
      */
-    public void doExport(AWAbstractDBDefinition tbd, Cursor c, int[] fromResIDs)
-            throws IOException {
-        List<String[]> list = new ArrayList<>();
-        String filename = AWApplication.getApplicationExportPath() + "/" + this.filename;
-        File file = new File(filename);
-        FileOutputStream fos;
-        CSVWriter bw = null;
-        try {
-            if (c != null) {
+    public void doExport(AWAbstractDBDefinition tbd, Cursor c) {
+        new ExportCursor(tbd, c);
+    }
+
+    public String getFilename() {
+        return fullFilename;
+    }
+
+    /**
+     * Interface fuer Listener auf Ergebnisse.
+     */
+    public interface ExportCursorListener {
+        /**
+         * Wird nach Ende des Exports gerufen
+         *
+         * @param result
+         *         ReultCode gemaess {@link AWResultCodes}
+         */
+        void onFinishExport(int result);
+
+        /**
+         * Wird vor dem Start des Exports gerufen
+         */
+        void onStartExport();
+    }
+
+    private class ExportCursor extends AsyncTask<Void, Void, Integer> {
+        private final AWAbstractDBDefinition tbd;
+        private final Cursor c;
+        private final String filename;
+
+        /**
+         * Exportiert Inhalte eines Cursors.
+         *
+         * @param tbd
+         *         Tabelle, die gelesen wird. Name wird ans Ende des Exports angehaengt
+         * @param c
+         *         Cursor, dessen Inhalte exportiert werden sollen
+         */
+        public ExportCursor(AWAbstractDBDefinition tbd, Cursor c) {
+            this.tbd = tbd;
+            this.c = c;
+            Date date = new Date(System.currentTimeMillis());
+            Locale locale = Locale.getDefault();
+            DateFormat formatter =
+                    (DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale));
+            String dateString = formatter.format(date).replace(".", "_");
+            this.filename = ((dateString) + ".csv").replace(":", "");
+            execute();
+        }
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            AWDBFormate mDBFormat = AWDBFormate.getInstance();
+            int[] fromResIDs = new int[c.getColumnCount()];
+            for (int i = 0; i < c.getColumnCount(); i++) {
+                String columnname = c.getColumnName(i);
+                fromResIDs[i] = mDBFormat.getResID(columnname);
+            }
+            List<String[]> list = new ArrayList<>();
+            String filename = AWApplication.getApplicationExportPath() + "/" + this.filename;
+            File file = new File(filename);
+            fullFilename = file.getAbsolutePath();
+            FileOutputStream fos;
+            CSVWriter bw = null;
+            int result = RESULT_OK;
+            try {
                 if (c.moveToFirst()) {
                     fos = new FileOutputStream(file);
                     bw = new CSVWriter(new OutputStreamWriter(fos, Charset.forName("ISO-8859-1")),
@@ -127,50 +215,35 @@ public class AWCSVExporter {
                     list.add(columns);
                     bw.writeAll(list);
                 }
+            } catch (FileNotFoundException e) {
+                //TODO Execption bearbeiten
+                e.printStackTrace();
+                result = AWResultCodes.RESULT_FILE_ERROR;
+            } finally {
+                if (!c.isClosed()) {
+                    c.close();
+                }
+                if (bw != null) {
+                    try {
+                        bw.close();
+                    } catch (IOException e) {
+                        //TODO Execption bearbeiten
+                        e.printStackTrace();
+                        result = AWResultCodes.RESULT_FILE_ERROR;
+                    }
+                }
             }
-        } finally {
-            if (c != null && !c.isClosed()) {
-                c.close();
-            }
-            if (bw != null) {
-                bw.close();
-            }
+            return result;
         }
-    }
 
-    /**
-     * Exportiert eine Tabelle in ein exportfile. Das Exportfile ist unter {@link
-     * AWApplication#getApplicationExportPath()} } zu finden
-     *
-     * @param tbd
-     *         Tabelle zum export
-     * @param fromResIDs
-     *         Liste der resIDS, die exportiert werden sollen. Wenn null, werden alle Spalten der
-     *         Tabelle exportiert
-     * @param selection
-     *         selection.
-     * @param selectionArgs
-     *         selectionArgs
-     * @param groupBy
-     *         GroupBy-Clause
-     *
-     * @throws IOException
-     *         Wenn ein Fehler auftritt
-     */
-    public void doExport(@NonNull AWAbstractDBDefinition tbd, int[] fromResIDs, String selection,
-                         String[] selectionArgs, String groupBy) throws IOException {
-        if (fromResIDs == null) {
-            fromResIDs = tbd.getResIDs();
+        @Override
+        protected void onPostExecute(Integer result) {
+            mExportCursorListener.onFinishExport(result);
         }
-        if (groupBy != null) {
-            if (selection == null) {
-                selection = " 1 = 1 ";
-            }
-            selection += " GROUP BY " + groupBy;
+
+        @Override
+        protected void onPreExecute() {
+            mExportCursorListener.onStartExport();
         }
-        String[] projection = tbd.columnNames(fromResIDs);
-        Cursor c = AWApplication.getContext().getContentResolver()
-                .query(tbd.getUri(), projection, selection, selectionArgs, null);
-        doExport(tbd, c, fromResIDs);
     }
 }

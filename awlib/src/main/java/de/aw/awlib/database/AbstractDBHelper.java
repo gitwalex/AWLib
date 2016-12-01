@@ -39,6 +39,7 @@ import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 /**
  * Helper fuer die SQLite-Database
  */
+@SuppressWarnings({"WeakerAccess", "TryFinallyCanBeTryWithResources", "unused"})
 public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInterface {
     /**
      * CursorFactory. Loggt die Query und die Dauer der Abfrage in nanosekunden, wenn im Debug-Modus

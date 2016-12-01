@@ -115,8 +115,6 @@ public final class AWUtils {
      *         Name des zu zippenden Verzeichnisses/Datei
      *
      * @return Ergebnis der Operation
-     *
-     * @throws IOException
      */
     public static int addToZipArchive(File target, String fileToZip) {
         int ergebnis = RESULT_OK;
@@ -213,7 +211,7 @@ public final class AWUtils {
     public static <K extends Parcelable, V extends Parcelable> Map<K, V> readParcelableMap(
             Parcel parcel, Class<K> kClass, Class<V> vClass) {
         int size = parcel.readInt();
-        Map<K, V> map = new HashMap<K, V>(size);
+        Map<K, V> map = new HashMap<>(size);
         for (int i = 0; i < size; i++) {
             map.put(kClass.cast(parcel.readParcelable(kClass.getClassLoader())),
                     vClass.cast(parcel.readParcelable(vClass.getClassLoader())));
