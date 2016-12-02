@@ -55,6 +55,11 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     protected static boolean isImport = false;
     private final String CLASSNAME = this.getClass().getSimpleName();
+    /**
+     * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
+     * belegt.
+     */
+    private final AWAbstractDBDefinition tbd;
     protected String selection;
     /**
      * ID des AWApplicationGeschaeftsObjekt
@@ -66,11 +71,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     private ContentValues currentContent = new ContentValues();
     private boolean isDirty;
-    /**
-     * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
-     * belegt.
-     */
-    private AWAbstractDBDefinition tbd;
 
     /**
      * Legt ein neues Geschaeftsobject auf Basis eines anderen GO an. Alle Werte, die in dem neuen
@@ -90,14 +90,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
                 put(resID, value);
             }
         }
-    }
-
-    protected AWApplicationGeschaeftsObjekt(Parcel in) {
-        this.selection = in.readString();
-        this.id = (Long) in.readValue(Long.class.getClassLoader());
-        this.currentContent = in.readParcelable(ContentValues.class.getClassLoader());
-        this.isDirty = in.readByte() != 0;
-        this.selectionArgs = in.createStringArray();
     }
 
     /**
@@ -141,6 +133,15 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         }
     }
 
+    protected AWApplicationGeschaeftsObjekt(Parcel in) {
+        this.selection = in.readString();
+        this.id = (Long) in.readValue(Long.class.getClassLoader());
+        this.selectionArgs = in.createStringArray();
+        this.currentContent = in.readParcelable(ContentValues.class.getClassLoader());
+        this.isDirty = in.readByte() != 0;
+        this.tbd = in.readParcelable(AWAbstractDBDefinition.class.getClassLoader());
+    }
+
     public static Context getContext() {
         return AWApplication.getContext();
     }
@@ -161,7 +162,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     public static Cursor getCursor(AWAbstractDBDefinition tbd, String[] projection,
                                    String selection, String[] selectionArgs, String sortOrder) {
-        return AWApplication.getApplicationContentResolver()
+        return AWApplication.getContext().getContentResolver()
                 .query(tbd.getUri(), projection, selection, selectionArgs, sortOrder, null);
     }
 
@@ -642,22 +643,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     }
 
     /**
-     * Setzt die Zieltabelle neu anhand der AWAbstractDBDefinition. Ist die Zieltabelle eine andere
-     * als die urspruenliche Tabelle, Dabei wird dann das Geschaeftsobject als noch nicht eingefuegt
-     * markiert (id wird auf null gesetzt) und entfernt.
-     *
-     * @param to
-     *         Zieltabelle
-     */
-    public void setDBDefinition(AWAbstractDBDefinition to) {
-        if (this.tbd != to) {
-            this.tbd = to;
-            currentContent.remove(getContext().getString(R.string._id));
-            id = null;
-        }
-    }
-
-    /**
      * Lesbare Informationen zum Geschaeftvorfall
      *
      * @see Object#toString()
@@ -698,9 +683,10 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.selection);
         dest.writeValue(this.id);
-        dest.writeParcelable(this.currentContent, 0);
-        dest.writeByte(isDirty ? (byte) 1 : (byte) 0);
         dest.writeStringArray(this.selectionArgs);
+        dest.writeParcelable(this.currentContent, flags);
+        dest.writeByte(this.isDirty ? (byte) 1 : (byte) 0);
+        dest.writeParcelable(this.tbd, flags);
     }
 
     public static class LineNotFoundException extends AWException {

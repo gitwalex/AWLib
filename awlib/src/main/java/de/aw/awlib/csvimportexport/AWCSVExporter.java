@@ -168,7 +168,8 @@ public class AWCSVExporter {
                 fromResIDs[i] = mDBFormat.getResID(columnname);
             }
             List<String[]> list = new ArrayList<>();
-            String filename = AWApplication.getApplicationExportPath() + "/" + this.filename;
+            String filename = AWApplication.getApplicationConfig()
+                    .getApplicationExportPath() + "/" + this.filename;
             File file = new File(filename);
             fullFilename = file.getAbsolutePath();
             FileOutputStream fos;

@@ -38,6 +38,7 @@ import de.aw.awlib.activities.AWActivityActions;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.activities.AWWebViewActivity;
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.events.AWEvent;
 import de.aw.awlib.events.AWEventService;
@@ -58,6 +59,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
                     R.string.pkSavePeriodic, R.string.pkCopyright, R.string.pkAbout,
                     R.string.pkBuildInfo, R.string.pkExterneSicherung, R.string.pkServerURL,
                     R.string.pkServerUID};
+    private ApplicationConfig mApplicationConfig;
     private Preference regelmSicherung;
 
     /**
@@ -88,6 +90,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
+        mApplicationConfig = AWApplication.getApplicationConfig();
         addPreferencesFromResource(R.xml.awlib_preferences_allgemein);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         for (int pkKey : mPrefs) {
@@ -97,8 +100,9 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
                 java.util.Date date = new Date(BuildConfig.BuildTime);
                 DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
                 StringBuilder buildInfo = new StringBuilder("Compilezeit: ").append(df.format(date))
-                        .append(", Datenbankversion : ").append(AWApplication.getDatenbankVersion())
-                        .append(", Version: ").append(BuildConfig.VERSION_NAME);
+                        .append(", Datenbankversion : ")
+                        .append(mApplicationConfig.theDatenbankVersion()).append(", Version: ")
+                        .append(BuildConfig.VERSION_NAME);
                 preference.setSummary(buildInfo);
             } else if (pkKey == R.string.pkServerUID || pkKey == R.string.pkServerURL) {
                 String value = prefs.getString(key, null);
@@ -133,12 +137,12 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
             return true;
         } else if (getString(R.string.pkCopyright).equals(key)) {
             Intent intent = new Intent(getActivity(), AWWebViewActivity.class);
-            intent.putExtra(ID, AWApplication.getCopyrightHTML());
+            intent.putExtra(ID, mApplicationConfig.getCopyrightHTML());
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkAbout).equals(key)) {
             Intent intent = new Intent(getActivity(), AWWebViewActivity.class);
-            intent.putExtra(ID, AWApplication.getAboutHTML());
+            intent.putExtra(ID, mApplicationConfig.getAboutHTML());
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkExterneSicherung).equals(key)) {

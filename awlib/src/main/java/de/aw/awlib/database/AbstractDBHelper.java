@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
+import de.aw.awlib.database_private.AWDBDefinition;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 
 /**
@@ -77,6 +78,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         super(AWApplication.getContext(), config.getApplicationDatabaseFilename(),
                 (cursorFactory == null) ? mCursorFactory : cursorFactory,
                 config.theDatenbankVersion());
+        setWriteAheadLoggingEnabled(true);
     }
 
     /**
@@ -84,7 +86,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     public void beginTransaction() {
         db = getWritableDatabase();
-        db.beginTransaction();
+        db.beginTransactionNonExclusive();
         usedTables.clear();
     }
 
@@ -116,6 +118,31 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         }
         return rows;
     }
+
+    /**
+     * Wird bei erstellen der Datanabank innerhalb einer Transaktion gerufen
+     *
+     * @param database
+     *         SQLiteDatabase
+     * @param dbhelper
+     *         DBHelper
+     */
+    protected abstract void doCreate(SQLiteDatabase database, AWDBAlterHelper dbhelper);
+
+    /**
+     * Wird innerhalb einer Transaktion aus onUpgrade gerufen
+     *
+     * @param database
+     *         SQLiteDatabase
+     * @param dbhelper
+     *         AWAlterDBHelper
+     * @param oldVersion
+     *         Version vor upgrade
+     * @param newVersion
+     *         neue Version
+     */
+    protected abstract void doUpgrade(SQLiteDatabase database, AWDBAlterHelper dbhelper,
+                                      int oldVersion, int newVersion);
 
     /**
      * siehe {@link SQLiteDatabase#endTransaction()}
@@ -383,13 +410,55 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         AWApplication.getContext().getContentResolver().notifyChange(uri, null);
     }
 
+    @Override
+    public final void onCreate(SQLiteDatabase database) {
+        AWDBAlterHelper dbhelper = new AWDBAlterHelper(database);
+        database.beginTransaction();
+        try {
+            for (AWAbstractDBDefinition tbd : getAllDBDefinition()) {
+                if (!tbd.isView()) {
+                    dbhelper.createTable(tbd);
+                }
+            }
+            for (AWAbstractDBDefinition tbd : getAllDBDefinition()) {
+                if (tbd.isView()) {
+                    dbhelper.alterView(tbd);
+                }
+            }
+            for (AWDBDefinition tbd : AWDBDefinition.values()) {
+                if (!tbd.isView()) {
+                    dbhelper.createTable(tbd);
+                }
+            }
+            for (AWDBDefinition tbd : AWDBDefinition.values()) {
+                if (tbd.isView()) {
+                    dbhelper.alterView(tbd);
+                }
+            }
+            doCreate(database, dbhelper);
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+    }
+
+    @Override
+    public final void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
+        AWDBAlterHelper dbhelper = new AWDBAlterHelper(database);
+        database.beginTransaction();
+        try {
+            doUpgrade(database, dbhelper, oldVersion, newVersion);
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+    }
+
     /**
      * Komprimiert die Datenbank und fuehrt 'runstats' aus.
      */
-    public void optimize(SQLiteDatabase db) {
-        if (db == null) {
-            db = getWritableDatabase();
-        }
+    public void optimize() {
+        db = getWritableDatabase();
         db.execSQL("Analyze");
         db.execSQL("vacuum");
     }

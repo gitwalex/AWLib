@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutionException;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * Bearbeitet Events innerhalb MonMa.
@@ -64,8 +63,7 @@ public class AWEventService extends IntentService implements AWInterface {
                 }
                 break;
             case doVaccum:
-                AbstractDBHelper db = AWApplication.getDBHelper();
-                db.optimize(null);
+                AWApplication.getDBHelper().optimize();
                 break;
         }
     }

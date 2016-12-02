@@ -19,8 +19,6 @@ package de.aw.awlib.application;
 import android.app.Application;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
-import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,7 +45,6 @@ import java.util.Date;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityDebug;
 import de.aw.awlib.database.AbstractDBHelper;
-import de.aw.awlib.database_private.AWDBHelper;
 
 import static de.aw.awlib.activities.AWInterface.linefeed;
 import static de.aw.awlib.events.EventDBSave.checkDBSaveAlarm;
@@ -76,50 +73,21 @@ public abstract class AWApplication extends Application {
      */
     private static final String DE_AW_APPLICATIONPATH =
             Environment.getExternalStorageDirectory() + "/de.aw";
-    /**
-     * Pfad, indem alle Backups zu de.aw.-Applications abgelegt werden
-     */
-    private static final String BACKUPPATH = "/backup";
-    /**
-     * Pfad, indem alle Exports zu de.aw.-Applications abgelegt werden
-     */
-    private static final String EXPORTPATH = "/export";
-    /**
-     * Pfad, indem alle Imports zu de.aw.-Applications abgelegt werden
-     */
-    private static final String IMPORTPATH = "/import";
     private static final String STACKTRACEPATH = "/stackTrace.txt";
     private static String APPLICATIONPATH;
     private static WeakReference<Context> mContext;
     private static boolean mDebugFlag;
     private static ApplicationConfig mApplicationConfig;
-    private static ApplicationConfig mAWLibConfig;
 
     public AWApplication() {
         mContext = new WeakReference<Context>(this);
         mApplicationConfig = getApplicationConfig(DE_AW_APPLICATIONPATH);
-        mAWLibConfig = new ApplicationConfig(DE_AW_APPLICATIONPATH) {
-            @Override
-            public AbstractDBHelper getDBHelper() {
-                return AWDBHelper.getInstance();
-            }
-
-            @Override
-            public String theApplicationDirectory() {
-                return "";
-            }
-
-            @Override
-            public int theDatenbankVersion() {
-                return 1;
-            }
-        };
+        APPLICATIONPATH = mApplicationConfig.getApplicationPath();
         File folder = new File(DE_AW_APPLICATIONPATH);
         if (!folder.exists()) {
             folder.mkdir();
         }
         mDebugFlag = mApplicationConfig.getDebugFlag();
-        APPLICATIONPATH = mApplicationConfig.getApplicationPath();
         folder = new File(APPLICATIONPATH);
         if (!folder.exists()) {
             folder.mkdir();
@@ -163,60 +131,20 @@ public abstract class AWApplication extends Application {
         }
     }
 
-    public static ContentProvider getAWLibContentResolver() {
-        return null;
-    }
-
-    public static String getAboutHTML() {
-        return mApplicationConfig.getAboutHTML();
-    }
-
-    public static String getApplicationBackupPath() {
-        return APPLICATIONPATH + BACKUPPATH;
-    }
-
-    public static ContentResolver getApplicationContentResolver() {
-        return getContext().getContentResolver();
-    }
-
-    public static String getApplicationDatabaseFilename() {
-        return mApplicationConfig.getApplicationDatabaseFilename();
-    }
-
-    public static String getApplicationExportPath() {
-        return APPLICATIONPATH + EXPORTPATH;
-    }
-
-    public static String getApplicationImportPath() {
-        return APPLICATIONPATH + IMPORTPATH;
+    public static ApplicationConfig getApplicationConfig() {
+        return mApplicationConfig;
     }
 
     public static Context getContext() {
         return mContext.get();
     }
 
-    public static String getCopyrightHTML() {
-        return mApplicationConfig.getCopyrightHTML();
-    }
-
     public static AbstractDBHelper getDBHelper() {
         return mApplicationConfig.getDBHelper();
     }
 
-    public static int getDatenbankVersion() {
-        return mApplicationConfig.theDatenbankVersion();
-    }
-
-    public static String getDatenbankname() {
-        return mApplicationConfig.theDatenbankname();
-    }
-
     public static boolean getDebugFlag() {
         return mDebugFlag;
-    }
-
-    public static ApplicationConfig getMainApplicationConfig() {
-        return mAWLibConfig;
     }
 
     public static void onRestoreDB() {

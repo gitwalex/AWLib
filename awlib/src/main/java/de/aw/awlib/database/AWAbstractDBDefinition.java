@@ -23,7 +23,6 @@ import android.os.Parcelable;
  */
 @SuppressWarnings("unused")
 public interface AWAbstractDBDefinition extends Parcelable {
-    String AUTHORITY = "de.aw.appcontentprovider";
 
     String columnName(int newColumn);
 

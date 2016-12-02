@@ -245,6 +245,7 @@ public class AWDBAlterHelper {
             dropView(tbd);
             String sql = ("CREATE VIEW " + tbd.name() + " AS " + viewSQL);
             database.execSQL(sql);
+            tbd.createDatabase(this);
         }
     }
 

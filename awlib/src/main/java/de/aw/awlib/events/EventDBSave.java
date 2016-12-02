@@ -47,8 +47,10 @@ import de.aw.awlib.utils.AWUtils;
 public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWInterface {
     private static final String ALARMTIME = "ALARMTIME";
     private static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
-    private static final String BACKUPPATH = AWApplication.getApplicationBackupPath() + "/";
-    private static final String DATABASEFILENAME = AWApplication.getApplicationDatabaseFilename();
+    private static final String BACKUPPATH =
+            AWApplication.getApplicationConfig().getApplicationBackupPath() + "/";
+    private static final String DATABASEFILENAME =
+            AWApplication.getApplicationConfig().getApplicationDatabaseFilename();
     private final Context mContext;
     private final SharedPreferences prefs;
     private final Date date;

@@ -169,6 +169,15 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     }
 
     @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        Cursor c = mSimpleCursorAdapter.swapCursor(null);
+        if (c != null && !c.isClosed()) {
+            c.close();
+        }
+    }
+
+    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
         setThreshold(3);

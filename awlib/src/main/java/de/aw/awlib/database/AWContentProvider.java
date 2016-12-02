@@ -25,7 +25,7 @@ import android.support.annotation.NonNull;
 
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.database_private.AWDBHelper;
+import de.aw.awlib.application.ApplicationConfig;
 
 /**
  * Erweiterung des MainContentProviders.
@@ -33,18 +33,14 @@ import de.aw.awlib.database_private.AWDBHelper;
  * @author alex
  */
 public class AWContentProvider extends ContentProvider implements AWInterface {
-    public static final String AUTHORITY = "de.aw.awlibcontentprovider";
+    public static String AUTHORITY;
     private boolean batchMode;
     private AbstractDBHelper db;
+    private ApplicationConfig mApplicationConfig;
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
-        String authority = uri.getAuthority();
-        if (AUTHORITY.equals(authority)) {
-            db = AWDBHelper.getInstance();
-        } else {
-            db = AWApplication.getDBHelper();
-        }
+        db = getDBHelper();
         batchMode = true;
         db.beginTransaction();
         int result = 0;
@@ -68,19 +64,18 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
 
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
-        String authority = uri.getAuthority();
         if (!batchMode) {
-            if (AUTHORITY.equals(authority)) {
-                db = AWDBHelper.getInstance();
-            } else {
-                db = AWApplication.getDBHelper();
-            }
+            db = getDBHelper();
         }
         int rowsDeleted = db.delete(uri, selection, selectionArgs);
         if (!batchMode) {
             db = null;
         }
         return rowsDeleted;
+    }
+
+    protected AbstractDBHelper getDBHelper() {
+        return mApplicationConfig.getDBHelper();
     }
 
     @Override
@@ -90,13 +85,8 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
 
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
-        String authority = uri.getAuthority();
         if (!batchMode) {
-            if (AUTHORITY.equals(authority)) {
-                db = AWDBHelper.getInstance();
-            } else {
-                db = AWApplication.getDBHelper();
-            }
+            db = getDBHelper();
         }
         long id = db.insert(uri, null, values);
         if (!batchMode) {
@@ -107,18 +97,15 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
 
     @Override
     public boolean onCreate() {
+        mApplicationConfig = AWApplication.getApplicationConfig();
+        AUTHORITY = mApplicationConfig.getAuthority();
         return true;
     }
 
     @Override
     public Cursor query(@NonNull Uri uri, String[] from, String selection, String[] selectionArgs,
                         String sortOrder) {
-        String authority = uri.getAuthority();
-        if (AUTHORITY.equals(authority)) {
-            db = AWDBHelper.getInstance();
-        } else {
-            db = AWApplication.getDBHelper();
-        }
+        db = getDBHelper();
         SQLiteDatabase database = db.getReadableDatabase();
         String table = uri.getLastPathSegment();
         Cursor c = database.query(table + " t1", from, selection, selectionArgs, null, null,
@@ -130,13 +117,8 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        String authority = uri.getAuthority();
         if (!batchMode) {
-            if (AUTHORITY.equals(authority)) {
-                db = AWDBHelper.getInstance();
-            } else {
-                db = AWApplication.getDBHelper();
-            }
+            db = getDBHelper();
         }
         int rowsUpdated = db.update(uri, values, selection, selectionArgs);
         if (!batchMode) {

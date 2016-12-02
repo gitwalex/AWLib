@@ -48,6 +48,8 @@ import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
+import static de.aw.awlib.application.AWApplication.getDBHelper;
+
 /**
  * Template fuer MonMaFragmente
  * <p/>
@@ -120,18 +122,6 @@ public abstract class AWFragment extends DialogFragment
      *         Neuer Text
      */
     protected void afterTextChanged(TextView view, int identifier, String newText) {
-    }
-
-    /**
-     * AWFragment benoetigt fuer Insert/Update einen DBHelper.
-     *
-     * @return AbstractDBHelper
-     *
-     * @throws IllegalStateException
-     *         wenn das erbende Fragment keinen AbstractDBHelper liefert.
-     */
-    public AbstractDBHelper getDBHelper() {
-        throw new IllegalStateException("Fragment muss getDBHelper() ueberschreiben");
     }
 
     public MainAction getMainAction() {

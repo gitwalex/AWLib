@@ -36,8 +36,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import de.aw.awlib.R;
-import de.aw.awlib.database.AbstractDBHelper;
-import de.aw.awlib.database_private.AWDBHelper;
 import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
@@ -45,6 +43,7 @@ import de.aw.awlib.utils.AWRemoteFileServerHandler;
 import de.aw.awlib.utils.AWRemoteFileServerHandler.ExecutionListener;
 
 import static android.net.Uri.withAppendedPath;
+import static de.aw.awlib.application.AWApplication.getDBHelper;
 
 /**
  * Dialog zur Abfrage von Zugangsdaten fuer externe Sicherung der DB.
@@ -97,11 +96,6 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
         AWRemoteFileChooser fragment = new AWRemoteFileChooser();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public AbstractDBHelper getDBHelper() {
-        return AWDBHelper.getInstance();
     }
 
     private AWRemoteFileServerHandler getExecuter() {

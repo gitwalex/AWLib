@@ -7,19 +7,27 @@ import java.io.File;
 
 import de.aw.awlib.database.AbstractDBHelper;
 
-import static de.aw.awlib.application.AWApplication.getApplicationBackupPath;
-import static de.aw.awlib.application.AWApplication.getApplicationExportPath;
-import static de.aw.awlib.application.AWApplication.getApplicationImportPath;
-
 /**
  * Konfigurationsklasse fuer AWLib-Applications.
  */
 @SuppressWarnings("WeakerAccess")
 public abstract class ApplicationConfig {
-    private final String theMainpath;
+    /**
+     * Pfad, indem alle Backups zu de.aw.-Applications abgelegt werden
+     */
+    private static final String BACKUPPATH = "/backup";
+    /**
+     * Pfad, indem alle Exports zu de.aw.-Applications abgelegt werden
+     */
+    private static final String EXPORTPATH = "/export";
+    /**
+     * Pfad, indem alle Imports zu de.aw.-Applications abgelegt werden
+     */
+    private static final String IMPORTPATH = "/import";
+    private final String APPLICATIONPATH;
 
     public ApplicationConfig(String AWLibDatapath) {
-        theMainpath = AWLibDatapath;
+        APPLICATIONPATH = AWLibDatapath + "/" + theApplicationDirectory();
     }
 
     @CallSuper
@@ -52,17 +60,31 @@ public abstract class ApplicationConfig {
         return "no_about.html";
     }
 
-    public final String getApplicationDataPath() {
-        return getApplicationPath() + "/database/";
+    public final String getApplicationBackupPath() {
+        return APPLICATIONPATH + BACKUPPATH;
     }
 
-    public String getApplicationDatabaseFilename() {
+    public final String getApplicationDataPath() {
+        return APPLICATIONPATH + "/database";
+    }
+
+    public final String getApplicationDatabaseFilename() {
         return getApplicationDataPath() + "/" + theDatenbankname();
     }
 
-    public final String getApplicationPath() {
-        return theMainpath + theApplicationDirectory();
+    public final String getApplicationExportPath() {
+        return APPLICATIONPATH + EXPORTPATH;
     }
+
+    public final String getApplicationImportPath() {
+        return APPLICATIONPATH + IMPORTPATH;
+    }
+
+    public String getApplicationPath() {
+        return APPLICATIONPATH;
+    }
+
+    public abstract String getAuthority();
 
     /**
      * @return Liefert ein HTML-File  fuer die Auswahl der Preferences 'Copyright'. Das file wird in
