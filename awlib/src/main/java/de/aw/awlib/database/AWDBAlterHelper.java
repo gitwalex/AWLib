@@ -29,7 +29,7 @@ import de.aw.awlib.application.AWApplication;
 /**
  * Helper-Klasse fuer Aenderungen/Neuanlagen in der DB
  */
-public class AWDBAlterHelper {
+public final class AWDBAlterHelper {
     private final SQLiteDatabase database;
     String idColumn = AWApplication.getContext().getString(R.string._id);
 

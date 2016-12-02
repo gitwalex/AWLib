@@ -35,7 +35,9 @@ import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database_private.AWDBDefinition;
-import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
+
+import static de.aw.awlib.application.AWApplication.Log;
+import static de.aw.awlib.application.AWApplication.LogError;
 
 /**
  * Helper fuer die SQLite-Database
@@ -53,8 +55,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                                         String editTable, SQLiteQuery query) {
                     AWSQLiteCursor c = new AWSQLiteCursor(masterQuery, editTable, query);
                     long timer = System.nanoTime();
-                    if (!AWApplicationGeschaeftsObjekt
-                            .isImport() && AWApplication.EnableCursorLogging) {
+                    if (AWApplication.EnableCursorLogging) {
                         long elapsed = c.getFinishTime() - timer;
                         boolean longRunning = elapsed > 3000000L;
                         if (longRunning) {
@@ -442,13 +443,38 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         }
     }
 
+    /**
+     * Wenn sich die Tabelleninformationen geaendert habe, wird hier ein Upgrade ausgefuehrt.
+     * Steuerung ueber DataBase-Versionsnummer. Es werden bei jedem Upgrade alle Views geloescht und
+     * neu angelegt
+     */
     @Override
     public final void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         AWDBAlterHelper dbhelper = new AWDBAlterHelper(database);
         database.beginTransaction();
         try {
             doUpgrade(database, dbhelper, oldVersion, newVersion);
+            // Bei jeder Aenderung der DB werden alle Views geloescht und neu angelegt.
+            List<String> views = getViewNames(database);
+            for (String view : views) {
+                database.execSQL("DROP VIEW " + view);
+            }
+            for (AWDBDefinition tbd : AWDBDefinition.values()) {
+                if (tbd.isView()) {
+                    dbhelper.alterView(tbd);
+                }
+            }
+            for (AWAbstractDBDefinition tbd : getAllDBDefinition()) {
+                if (tbd.isView()) {
+                    dbhelper.alterView(tbd);
+                }
+            }
             database.setTransactionSuccessful();
+            Log("DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion + " erfolgreich!");
+        } catch (Exception e) {
+            LogError(
+                    "DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion + " fehlgeschlagen!");
+            e.printStackTrace();
         } finally {
             database.endTransaction();
         }

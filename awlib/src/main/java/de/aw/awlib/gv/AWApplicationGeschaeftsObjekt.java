@@ -162,7 +162,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     public static Cursor getCursor(AWAbstractDBDefinition tbd, String[] projection,
                                    String selection, String[] selectionArgs, String sortOrder) {
-        return AWApplication.getContext().getContentResolver()
+        return getContext().getContentResolver()
                 .query(tbd.getUri(), projection, selection, selectionArgs, sortOrder, null);
     }
 
@@ -188,7 +188,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @return true, wenn ein Wert ungleich null enthalten ist
      */
-    public boolean containsValue(int resID) {
+    public final boolean containsValue(int resID) {
         String key = tbd.columnName(resID);
         return currentContent.get(key) != null;
     }

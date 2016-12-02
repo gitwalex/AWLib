@@ -21,12 +21,8 @@ import android.os.Parcelable;
 
 /**
  */
-@SuppressWarnings("unused")
 public interface AWAbstractDBDefinition extends Parcelable {
-
     String columnName(int newColumn);
-
-    String[] columnNames();
 
     String[] columnNames(int... intArray);
 
@@ -41,8 +37,6 @@ public interface AWAbstractDBDefinition extends Parcelable {
     String getCreateViewSQL();
 
     char getFormat(int resID);
-
-    int[] getOrderByItems();
 
     String getOrderString();
 

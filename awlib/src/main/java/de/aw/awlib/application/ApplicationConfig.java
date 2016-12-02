@@ -80,7 +80,7 @@ public abstract class ApplicationConfig {
         return APPLICATIONPATH + IMPORTPATH;
     }
 
-    public String getApplicationPath() {
+    public final String getApplicationPath() {
         return APPLICATIONPATH;
     }
 
