@@ -79,7 +79,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         super(AWApplication.getContext(), config.getApplicationDatabaseFilename(),
                 (cursorFactory == null) ? mCursorFactory : cursorFactory,
                 config.theDatenbankVersion());
-        setWriteAheadLoggingEnabled(true);
+        setWriteAheadLoggingEnabled(false);
     }
 
     /**
@@ -87,8 +87,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     public void beginTransaction() {
         db = getWritableDatabase();
-        db.beginTransactionNonExclusive();
         usedTables.clear();
+        db.beginTransaction();
     }
 
     /**

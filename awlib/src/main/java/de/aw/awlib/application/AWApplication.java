@@ -74,13 +74,13 @@ public abstract class AWApplication extends Application {
     private static final String DE_AW_APPLICATIONPATH =
             Environment.getExternalStorageDirectory() + "/de.aw";
     private static final String STACKTRACEPATH = "/stackTrace.txt";
-    private static String APPLICATIONPATH;
-    private static WeakReference<Context> mContext;
-    private static boolean mDebugFlag;
-    private static ApplicationConfig mApplicationConfig;
+    private static WeakReference<AWApplication> mContext;
+    private String APPLICATIONPATH;
+    private ApplicationConfig mApplicationConfig;
+    private boolean mDebugFlag;
 
     public AWApplication() {
-        mContext = new WeakReference<Context>(this);
+        mContext = new WeakReference<>(this);
         mApplicationConfig = getApplicationConfig(DE_AW_APPLICATIONPATH);
         APPLICATIONPATH = mApplicationConfig.getApplicationPath();
         File folder = new File(DE_AW_APPLICATIONPATH);
@@ -102,7 +102,7 @@ public abstract class AWApplication extends Application {
      *         message
      */
     public static void Log(String message) {
-        if (mDebugFlag) {
+        if (getContext().mDebugFlag) {
             Log.d(AWApplication.TAG, message);
         }
     }
@@ -114,7 +114,7 @@ public abstract class AWApplication extends Application {
      *         Fehlermeldung
      */
     public static void LogError(String message) {
-        File logFile = new File(APPLICATIONPATH + "/LOG.txt");
+        File logFile = new File(getContext().APPLICATIONPATH + "/LOG.txt");
         try {
             FileOutputStream fileout = new FileOutputStream(logFile, true);
             OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
@@ -126,29 +126,33 @@ public abstract class AWApplication extends Application {
             //TODO Execption bearbeiten
             e.printStackTrace();
         }
-        if (mDebugFlag) {
+        if (getContext().mDebugFlag) {
             Log.e(AWApplication.TAG, message);
         }
     }
 
-    public static ApplicationConfig getApplicationConfig() {
-        return mApplicationConfig;
-    }
-
-    public static Context getContext() {
+    public static AWApplication getContext() {
         return mContext.get();
     }
 
     public static AbstractDBHelper getDBHelper() {
-        return mApplicationConfig.getDBHelper();
+        return getContext().getApplicationConfig().getDBHelper();
     }
 
     public static boolean getDebugFlag() {
-        return mDebugFlag;
+        return getContext().getApplicationConfig().getDebugFlag();
     }
 
     public static void onRestoreDB() {
-        mApplicationConfig.onRestoreDatabase(getContext());
+        getContext().getApplicationConfig().onRestoreDatabase(getContext());
+    }
+
+    public static void setContext(Context context) {
+        mContext = new WeakReference<>((AWApplication) context);
+    }
+
+    public ApplicationConfig getApplicationConfig() {
+        return mApplicationConfig;
     }
 
     protected abstract ApplicationConfig getApplicationConfig(String theMainPath);
@@ -172,7 +176,7 @@ public abstract class AWApplication extends Application {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mContext = new WeakReference<Context>(this);
+        mContext = new WeakReference<AWApplication>(this);
         mDebugFlag = getDebugFlag();
     }
 
@@ -249,7 +253,7 @@ public abstract class AWApplication extends Application {
      * Im Debug-Modus wird Strict eingeschaltet. Sollte es zu einem Fehler kommen, wird der Heap in
      * ein File gedumpt.
      */
-    private static class PrintStreamThatDumpsHprofWhenStrictModeKillsUs extends PrintStream {
+    private class PrintStreamThatDumpsHprofWhenStrictModeKillsUs extends PrintStream {
         PrintStreamThatDumpsHprofWhenStrictModeKillsUs(OutputStream outs) {
             super(outs);
         }

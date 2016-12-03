@@ -48,11 +48,12 @@ public class EventDBRestore implements AWResultCodes, AWInterface {
             int result;
             String targetFileName;
             if (AWApplication.getDebugFlag()) {
-                targetFileName =
-                        AWApplication.getApplicationConfig().getApplicationDatabaseFilename();
+                targetFileName = AWApplication.getContext().getApplicationConfig()
+                        .getApplicationDatabaseFilename();
             } else {
                 targetFileName = mContext.getDatabasePath(
-                        AWApplication.getApplicationConfig().theDatenbankname()).getAbsolutePath();
+                        AWApplication.getContext().getApplicationConfig().theDatenbankname())
+                        .getAbsolutePath();
             }
             AWApplication.getDBHelper().close();
             result = AWUtils.restoreZipArchivToFile(targetFileName, params[0]);

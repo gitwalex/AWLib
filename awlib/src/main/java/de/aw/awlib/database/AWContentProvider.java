@@ -97,7 +97,7 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
 
     @Override
     public boolean onCreate() {
-        mApplicationConfig = AWApplication.getApplicationConfig();
+        mApplicationConfig = AWApplication.getContext().getApplicationConfig();
         AUTHORITY = mApplicationConfig.getAuthority();
         return true;
     }
