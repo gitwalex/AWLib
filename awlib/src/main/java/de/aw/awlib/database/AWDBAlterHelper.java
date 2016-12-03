@@ -135,7 +135,7 @@ public final class AWDBAlterHelper {
      */
     public void alterTableAddColumn(AWAbstractDBDefinition tbd, int newColumn) {
         String colName = tbd.columnName(newColumn);
-        String format = tbd.getSQLiteFormat(newColumn);
+        String format = AWDBFormate.getInstance().getSQLiteFormat(newColumn);
         String sql = "ALTER TABLE " + tbd.name() + " ADD " + colName + " " + format;
         database.execSQL(sql);
         tbd.createDatabase(this);
@@ -400,10 +400,11 @@ public final class AWDBAlterHelper {
      */
     public String getCreateTableSQL(AWAbstractDBDefinition tbd) {
         StringBuilder sql = new StringBuilder(" ( ");
+        AWDBFormate mDBFormat = AWDBFormate.getInstance();
         boolean id = true;
         for (int resID : tbd.getCreateTableItems()) {
             String colName = tbd.columnName(resID);
-            String format = tbd.getSQLiteFormat(resID);
+            String format = mDBFormat.getSQLiteFormat(resID);
             if (id) {
                 sql.append(colName).append(" INTEGER PRIMARY KEY ");
                 id = false;

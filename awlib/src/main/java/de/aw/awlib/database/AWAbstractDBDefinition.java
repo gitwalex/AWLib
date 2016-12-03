@@ -42,15 +42,11 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     int[] getResIDs();
 
-    String getSQLiteFormat(int newColumn);
-
     Uri getUri();
 
     boolean isView();
 
     String name();
-
-    int ordinal();
 
     /**
      * Wird geworfen, wenn eine ResID nicht gefunden wurde.

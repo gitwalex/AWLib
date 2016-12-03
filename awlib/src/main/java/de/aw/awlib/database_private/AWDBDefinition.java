@@ -588,22 +588,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
     }
 
     /**
-     * Liefert das Format der Column im Klartext fuer SQLite
-     *
-     * @param resId
-     *         ResID der Colimn
-     *
-     * @return Format der Column fuer SQLite im Klartext
-     */
-    public String getSQLiteFormat(int resId) {
-        if (!isInitialized) {
-            throw new IllegalArgumentException(
-                    "AWDBDefinition nicht initialisiert. Zuerst Aufruf " + "initalize(context)");
-        }
-        return mDBFormat.getSQLiteFormat(resId);
-    }
-
-    /**
      * @return TableItems der Tabelle. Koennen von den echten TableItems gemaess CreateTableItems ()
      * abweichen, z.B. wenn weitere Items dazugejoint werden.
      */

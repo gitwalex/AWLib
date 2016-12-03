@@ -121,6 +121,14 @@ public class AWDBFormate {
         return mapColumnName2ResID.get(resName.trim());
     }
 
+    /**
+     * Liefert das Format der Column im Klartext fuer SQLite
+     *
+     * @param resId
+     *         ResID der Colimn
+     *
+     * @return Format der Column fuer SQLite im Klartext
+     */
     public String getSQLiteFormat(Integer resId) {
         Character c = mapResID2Formate.get(resId);
         return formate.get(c);
