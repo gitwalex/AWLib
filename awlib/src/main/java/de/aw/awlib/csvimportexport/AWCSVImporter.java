@@ -42,7 +42,7 @@ import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBAlterHelper;
 import de.aw.awlib.database.AWDBConvert;
-import de.aw.awlib.database.AWDBFormate;
+import de.aw.awlib.database.AWDBFormatter;
 import de.aw.awlib.database.AbstractDBHelper;
 
 /**
@@ -126,7 +126,7 @@ public class AWCSVImporter implements AWResultCodes {
 
     public int execute(String filename) {
         AbstractDBHelper db = AWApplication.getDBHelper();
-        AWDBFormate mDBFormat = AWDBFormate.getInstance();
+        AWDBFormatter mDBFormat = null;
         int result = RESULT_OK;
         CSVReader reader = null;
         try {

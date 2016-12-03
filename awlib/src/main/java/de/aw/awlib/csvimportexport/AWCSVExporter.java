@@ -37,9 +37,10 @@ import java.util.Locale;
 
 import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
-import de.aw.awlib.database.AWDBFormate;
+import de.aw.awlib.database.AWDBFormatter;
 
 import static de.aw.awlib.AWResultCodes.RESULT_OK;
 
@@ -69,7 +70,7 @@ public class AWCSVExporter {
 
     /**
      * Exportiert eine Tabelle in ein exportfile. Das Exportfile ist unter {@link
-     * AWApplication#getApplicationExportPath()} } zu finden
+     * ApplicationConfig#getApplicationExportPath()} } zu finden
      *
      * @param tbd
      *         Tabelle zum export
@@ -161,7 +162,7 @@ public class AWCSVExporter {
 
         @Override
         protected Integer doInBackground(Void... voids) {
-            AWDBFormate mDBFormat = AWDBFormate.getInstance();
+            AWDBFormatter mDBFormat = tbd.getDBFormatter();
             int[] fromResIDs = new int[c.getColumnCount()];
             for (int i = 0; i < c.getColumnCount(); i++) {
                 String columnname = c.getColumnName(i);

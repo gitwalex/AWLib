@@ -19,6 +19,8 @@ package de.aw.awlib.database;
 import android.net.Uri;
 import android.os.Parcelable;
 
+import de.aw.awlib.application.ApplicationConfig;
+
 /**
  */
 public interface AWAbstractDBDefinition extends Parcelable {
@@ -36,6 +38,8 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     String getCreateViewSQL();
 
+    AWDBFormatter getDBFormatter();
+
     char getFormat(int resID);
 
     String getOrderString();
@@ -47,6 +51,8 @@ public interface AWAbstractDBDefinition extends Parcelable {
     boolean isView();
 
     String name();
+
+    void setApplicationConfig(ApplicationConfig applicationConfig);
 
     /**
      * Wird geworfen, wenn eine ResID nicht gefunden wurde.

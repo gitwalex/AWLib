@@ -81,18 +81,6 @@ public abstract class AWApplication extends Application {
 
     public AWApplication() {
         mContext = new WeakReference<>(this);
-        mApplicationConfig = getApplicationConfig(DE_AW_APPLICATIONPATH);
-        APPLICATIONPATH = mApplicationConfig.getApplicationPath();
-        File folder = new File(DE_AW_APPLICATIONPATH);
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        mDebugFlag = mApplicationConfig.getDebugFlag();
-        folder = new File(APPLICATIONPATH);
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        mApplicationConfig.createFiles();
     }
 
     /**
@@ -182,6 +170,18 @@ public abstract class AWApplication extends Application {
 
     @Override
     public void onCreate() {
+        mApplicationConfig = getApplicationConfig(DE_AW_APPLICATIONPATH);
+        APPLICATIONPATH = mApplicationConfig.getApplicationPath();
+        File folder = new File(DE_AW_APPLICATIONPATH);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        mDebugFlag = mApplicationConfig.getDebugFlag();
+        folder = new File(APPLICATIONPATH);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        mApplicationConfig.createFiles();
         super.onCreate();
         PreferenceManager.setDefaultValues(this, R.xml.awlib_preferences_allgemein, false);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);

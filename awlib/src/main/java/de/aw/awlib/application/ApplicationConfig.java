@@ -5,6 +5,8 @@ import android.support.annotation.CallSuper;
 
 import java.io.File;
 
+import de.aw.awlib.database.AWAbstractDBDefinition;
+import de.aw.awlib.database.AWDBFormatter;
 import de.aw.awlib.database.AbstractDBHelper;
 
 /**
@@ -25,10 +27,19 @@ public abstract class ApplicationConfig {
      */
     private static final String IMPORTPATH = "/import";
     private final String APPLICATIONPATH;
+    private AWDBFormatter mDBFormatter;
 
-    public ApplicationConfig(String AWLibDatapath) {
+    public ApplicationConfig(Context context, String AWLibDatapath) {
         APPLICATIONPATH = AWLibDatapath + "/" + theApplicationDirectory();
+        AWAbstractDBDefinition[] tbds = getDBDefinitionValues();
+        if (tbds.length > 0) {
+            tbds[0].setApplicationConfig(this);
+            mDBFormatter = createDBFormatter(context, tbds);
+        }
     }
+
+    protected abstract AWDBFormatter createDBFormatter(Context context,
+                                                       AWAbstractDBDefinition[] tbds);
 
     @CallSuper
     protected void createFiles() {
@@ -94,6 +105,12 @@ public abstract class ApplicationConfig {
      */
     public String getCopyrightHTML() {
         return "no_copyright.html";
+    }
+
+    protected abstract AWAbstractDBDefinition[] getDBDefinitionValues();
+
+    public AWDBFormatter getDBFormatter() {
+        return mDBFormatter;
     }
 
     public abstract AbstractDBHelper getDBHelper();

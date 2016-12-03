@@ -33,7 +33,6 @@ import de.aw.awlib.application.ApplicationConfig;
  * @author alex
  */
 public class AWContentProvider extends ContentProvider implements AWInterface {
-    public static String AUTHORITY;
     private boolean batchMode;
     private AbstractDBHelper db;
     private ApplicationConfig mApplicationConfig;
@@ -75,6 +74,10 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
     }
 
     protected AbstractDBHelper getDBHelper() {
+        if (mApplicationConfig == null) {
+            mApplicationConfig =
+                    ((AWApplication) getContext().getApplicationContext()).getApplicationConfig();
+        }
         return mApplicationConfig.getDBHelper();
     }
 
@@ -97,8 +100,6 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
 
     @Override
     public boolean onCreate() {
-        mApplicationConfig = AWApplication.getContext().getApplicationConfig();
-        AUTHORITY = mApplicationConfig.getAuthority();
         return true;
     }
 

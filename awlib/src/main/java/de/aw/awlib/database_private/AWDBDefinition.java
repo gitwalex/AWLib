@@ -26,16 +26,15 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
-import de.aw.awlib.database.AWContentProvider;
 import de.aw.awlib.database.AWDBAlterHelper;
-import de.aw.awlib.database.AWDBFormate;
+import de.aw.awlib.database.AWDBFormatter;
 
 /**
  * @author Alexander Winkler
@@ -71,38 +70,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * Flag, ob initialize(context) aufgerufen wurde.
      */
     private static boolean isInitialized;
-    private static AWDBFormate mDBFormat;
-
-    /**
-     * Initialisiert DBDefinition. Vor der ersten Nutzung aufzurufen
-     *
-     * @param con
-     *         Context der App
-     *
-     * @throws IllegalArgumentException
-     *         wenn 1. Festgestellt wird, dass unter einer resID zwei verschiedene Spaltennamen
-     *         bestehen 2. Festgestellt wird, das unter einer resID zwei verschieden Formate
-     *         bestehen 3. Festgestellt wird, dass unter einer resID zwei verschiedene QIFPraefixe
-     *         bestehen
-     */
-    static {
-        /*
-         * Belegung der Maps fuer:
-		 * 1. mapResID2columnNames
-		 * 2. mapColumnName2ResID
-		 */
-        Context context = AWApplication.getContext();
-        for (AWDBDefinition tbd : AWDBDefinition.values()) {
-            for (int map : tbd.tableitems) {
-                String resIDString = context.getString(map);
-                // Versorgen der Maps
-                tbd.mapResID2columnNames.put(map, resIDString);
-            }
-        }
-        mDBFormat = AWDBFormate.getInstance();
-        isInitialized = true;
-    }
-
     /**
      * Tableitems der Tabelle, die tatsaechlich angelegt werden
      */
@@ -112,15 +79,11 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      */
     public final int[] tableitems;
     /**
-     * Liste der Namen der Columns. Wird erstmalig belegt bei Aufruf von
-     * mapResID2columnNames(context).
-     */
-    private final Map<Integer, String> mapResID2columnNames = new LinkedHashMap<>();
-    /**
      * Alle resIDs der Tabelle/View
      */
     private final int[] resIDs;
-    private final Uri mUri;
+    private ApplicationConfig mApplicationConfig;
+    private Uri mUri;
 
     AWDBDefinition() {
         this.tableitems = getTableItems();
@@ -135,7 +98,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
         for (int map : createTableItems) {
             createResIDs[i++] = map;
         }
-        mUri = Uri.parse("content://" + AWContentProvider.AUTHORITY + "/" + name());
     }
 
     /**
@@ -347,33 +309,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      *         wenn ResId nicht in der Liste der Columns enthalten ist.
      */
     public String columnName(int resID) {
-        return columnName(resID, true);
-    }
-
-    /**
-     * Name einer Columns als String
-     *
-     * @param resID
-     *         ResId, zu der der Columnname gewuenscht werden.
-     * @param check
-     *         Flag, ob bei einem Fehler eine ResIDNotFoundException geworfen werden soll.
-     *
-     * @return Name der Columns
-     *
-     * @throws ResIDNotFoundException
-     *         wenn ResId nicht in der Liste der Columns enthalten ist.
-     */
-    public String columnName(int resID, boolean check) {
-        if (!isInitialized) {
-            throw new IllegalArgumentException(
-                    "AWDBDefinition nicht initialisiert. Zuerst Aufruf " + "initalize(context)");
-        }
-        if (mapResID2columnNames.get(resID) == null & check) {
-            throw new ResIDNotFoundException("ColumnName fuer " + resID + " " +
-                    "(" + AWApplication.getContext().getString(resID) +
-                    ") in " + name() + " ist null!");
-        }
-        return mapResID2columnNames.get(resID);
+        return mApplicationConfig.getDBFormatter().columnName(resID);
     }
 
     /**
@@ -431,7 +367,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
             boolean idPresent = false;
             List<String> columns = new ArrayList<>();
             for (int resID : resIDs) {
-                String col = mapResID2columnNames.get(resID);
+                String col = columnName(resID);
                 if (resID == R.string._id) {
                     idPresent = true;
                 }
@@ -519,6 +455,11 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
         return null;
     }
 
+    @Override
+    public AWDBFormatter getDBFormatter() {
+        return mApplicationConfig.getDBFormatter();
+    }
+
     /**
      * Format der Spalte anhand der ResID
      *
@@ -535,7 +476,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
             throw new IllegalArgumentException(
                     "AWDBDefinition nicht initialisiert. Zuerst Aufruf initalize(context)");
         }
-        return mDBFormat.getFormat(resID);
+        return mApplicationConfig.getDBFormatter().getFormat(resID);
     }
 
     /**
@@ -597,6 +538,9 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
 
     @Override
     public Uri getUri() {
+        if (mUri == null) {
+            mUri = Uri.parse("content://" + mApplicationConfig.getAuthority() + "/" + name());
+        }
         return mUri;
     }
 
@@ -608,6 +552,11 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      */
     public boolean isView() {
         return false;
+    }
+
+    @Override
+    public void setApplicationConfig(ApplicationConfig applicationConfig) {
+        mApplicationConfig = applicationConfig;
     }
 
     @Override

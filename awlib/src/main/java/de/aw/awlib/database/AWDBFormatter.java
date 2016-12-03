@@ -23,23 +23,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.aw.awlib.R;
-import de.aw.awlib.application.AWApplication;
 
 /**
  * Formate fuer die einzelnen Columns der DB
  */
-public class AWDBFormate {
+public class AWDBFormatter {
     /**
      * Map der ResIDs auf das Format der Spalte
      */
     private static final SparseArray<Character> mapResID2Formate = new SparseArray<>();
-    private static AWDBFormate mInstance;
     private final Map<Character, String> formate = new HashMap<>();
     private final Map<String, Integer> mapColumnName2ResID = new HashMap<>();
+    private final Map<Integer, String> mapResID2ColumnName = new HashMap<>();
 
-    @SuppressWarnings("WeakerAccess")
-    protected AWDBFormate() {
-        Context context = AWApplication.getContext();
+    public AWDBFormatter(Context context, AWAbstractDBDefinition[] tbds) {
         int resID = R.string._id;
         mapResID2Formate.put(resID, 'I');
         mapColumnName2ResID.put(context.getString(resID), resID);
@@ -57,20 +54,24 @@ public class AWDBFormate {
             resID = map[0];
             mapResID2Formate.put(resID, (char) map[1]);
         }
-        AWAbstractDBDefinition[] tbds = AWApplication.getDBHelper().getAllDBDefinition();
         for (AWAbstractDBDefinition tbd : tbds) {
             int[] columns = tbd.getCreateTableResIDs();
             for (int mResID : columns) {
-                mapColumnName2ResID.put(context.getString(mResID), mResID);
+                String value = context.getString(mResID);
+                mapResID2ColumnName.put(mResID, value);
+                mapColumnName2ResID.put(value, mResID);
             }
         }
     }
 
-    public static AWDBFormate getInstance() {
-        if (mInstance == null) {
-            mInstance = new AWDBFormate();
-        }
-        return mInstance;
+    /**
+     * @param resID
+     *         resID
+     *
+     * @return Liefert den Spaltennamen zu einer resID zurueck
+     */
+    public String columnName(int resID) {
+        return mapResID2ColumnName.get(resID);
     }
 
     /**
