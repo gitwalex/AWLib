@@ -178,7 +178,7 @@ public final class AWDBAlterHelper {
     public void alterTableDistinct(AWAbstractDBDefinition tbd, String distinctColumn) {
         String tempTableName = "temp" + tbd.name();
         String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
-        String oldColumnNames = tbd.getCommaSeperatedList(tbd.getCreateTableResIDs());
+        String oldColumnNames = tbd.getCommaSeperatedList(tbd.getTableItems());
         String copyValuesSQL =
                 "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
                         oldColumnNames +
@@ -203,7 +203,7 @@ public final class AWDBAlterHelper {
         AWApplication.Log("Alter Table: " + tbd.name());
         String tempTableName = "temp" + tbd.name();
         String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
-        String oldColumnNames = tbd.getCommaSeperatedList(tbd.getCreateTableResIDs());
+        String oldColumnNames = tbd.getCommaSeperatedList(tbd.getTableItems());
         String copyValuesSQL =
                 "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
                         oldColumnNames +
@@ -402,7 +402,7 @@ public final class AWDBAlterHelper {
         StringBuilder sql = new StringBuilder(" ( ");
         AWDBFormatter mDBFormat = tbd.getDBFormatter();
         boolean id = true;
-        for (int resID : tbd.getCreateTableItems()) {
+        for (int resID : tbd.getTableItems()) {
             String colName = tbd.columnName(resID);
             String format = mDBFormat.getSQLiteFormat(resID);
             if (id) {

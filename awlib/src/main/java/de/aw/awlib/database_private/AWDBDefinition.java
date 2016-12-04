@@ -16,7 +16,6 @@
  */
 package de.aw.awlib.database_private;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -24,10 +23,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
@@ -66,108 +62,8 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
             return new AWDBDefinition[size];
         }
     };
-    /**
-     * Flag, ob initialize(context) aufgerufen wurde.
-     */
-    private static boolean isInitialized;
-    /**
-     * Tableitems der Tabelle, die tatsaechlich angelegt werden
-     */
-    public final int[] createResIDs;
-    /**
-     * Tableitems der Tabelle
-     */
-    public final int[] tableitems;
-    /**
-     * Alle resIDs der Tabelle/View
-     */
-    private final int[] resIDs;
     private ApplicationConfig mApplicationConfig;
     private Uri mUri;
-
-    AWDBDefinition() {
-        this.tableitems = getTableItems();
-        resIDs = new int[tableitems.length];
-        int[] createTableItems = getCreateTableItems();
-        createResIDs = new int[createTableItems.length];
-        int i = 0;
-        for (int map : tableitems) {
-            resIDs[i++] = map;
-        }
-        i = 0;
-        for (int map : createTableItems) {
-            createResIDs[i++] = map;
-        }
-    }
-
-    /**
-     * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-     *
-     * @param columnResIds
-     *         Array, zu dem die Namen ermittelt werden sollen
-     *
-     * @return ColumnNamen, Komma getrennt
-     */
-    public static String getCommaSeperatedList(@NonNull Context context,
-                                               @NonNull int[] columnResIds) {
-        StringBuilder indexSQL = new StringBuilder(context.getString(columnResIds[0]));
-        for (int j = 1; j < columnResIds.length; j++) {
-            String column = context.getString(columnResIds[j]);
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
-    /**
-     * Liefert zu einer Liste die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-     *
-     * @param columns
-     *         Liste der Columns
-     *
-     * @return ColumnNamen, Komma getrennt
-     */
-    public static String getCommaSeperatedList(@NonNull List<String> columns) {
-        StringBuilder indexSQL = new StringBuilder(columns.get(0));
-        for (int j = 1; j < columns.size(); j++) {
-            String column = columns.get(j);
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
-    /**
-     * Liefert zu einer Liste die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-     *
-     * @param columns
-     *         Liste der Columns
-     *
-     * @return ColumnNamen, Komma getrennt
-     */
-    public static String getCommaSeperatedList(@NonNull String[] columns) {
-        StringBuilder indexSQL = new StringBuilder(columns[0]);
-        for (int j = 1; j < columns.length; j++) {
-            String column = columns[j];
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
-    /**
-     * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-     *
-     * @param columns
-     *         StringArray, Basis
-     *
-     * @return ColumnNamen, Komma getrennt
-     */
-    public static String getCommaSeperatedList(@NonNull AWDBDefinition tbd,
-                                               @NonNull String[] columns) {
-        StringBuilder indexSQL = new StringBuilder(columns[0]);
-        for (int j = 1; j < columns.length; j++) {
-            indexSQL.append(", ").append(columns[j]);
-        }
-        return indexSQL.toString();
-    }
 
     /**
      * Liefert zu einer resID ein MAX(resID) zurueck.
@@ -263,41 +159,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
     }
 
     /**
-     * @param fromResIDs
-     *         Spalten
-     * @param idColumn
-     *         Name der Column, die als _id verwendet werden soll
-     *
-     * @return Liefert ein StringArray mit Spaltennamen. idColumn wird 'as _id' angehaengt
-     */
-    public String[] columNames(int[] fromResIDs, int idColumn) {
-        String[] projection = new String[fromResIDs.length + 1];
-        int i = 0;
-        for (int resID : fromResIDs) {
-            projection[i] = columnName(resID);
-            i++;
-        }
-        projection[i] = columnName(idColumn) + " as _id";
-        return projection;
-    }
-
-    /**
-     * Liefert die Liste der uebergebene Colums als Map zuruckt (z.B. fuer SQLiteQueryBuilder
-     *
-     * @param columns
-     *         Liste der Columns
-     *
-     * @return Map der Columns
-     */
-    public Map<String, String> columnMap(String[] columns) {
-        Map<String, String> columMap = new HashMap<>();
-        for (String s : columns) {
-            columMap.put(s, s);
-        }
-        return columMap;
-    }
-
-    /**
      * Name einer Columns als String
      *
      * @param resID
@@ -310,39 +171,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      */
     public String columnName(int resID) {
         return mApplicationConfig.getDBFormatter().columnName(resID);
-    }
-
-    /**
-     * @return Liefert alle Spaltennamen zu den ResIDs zurueck. Es wird keine id angehaengt.
-     */
-    public String[] columnNames() {
-        String[] columns = new String[resIDs.length];
-        for (int i = 0; i < resIDs.length; i++) {
-            columns[i] = columnName(resIDs[i]);
-        }
-        return columns;
-    }
-
-    /**
-     * Erstellt eine projection ahnhand von ResIDs und weiteren Spaltennamen
-     *
-     * @param resIDs
-     *         ResIDs, die in der prjection gewuenscht sind
-     * @param args
-     *         Spaltenbezeichungen als String[]
-     *
-     * @return projection
-     */
-    public String[] columnNames(int[] resIDs, String... args) {
-        // Estmal alle columns der resIDs uebernehmen
-        ArrayList<String> names = new ArrayList<>(Arrays.asList(columnNames(resIDs)));
-        // Am ende steht jetzt schon "_id" - entfernen
-        names.remove(names.size() - 1);
-        // Jetzt alle String uebernehmen
-        names.addAll(Arrays.asList(args));
-        // Und anschliessend "_id" hinten anhaengen
-        names.add(columnName(R.string._id));
-        return names.toArray(new String[names.size()]);
     }
 
     /**
@@ -359,10 +187,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      *         wenn initialize(context) nicht gerufen wurde
      */
     public String[] columnNames(int... resIDs) {
-        if (!isInitialized) {
-            throw new IllegalArgumentException(
-                    "AWDBDefinition nicht " + "initialisiert. Zuerst Aufruf initalize(context)");
-        }
         if (resIDs != null) {
             boolean idPresent = false;
             List<String> columns = new ArrayList<>();
@@ -385,22 +209,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
             return columns.toArray(new String[columns.size()]);
         }
         return null;
-    }
-
-    /**
-     * @return Liefert alle Spaltennamen zu den ResIDs zurueck. Die _id Spalte wird nicht
-     * mitgeliefert.
-     */
-    public String[] columnNamesWithoutID() {
-        String[] columns = new String[resIDs.length - 1];
-        int i = 0;
-        for (int res : getResIDs()) {
-            if (res != R.string._id) {
-                columns[i] = columnName(res);
-                i++;
-            }
-        }
-        return columns;
     }
 
     /**
@@ -427,24 +235,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * @return ColumnNamen, Komma getrennt
      */
     public String getCommaSeperatedList(@NonNull int[] tableindex) {
-        StringBuilder indexSQL = new StringBuilder(columnName(tableindex[0]));
-        for (int j = 1; j < tableindex.length; j++) {
-            String column = columnName(tableindex[j]);
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
-    /**
-     * @return Tableitems der Tabelle, Aufbau: [0]: resID [1]: Format in SQLite [2]: (otional)
-     * Praefix fuer QIF-Import
-     */
-    public int[] getCreateTableItems() {
-        return getTableItems();
-    }
-
-    public int[] getCreateTableResIDs() {
-        return createResIDs;
+        return mApplicationConfig.getDBFormatter().getCommaSeperatedList(tableindex);
     }
 
     /**
@@ -467,15 +258,8 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      *         der Spalte
      *
      * @return Format
-     *
-     * @throws IllegalArgumentException
-     *         wenn initialize(context) nicht gerufen wurde
      */
     public char getFormat(int resID) {
-        if (!isInitialized) {
-            throw new IllegalArgumentException(
-                    "AWDBDefinition nicht initialisiert. Zuerst Aufruf initalize(context)");
-        }
         return mApplicationConfig.getDBFormatter().getFormat(resID);
     }
 
@@ -485,7 +269,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * @return ResId der Spalten, die zu einer Sortierung herangezogen werden sollen.
      */
     public int[] getOrderByItems() {
-        return new int[]{getCreateTableItems()[0]};
+        return new int[]{getTableItems()[0]};
     }
 
     /**
@@ -522,18 +306,11 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
     }
 
     /**
-     * @return Liefert alle resIDs zu einer Tabelle
-     */
-    public int[] getResIDs() {
-        return resIDs;
-    }
-
-    /**
-     * @return TableItems der Tabelle. Koennen von den echten TableItems gemaess CreateTableItems ()
-     * abweichen, z.B. wenn weitere Items dazugejoint werden.
+     * @return Tableitems der Tabelle, Aufbau: [0]: resID [1]: Format in SQLite [2]: (otional)
+     * Praefix fuer QIF-Import
      */
     public int[] getTableItems() {
-        return getCreateTableItems();
+        return null;
     }
 
     @Override

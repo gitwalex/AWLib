@@ -63,7 +63,8 @@ public class AWEventService extends IntentService implements AWInterface {
                 }
                 break;
             case doVaccum:
-                AWApplication.getDBHelper().optimize();
+                ((AWApplication) getApplicationContext()).getApplicationConfig()
+                        .createAndGetDBHelper().optimize();
                 break;
         }
     }

@@ -49,8 +49,8 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
     private static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
     private static final String BACKUPPATH =
             AWApplication.getContext().getApplicationConfig().getApplicationBackupPath() + "/";
-    private static final String DATABASEFILENAME =
-            AWApplication.getContext().getApplicationConfig().getApplicationDatabaseFilename();
+    private static final String DATABASEFILENAME = AWApplication.getContext().getApplicationConfig()
+            .getApplicationDatabaseAbsoluteFilename();
     private final Context mContext;
     private final SharedPreferences prefs;
     private final Date date;

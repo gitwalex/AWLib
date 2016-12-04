@@ -8,6 +8,7 @@ import java.io.File;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBFormatter;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.database_private.AWDBDefinition;
 
 /**
  * Konfigurationsklasse fuer AWLib-Applications.
@@ -36,7 +37,10 @@ public abstract class ApplicationConfig {
             tbds[0].setApplicationConfig(this);
             mDBFormatter = createDBFormatter(context, tbds);
         }
+        AWDBDefinition.values()[0].setApplicationConfig(this);
     }
+
+    public abstract AbstractDBHelper createAndGetDBHelper();
 
     protected abstract AWDBFormatter createDBFormatter(Context context,
                                                        AWAbstractDBDefinition[] tbds);
@@ -79,7 +83,7 @@ public abstract class ApplicationConfig {
         return APPLICATIONPATH + "/database";
     }
 
-    public final String getApplicationDatabaseFilename() {
+    public final String getApplicationDatabaseAbsoluteFilename() {
         return getApplicationDataPath() + "/" + theDatenbankname();
     }
 
@@ -112,8 +116,6 @@ public abstract class ApplicationConfig {
     public AWDBFormatter getDBFormatter() {
         return mDBFormatter;
     }
-
-    public abstract AbstractDBHelper getDBHelper();
 
     /**
      * @return Das DebugFlag der Application

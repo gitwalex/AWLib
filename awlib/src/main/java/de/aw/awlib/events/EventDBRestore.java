@@ -26,6 +26,7 @@ import java.io.File;
 import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.utils.AWUtils;
 
 /**
@@ -33,9 +34,12 @@ import de.aw.awlib.utils.AWUtils;
  */
 public class EventDBRestore implements AWResultCodes, AWInterface {
     private final Context mContext;
+    private final ApplicationConfig mApplicationConfig;
 
     public EventDBRestore(Context context) {
         mContext = context;
+        mApplicationConfig =
+                ((AWApplication) mContext.getApplicationContext()).getApplicationConfig();
     }
 
     public void restore(File file) {
@@ -46,25 +50,17 @@ public class EventDBRestore implements AWResultCodes, AWInterface {
         @Override
         protected Integer doInBackground(File... params) {
             int result;
-            String targetFileName;
-            if (AWApplication.getDebugFlag()) {
-                targetFileName = AWApplication.getContext().getApplicationConfig()
-                        .getApplicationDatabaseFilename();
-            } else {
-                targetFileName = mContext.getDatabasePath(
-                        AWApplication.getContext().getApplicationConfig().theDatenbankname())
-                        .getAbsolutePath();
-            }
-            AWApplication.getDBHelper().close();
+            String targetFileName = mApplicationConfig.getApplicationDatabaseAbsoluteFilename();
+            mApplicationConfig.createAndGetDBHelper().close();
             result = AWUtils.restoreZipArchivToFile(targetFileName, params[0]);
-            AWApplication.getDBHelper();
+            mApplicationConfig.createAndGetDBHelper();
             return result;
         }
 
         @Override
         protected void onPostExecute(Integer result) {
             if (result == RESULT_OK) {
-                AWApplication.onRestoreDB();
+                mApplicationConfig.onRestoreDatabase(mContext);
                 PackageManager pm = mContext.getPackageManager();
                 Intent intent = pm.getLaunchIntentForPackage(mContext.getPackageName());
                 mContext.startActivity(intent);

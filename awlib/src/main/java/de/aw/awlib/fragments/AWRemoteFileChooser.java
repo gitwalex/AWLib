@@ -43,7 +43,6 @@ import de.aw.awlib.utils.AWRemoteFileServerHandler;
 import de.aw.awlib.utils.AWRemoteFileServerHandler.ExecutionListener;
 
 import static android.net.Uri.withAppendedPath;
-import static de.aw.awlib.application.AWApplication.getDBHelper;
 
 /**
  * Dialog zur Abfrage von Zugangsdaten fuer externe Sicherung der DB.

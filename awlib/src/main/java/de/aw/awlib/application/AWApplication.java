@@ -22,7 +22,6 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -44,7 +43,6 @@ import java.util.Date;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityDebug;
-import de.aw.awlib.database.AbstractDBHelper;
 
 import static de.aw.awlib.activities.AWInterface.linefeed;
 import static de.aw.awlib.events.EventDBSave.checkDBSaveAlarm;
@@ -123,18 +121,6 @@ public abstract class AWApplication extends Application {
         return mContext.get();
     }
 
-    public static AbstractDBHelper getDBHelper() {
-        return getContext().getApplicationConfig().getDBHelper();
-    }
-
-    public static boolean getDebugFlag() {
-        return getContext().getApplicationConfig().getDebugFlag();
-    }
-
-    public static void onRestoreDB() {
-        getContext().getApplicationConfig().onRestoreDatabase(getContext());
-    }
-
     public static void setContext(Context context) {
         mContext = new WeakReference<>((AWApplication) context);
     }
@@ -159,13 +145,6 @@ public abstract class AWApplication extends Application {
         intent.putExtra(STACKTRACE, exceptionAsString);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // required when starting from Application
         startActivity(intent);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mContext = new WeakReference<AWApplication>(this);
-        mDebugFlag = getDebugFlag();
     }
 
     @Override

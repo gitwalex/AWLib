@@ -46,7 +46,7 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
         try {
             for (ContentValues cv : values) {
                 long erg = db.insert(uri, null, cv);
-                if (erg == -1 && AWApplication.getDebugFlag()) {
+                if (erg == -1 && mApplicationConfig.getDebugFlag()) {
                     AWApplication.Log("Insert fehlgeschlagen! Werte: " + cv.toString());
                 } else {
                     result++;
@@ -78,7 +78,7 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
             mApplicationConfig =
                     ((AWApplication) getContext().getApplicationContext()).getApplicationConfig();
         }
-        return mApplicationConfig.getDBHelper();
+        return mApplicationConfig.createAndGetDBHelper();
     }
 
     @Override

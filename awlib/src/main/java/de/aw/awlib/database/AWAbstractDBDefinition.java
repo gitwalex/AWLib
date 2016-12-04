@@ -32,10 +32,6 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     String getCommaSeperatedList(int[] columns);
 
-    int[] getCreateTableItems();
-
-    int[] getCreateTableResIDs();
-
     String getCreateViewSQL();
 
     AWDBFormatter getDBFormatter();
@@ -44,7 +40,7 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     String getOrderString();
 
-    int[] getResIDs();
+    int[] getTableItems();
 
     Uri getUri();
 

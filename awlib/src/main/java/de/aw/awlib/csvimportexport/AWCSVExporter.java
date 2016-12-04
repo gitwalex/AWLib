@@ -87,7 +87,7 @@ public class AWCSVExporter {
     public void doExport(@NonNull AWAbstractDBDefinition tbd, int[] fromResIDs, String selection,
                          String[] selectionArgs, String groupBy) {
         if (fromResIDs == null) {
-            fromResIDs = tbd.getResIDs();
+            fromResIDs = tbd.getTableItems();
         }
         if (groupBy != null) {
             if (selection == null) {

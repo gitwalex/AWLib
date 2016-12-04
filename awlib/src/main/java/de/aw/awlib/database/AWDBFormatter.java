@@ -17,12 +17,17 @@
 package de.aw.awlib.database;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.aw.awlib.R;
+import de.aw.awlib.database_private.AWDBDefinition;
 
 /**
  * Formate fuer die einzelnen Columns der DB
@@ -54,8 +59,16 @@ public class AWDBFormatter {
             resID = map[0];
             mapResID2Formate.put(resID, (char) map[1]);
         }
+        for (AWAbstractDBDefinition tbd : AWDBDefinition.values()) {
+            int[] columns = tbd.getTableItems();
+            for (int mResID : columns) {
+                String value = context.getString(mResID);
+                mapResID2ColumnName.put(mResID, value);
+                mapColumnName2ResID.put(value, mResID);
+            }
+        }
         for (AWAbstractDBDefinition tbd : tbds) {
-            int[] columns = tbd.getCreateTableResIDs();
+            int[] columns = tbd.getTableItems();
             for (int mResID : columns) {
                 String value = context.getString(mResID);
                 mapResID2ColumnName.put(mResID, value);
@@ -65,13 +78,153 @@ public class AWDBFormatter {
     }
 
     /**
+     * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
+     *
+     * @param columnResIds
+     *         Array, zu dem die Namen ermittelt werden sollen
+     *
+     * @return ColumnNamen, Komma getrennt
+     */
+    public static String getCommaSeperatedList(@NonNull Context context,
+                                               @NonNull int[] columnResIds) {
+        StringBuilder indexSQL = new StringBuilder(context.getString(columnResIds[0]));
+        for (int j = 1; j < columnResIds.length; j++) {
+            String column = context.getString(columnResIds[j]);
+            indexSQL.append(", ").append(column);
+        }
+        return indexSQL.toString();
+    }
+
+    /**
+     * Liefert zu einer Liste die entsprechenden ColumnNamen getrennt durch Kommata zurueck
+     *
+     * @param columns
+     *         Liste der Columns
+     *
+     * @return ColumnNamen, Komma getrennt
+     */
+    public static String getCommaSeperatedList(@NonNull List<String> columns) {
+        StringBuilder indexSQL = new StringBuilder(columns.get(0));
+        for (int j = 1; j < columns.size(); j++) {
+            String column = columns.get(j);
+            indexSQL.append(", ").append(column);
+        }
+        return indexSQL.toString();
+    }
+
+    /**
+     * Liefert zu einer Liste die entsprechenden ColumnNamen getrennt durch Kommata zurueck
+     *
+     * @param columns
+     *         Liste der Columns
+     *
+     * @return ColumnNamen, Komma getrennt
+     */
+    public static String getCommaSeperatedList(@NonNull String[] columns) {
+        StringBuilder indexSQL = new StringBuilder(columns[0]);
+        for (int j = 1; j < columns.length; j++) {
+            String column = columns[j];
+            indexSQL.append(", ").append(column);
+        }
+        return indexSQL.toString();
+    }
+
+    /**
      * @param resID
      *         resID
      *
      * @return Liefert den Spaltennamen zu einer resID zurueck
      */
-    public String columnName(int resID) {
+    public final String columnName(int resID) {
         return mapResID2ColumnName.get(resID);
+    }
+
+    /**
+     * Erstellt eine projection ahnhand von ResIDs und weiteren Spaltennamen
+     *
+     * @param resIDs
+     *         ResIDs, die in der prjection gewuenscht sind
+     * @param args
+     *         Spaltenbezeichungen als String[]
+     *
+     * @return projection
+     */
+    public final String[] columnNames(int[] resIDs, String... args) {
+        // Estmal alle columns der resIDs uebernehmen
+        ArrayList<String> names = new ArrayList<>(Arrays.asList(columnNames(resIDs)));
+        // Am ende steht jetzt schon "_id" - entfernen
+        names.remove(names.size() - 1);
+        // Jetzt alle String uebernehmen
+        names.addAll(Arrays.asList(args));
+        // Und anschliessend "_id" hinten anhaengen
+        names.add(columnName(R.string._id));
+        return names.toArray(new String[names.size()]);
+    }
+
+    /**
+     * @return Liefert alle Spaltennamen zu den ResIDs zurueck. Es wird keine id angehaengt.
+     */
+    public final String[] columnNames(AWAbstractDBDefinition tbd) {
+        int[] resIDs = tbd.getTableItems();
+        String[] columns = new String[resIDs.length];
+        for (int i = 0; i < resIDs.length; i++) {
+            columns[i] = columnName(resIDs[i]);
+        }
+        return columns;
+    }
+
+    /**
+     * Liste der Columns als StringArray
+     *
+     * @param resIDs
+     *         Liste der ResId, zu denen die Columnnames gewuenscht werden.
+     *
+     * @return Liste der Columns. Anm Ende wird noch die Spalte '_id' hinzugefuegt.
+     *
+     * @throws AWAbstractDBDefinition.ResIDNotFoundException
+     *         wenn ResId nicht in der Liste der Columns enthalten ist.
+     * @throws IllegalArgumentException
+     *         wenn initialize(context) nicht gerufen wurde
+     */
+    public final String[] columnNames(int... resIDs) {
+        if (resIDs != null) {
+            boolean idPresent = false;
+            List<String> columns = new ArrayList<>();
+            for (int resID : resIDs) {
+                String col = columnName(resID);
+                if (resID == R.string._id) {
+                    idPresent = true;
+                }
+                if (col == null) {
+                    throw new AWAbstractDBDefinition.ResIDNotFoundException(
+                            "ResID " + resID + " nicht " +
+                                    "vorhanden!.");
+                }
+                columns.add(col);
+            }
+            if (!idPresent) {
+                columns.add(columnName(R.string._id));
+            }
+            return columns.toArray(new String[columns.size()]);
+        }
+        return null;
+    }
+
+    /**
+     * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
+     *
+     * @param tableindex
+     *         Array, zu dem die Namen ermittelt werden sollen
+     *
+     * @return ColumnNamen, Komma getrennt
+     */
+    public final String getCommaSeperatedList(@NonNull int[] tableindex) {
+        StringBuilder indexSQL = new StringBuilder(columnName(tableindex[0]));
+        for (int j = 1; j < tableindex.length; j++) {
+            String column = columnName(tableindex[j]);
+            indexSQL.append(", ").append(column);
+        }
+        return indexSQL.toString();
     }
 
     /**
@@ -80,7 +233,7 @@ public class AWDBFormatter {
      *
      * @return Liefert das Format der column zurueck
      */
-    public Character getFormat(Integer resID) {
+    public final Character getFormat(Integer resID) {
         Character format = mapResID2Formate.get(resID);
         if (format == null) {
             format = 'T';
@@ -118,7 +271,7 @@ public class AWDBFormatter {
         return new int[][]{};
     }
 
-    public Integer getResID(String resName) {
+    public final Integer getResID(String resName) {
         return mapColumnName2ResID.get(resName.trim());
     }
 
@@ -130,7 +283,7 @@ public class AWDBFormatter {
      *
      * @return Format der Column fuer SQLite im Klartext
      */
-    public String getSQLiteFormat(Integer resId) {
+    public final String getSQLiteFormat(Integer resId) {
         Character c = mapResID2Formate.get(resId);
         return formate.get(c);
     }

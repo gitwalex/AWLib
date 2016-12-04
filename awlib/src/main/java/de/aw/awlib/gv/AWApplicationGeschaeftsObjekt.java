@@ -84,7 +84,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     protected AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd,
                                             AWApplicationGeschaeftsObjekt go) {
         this(tbd);
-        for (int resID : tbd.getResIDs()) {
+        for (int resID : tbd.getTableItems()) {
             Object value = go.currentContent.get(getContext().getString(resID));
             if (value != null) {
                 put(resID, value);
@@ -122,7 +122,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd) {
         this.tbd = tbd;
         selection = tbd.columnName(R.string._id) + " = ?";
-        for (int resID : tbd.getResIDs()) {
+        for (int resID : tbd.getTableItems()) {
             char format = tbd.getFormat(resID);
             switch (format) {
                 case 'B':
@@ -323,7 +323,8 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     public final void fillContent(Long id, String selection, String[] selectionArgs)
             throws LineNotFoundException {
-        Cursor c = getCursor(tbd, tbd.columnNames(tbd.getResIDs()), selection, selectionArgs, null);
+        Cursor c = getCursor(tbd, tbd.columnNames(tbd.getTableItems()), selection, selectionArgs,
+                null);
         try {
             if (c.moveToFirst()) {
                 fillContent(c);
@@ -354,7 +355,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     public final void fillContent(String selection, String[] selectionArgs)
             throws LineNotFoundException {
-        String[] projection = tbd.columnNames(tbd.getResIDs());
+        String[] projection = tbd.columnNames(tbd.getTableItems());
         Cursor c = getCursor(tbd, projection, selection, selectionArgs, null);
         try {
             if (c.getCount() > 1) {
