@@ -85,7 +85,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
                                             AWApplicationGeschaeftsObjekt go) {
         this(tbd);
         for (int resID : tbd.getTableItems()) {
-            Object value = go.currentContent.get(getContext().getString(resID));
+            Object value = go.currentContent.get(tbd.columnName(resID));
             if (value != null) {
                 put(resID, value);
             }

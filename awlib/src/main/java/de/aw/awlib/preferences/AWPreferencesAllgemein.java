@@ -90,7 +90,8 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
-        mApplicationConfig = AWApplication.getContext().getApplicationConfig();
+        mApplicationConfig =
+                ((AWApplication) getActivity().getApplicationContext()).getApplicationConfig();
         addPreferencesFromResource(R.xml.awlib_preferences_allgemein);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         for (int pkKey : mPrefs) {

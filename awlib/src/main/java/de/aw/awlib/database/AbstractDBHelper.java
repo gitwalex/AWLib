@@ -79,7 +79,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         super(AWApplication.getContext(), config.getApplicationDatabaseAbsoluteFilename(),
                 (cursorFactory == null) ? mCursorFactory : cursorFactory,
                 config.theDatenbankVersion());
-        setWriteAheadLoggingEnabled(false);
     }
 
     /**

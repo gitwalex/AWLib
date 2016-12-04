@@ -16,6 +16,7 @@
  */
 package de.aw.awlib.csvimportexport;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -62,10 +63,12 @@ public class AWCSVExporter {
     }
 
     private final ExportCursorListener mExportCursorListener;
+    private final Context mContext;
     private String fullFilename;
 
-    public AWCSVExporter(@NonNull ExportCursorListener listener) {
+    public AWCSVExporter(@NonNull Context context, @NonNull ExportCursorListener listener) {
         mExportCursorListener = listener;
+        mContext = context;
     }
 
     /**
@@ -169,8 +172,9 @@ public class AWCSVExporter {
                 fromResIDs[i] = mDBFormat.getResID(columnname);
             }
             List<String[]> list = new ArrayList<>();
-            String filename = AWApplication.getContext().getApplicationConfig()
-                    .getApplicationExportPath() + "/" + this.filename;
+            String filename =
+                    ((AWApplication) mContext.getApplicationContext()).getApplicationConfig()
+                            .getApplicationExportPath() + "/" + this.filename;
             File file = new File(filename);
             fullFilename = file.getAbsolutePath();
             FileOutputStream fos;
