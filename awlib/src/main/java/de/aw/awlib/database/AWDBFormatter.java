@@ -285,6 +285,9 @@ public class AWDBFormatter {
      */
     public final String getSQLiteFormat(Integer resId) {
         Character c = mapResID2Formate.get(resId);
+        if (c == null) {
+            c = 'T';
+        }
         return formate.get(c);
     }
 }

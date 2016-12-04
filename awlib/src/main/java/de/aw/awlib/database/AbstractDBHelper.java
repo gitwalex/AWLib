@@ -458,14 +458,14 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             for (String view : views) {
                 database.execSQL("DROP VIEW " + view);
             }
-            for (AWDBDefinition tbd : AWDBDefinition.values()) {
-                if (tbd.isView()) {
-                    dbhelper.alterView(tbd);
+            for (AWDBDefinition definition : AWDBDefinition.values()) {
+                if (definition.isView()) {
+                    dbhelper.alterView(definition);
                 }
             }
-            for (AWAbstractDBDefinition tbd : getAllDBDefinition()) {
-                if (tbd.isView()) {
-                    dbhelper.alterView(tbd);
+            for (AWAbstractDBDefinition definition : getAllDBDefinition()) {
+                if (definition.isView()) {
+                    dbhelper.alterView(definition);
                 }
             }
             database.setTransactionSuccessful();
