@@ -27,6 +27,7 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceGroup;
 import android.text.TextUtils;
 
+import de.aw.awlib.preferences.EditTextPreferenceDate;
 import de.aw.awlib.preferences.EditTextPreferenceTime;
 import de.aw.awlib.preferences.MainPreferenceInterface;
 
@@ -121,6 +122,11 @@ public abstract class AWPreferenceFragment extends PreferenceFragmentCompat
         }
         if (p instanceof EditTextPreferenceTime) {
             EditTextPreferenceTime editTextPref = (EditTextPreferenceTime) p;
+            p.setSummary(editTextPref.getSummary());
+            return;
+        }
+        if (p instanceof EditTextPreferenceDate) {
+            EditTextPreferenceDate editTextPref = (EditTextPreferenceDate) p;
             p.setSummary(editTextPref.getSummary());
             return;
         }
