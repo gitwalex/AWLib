@@ -159,7 +159,7 @@ public class AWCSVImporter implements AWResultCodes {
                 AWAbstractDBDefinition tbd = db.getDBDefinition(tablename);
                 try {
                     for (int resID : columnsResIDs) {
-                        tbd.columnName(resID);
+                        AbstractDBHelper.getInstance().columnName(resID);
                     }
                     myEntries.remove(myEntries.size() - 1);
                 } catch (IllegalArgumentException e1) {

@@ -48,6 +48,7 @@ import static de.aw.awlib.application.AWApplication.LogError;
  */
 @SuppressWarnings({"WeakerAccess", "TryFinallyCanBeTryWithResources", "unused"})
 public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInterface {
+    protected static AbstractDBHelper dbHelper;
     /**
      * Map der ResIDs auf das Format der Spalte
      */
@@ -67,6 +68,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                         .getApplicationDatabaseAbsoluteFilename(), cursorFactory,
                 ((AWApplication) context.getApplicationContext()).getApplicationConfig()
                         .theDatenbankVersion());
+        dbHelper = this;
         mContext = new WeakReference<>(context.getApplicationContext());
         int resID = R.string._id;
         AWAbstractDBDefinition[] tbds = getAllDBDefinition();
@@ -112,8 +114,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @return ColumnNamen, Komma getrennt
      */
-    public static String getCommaSeperatedList(@NonNull Context context,
-                                               @NonNull int[] columnResIds) {
+    public final static String getCommaSeperatedList(@NonNull Context context,
+                                                     @NonNull int[] columnResIds) {
         StringBuilder indexSQL = new StringBuilder(context.getString(columnResIds[0]));
         for (int j = 1; j < columnResIds.length; j++) {
             String column = context.getString(columnResIds[j]);
@@ -130,7 +132,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @return ColumnNamen, Komma getrennt
      */
-    public static String getCommaSeperatedList(@NonNull List<String> columns) {
+    public final static String getCommaSeperatedList(@NonNull List<String> columns) {
         StringBuilder indexSQL = new StringBuilder(columns.get(0));
         for (int j = 1; j < columns.size(); j++) {
             String column = columns.get(j);
@@ -147,7 +149,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @return ColumnNamen, Komma getrennt
      */
-    public static String getCommaSeperatedList(@NonNull String[] columns) {
+    public final static String getCommaSeperatedList(@NonNull String[] columns) {
         StringBuilder indexSQL = new StringBuilder(columns[0]);
         for (int j = 1; j < columns.length; j++) {
             String column = columns[j];
@@ -156,10 +158,14 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         return indexSQL.toString();
     }
 
+    public static AbstractDBHelper getInstance() {
+        return dbHelper;
+    }
+
     /**
      * siehe {@link SQLiteDatabase#beginTransaction()}
      */
-    public void beginTransaction() {
+    public final void beginTransaction() {
         db = getWritableDatabase();
         usedTables.clear();
         db.beginTransaction();
@@ -252,7 +258,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public int delete(AWAbstractDBDefinition tbd, String selection, String[] selectionArgs) {
+    public final int delete(AWAbstractDBDefinition tbd, String selection, String[] selectionArgs) {
         return delete(tbd.getUri(), selection, selectionArgs);
     }
 
@@ -262,7 +268,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public final int delete(Uri uri, String selection, String[] selectionArgs) {
         if (db == null) {
             db = getWritableDatabase();
         }
@@ -307,7 +313,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * jeder in der gesamten Transaction genutzen Uri {@link AbstractDBHelper#notifyCursors(Uri)}
      * gerufen.
      */
-    public void endTransaction() {
+    public final void endTransaction() {
         db.endTransaction();
         if (!db.inTransaction()) {
             for (Uri uri : usedTables) {
@@ -332,7 +338,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @return Liste der Columns.
      */
-    public List<String> getColumnsForTable(AWAbstractDBDefinition tbd) {
+    public final List<String> getColumnsForTable(AWAbstractDBDefinition tbd) {
         List<String> columns = new ArrayList<>();
         Cursor c = getWritableDatabase().rawQuery("PRAGMA table_info (" + tbd.name() + ")", null);
         try {
@@ -365,7 +371,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         return indexSQL.toString();
     }
 
-    public Context getContext() {
+    public final Context getContext() {
         return mContext.get();
     }
 
@@ -389,7 +395,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @return Curur ueber die Daten(columnName, Typ, boolean NotNull, Defaultwert, ist Primarykey)
      */
-    public Cursor getDatabaseTableInfo(SQLiteDatabase database, String tableName) {
+    public final Cursor getDatabaseTableInfo(SQLiteDatabase database, String tableName) {
         String sql = "PRAGMA table_info (" + tableName + ")";
         return database.rawQuery(sql, null, null);
     }
@@ -449,8 +455,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @return Anzahl der  Zeilen.
      */
-    public long getNumberOfRows(AWAbstractDBDefinition tbd, String selection,
-                                String[] selectionArgs) {
+    public final long getNumberOfRows(AWAbstractDBDefinition tbd, String selection,
+                                      String[] selectionArgs) {
         String[] projection = new String[]{"COUNT(*)"};
         Cursor c = getWritableDatabase()
                 .query(tbd.name(), projection, selection, selectionArgs, null, null, null);
@@ -509,6 +515,24 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     }
 
     /**
+     * Liefert eine Liste der Tabellennamen zurueck, in der die Spalte vorkommt
+     *
+     * @param columnresID
+     *         resID des Spaltennamens
+     *
+     * @return DBDefinition der Tabellennamen. Kann leer sein.
+     */
+    public final List<AWAbstractDBDefinition> getTableNamesForColumn(int columnresID) {
+        String column = getContext().getString(columnresID);
+        List<String> tables = getTableNamesForColumn(column);
+        List<AWAbstractDBDefinition> tbdList = new ArrayList<>();
+        for (String table : tables) {
+            tbdList.add(getDBDefinition(table));
+        }
+        return tbdList;
+    }
+
+    /**
      * Liefert eine Liste der Tabellennamen zurueck, in der der Name der Spalte vorkommt
      *
      * @param columnName
@@ -516,7 +540,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @return Liste der Tabellennamen. Kann leer sein.
      */
-    public List<String> getTableNamesForColumn(String columnName) {
+    public final List<String> getTableNamesForColumn(String columnName) {
         List<String> tables = new ArrayList<>();
         String[] projection = new String[]{"name"};
         String selection = " sql LIKE '%" + columnName + "%' AND " +
@@ -561,7 +585,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     /**
      * siehe {@link SQLiteDatabase#inTransaction()}
      */
-    public boolean inTransaction() {
+    public final boolean inTransaction() {
         return db.inTransaction();
     }
 
@@ -571,7 +595,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public long insert(AWAbstractDBDefinition tbd, String nullColumnHack, ContentValues content) {
+    public final long insert(AWAbstractDBDefinition tbd, String nullColumnHack,
+                             ContentValues content) {
         return insert(tbd.getUri(), nullColumnHack, content);
     }
 
@@ -581,7 +606,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public long insert(Uri uri, String nullColumnHack, ContentValues content) {
+    public final long insert(Uri uri, String nullColumnHack, ContentValues content) {
         if (db == null) {
             db = getWritableDatabase();
         }
@@ -597,8 +622,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     /**
      * siehe {@link SQLiteDatabase#insertWithOnConflict(String, String, ContentValues, int)}
      */
-    public long insertWithOnConflict(Uri uri, String nullColumnHack, ContentValues values,
-                                     int conflictAlgorithm) {
+    public final long insertWithOnConflict(Uri uri, String nullColumnHack, ContentValues values,
+                                           int conflictAlgorithm) {
         if (db == null) {
             db = getWritableDatabase();
         }
@@ -615,8 +640,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     /**
      * siehe {@link SQLiteDatabase#insertWithOnConflict(String, String, ContentValues, int)}
      */
-    public long insertWithOnConflict(AWAbstractDBDefinition tbd, String nullColumnHack,
-                                     ContentValues values, int conflictAlgorithm) {
+    public final long insertWithOnConflict(AWAbstractDBDefinition tbd, String nullColumnHack,
+                                           ContentValues values, int conflictAlgorithm) {
         return insertWithOnConflict(tbd.getUri(), nullColumnHack, values, conflictAlgorithm);
     }
 
@@ -728,7 +753,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     /**
      * Komprimiert die Datenbank und fuehrt 'runstats' aus.
      */
-    public void optimize() {
+    public final void optimize() {
         db = getWritableDatabase();
         db.execSQL("Analyze");
         db.execSQL("vacuum");
@@ -737,7 +762,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     /**
      * siehe {@link SQLiteDatabase#setTransactionSuccessful()}
      */
-    public void setTransactionSuccessful() {
+    public final void setTransactionSuccessful() {
         db.setTransactionSuccessful();
     }
 
@@ -747,8 +772,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public int update(AWAbstractDBDefinition tbd, ContentValues content, String selection,
-                      String[] selectionArgs) {
+    public final int update(AWAbstractDBDefinition tbd, ContentValues content, String selection,
+                            String[] selectionArgs) {
         return update(tbd.getUri(), content, selection, selectionArgs);
     }
 
@@ -758,7 +783,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
      * AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
-    public int update(Uri uri, ContentValues content, String selection, String[] selectionArgs) {
+    public final int update(Uri uri, ContentValues content, String selection,
+                            String[] selectionArgs) {
         if (db == null) {
             db = getWritableDatabase();
         }

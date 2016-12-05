@@ -26,6 +26,7 @@ import de.aw.awlib.R;
 import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBAlterHelper;
+import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * @author Alexander Winkler
@@ -83,7 +84,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * @return Select Max im Format MAX(Tablename.itemname) AS itemname
      */
     private String SQLMaxItem(int resID, boolean fullQualified) {
-        String spalte = columnName(resID);
+        String spalte = AbstractDBHelper.getInstance().columnName(resID);
         if (fullQualified) {
             return "max(" + name() + "." + spalte + ") AS " + spalte;
         }

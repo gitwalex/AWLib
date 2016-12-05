@@ -29,6 +29,7 @@ import android.widget.FilterQueryProvider;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.database.AWAbstractDBDefinition;
+import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * AutoCompleteTextView (siehe  {@link AWAutoCompleteTextView#initialize (DBDefinition, String,
@@ -69,7 +70,7 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     }
 
     private void buildSelectionArguments(String mUserSelection, String[] mUserSelectionArgs) {
-        mSelection = tbd.columnName(fromResID) + " Like ? ";
+        mSelection = AbstractDBHelper.getInstance().columnName(fromResID) + " Like ? ";
         mOrderBy = "LENGTH(" + mMainColumn + ")";
         if (mUserSelection != null) {
             if (mUserSelectionArgs != null) {
@@ -149,8 +150,9 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         this.mOnTextChangeListener = mOnTextChangeListener;
         this.tbd = tbd;
         this.fromResID = fromResID;
-        mMainColumn = tbd.columnName(this.fromResID);
-        mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
+        mMainColumn = AbstractDBHelper.getInstance().columnName(this.fromResID);
+        mProjection = new String[]{AbstractDBHelper.getInstance().columnName(fromResID),
+                AbstractDBHelper.getInstance().columnName(R.string._id)};
         buildSelectionArguments(selection, selectionArgs);
         mSimpleCursorAdapter =
                 new SimpleCursorAdapter(getContext(), android.R.layout.simple_dropdown_item_1line,
@@ -264,7 +266,8 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
             }
         }
         setDropDownHeight(getLineHeight() * 18);
-        columnIndex = data.getColumnIndexOrThrow(tbd.columnName(fromResID));
+        columnIndex =
+                data.getColumnIndexOrThrow(AbstractDBHelper.getInstance().columnName(fromResID));
         return data;
     }
 

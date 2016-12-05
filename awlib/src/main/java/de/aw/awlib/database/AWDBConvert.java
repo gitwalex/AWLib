@@ -64,7 +64,7 @@ public class AWDBConvert {
     }
 
     public static String convert(AWAbstractDBDefinition tbd, int resID, String value) {
-        Character format = tbd.getFormat(resID);
+        Character format = AbstractDBHelper.getInstance().getFormat(resID);
         if (format != null & value != null) {
             switch (format) {
                 case 'D':// Datum
