@@ -31,6 +31,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import de.aw.awlib.R;
+import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.application.ApplicationConfig;
+import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.views.AWBottomSheetCalculator;
 
 /**
@@ -55,6 +58,7 @@ public abstract class AWMainActivity extends AppCompatActivity
      * wiederhergestellt.
      */
     protected final Bundle args = new Bundle();
+    protected AbstractDBHelper mDBHelper;
     /**
      * Default FloatingActionButton. Rechts unten, Icon ist 'Add', standardmaessig View.GONE
      */
@@ -136,6 +140,9 @@ public abstract class AWMainActivity extends AppCompatActivity
             }
         }
         super.onCreate(savedInstanceState);
+        ApplicationConfig mAppConfig =
+                ((AWApplication) getApplicationContext()).getApplicationConfig();
+        mDBHelper = mAppConfig.getDBHelper();
         setContentView(layout);
         mainAction = args.getParcelable(AWLIBACTION);
         mDefaultFAB = (FloatingActionButton) findViewById(R.id.awlib_defaultFAB);

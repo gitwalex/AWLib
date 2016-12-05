@@ -26,6 +26,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     private final Map<Character, String> formate = new HashMap<>();
     private final Map<String, Integer> mapColumnName2ResID = new HashMap<>();
     private final Map<Integer, String> mapResID2ColumnName = new HashMap<>();
-    private final Context mContext;
+    private final WeakReference<Context> mContext;
     /**
      * DBHelperTemplate ist ein Singleton.
      */
@@ -66,7 +67,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                         .getApplicationDatabaseAbsoluteFilename(), cursorFactory,
                 ((AWApplication) context.getApplicationContext()).getApplicationConfig()
                         .theDatenbankVersion());
-        mContext = context.getApplicationContext();
+        mContext = new WeakReference<>(context.getApplicationContext());
         int resID = R.string._id;
         AWAbstractDBDefinition[] tbds = getAllDBDefinition();
         mapResID2Formate.put(resID, 'I');
@@ -365,7 +366,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     }
 
     public Context getContext() {
-        return mContext;
+        return mContext.get();
     }
 
     /**
@@ -650,7 +651,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     @CallSuper
     protected boolean notifyCursors(Uri uri) {
-        mContext.getContentResolver().notifyChange(uri, null);
+        mContext.get().getContentResolver().notifyChange(uri, null);
         return uri.getLastPathSegment().equals(AWDBDefinition.RemoteServer.name());
     }
 

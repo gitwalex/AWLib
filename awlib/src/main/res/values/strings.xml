@@ -52,8 +52,6 @@
     <string name="titleFileServerKonfigurieren">Serverdaten</string>
     <string name="awlib_menu_item_save">Speichern</string>
     <string name="exportErfolgreich">Export erfolgreich</string>
-    <string name="nav_Yachten">Yachten</string>
-    <string name="nav_Vertraege">Verträge</string>
 
 
 </resources>
