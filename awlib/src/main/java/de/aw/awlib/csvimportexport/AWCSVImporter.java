@@ -17,6 +17,7 @@
 package de.aw.awlib.csvimportexport;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.opencsv.CSVReader;
@@ -38,6 +39,8 @@ import java.util.List;
 import java.util.Locale;
 
 import de.aw.awlib.AWResultCodes;
+import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBAlterHelper;
 import de.aw.awlib.database.AWDBConvert;
@@ -57,6 +60,7 @@ import de.aw.awlib.database.AbstractDBHelper;
  */
 public class AWCSVImporter implements AWResultCodes {
     private final NumberFormat nf = DecimalFormat.getInstance(Locale.getDefault());
+    private final ApplicationConfig mAppconfig;
     /**
      * Spaltennamen des Importfiles
      */
@@ -67,11 +71,15 @@ public class AWCSVImporter implements AWResultCodes {
      */
     private List<ContentValues> myEntries = new ArrayList<>();
 
+    public AWCSVImporter(Context context) {
+        mAppconfig = ((AWApplication) context.getApplicationContext()).getApplicationConfig();
+    }
+
     private String convert(AWAbstractDBDefinition tbd, int resID, String value)
             throws ParseException {
         Long amount;
         if (value != null) {
-            char format = tbd.getFormat(resID);
+            char format = mAppconfig.getDBHelper().getFormat(resID);
             switch (format) {
                 case 'D':// Datum
                     Date date;

@@ -60,7 +60,7 @@ public class AWFragmentCSVImport extends AWFragment implements AWResultCodes {
         return new AsyncTask<String, Integer, Integer>() {
             @Override
             protected Integer doInBackground(String... params) {
-                return new AWCSVImporter().execute(params[0]);
+                return new AWCSVImporter(getActivity()).execute(params[0]);
             }
 
             /**

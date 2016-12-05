@@ -31,7 +31,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import de.aw.awlib.R;
-import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.views.AWBottomSheetCalculator;
 
 /**
@@ -197,7 +196,6 @@ public abstract class AWMainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         setSubTitle(args.getString(ACTIONBARSUBTITLE));
-        AWApplication.setContext(getApplicationContext());
     }
 
     /**

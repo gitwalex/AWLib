@@ -30,8 +30,6 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     void createDatabase(AWDBAlterHelper dbAlterHelper);
 
-    String getCommaSeperatedList(int[] columns);
-
     String getCreateViewSQL();
 
     char getFormat(int resID);

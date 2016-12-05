@@ -19,10 +19,8 @@ package de.aw.awlib.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQuery;
 import android.net.Uri;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
@@ -35,11 +33,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
-import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database_private.AWDBDefinition;
 
@@ -51,30 +47,6 @@ import static de.aw.awlib.application.AWApplication.LogError;
  */
 @SuppressWarnings({"WeakerAccess", "TryFinallyCanBeTryWithResources", "unused"})
 public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInterface {
-    /**
-     * CursorFactory. Loggt die Query und die Dauer der Abfrage in nanosekunden, wenn im Debug-Modus
-     * und nicht Import.
-     */
-    private static final SQLiteDatabase.CursorFactory mCursorFactory =
-            new SQLiteDatabase.CursorFactory() {
-                @Override
-                public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
-                                        String editTable, SQLiteQuery query) {
-                    AWSQLiteCursor c = new AWSQLiteCursor(masterQuery, editTable, query);
-                    long timer = System.nanoTime();
-                    if (AWApplication.EnableCursorLogging) {
-                        long elapsed = c.getFinishTime() - timer;
-                        boolean longRunning = elapsed > 3000000L;
-                        if (longRunning) {
-                            // Langlaufende Query - als Error loggen
-                            AWApplication.LogError("Dauer der Query: " + TimeUnit.NANOSECONDS
-                                    .convert(elapsed, TimeUnit.NANOSECONDS) + "[" + query
-                                    .toString() + "]");
-                        }
-                    }
-                    return c;
-                }
-            };
     /**
      * Map der ResIDs auf das Format der Spalte
      */
@@ -91,8 +63,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
 
     protected AbstractDBHelper(Context context, ApplicationConfig config,
                                SQLiteDatabase.CursorFactory cursorFactory) {
-        super(context, config.getApplicationDatabaseAbsoluteFilename(),
-                (cursorFactory == null) ? mCursorFactory : cursorFactory,
+        super(context, config.getApplicationDatabaseAbsoluteFilename(), cursorFactory,
                 config.theDatenbankVersion());
         mContext = context;
         int resID = R.string._id;
@@ -678,7 +649,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     @CallSuper
     protected boolean notifyCursors(Uri uri) {
-        AWApplication.getContext().getContentResolver().notifyChange(uri, null);
+        mContext.getContentResolver().notifyChange(uri, null);
         return uri.getLastPathSegment().equals(AWDBDefinition.RemoteServer.name());
     }
 
@@ -745,7 +716,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             database.setTransactionSuccessful();
             Log("DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion + " erfolgreich!");
         } catch (Exception e) {
-            LogError(
+            LogError(getContext(),
                     "DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion + " fehlgeschlagen!");
             e.printStackTrace();
         } finally {

@@ -38,6 +38,7 @@ import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.utils.AWUtils;
 
@@ -47,25 +48,19 @@ import de.aw.awlib.utils.AWUtils;
 public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWInterface {
     private static final String ALARMTIME = "ALARMTIME";
     private static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
-    private static final String BACKUPPATH =
-            AWApplication.getContext().getApplicationConfig().getApplicationBackupPath() + "/";
-    private static final String DATABASEFILENAME = AWApplication.getContext().getApplicationConfig()
-            .getApplicationDatabaseAbsoluteFilename();
-    private final Context mContext;
-    private final SharedPreferences prefs;
-    private final Date date;
+    private static String DATABASEFILENAME;
+    private static String BACKUPPATH;
     private File backupFile;
+    private Date date;
+    private Context mContext;
     private AWNotification mNotification;
+    private SharedPreferences prefs;
+
+    public EventDBSave(Context context) {
+        init(context);
+    }
 
     public EventDBSave() {
-        mContext = AWApplication.getContext();
-        prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        date = new Date(System.currentTimeMillis());
-        Locale locale = Locale.getDefault();
-        DateFormat formatter =
-                DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-        backupFile = new File(
-                BACKUPPATH + (formatter.format(date)).replace(".", "_").replace(":", "_") + ".zip");
     }
 
     private static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
@@ -132,8 +127,23 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
         return backupFile;
     }
 
+    private void init(Context context) {
+        mContext = context.getApplicationContext();
+        ApplicationConfig mAppConfig = ((AWApplication) mContext).getApplicationConfig();
+        BACKUPPATH = mAppConfig.getApplicationBackupPath() + "/";
+        DATABASEFILENAME = mAppConfig.getApplicationDatabaseAbsoluteFilename();
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        date = new Date(System.currentTimeMillis());
+        Locale locale = Locale.getDefault();
+        DateFormat formatter =
+                DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+        backupFile = new File(
+                BACKUPPATH + (formatter.format(date)).replace(".", "_").replace(":", "_") + ".zip");
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
+        init(context);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         checkDBSaveAlarm(context, prefs);
     }

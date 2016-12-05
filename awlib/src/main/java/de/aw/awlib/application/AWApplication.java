@@ -37,7 +37,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.Date;
 
@@ -72,14 +71,8 @@ public abstract class AWApplication extends Application {
     public static final String DE_AW_APPLICATIONPATH =
             Environment.getExternalStorageDirectory() + "/de.aw";
     private static final String STACKTRACEPATH = "/stackTrace.txt";
-    private static WeakReference<AWApplication> mContext;
     private String APPLICATIONPATH;
     private ApplicationConfig mApplicationConfig;
-    private boolean mDebugFlag;
-
-    public AWApplication() {
-        mContext = new WeakReference<>(this);
-    }
 
     /**
      * Loggt Warnungen
@@ -88,9 +81,7 @@ public abstract class AWApplication extends Application {
      *         message
      */
     public static void Log(String message) {
-        if (getContext().mDebugFlag) {
-            Log.d(AWApplication.TAG, message);
-        }
+        Log.d(AWApplication.TAG, message);
     }
 
     /**
@@ -99,8 +90,9 @@ public abstract class AWApplication extends Application {
      * @param message
      *         Fehlermeldung
      */
-    public static void LogError(String message) {
-        File logFile = new File(getContext().APPLICATIONPATH + "/LOG.txt");
+    public static void LogError(Context context, String message) {
+        File logFile = new File(
+                ((AWApplication) context.getApplicationContext()).APPLICATIONPATH + "/LOG.txt");
         try {
             FileOutputStream fileout = new FileOutputStream(logFile, true);
             OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
@@ -112,17 +104,7 @@ public abstract class AWApplication extends Application {
             //TODO Execption bearbeiten
             e.printStackTrace();
         }
-        if (getContext().mDebugFlag) {
-            Log.e(AWApplication.TAG, message);
-        }
-    }
-
-    public static AWApplication getContext() {
-        return mContext.get();
-    }
-
-    public static void setContext(Context context) {
-        mContext = new WeakReference<>((AWApplication) context);
+        Log.e(AWApplication.TAG, message);
     }
 
     public ApplicationConfig getApplicationConfig() {
@@ -155,7 +137,7 @@ public abstract class AWApplication extends Application {
         if (!folder.exists()) {
             folder.mkdir();
         }
-        mDebugFlag = mApplicationConfig.getDebugFlag();
+        boolean mDebugFlag = mApplicationConfig.getDebugFlag();
         folder = new File(APPLICATIONPATH);
         if (!folder.exists()) {
             folder.mkdir();

@@ -32,7 +32,7 @@ import de.aw.awlib.application.AWApplication;
 public final class AWDBAlterHelper {
     private final SQLiteDatabase database;
     private final AbstractDBHelper dbhelper;
-    String idColumn = AWApplication.getContext().getString(R.string._id);
+    private final String idColumn;
 
     /**
      * Initialisiert AWDBAlterHelper. Die letzte vergebene indexNummer/uniqueIndexNummer wird aus
@@ -44,6 +44,7 @@ public final class AWDBAlterHelper {
     public AWDBAlterHelper(AbstractDBHelper dbhelper) {
         this.dbhelper = dbhelper;
         database = dbhelper.getWritableDatabase();
+        idColumn = dbhelper.getContext().getString(R.string._id);
     }
 
     /**
@@ -113,7 +114,7 @@ public final class AWDBAlterHelper {
      *         Spalten, die kopiert werden sollen
      */
     public void alterTable(AWAbstractDBDefinition tbd, int[] fromColumns) {
-        String colums = tbd.getCommaSeperatedList(fromColumns);
+        String colums = dbhelper.getCommaSeperatedList(fromColumns);
         String tempTableName = "temp" + tbd.name();
         String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
         String copyValuesSQL = "INSERT INTO temp" + tbd.name() + " (" + colums + ") SELECT " +
@@ -136,7 +137,7 @@ public final class AWDBAlterHelper {
      *         neue Column
      */
     public void alterTableAddColumn(AWAbstractDBDefinition tbd, int newColumn) {
-        String colName = tbd.columnName(newColumn);
+        String colName = dbhelper.columnName(newColumn);
         String format = dbhelper.getSQLiteFormat(newColumn);
         String sql = "ALTER TABLE " + tbd.name() + " ADD " + colName + " " + format;
         database.execSQL(sql);
@@ -156,7 +157,7 @@ public final class AWDBAlterHelper {
      */
     public void alterTableAddColumn(AWAbstractDBDefinition tbd, int newColumn, String defaultWert) {
         alterTableAddColumn(tbd, newColumn);
-        String colName = tbd.columnName(newColumn);
+        String colName = dbhelper.columnName(newColumn);
         String sql = "UPDATE " + tbd.name() + " SET  " + colName + " = " + defaultWert;
         database.execSQL(sql);
     }
@@ -180,7 +181,7 @@ public final class AWDBAlterHelper {
     public void alterTableDistinct(AWAbstractDBDefinition tbd, String distinctColumn) {
         String tempTableName = "temp" + tbd.name();
         String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
-        String oldColumnNames = tbd.getCommaSeperatedList(tbd.getTableItems());
+        String oldColumnNames = dbhelper.getCommaSeperatedList(tbd.getTableItems());
         String copyValuesSQL =
                 "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
                         oldColumnNames +
@@ -205,7 +206,7 @@ public final class AWDBAlterHelper {
         AWApplication.Log("Alter Table: " + tbd.name());
         String tempTableName = "temp" + tbd.name();
         String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
-        String oldColumnNames = tbd.getCommaSeperatedList(tbd.getTableItems());
+        String oldColumnNames = dbhelper.getCommaSeperatedList(tbd.getTableItems());
         String copyValuesSQL =
                 "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
                         oldColumnNames +
@@ -252,7 +253,7 @@ public final class AWDBAlterHelper {
     }
 
     public void copyValues(AWAbstractDBDefinition from, int[] columns, AWAbstractDBDefinition to) {
-        String mColumns = from.getCommaSeperatedList(columns);
+        String mColumns = dbhelper.getCommaSeperatedList(columns);
         String sql = "INSERT INTO " + to.name() + " (" + mColumns + ") SELECT " +
                 mColumns +
                 " FROM " +
@@ -375,7 +376,7 @@ public final class AWDBAlterHelper {
                                             @NonNull int[] tableindex) {
         List<String> columns = new ArrayList<>();
         for (int resID : tableindex) {
-            columns.add(tbd.columnName(resID));
+            columns.add(dbhelper.columnName(resID));
         }
         columns.remove(idColumn);
         StringBuilder indexSQL = new StringBuilder(columns.get(0));
@@ -393,7 +394,7 @@ public final class AWDBAlterHelper {
             sql = sql + "UNIQUE ";
         }
         sql = sql + "INDEX IF NOT EXISTS " + indexName + " on " + tbd.name() + " (" +
-                tbd.getCommaSeperatedList(columns) + ")";
+                dbhelper.getCommaSeperatedList(columns) + ")";
         return sql;
     }
 
@@ -404,7 +405,7 @@ public final class AWDBAlterHelper {
         StringBuilder sql = new StringBuilder(" ( ");
         boolean id = true;
         for (int resID : tbd.getTableItems()) {
-            String colName = tbd.columnName(resID);
+            String colName = dbhelper.columnName(resID);
             String format = dbhelper.getSQLiteFormat(resID);
             if (id) {
                 sql.append(colName).append(" INTEGER PRIMARY KEY ");

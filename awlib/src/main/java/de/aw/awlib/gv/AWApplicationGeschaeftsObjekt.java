@@ -121,7 +121,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd) {
         this.tbd = tbd;
-        selection = tbd.columnName(R.string._id) + " = ?";
+        selection = context.getString(R.string._id) + " = ?";
         for (int resID : tbd.getTableItems()) {
             char format = tbd.getFormat(resID);
             switch (format) {
@@ -196,8 +196,9 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
 
     public int delete(AbstractDBHelper db) {
         if (id == null) {
-            AWApplication.LogError(
-                    "AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht moeglich.");
+            AWApplication
+                    .Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht moeglich");
+            return 0;
         }
         int result;
         result = db.delete(tbd, selection, selectionArgs);

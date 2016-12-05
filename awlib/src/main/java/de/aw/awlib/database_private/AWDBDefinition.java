@@ -22,11 +22,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.aw.awlib.R;
-import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBAlterHelper;
@@ -186,28 +182,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      *         wenn initialize(context) nicht gerufen wurde
      */
     public String[] columnNames(int... resIDs) {
-        if (resIDs != null) {
-            boolean idPresent = false;
-            List<String> columns = new ArrayList<>();
-            for (int resID : resIDs) {
-                String col = columnName(resID);
-                if (resID == R.string._id) {
-                    idPresent = true;
-                }
-                if (col == null) {
-                    String value = AWApplication.getContext().getResources().getString(resID);
-                    throw new ResIDNotFoundException("ResID " + resID + " mit " +
-                            "Namen " + value + " in " + name() + " nicht " +
-                            "vorhanden!.");
-                }
-                columns.add(col);
-            }
-            if (!idPresent) {
-                columns.add(columnName(R.string._id));
-            }
-            return columns.toArray(new String[columns.size()]);
-        }
-        return null;
+        return mApplicationConfig.getDBHelper().columnNames(resIDs);
     }
 
     /**
@@ -296,15 +271,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
      */
     public String getOrderString(int... orderColumns) {
-        return getCommaSeperatedList(orderColumns);
-    }
-
-    /**
-     * @return Tableitems der Tabelle, Aufbau: [0]: resID [1]: Format in SQLite [2]: (otional)
-     * Praefix fuer QIF-Import
-     */
-    public int[] getTableItems() {
-        return null;
+        return mApplicationConfig.getDBHelper().getCommaSeperatedList(orderColumns);
     }
 
     @Override

@@ -16,12 +16,13 @@
  */
 package de.aw.awlib.enums;
 
+import android.content.Context;
+
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
 import de.aw.awlib.R;
-import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
 
 /**
@@ -168,11 +169,11 @@ public enum AWDateSelector {
     /**
      * Texte der Aufzaehlung als Array
      */
-    public static String[] getDateTexte() {
+    public static String[] getDateTexte(Context context) {
         if (dateTexte == null) {
             dateTexte = new String[AWDateSelector.values().length];
             for (AWDateSelector ds : AWDateSelector.values()) {
-                dateTexte[ds.ordinal()] = AWApplication.getContext().getString(ds.textResID);
+                dateTexte[ds.ordinal()] = context.getString(ds.textResID);
             }
         }
         return dateTexte;

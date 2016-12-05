@@ -101,7 +101,7 @@ public class AWCSVExporter {
             selection += " GROUP BY " + groupBy;
         }
         String[] projection = tbd.columnNames(fromResIDs);
-        Cursor c = AWApplication.getContext().getContentResolver()
+        Cursor c = mContext.getContentResolver()
                 .query(tbd.getUri(), projection, selection, selectionArgs, null);
         doExport(tbd, c);
     }
@@ -167,15 +167,15 @@ public class AWCSVExporter {
 
         @Override
         protected Integer doInBackground(Void... voids) {
+            ApplicationConfig mAppConfig =
+                    ((AWApplication) mContext.getApplicationContext()).getApplicationConfig();
             int[] fromResIDs = new int[c.getColumnCount()];
             for (int i = 0; i < c.getColumnCount(); i++) {
                 String columnname = c.getColumnName(i);
                 fromResIDs[i] = mDBHelper.getResID(columnname);
             }
             List<String[]> list = new ArrayList<>();
-            String filename =
-                    ((AWApplication) mContext.getApplicationContext()).getApplicationConfig()
-                            .getApplicationExportPath() + "/" + this.filename;
+            String filename = mAppConfig.getApplicationExportPath() + "/" + this.filename;
             File file = new File(filename);
             fullFilename = file.getAbsolutePath();
             FileOutputStream fos;
@@ -197,7 +197,7 @@ public class AWCSVExporter {
                         columns = new String[c.getColumnCount()];
                         for (int j = 0; j < c.getColumnCount(); j++) {
                             int resID = fromResIDs[j];
-                            char format = tbd.getFormat(resID);
+                            char format = mAppConfig.getDBHelper().getFormat(resID);
                             switch (format) {
                                 case 'C':
                                     Long amount = c.getLong(j);
