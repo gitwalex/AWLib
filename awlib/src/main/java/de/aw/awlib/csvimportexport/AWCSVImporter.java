@@ -41,7 +41,6 @@ import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBAlterHelper;
 import de.aw.awlib.database.AWDBConvert;
-import de.aw.awlib.database.AWDBFormatter;
 import de.aw.awlib.database.AbstractDBHelper;
 
 /**
@@ -125,7 +124,6 @@ public class AWCSVImporter implements AWResultCodes {
 
     public int execute(String filename) {
         AbstractDBHelper db = null;
-        AWDBFormatter mDBFormat = null;
         int result = RESULT_OK;
         CSVReader reader = null;
         try {
@@ -137,7 +135,7 @@ public class AWCSVImporter implements AWResultCodes {
             columns = reader.readNext();
             Integer[] columnsResIDs = new Integer[columns.length];
             for (int i = 0; i < columns.length; i++) {
-                columnsResIDs[i] = mDBFormat.getResID(columns[i]);
+                columnsResIDs[i] = db.getResID(columns[i]);
             }
             while ((nextLine = reader.readNext()) != null) {
                 ContentValues cv = new ContentValues();
@@ -177,7 +175,7 @@ public class AWCSVImporter implements AWResultCodes {
         }
         if (result == RESULT_OK) {
             SQLiteDatabase database = db.getWritableDatabase();
-            AWDBAlterHelper helper = new AWDBAlterHelper(database);
+            AWDBAlterHelper helper = new AWDBAlterHelper(db);
             String tempTable = "ImportTable";
             helper.createTable(tempTable, columns);
             database.beginTransaction();

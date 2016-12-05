@@ -34,8 +34,6 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     String getCreateViewSQL();
 
-    AWDBFormatter getDBFormatter();
-
     char getFormat(int resID);
 
     String getOrderString();

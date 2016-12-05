@@ -150,9 +150,9 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
             mUri = withAppendedPath(mUri, file.getName());
             mRemoteFileServer.setMainDirectory(mUri.getEncodedPath());
             if (mRemoteFileServer.isInserted()) {
-                mRemoteFileServer.update(getDBHelper());
+                mRemoteFileServer.update(getActivity(), getDBHelper());
             } else {
-                mRemoteFileServer.insert(getDBHelper());
+                mRemoteFileServer.insert(getActivity(), getDBHelper());
             }
             mOnActionFinishListener.onActionFinishClicked(layout);
             return true;

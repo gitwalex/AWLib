@@ -41,7 +41,7 @@ import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
-import de.aw.awlib.database.AWDBFormatter;
+import de.aw.awlib.database.AbstractDBHelper;
 
 import static de.aw.awlib.AWResultCodes.RESULT_OK;
 
@@ -64,11 +64,13 @@ public class AWCSVExporter {
 
     private final ExportCursorListener mExportCursorListener;
     private final Context mContext;
+    private final AbstractDBHelper mDBHelper;
     private String fullFilename;
 
     public AWCSVExporter(@NonNull Context context, @NonNull ExportCursorListener listener) {
         mExportCursorListener = listener;
-        mContext = context;
+        mContext = context.getApplicationContext();
+        mDBHelper = ((AWApplication) mContext).getApplicationConfig().getDBHelper();
     }
 
     /**
@@ -165,11 +167,10 @@ public class AWCSVExporter {
 
         @Override
         protected Integer doInBackground(Void... voids) {
-            AWDBFormatter mDBFormat = tbd.getDBFormatter();
             int[] fromResIDs = new int[c.getColumnCount()];
             for (int i = 0; i < c.getColumnCount(); i++) {
                 String columnname = c.getColumnName(i);
-                fromResIDs[i] = mDBFormat.getResID(columnname);
+                fromResIDs[i] = mDBHelper.getResID(columnname);
             }
             List<String[]> list = new ArrayList<>();
             String filename =

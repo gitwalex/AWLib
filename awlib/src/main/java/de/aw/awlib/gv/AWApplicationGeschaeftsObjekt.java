@@ -81,9 +81,9 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @param go
      *         Geschaeftsobject, dessen Daten kopiert werden sollen.
      */
-    protected AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd,
+    protected AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd,
                                             AWApplicationGeschaeftsObjekt go) {
-        this(tbd);
+        this(context, tbd);
         for (int resID : tbd.getTableItems()) {
             Object value = go.currentContent.get(tbd.columnName(resID));
             if (value != null) {
@@ -105,10 +105,10 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @throws android.content.res.Resources.NotFoundException
      *         Wenn kein Datensatz mit dieser ID gefunden wurde.
      */
-    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd, Long id)
+    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd, Long id)
             throws LineNotFoundException {
-        this(tbd);
-        fillContent(id);
+        this(context, tbd);
+        fillContent(context, id);
         id = getID();
         selectionArgs = new String[]{id.toString()};
     }
@@ -119,7 +119,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @param tbd
      *         AWAbstractDBDefinition
      */
-    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd) {
+    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd) {
         this.tbd = tbd;
         selection = tbd.columnName(R.string._id) + " = ?";
         for (int resID : tbd.getTableItems()) {
@@ -140,30 +140,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         this.currentContent = in.readParcelable(ContentValues.class.getClassLoader());
         this.isDirty = in.readByte() != 0;
         this.tbd = in.readParcelable(AWAbstractDBDefinition.class.getClassLoader());
-    }
-
-    public static Context getContext() {
-        return AWApplication.getContext();
-    }
-
-    /**
-     * Zugriff auf Datenbank. Liefert einen Cursor auf die uebergebenen Argumente zurueck
-     *
-     * @param projection
-     *         Tabellenspalten
-     * @param selection
-     *         selection
-     * @param selectionArgs
-     *         Argumente zur Selection
-     * @param sortOrder
-     *         Sortierung
-     *
-     * @return Cursor Cursor
-     */
-    public static Cursor getCursor(AWAbstractDBDefinition tbd, String[] projection,
-                                   String selection, String[] selectionArgs, String sortOrder) {
-        return getContext().getContentResolver()
-                .query(tbd.getUri(), projection, selection, selectionArgs, sortOrder, null);
     }
 
     public static boolean isImport() {
@@ -303,9 +279,9 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @throws LineNotFoundException
      *         Wenn keine Zeile mit der id gefunden wurde.
      */
-    public final void fillContent(Long id) throws LineNotFoundException {
+    public final void fillContent(Context context, Long id) throws LineNotFoundException {
         selectionArgs = new String[]{id.toString()};
-        fillContent(id, selection, selectionArgs);
+        fillContent(context, id, selection, selectionArgs);
     }
 
     /**
@@ -321,10 +297,11 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @throws LineNotFoundException
      *         wenn keine Zeile gefunden wurde.
      */
-    public final void fillContent(Long id, String selection, String[] selectionArgs)
-            throws LineNotFoundException {
-        Cursor c = getCursor(tbd, tbd.columnNames(tbd.getTableItems()), selection, selectionArgs,
-                null);
+    public final void fillContent(Context context, Long id, String selection,
+                                  String[] selectionArgs) throws LineNotFoundException {
+        Cursor c = context.getContentResolver()
+                .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), selection, selectionArgs,
+                        null);
         try {
             if (c.moveToFirst()) {
                 fillContent(c);
@@ -353,10 +330,11 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @throws IllegalStateException
      *         , wenn das Ergebnis mehr als eine Zeile liefert.
      */
-    public final void fillContent(String selection, String[] selectionArgs)
+    public final void fillContent(Context context, String selection, String[] selectionArgs)
             throws LineNotFoundException {
         String[] projection = tbd.columnNames(tbd.getTableItems());
-        Cursor c = getCursor(tbd, projection, selection, selectionArgs, null);
+        Cursor c = context.getContentResolver()
+                .query(tbd.getUri(), projection, selection, selectionArgs, null);
         try {
             if (c.getCount() > 1) {
                 AWApplication.Log("selection" + selection);

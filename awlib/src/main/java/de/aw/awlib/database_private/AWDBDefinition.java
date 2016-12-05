@@ -30,7 +30,6 @@ import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBAlterHelper;
-import de.aw.awlib.database.AWDBFormatter;
 
 /**
  * @author Alexander Winkler
@@ -170,7 +169,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      *         wenn ResId nicht in der Liste der Columns enthalten ist.
      */
     public String columnName(int resID) {
-        return mApplicationConfig.getDBFormatter().columnName(resID);
+        return mApplicationConfig.getDBHelper().columnName(resID);
     }
 
     /**
@@ -235,7 +234,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * @return ColumnNamen, Komma getrennt
      */
     public String getCommaSeperatedList(@NonNull int[] tableindex) {
-        return mApplicationConfig.getDBFormatter().getCommaSeperatedList(tableindex);
+        return mApplicationConfig.getDBHelper().getCommaSeperatedList(tableindex);
     }
 
     /**
@@ -244,11 +243,6 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      */
     public String getCreateViewSQL() {
         return null;
-    }
-
-    @Override
-    public AWDBFormatter getDBFormatter() {
-        return mApplicationConfig.getDBFormatter();
     }
 
     /**
@@ -260,7 +254,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * @return Format
      */
     public char getFormat(int resID) {
-        return mApplicationConfig.getDBFormatter().getFormat(resID);
+        return mApplicationConfig.getDBHelper().getFormat(resID);
     }
 
     /**

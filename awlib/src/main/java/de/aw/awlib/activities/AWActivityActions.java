@@ -122,7 +122,7 @@ public class AWActivityActions extends AWMainActivity
     public void onClick(View v) {
         switch (event) {
             case showRemoteFileServer:
-                mRemoteServer = new AWRemoteFileServer();
+                mRemoteServer = new AWRemoteFileServer(this);
                 AWFragment f = AWRemoteServerConnectionData.newInstance(mRemoteServer);
                 f.setOnDismissListener(this);
                 f.setOnCancelListener(this);
@@ -152,7 +152,7 @@ public class AWActivityActions extends AWMainActivity
                         subTitleResID = R.string.fileChooserTitleDoRestore;
                         break;
                     case configRemoteFileServer:
-                        AWRemoteFileServer mRemoteFileServer = new AWRemoteFileServer();
+                        AWRemoteFileServer mRemoteFileServer = new AWRemoteFileServer(this);
                         args.putParcelable(REMOTEFILESERVER, mRemoteFileServer);
                         f = AWRemoteFileChooser.newInstance(mRemoteFileServer);
                         setSubTitle(mRemoteFileServer.getURL());
@@ -195,7 +195,7 @@ public class AWActivityActions extends AWMainActivity
         AWFragment f = null;
         if (viewHolderLayoutID == R.layout.awlib_remote_fileserver) {
             try {
-                mRemoteServer = new AWRemoteFileServer(id);
+                mRemoteServer = new AWRemoteFileServer(this, id);
                 f = AWRemoteFileChooser.newInstance(mRemoteServer);
             } catch (AWApplicationGeschaeftsObjekt.LineNotFoundException e) {
                 //TODO Execption bearbeiten

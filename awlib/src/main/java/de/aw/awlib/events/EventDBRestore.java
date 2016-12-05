@@ -51,9 +51,8 @@ public class EventDBRestore implements AWResultCodes, AWInterface {
         protected Integer doInBackground(File... params) {
             int result;
             String targetFileName = mApplicationConfig.getApplicationDatabaseAbsoluteFilename();
-            mApplicationConfig.createAndGetDBHelper().close();
+            mApplicationConfig.getDBHelper().close();
             result = AWUtils.restoreZipArchivToFile(targetFileName, params[0]);
-            mApplicationConfig.createAndGetDBHelper();
             return result;
         }
 

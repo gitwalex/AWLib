@@ -78,7 +78,7 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
             mApplicationConfig =
                     ((AWApplication) getContext().getApplicationContext()).getApplicationConfig();
         }
-        return mApplicationConfig.createAndGetDBHelper();
+        return mApplicationConfig.getDBHelper();
     }
 
     @Override

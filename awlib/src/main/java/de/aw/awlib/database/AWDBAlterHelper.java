@@ -31,17 +31,19 @@ import de.aw.awlib.application.AWApplication;
  */
 public final class AWDBAlterHelper {
     private final SQLiteDatabase database;
+    private final AbstractDBHelper dbhelper;
     String idColumn = AWApplication.getContext().getString(R.string._id);
 
     /**
      * Initialisiert AWDBAlterHelper. Die letzte vergebene indexNummer/uniqueIndexNummer wird aus
      * Preferences gelesen.
      *
-     * @param database
-     *         database
+     * @param dbhelper
+     *         AbstractDBHelper
      */
-    public AWDBAlterHelper(SQLiteDatabase database) {
-        this.database = database;
+    public AWDBAlterHelper(AbstractDBHelper dbhelper) {
+        this.dbhelper = dbhelper;
+        database = dbhelper.getWritableDatabase();
     }
 
     /**
@@ -135,7 +137,7 @@ public final class AWDBAlterHelper {
      */
     public void alterTableAddColumn(AWAbstractDBDefinition tbd, int newColumn) {
         String colName = tbd.columnName(newColumn);
-        String format = tbd.getDBFormatter().getSQLiteFormat(newColumn);
+        String format = dbhelper.getSQLiteFormat(newColumn);
         String sql = "ALTER TABLE " + tbd.name() + " ADD " + colName + " " + format;
         database.execSQL(sql);
         tbd.createDatabase(this);
@@ -400,11 +402,10 @@ public final class AWDBAlterHelper {
      */
     public String getCreateTableSQL(AWAbstractDBDefinition tbd) {
         StringBuilder sql = new StringBuilder(" ( ");
-        AWDBFormatter mDBFormat = tbd.getDBFormatter();
         boolean id = true;
         for (int resID : tbd.getTableItems()) {
             String colName = tbd.columnName(resID);
-            String format = mDBFormat.getSQLiteFormat(resID);
+            String format = dbhelper.getSQLiteFormat(resID);
             if (id) {
                 sql.append(colName).append(" INTEGER PRIMARY KEY ");
                 id = false;

@@ -69,7 +69,7 @@ public abstract class AWApplication extends Application {
     /**
      * Pfad, indem alle de.aw.-Applications abgelegt werden
      */
-    private static final String DE_AW_APPLICATIONPATH =
+    public static final String DE_AW_APPLICATIONPATH =
             Environment.getExternalStorageDirectory() + "/de.aw";
     private static final String STACKTRACEPATH = "/stackTrace.txt";
     private static WeakReference<AWApplication> mContext;

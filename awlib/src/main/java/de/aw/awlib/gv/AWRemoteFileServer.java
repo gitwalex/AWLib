@@ -16,10 +16,10 @@
  */
 package de.aw.awlib.gv;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 
 import de.aw.awlib.R;
 import de.aw.awlib.database.AbstractDBHelper;
@@ -44,47 +44,20 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         }
     };
     private static final AWDBDefinition tbd = AWDBDefinition.RemoteServer;
-    private final SharedPreferences prefs;
     private ConnectionType mConnectionType;
     private String mMainDirectory;
     private String mURL;
     private String mUserID;
     private String mUserPassword;
 
-    /**
-     * Neuer RemoteServer.
-     *
-     * @param serverURL
-     *         URL des Servers
-     * @param username
-     *         Username
-     * @param passwort
-     *         Passort
-     * @param connectionType
-     *         Typ der Verbindung gemaess {@link ConnectionType}
-     */
-    public AWRemoteFileServer(@NonNull String serverURL, @NonNull String username,
-                              @NonNull String passwort, ConnectionType connectionType) {
-        super(tbd);
-        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        mURL = serverURL;
-        mUserID = username;
-        mUserPassword = passwort;
-        mConnectionType = connectionType;
-        put(R.string.column_connectionType, mConnectionType.name());
-        put(R.string.column_serverurl, mURL);
-        put(R.string.column_userID, mUserID);
-    }
-
-    public AWRemoteFileServer() {
-        super(tbd);
+    public AWRemoteFileServer(Context context) {
+        super(context, tbd);
         put(R.string.column_connectionType, SSL.name());
-        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
     }
 
-    public AWRemoteFileServer(long id) throws LineNotFoundException {
-        super(tbd, id);
-        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+    public AWRemoteFileServer(Context context, long id) throws LineNotFoundException {
+        super(context, tbd, id);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         mURL = getAsString(R.string.column_serverurl);
         mUserID = getAsString(R.string.column_serverurl);
         mMainDirectory = getAsString(R.string.column_maindirectory);
@@ -96,7 +69,6 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
 
     protected AWRemoteFileServer(Parcel in) {
         super(in);
-        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         this.mURL = in.readString();
         this.mUserID = in.readString();
         this.mUserPassword = in.readString();
@@ -106,8 +78,21 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
                 tmpMConnectionType == -1 ? null : ConnectionType.values()[tmpMConnectionType];
     }
 
+    /**
+     * Nicht benutzen. Stattdessen {@link AWRemoteFileServer#delete(Context, AbstractDBHelper)}
+     * benutzen
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Deprecated
     @Override
     public int delete(AbstractDBHelper db) {
+        throw new UnsupportedOperationException(
+                "Nicht benutzen: Stattdessen delete(Context, AbstractDBHelper");
+    }
+
+    public int delete(Context context, AbstractDBHelper db) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         int result = super.delete(db);
         if (result != 0) {
             SharedPreferences.Editor editor = prefs.edit();
@@ -150,8 +135,21 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         return mUserPassword;
     }
 
+    /**
+     * Nicht benutzen. Stattdessen {@link AWRemoteFileServer#insert(Context, AbstractDBHelper)} )}
+     * benutzen
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Deprecated
     @Override
     public long insert(AbstractDBHelper db) {
+        throw new UnsupportedOperationException(
+                "Nicht benutzen: Stattdessen insert(Context, AbstractDBHelper");
+    }
+
+    public long insert(Context context, AbstractDBHelper db) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         long id = -1;
         if (isValid()) {
             id = super.insert(db);
@@ -192,8 +190,21 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         mUserPassword = password;
     }
 
+    /**
+     * Nicht benutzen. Stattdessen {@link AWRemoteFileServer#update(Context, AbstractDBHelper)} )}
+     * benutzen
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Deprecated
     @Override
     public int update(AbstractDBHelper db) {
+        throw new UnsupportedOperationException(
+                "Nicht benutzen: Stattdessen update(Context, AbstractDBHelper");
+    }
+
+    public int update(Context context, AbstractDBHelper db) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (!isValid()) {
             return 0;
         }

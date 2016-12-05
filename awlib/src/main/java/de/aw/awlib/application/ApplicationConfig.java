@@ -2,11 +2,11 @@ package de.aw.awlib.application;
 
 import android.content.Context;
 import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 
 import de.aw.awlib.database.AWAbstractDBDefinition;
-import de.aw.awlib.database.AWDBFormatter;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.database_private.AWDBDefinition;
 
@@ -28,22 +28,21 @@ public abstract class ApplicationConfig {
      */
     private static final String IMPORTPATH = "/import";
     private final String APPLICATIONPATH;
-    private AWDBFormatter mDBFormatter;
+    private final Context mContext;
+    private AbstractDBHelper mDBHelper;
 
-    public ApplicationConfig(Context context, String AWLibDatapath) {
-        APPLICATIONPATH = AWLibDatapath + "/" + theApplicationDirectory();
+    public ApplicationConfig(Context context) {
+        mContext = context.getApplicationContext();
+        APPLICATIONPATH = AWApplication.DE_AW_APPLICATIONPATH + "/" + theApplicationDirectory();
         AWAbstractDBDefinition[] tbds = getDBDefinitionValues();
         if (tbds.length > 0) {
             tbds[0].setApplicationConfig(this);
-            mDBFormatter = createDBFormatter(context, tbds);
         }
         AWDBDefinition.values()[0].setApplicationConfig(this);
     }
 
-    public abstract AbstractDBHelper createAndGetDBHelper();
-
-    protected abstract AWDBFormatter createDBFormatter(Context context,
-                                                       AWAbstractDBDefinition[] tbds);
+    @NonNull
+    protected abstract AbstractDBHelper createDBHelper(Context context);
 
     @CallSuper
     protected void createFiles() {
@@ -101,6 +100,10 @@ public abstract class ApplicationConfig {
 
     public abstract String getAuthority();
 
+    public Context getContext() {
+        return mContext;
+    }
+
     /**
      * @return Liefert ein HTML-File  fuer die Auswahl der Preferences 'Copyright'. Das file wird in
      * /assets/html erwartet.
@@ -113,8 +116,11 @@ public abstract class ApplicationConfig {
 
     protected abstract AWAbstractDBDefinition[] getDBDefinitionValues();
 
-    public AWDBFormatter getDBFormatter() {
-        return mDBFormatter;
+    public AbstractDBHelper getDBHelper() {
+        if (mDBHelper == null) {
+            mDBHelper = createDBHelper(mContext);
+        }
+        return mDBHelper;
     }
 
     /**
