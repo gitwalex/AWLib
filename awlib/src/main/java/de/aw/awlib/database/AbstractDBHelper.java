@@ -36,7 +36,7 @@ import java.util.Set;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
-import de.aw.awlib.application.ApplicationConfig;
+import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database_private.AWDBDefinition;
 
 import static de.aw.awlib.application.AWApplication.Log;
@@ -61,11 +61,12 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     private SQLiteDatabase db;
     private Set<Uri> usedTables = new HashSet<>();
 
-    protected AbstractDBHelper(Context context, ApplicationConfig config,
-                               SQLiteDatabase.CursorFactory cursorFactory) {
-        super(context, config.getApplicationDatabaseAbsoluteFilename(), cursorFactory,
-                config.theDatenbankVersion());
-        mContext = context;
+    protected AbstractDBHelper(Context context, SQLiteDatabase.CursorFactory cursorFactory) {
+        super(context, ((AWApplication) context.getApplicationContext()).getApplicationConfig()
+                        .getApplicationDatabaseAbsoluteFilename(), cursorFactory,
+                ((AWApplication) context.getApplicationContext()).getApplicationConfig()
+                        .theDatenbankVersion());
+        mContext = context.getApplicationContext();
         int resID = R.string._id;
         AWAbstractDBDefinition[] tbds = getAllDBDefinition();
         mapResID2Formate.put(resID, 'I');
@@ -655,7 +656,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
 
     @Override
     public final void onCreate(SQLiteDatabase database) {
-        AWDBAlterHelper dbhelper = new AWDBAlterHelper(this);
+        AWDBAlterHelper dbhelper = new AWDBAlterHelper(this, database);
         database.beginTransaction();
         try {
             for (AWAbstractDBDefinition tbd : getAllDBDefinition()) {
@@ -692,7 +693,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     @Override
     public final void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-        AWDBAlterHelper dbhelper = new AWDBAlterHelper(this);
+        AWDBAlterHelper dbhelper = new AWDBAlterHelper(this, database);
         database.beginTransaction();
         try {
             AWDBDefinition tbd = AWDBDefinition.RemoteServer;

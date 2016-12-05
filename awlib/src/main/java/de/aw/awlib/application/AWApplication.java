@@ -107,11 +107,11 @@ public abstract class AWApplication extends Application {
         Log.e(AWApplication.TAG, message);
     }
 
+    protected abstract ApplicationConfig createApplicationConfig();
+
     public ApplicationConfig getApplicationConfig() {
         return mApplicationConfig;
     }
-
-    protected abstract ApplicationConfig getApplicationConfig(String theMainPath);
 
     private void handleUncaughtException(Throwable e) throws IOException {
         e.printStackTrace(); // not all Android versions will print the stack trace automatically
@@ -131,7 +131,7 @@ public abstract class AWApplication extends Application {
 
     @Override
     public void onCreate() {
-        mApplicationConfig = getApplicationConfig(DE_AW_APPLICATIONPATH);
+        mApplicationConfig = createApplicationConfig();
         APPLICATIONPATH = mApplicationConfig.getApplicationPath();
         File folder = new File(DE_AW_APPLICATIONPATH);
         if (!folder.exists()) {

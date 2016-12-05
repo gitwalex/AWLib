@@ -41,9 +41,9 @@ public final class AWDBAlterHelper {
      * @param dbhelper
      *         AbstractDBHelper
      */
-    public AWDBAlterHelper(AbstractDBHelper dbhelper) {
+    public AWDBAlterHelper(AbstractDBHelper dbhelper, SQLiteDatabase database) {
         this.dbhelper = dbhelper;
-        database = dbhelper.getWritableDatabase();
+        this.database = database;
         idColumn = dbhelper.getContext().getString(R.string._id);
     }
 

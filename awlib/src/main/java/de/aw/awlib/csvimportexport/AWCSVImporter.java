@@ -183,7 +183,7 @@ public class AWCSVImporter implements AWResultCodes {
         }
         if (result == RESULT_OK) {
             SQLiteDatabase database = db.getWritableDatabase();
-            AWDBAlterHelper helper = new AWDBAlterHelper(db);
+            AWDBAlterHelper helper = new AWDBAlterHelper(db, database);
             String tempTable = "ImportTable";
             helper.createTable(tempTable, columns);
             database.beginTransaction();
