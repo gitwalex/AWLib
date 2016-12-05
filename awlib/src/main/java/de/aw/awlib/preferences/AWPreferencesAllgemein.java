@@ -153,6 +153,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
             return true;
         } else if (getString(R.string.pkSavePeriodic).equals(key)) {
             EventDBSave.checkDBSaveAlarm(getContext(), preference.getSharedPreferences());
+            return true;
         }
         return false;
     }

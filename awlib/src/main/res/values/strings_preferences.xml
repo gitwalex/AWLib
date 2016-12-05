@@ -67,5 +67,6 @@
     <string name="pkServerConnectionType">ConnectionType</string>
     <string name="pkServerRemoteDirectory">RemoteDirectory</string>
     <string name="cbConnectionType">verschlüsselte Verbindung</string>
+    <string name="dlgTitleDate">Datum</string>
 
 </resources>

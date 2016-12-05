@@ -91,43 +91,45 @@ public abstract class AWLoaderFragment extends AWFragment
      * @see LoaderManager.LoaderCallbacks#onCreateLoader(int, Bundle)
      */
     @Override
-    @CallSuper
     public Loader<Cursor> onCreateLoader(int p1, Bundle args) {
         if (mProgressbar != null) {
             mProgressbar.setVisibility(View.VISIBLE);
         }
         AWAbstractDBDefinition tbd = args.getParcelable(DBDEFINITION);
-        assert tbd != null;
-        Uri mUri = tbd.getUri();
-        String[] projection = args.getStringArray(PROJECTION);
-        int[] fromResIDs = args.getIntArray(FROMRESIDS);
-        if (projection != null && fromResIDs != null) {
-            LogError(getClass()
-                    .getSimpleName() + ": PROJECTION und FROMRESIDS sind belegt! Pruefen!");
-        }
-        if (projection == null) {
-            // Null: Also fromResIDs
-            projection = tbd.columnNames(fromResIDs);
-        }
-        if (projection == null) {
-            // IMMER noch Null - Fehler!
-            throw new NullPointerException(
-                    "Weder PROJECTION noch FROMRESIDS belegt. Weiss nicht, was tun");
-        }
-        String selection = args.getString(SELECTION);
-        String[] selectionArgs = args.getStringArray(SELECTIONARGS);
-        String groupBy = args.getString(GROUPBY);
-        if (groupBy != null) {
-            if (selection == null) {
-                selection = " 1=1";
+        if (tbd != null) {
+            Uri mUri = tbd.getUri();
+            String[] projection = args.getStringArray(PROJECTION);
+            int[] fromResIDs = args.getIntArray(FROMRESIDS);
+            if (projection != null && fromResIDs != null) {
+                LogError(getClass()
+                        .getSimpleName() + ": PROJECTION und FROMRESIDS sind belegt! Pruefen!");
             }
-            selection = selection + " GROUP BY " + groupBy;
+            if (projection == null) {
+                // Null: Also fromResIDs
+                projection = tbd.columnNames(fromResIDs);
+            }
+            if (projection == null) {
+                // IMMER noch Null - Fehler!
+                throw new NullPointerException(
+                        "Weder PROJECTION noch FROMRESIDS belegt. Weiss nicht, was tun");
+            }
+            String selection = args.getString(SELECTION);
+            String[] selectionArgs = args.getStringArray(SELECTIONARGS);
+            String groupBy = args.getString(GROUPBY);
+            if (groupBy != null) {
+                if (selection == null) {
+                    selection = " 1=1";
+                }
+                selection = selection + " GROUP BY " + groupBy;
+            }
+            String orderBy = args.getString(ORDERBY);
+            if (orderBy == null) {
+                orderBy = tbd.getOrderString();
+            }
+            return new CursorLoader(getActivity(), mUri, projection, selection, selectionArgs,
+                    orderBy);
         }
-        String orderBy = args.getString(ORDERBY);
-        if (orderBy == null) {
-            orderBy = tbd.getOrderString();
-        }
-        return new CursorLoader(getActivity(), mUri, projection, selection, selectionArgs, orderBy);
+        return null;
     }
 
     @CallSuper

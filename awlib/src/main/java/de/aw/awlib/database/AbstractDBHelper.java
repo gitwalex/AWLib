@@ -404,10 +404,14 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *         uri der Tabelle, die waehrend der gesamten Transaktion benutzt wurde. Alle Cursor zu
      *         diesen Tabellen werden ueber eine Aenderung informiert. Wenn keine weiteren von
      *         dieser Tabelle abhaengigen Uris informiert werden solle, wars das dann.
+     *
+     * @return true, wenn es sich bei der betroffenen Tabelle um eine zentrale tabelle handelt. Dann
+     * kann der erbende DBHelper nichts von dieser Tabelle wissen. Sonst false.
      */
     @CallSuper
-    protected void notifyCursors(Uri uri) {
+    protected boolean notifyCursors(Uri uri) {
         AWApplication.getContext().getContentResolver().notifyChange(uri, null);
+        return uri.getLastPathSegment().equals(AWDBDefinition.RemoteServer.name());
     }
 
     @Override
@@ -452,6 +456,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         AWDBAlterHelper dbhelper = new AWDBAlterHelper(database);
         database.beginTransaction();
         try {
+            AWDBDefinition tbd = AWDBDefinition.RemoteServer;
+            dbhelper.alterTableOnlyDeletedColumns(tbd);
             doUpgrade(database, dbhelper, oldVersion, newVersion);
             // Bei jeder Aenderung der DB werden alle Views geloescht und neu angelegt.
             List<String> views = getViewNames(database);

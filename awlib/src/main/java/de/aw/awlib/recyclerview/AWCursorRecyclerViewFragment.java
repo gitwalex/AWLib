@@ -227,7 +227,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         super.onLoadFinished(loader, cursor);
-        indexColumn = cursor.getColumnIndexOrThrow(tbd.columnName(R.string._id));
+        indexColumn = cursor.getColumnIndexOrThrow(getString(R.string._id));
         if (cursor.getCount() == 0) {
             noEntryView.setVisibility(View.VISIBLE);
         } else {
