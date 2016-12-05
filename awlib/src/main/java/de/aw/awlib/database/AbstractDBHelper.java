@@ -82,7 +82,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
 		 * 1. mapResID2columnNames
 		 * 2. mapColumnName2ResID
 		 */
-        for (int[] map : getItems()) {
+        for (int[] map : getNonTextColumnItems()) {
             resID = map[0];
             mapResID2Formate.put(resID, (char) map[1]);
         }
@@ -417,7 +417,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * <p>
      * Liste der moeglichen Formate.
      * <p>
-     * T = normaler Text
+     * T = normaler Text (optional)
      * <p>
      * N = Numerisch
      * <p>
@@ -434,9 +434,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * <p>
      * K = Numerisch mit 5 Nachkommastellen (Kurs)
      **/
-    public int[][] getItems() {
-        return new int[][]{};
-    }
+    @NonNull
+    public abstract int[][] getNonTextColumnItems();
 
     /**
      * Ermittelt die Anzahl der Zeilen, die durch die Selection potentiell zurueckgeliefert werden.
