@@ -27,6 +27,7 @@ import android.view.View;
 
 import de.aw.awlib.R;
 import de.aw.awlib.database.AWAbstractDBDefinition;
+import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
@@ -82,7 +83,7 @@ public abstract class AWLoaderFragment extends AWFragment
      * args.getString(GROUPBY): GroupBy-Clause
      * <p>
      * args.getString(ORDERBY): OrderBy-Clause. Ist dies nicht belegt, wird der Cursor gemaess
-     * {@link AWAbstractDBDefinition#getOrderString()} sortiert.
+     * {@link AbstractDBHelper#getOrderString(AWAbstractDBDefinition)} sortiert.
      *
      * @throws NullPointerException
      *         wenn args.getParcelable(DBDEFINITION) Null liefert

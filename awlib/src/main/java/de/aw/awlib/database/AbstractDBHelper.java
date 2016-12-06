@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
@@ -160,6 +161,65 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
 
     public static AbstractDBHelper getInstance() {
         return dbHelper;
+    }
+
+    /**
+     * Liefert zu einer resID ein MAX(resID) zurueck.
+     *
+     * @param resID
+     *         resID des Items
+     *
+     * @return Select Max im Format MAX(itemname) AS itemname
+     */
+    public final String SQLMaxItem(int resID) {
+        String spalte = columnName(resID);
+        return "max(" + spalte + ") AS " + spalte;
+    }
+
+    /**
+     * Erstellt SubSelect.
+     *
+     * @param tbd
+     *         DBDefinition
+     * @param resID
+     *         resID der Spalte
+     * @param column
+     *         Sapalte, die ermittelt wird.
+     * @param selection
+     *         Kann null sein
+     * @param selectionArgs
+     *         kann null sein. Es wird keinerlei Pruefung vorgenommen.
+     *
+     * @return SubSelect
+     */
+    public final String SQLSubSelect(AWAbstractDBDefinition tbd, int resID, String column,
+                                     String selection, String[] selectionArgs) {
+        String spalte = columnName(resID);
+        String sql = " (SELECT " + column + " FROM " + tbd.name() + " b ? ) AS " + spalte;
+        if (selectionArgs != null) {
+            for (String args : selectionArgs) {
+                selection = selection.replaceFirst("\\?", args);
+            }
+        }
+        if (!TextUtils.isEmpty(selection)) {
+            sql = sql.replace("?", " WHERE " + selection);
+        } else {
+            sql = sql.replace("?", "");
+        }
+        return sql;
+    }
+
+    /**
+     * Liefert zu einer resID ein SUM(resID) zurueck.
+     *
+     * @param resID
+     *         resID des Items
+     *
+     * @return Select Max im Format SUM(itemname) AS itemname
+     */
+    public final String SQLSumItem(int resID) {
+        String spalte = columnName(resID);
+        return "sum(" + spalte + ") AS " + spalte;
     }
 
     /**
@@ -469,6 +529,53 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             c.close();
         }
         return numberOfRows;
+    }
+
+    /**
+     * Liste der fuer eine sinnvolle Sortierung notwendigen Spalten.
+     *
+     * @return ResId der Spalten, die zu einer Sortierung herangezogen werden sollen.
+     */
+    public final int[] getOrderByItems(AWAbstractDBDefinition tbd) {
+        return new int[]{tbd.getTableItems()[0]};
+    }
+
+    /**
+     * Liefert ein Array der Columns zurueck, nach den sortiert werden sollte,
+     *
+     * @return Array der Columns, nach denen sortiert werden soll.
+     */
+    public final String[] getOrderColumns(AWAbstractDBDefinition tbd) {
+        int[] columItems = getOrderByItems(tbd);
+        return columnNames(columItems);
+    }
+
+    /**
+     * OrderBy-String - direkt fuer SQLITE verwendbar.
+     *
+     * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
+     */
+    public final String getOrderString(@NonNull int... resIDs) {
+        String[] orderColumns = columnNames(resIDs);
+        return getOrderString(orderColumns);
+    }
+
+    public final String getOrderString(String[] orderColumns) {
+        StringBuilder order = new StringBuilder(orderColumns[0]);
+        for (int i = 1; i < orderColumns.length; i++) {
+            order.append(", ").append(orderColumns[i]);
+        }
+        return order.toString();
+    }
+
+    /**
+     * OrderBy-String - direkt fuer SQLITE verwendbar.
+     *
+     * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
+     */
+    public final String getOrderString(AWAbstractDBDefinition tbd) {
+        String[] orderColumns = getOrderColumns(tbd);
+        return getOrderString(orderColumns);
     }
 
     public final Integer getResID(String resName) {

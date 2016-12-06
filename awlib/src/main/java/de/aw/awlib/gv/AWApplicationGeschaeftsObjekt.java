@@ -488,6 +488,10 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         return tbd;
     }
 
+    public AbstractDBHelper getDBHelper() {
+        return AbstractDBHelper.getInstance();
+    }
+
     /**
      * @return ID des Geschaeftsvorfalls
      */
