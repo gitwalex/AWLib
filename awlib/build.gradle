@@ -15,6 +15,7 @@ android {
         buildConfigField("long", "BuildTime", System.currentTimeMillis() + "L")
 
     }
+
     buildTypes {
         release {
             minifyEnabled false

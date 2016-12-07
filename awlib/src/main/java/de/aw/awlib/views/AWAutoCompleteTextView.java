@@ -52,7 +52,6 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     private String mOrderBy;
     private String[] mProjection;
     private String mSelection;
-    private SimpleCursorAdapter mSimpleCursorAdapter;
     private String selectedText = null;
     private long selectionID;
     private AWAbstractDBDefinition tbd;
@@ -96,13 +95,6 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
 
     public int getBroadcastIndex() {
         return mBroadcastIndex;
-    }
-
-    /**
-     * @return Liefert die Anzahl der Zeilen im Cursor zurueck.
-     */
-    public int getNumberOfRows() {
-        return mSimpleCursorAdapter.getCount();
     }
 
     /**
@@ -154,7 +146,7 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         mProjection = new String[]{AbstractDBHelper.getInstance().columnName(fromResID),
                 AbstractDBHelper.getInstance().columnName(R.string._id)};
         buildSelectionArguments(selection, selectionArgs);
-        mSimpleCursorAdapter =
+        SimpleCursorAdapter mSimpleCursorAdapter =
                 new SimpleCursorAdapter(getContext(), android.R.layout.simple_dropdown_item_1line,
                         null, mProjection, viewResIDs, 0);
         mSimpleCursorAdapter.setCursorToStringConverter(this);
@@ -172,11 +164,14 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
 
     @Override
     protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        Cursor c = mSimpleCursorAdapter.swapCursor(null);
-        if (c != null && !c.isClosed()) {
-            c.close();
+        SimpleCursorAdapter adapter = (SimpleCursorAdapter) getAdapter();
+        if (adapter != null) {
+            Cursor c = adapter.swapCursor(null);
+            if (c != null && !c.isClosed()) {
+                c.close();
+            }
         }
+        super.onDetachedFromWindow();
     }
 
     @Override
