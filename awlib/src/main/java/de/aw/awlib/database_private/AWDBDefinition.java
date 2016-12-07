@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import de.aw.awlib.R;
-import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBAlterHelper;
 import de.aw.awlib.database.AbstractDBHelper;
@@ -58,7 +57,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
             return new AWDBDefinition[size];
         }
     };
-    private ApplicationConfig mApplicationConfig;
+    private static String mAuthority;
     private Uri mUri;
 
     /**
@@ -278,7 +277,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
     @Override
     public Uri getUri() {
         if (mUri == null) {
-            mUri = Uri.parse("content://" + mApplicationConfig.getAuthority() + "/" + name());
+            mUri = Uri.parse("content://" + mAuthority + "/" + name());
         }
         return mUri;
     }
@@ -294,8 +293,8 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
     }
 
     @Override
-    public void setApplicationConfig(ApplicationConfig applicationConfig) {
-        mApplicationConfig = applicationConfig;
+    public void setAuthority(String authority) {
+        mAuthority = authority;
     }
 
     @Override

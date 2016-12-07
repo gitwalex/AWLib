@@ -36,6 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import de.aw.awlib.R;
+import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
@@ -150,9 +151,9 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
             mUri = withAppendedPath(mUri, file.getName());
             mRemoteFileServer.setMainDirectory(mUri.getEncodedPath());
             if (mRemoteFileServer.isInserted()) {
-                mRemoteFileServer.update(getActivity(), getDBHelper());
+                mRemoteFileServer.update(getActivity(), AbstractDBHelper.getInstance());
             } else {
-                mRemoteFileServer.insert(getActivity(), getDBHelper());
+                mRemoteFileServer.insert(getActivity(), AbstractDBHelper.getInstance());
             }
             mOnActionFinishListener.onActionFinishClicked(layout);
             return true;

@@ -3,12 +3,14 @@ package de.aw.awlib.fragments;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import de.aw.awlib.R;
+import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.utils.AWRemoteFileServerHandler;
 
@@ -29,10 +31,16 @@ public class AWRemoteServerConnectionData extends AWFragment {
     public static AWRemoteServerConnectionData newInstance(AWRemoteFileServer fileServer) {
         Bundle args = new Bundle();
         args.putParcelable(REMOTEFILESERVER, fileServer);
-        args.putParcelable(AWLIBACTION, MainAction.SHOW);
         AWRemoteServerConnectionData fragment = new AWRemoteServerConnectionData();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mRemoteFileServer = args.getParcelable(REMOTEFILESERVER);
+        awlib_gv = mRemoteFileServer;
     }
 
     @NonNull
@@ -46,7 +54,20 @@ public class AWRemoteServerConnectionData extends AWFragment {
     @Override
     protected boolean onOKButtonClicked() {
         mRemoteFileServer.setUserPassword(mPasswortEditText.getText().toString());
-        return mRemoteFileServer.isValid();
+        if (mRemoteFileServer.isValid()) {
+            AbstractDBHelper db = AbstractDBHelper.getInstance();
+            if (mRemoteFileServer.isInserted()) {
+                mRemoteFileServer.update(getActivity(), db);
+            } else {
+                mRemoteFileServer.insert(getActivity(), db);
+            }
+            View view = getView();
+            if (view != null) {
+                Snackbar.make(view, getString(R.string.awlib_datensatzSaved), Snackbar.LENGTH_SHORT)
+                        .show();
+            }
+        }
+        return true;
     }
 
     @Override
@@ -76,7 +97,5 @@ public class AWRemoteServerConnectionData extends AWFragment {
         args.putInt(LAYOUT, layout);
         args.putIntArray(VIEWRESIDS, viewResIDs);
         args.putIntArray(FROMRESIDS, fromResIDs);
-        mRemoteFileServer = args.getParcelable(REMOTEFILESERVER);
-        awlib_gv = mRemoteFileServer;
     }
 }

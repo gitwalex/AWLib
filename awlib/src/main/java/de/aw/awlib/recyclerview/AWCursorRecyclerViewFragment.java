@@ -282,6 +282,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
      * Wird vom Adapter gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs. die
      * Activity gerufen, die einen {@link AWOnCursorRecyclerViewListener} implementiert hat.
      */
+    @CallSuper
     public void onRecyclerItemClick(RecyclerView recyclerView, View view, int position, long id) {
         if (onCursorRecyclerViewListener != null) {
             onCursorRecyclerViewListener

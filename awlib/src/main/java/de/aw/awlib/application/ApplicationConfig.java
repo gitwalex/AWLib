@@ -36,9 +36,9 @@ public abstract class ApplicationConfig {
         APPLICATIONPATH = AWApplication.DE_AW_APPLICATIONPATH + "/" + theApplicationDirectory();
         AWAbstractDBDefinition[] tbds = getDBDefinitionValues();
         if (tbds.length > 0) {
-            tbds[0].setApplicationConfig(this);
+            tbds[0].setAuthority(getAuthority());
         }
-        AWDBDefinition.values()[0].setApplicationConfig(this);
+        AWDBDefinition.values()[0].setAuthority(getAuthority());
     }
 
     @NonNull

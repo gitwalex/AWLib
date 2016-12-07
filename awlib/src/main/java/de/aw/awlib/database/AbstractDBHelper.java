@@ -693,7 +693,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * siehe {@link SQLiteDatabase#inTransaction()}
      */
     public final boolean inTransaction() {
-        return db.inTransaction();
+        return db != null && db.inTransaction();
     }
 
     /**

@@ -365,12 +365,12 @@ public abstract class AWFragment extends DialogFragment
      */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        if (getShowsDialog() && viewResIDs != null) {
+        if (awlib_gv != null && viewResIDs != null) {
             AWLibViewHolder holder = new AWLibViewHolder(view);
             for (int i = 0; i < viewResIDs.length; i++) {
                 View target = holder.findViewById(viewResIDs[i]);
                 int fromResID = fromResIDs[i];
-                if (target instanceof TextView && awlib_gv != null) {
+                if (target instanceof TextView) {
                     TextView v = (TextView) target;
                     v.setText(awlib_gv.getAsString(fromResID));
                 }
