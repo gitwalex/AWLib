@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -44,7 +43,6 @@ import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.activities.AWMainActivity;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
@@ -120,10 +118,6 @@ public abstract class AWFragment extends DialogFragment
      *         Neuer Text
      */
     protected void afterTextChanged(TextView view, int identifier, String newText) {
-    }
-
-    public AbstractDBHelper getDBHelper() {
-        return AbstractDBHelper.getInstance();
     }
 
     public MainAction getMainAction() {
@@ -223,25 +217,6 @@ public abstract class AWFragment extends DialogFragment
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (AWFragment.this.onOKButtonClicked()) {
-                            switch (mainAction) {
-                                case ADD:
-                                case EDIT:
-                                    AbstractDBHelper db = getDBHelper();
-                                    if (awlib_gv.isInserted()) {
-                                        awlib_gv.update(db);
-                                    } else {
-                                        awlib_gv.insert(db);
-                                    }
-                                    View view = getView();
-                                    if (view != null) {
-                                        Snackbar.make(view,
-                                                getString(R.string.awlib_datensatzSaved),
-                                                Snackbar.LENGTH_SHORT).show();
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
                         }
                     }
                 })
