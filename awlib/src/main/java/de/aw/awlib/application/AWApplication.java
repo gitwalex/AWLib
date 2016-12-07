@@ -132,6 +132,7 @@ public abstract class AWApplication extends Application {
     @Override
     public void onCreate() {
         mApplicationConfig = createApplicationConfig();
+        mApplicationConfig.createDBHelper(this);
         APPLICATIONPATH = mApplicationConfig.getApplicationPath();
         File folder = new File(DE_AW_APPLICATIONPATH);
         if (!folder.exists()) {

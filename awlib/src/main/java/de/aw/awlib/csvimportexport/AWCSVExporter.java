@@ -70,7 +70,7 @@ public class AWCSVExporter {
     public AWCSVExporter(@NonNull Context context, @NonNull ExportCursorListener listener) {
         mExportCursorListener = listener;
         mContext = context.getApplicationContext();
-        mDBHelper = ((AWApplication) mContext).getApplicationConfig().getDBHelper();
+        mDBHelper = AbstractDBHelper.getInstance();
     }
 
     /**
@@ -197,7 +197,7 @@ public class AWCSVExporter {
                         columns = new String[c.getColumnCount()];
                         for (int j = 0; j < c.getColumnCount(); j++) {
                             int resID = fromResIDs[j];
-                            char format = mAppConfig.getDBHelper().getFormat(resID);
+                            char format = AbstractDBHelper.getInstance().getFormat(resID);
                             switch (format) {
                                 case 'C':
                                     Long amount = c.getLong(j);

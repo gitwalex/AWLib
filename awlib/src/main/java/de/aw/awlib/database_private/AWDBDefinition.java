@@ -166,7 +166,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      *         wenn ResId nicht in der Liste der Columns enthalten ist.
      */
     public String columnName(int resID) {
-        return mApplicationConfig.getDBHelper().columnName(resID);
+        return AbstractDBHelper.getInstance().columnName(resID);
     }
 
     /**
@@ -183,7 +183,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      *         wenn initialize(context) nicht gerufen wurde
      */
     public String[] columnNames(int... resIDs) {
-        return mApplicationConfig.getDBHelper().columnNames(resIDs);
+        return AbstractDBHelper.getInstance().columnNames(resIDs);
     }
 
     /**
@@ -210,7 +210,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * @return ColumnNamen, Komma getrennt
      */
     public String getCommaSeperatedList(@NonNull int[] tableindex) {
-        return mApplicationConfig.getDBHelper().getCommaSeperatedList(tableindex);
+        return AbstractDBHelper.getInstance().getCommaSeperatedList(tableindex);
     }
 
     /**
@@ -230,7 +230,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * @return Format
      */
     public char getFormat(int resID) {
-        return mApplicationConfig.getDBHelper().getFormat(resID);
+        return AbstractDBHelper.getInstance().getFormat(resID);
     }
 
     /**
@@ -272,7 +272,7 @@ public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
      * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
      */
     public String getOrderString(int... orderColumns) {
-        return mApplicationConfig.getDBHelper().getCommaSeperatedList(orderColumns);
+        return AbstractDBHelper.getInstance().getCommaSeperatedList(orderColumns);
     }
 
     @Override

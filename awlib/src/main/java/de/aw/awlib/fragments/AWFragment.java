@@ -123,8 +123,7 @@ public abstract class AWFragment extends DialogFragment
     }
 
     public AbstractDBHelper getDBHelper() {
-        return ((AWApplication) getActivity().getApplicationContext()).getApplicationConfig()
-                .getDBHelper();
+        return AbstractDBHelper.getInstance();
     }
 
     public MainAction getMainAction() {

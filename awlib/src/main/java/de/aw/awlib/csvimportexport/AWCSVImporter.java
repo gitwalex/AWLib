@@ -79,7 +79,7 @@ public class AWCSVImporter implements AWResultCodes {
             throws ParseException {
         Long amount;
         if (value != null) {
-            char format = mAppconfig.getDBHelper().getFormat(resID);
+            char format = AbstractDBHelper.getInstance().getFormat(resID);
             switch (format) {
                 case 'D':// Datum
                     Date date;
