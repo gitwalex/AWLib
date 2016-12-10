@@ -104,7 +104,11 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
      * @return Text
      */
     public String getSelectedText() {
-        return selectedText;
+        if (isValidatorSet) {
+            return selectedText;
+        } else {
+            return getText().toString();
+        }
     }
 
     /**
@@ -252,12 +256,10 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         Cursor data = getContext().getContentResolver()
                 .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs, mOrderBy);
         if (data != null && data.moveToFirst()) {
-            if (isValidatorSet) {
-                selectionID = data.getLong(1);
-                selectedText = data.getString(0);
-                if (data.getCount() == 1) {
-                    sendMessage();
-                }
+            selectionID = data.getLong(1);
+            selectedText = data.getString(0);
+            if (data.getCount() == 1) {
+                sendMessage();
             }
         }
         setDropDownHeight(getLineHeight() * 18);

@@ -17,6 +17,7 @@
 package de.aw.awlib.fragments;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.view.Menu;
@@ -58,6 +59,12 @@ public abstract class AWFragmentActionBar extends AWFragment {
             throw new IllegalStateException(context.getClass()
                     .getSimpleName() + " muss OnActionFinishClickedListener implementieren");
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     /**

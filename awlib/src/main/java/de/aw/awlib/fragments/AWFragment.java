@@ -76,6 +76,7 @@ public abstract class AWFragment extends DialogFragment
     protected int[] viewResIDs;
     protected int[] fromResIDs;
     protected AWApplicationGeschaeftsObjekt awlib_gv;
+    protected int containerID;
     /**
      * Merker, ob der ActionBarSubtitle ueberschrieben wurde.
      */
@@ -156,6 +157,10 @@ public abstract class AWFragment extends DialogFragment
             args.putAll(argumente);
         }
         setInternalArguments(args);
+    }
+
+    protected boolean onBindView(View view, int resID) {
+        return false;
     }
 
     /**
@@ -240,6 +245,9 @@ public abstract class AWFragment extends DialogFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        if (container != null) {
+            this.containerID = container.getId();
+        }
         if (!getShowsDialog()) {
             if (layout == NOLAYOUT) {
                 return null;
@@ -345,7 +353,7 @@ public abstract class AWFragment extends DialogFragment
 
     /**
      * Wird ein Dialog angezeigt und ein Array viewResIDs ist nicht null, wird die View mit Daten
-     * versorgt. Aufrufende Klasse kann in bindView() die View selbst belegen.
+     * versorgt. Aufrufende Klasse kann in onBindView() die View selbst belegen.
      * <p>
      * Nur wenn die (Text-/EditText-) View nicht selbst belegt wurde, passiert folgendes:
      * <p>
@@ -369,14 +377,16 @@ public abstract class AWFragment extends DialogFragment
             AWLibViewHolder holder = new AWLibViewHolder(view);
             for (int i = 0; i < viewResIDs.length; i++) {
                 View target = holder.findViewById(viewResIDs[i]);
-                int fromResID = fromResIDs[i];
-                if (target instanceof TextView) {
-                    TextView v = (TextView) target;
-                    v.setText(awlib_gv.getAsString(fromResID));
-                }
-                if (target instanceof EditText) {
-                    EditText v = (EditText) target;
-                    v.addTextChangedListener(new MyTextWatcher(v, fromResID));
+                if (!onBindView(target, viewResIDs[i])) {
+                    int fromResID = fromResIDs[i];
+                    if (target instanceof TextView) {
+                        TextView v = (TextView) target;
+                        v.setText(awlib_gv.getAsString(fromResID));
+                    }
+                    if (target instanceof EditText) {
+                        EditText v = (EditText) target;
+                        v.addTextChangedListener(new MyTextWatcher(v, fromResID));
+                    }
                 }
             }
         }

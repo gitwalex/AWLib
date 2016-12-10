@@ -178,23 +178,19 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     public final void onBindViewHolder(AWLibViewHolder holder, int position, Cursor cursor) {
         onPreBindViewHolder(cursor, holder);
         for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
-            if (!(viewPosition < fromResIDs.length)) {
-                break;
-            }
-            int viewResID = viewResIDs[viewPosition];
-            View view = holder.findViewById(viewResID);
-            if (!onBindView(holder, view, viewResID, cursor, viewPosition)) {
-                TextView tv;
-                int resID = viewResIDs[viewPosition];
+            int resID = viewResIDs[viewPosition];
+            View view = holder.findViewById(resID);
+            if (!onBindView(holder, view, resID, cursor,
+                    viewPosition) && fromResIDs != null && viewPosition < fromResIDs.length) {
                 try {
-                    tv = (TextView) view;
+                    TextView tv = (TextView) view;
                     String text = AWDBConvert
                             .convert(tbd, fromResIDs[viewPosition], cursor.getString(viewPosition));
                     tv.setText(text);
                 } catch (ClassCastException e) {
                     throw new IllegalStateException(
                             "View mit ResID " + resID + " [" + getString(resID) +
-                                    "] ist keine TextView und muss in bindView belegt werden.");
+                                    "] ist keine TextView und muss in onBindView belegt werden.");
                 }
             }
         }
