@@ -178,16 +178,15 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     public final void onBindViewHolder(AWLibViewHolder holder, int position, Cursor cursor) {
         onPreBindViewHolder(cursor, holder);
         for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
+            if (!(viewPosition < fromResIDs.length)) {
+                break;
+            }
             int viewResID = viewResIDs[viewPosition];
             View view = holder.findViewById(viewResID);
             if (!onBindView(holder, view, viewResID, cursor, viewPosition)) {
                 TextView tv;
                 int resID = viewResIDs[viewPosition];
                 try {
-                    if (!(viewPosition < fromResIDs.length)) {
-                        throw new IllegalStateException(
-                                "Anzahl der viewResID ist groesser als die der fromResIDs");
-                    }
                     tv = (TextView) view;
                     String text = AWDBConvert
                             .convert(tbd, fromResIDs[viewPosition], cursor.getString(viewPosition));
