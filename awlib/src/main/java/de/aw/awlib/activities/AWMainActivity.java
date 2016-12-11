@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
@@ -49,6 +50,7 @@ public abstract class AWMainActivity extends AppCompatActivity
      * DetailLayout ("containerDetail").
      */
     private static final int layout = R.layout.awlib_activity_main;
+    private static final int ASK_FOR_PERMISSIONS = 2;
     /**
      * ID fuer Fragment-Container. Hier koennen Fragmente eingehaengt werden
      */
@@ -105,6 +107,22 @@ public abstract class AWMainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case ASK_FOR_PERMISSIONS:
+                if (resultCode == RESULT_OK) {
+                    Intent intent = new Intent(this, getClass());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                } else {
+                    finish();
+                }
+                break;
+        }
+    }
+
+    @Override
     public void onClick(View v) {
     }
 
@@ -123,6 +141,13 @@ public abstract class AWMainActivity extends AppCompatActivity
      * HomeButton intialisieren - Ist der DetailContainer Visible, wird er auch (wieder) angezeigt.
      */
     protected void onCreate(Bundle savedInstanceState, int layout) {
+        Boolean isFirstRun =
+                getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("isFirstRun", true);
+        if (isFirstRun) {
+            //show start activity
+            startActivityForResult(new Intent(this, AWStartActivity.class), ASK_FOR_PERMISSIONS);
+            Toast.makeText(this, "First Run", Toast.LENGTH_LONG).show();
+        }
         container = R.id.container4fragment;
         Bundle extras = getIntent().getExtras();
         if (extras != null) {

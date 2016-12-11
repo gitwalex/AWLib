@@ -30,6 +30,8 @@
         </activity>
         <activity android:name=".activities.AWPreferenceActivity">
         </activity>
+        <activity android:name=".activities.AWStartActivity">
+        </activity>
         <!-- Receiver fuer Boot-Completed Message -->
         <receiver
             android:name=".events.EventDBSave"

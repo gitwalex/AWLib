@@ -45,8 +45,12 @@ public abstract class ApplicationConfig {
     protected abstract AbstractDBHelper createDBHelper(Context context);
 
     @CallSuper
-    protected void createFiles() {
-        File folder = new File(getApplicationDataPath());
+    public void createFiles() {
+        File folder = new File(getApplicationPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        folder = new File(getApplicationDataPath());
         if (!folder.exists()) {
             folder.mkdir();
         }
