@@ -60,6 +60,11 @@ public class AWStartActivity extends AppCompatActivity {
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
+        } else {
+            getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit().putBoolean("isFirstRun", false)
+                    .apply();
+            setResult(RESULT_OK);
+            finish();
         }
     }
 

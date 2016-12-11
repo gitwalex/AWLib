@@ -170,6 +170,11 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         return false;
     }
 
+    @Override
+    protected final boolean onBindView(View view, int resID) {
+        return super.onBindView(view, resID);
+    }
+
     /**
      * @throws IllegalStateException
      *         Wenn eine View bearbeitet wird, die TextView ist und fillView(...) hat false

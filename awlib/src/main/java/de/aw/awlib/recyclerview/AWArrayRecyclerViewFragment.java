@@ -160,6 +160,11 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
         }
     }
 
+    @Override
+    protected final boolean onBindView(View view, int resID) {
+        return super.onBindView(view, resID);
+    }
+
     /**
      * Binden von Daten an eine View, die keine TextView ist.
      *

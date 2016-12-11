@@ -113,7 +113,8 @@ public abstract class AWMainActivity extends AppCompatActivity
             case ASK_FOR_PERMISSIONS:
                 if (resultCode == RESULT_OK) {
                     Intent intent = new Intent(this, getClass());
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.setFlags(
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } else {
                     finish();
