@@ -2,14 +2,24 @@
 <manifest package="de.aw.awlib"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--<permission-group-->
+    <!--android:name="de.aw.awlib.permission"-->
+    <!--android:description="@string/app_name"-->
+    <!--android:label="string resource"/>-->
+    <!--android:permissionGroup="de.aw.awlib.permissions"-->
+    <permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:protectionLevel="dangerous"/>
+    <permission
+        android:name="android.permission.WRITE_CALENDAR"
+        android:protectionLevel="dangerous"/>
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.READ_CALENDAR"/>
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
-
 
     <application
         android:allowBackup="true"
@@ -31,6 +41,11 @@
         <activity android:name=".activities.AWPreferenceActivity">
         </activity>
         <activity android:name=".activities.AWStartActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
         </activity>
         <!-- Receiver fuer Boot-Completed Message -->
         <receiver

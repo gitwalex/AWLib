@@ -16,12 +16,14 @@
  */
 package de.aw.awlib.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,13 +31,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.views.AWBottomSheetCalculator;
+
+import static de.aw.awlib.application.AWApplication.Log;
 
 /**
  * Template fuer Activities. Implementiert das globale Menu sowie die entsprechenden Reaktionen
@@ -51,6 +54,8 @@ public abstract class AWMainActivity extends AppCompatActivity
      */
     private static final int layout = R.layout.awlib_activity_main;
     private static final int ASK_FOR_PERMISSIONS = 2;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+    private static final int ASK_MULTIPLE_PERMISSION_REQUEST_CODE = 2;
     /**
      * ID fuer Fragment-Container. Hier koennen Fragmente eingehaengt werden
      */
@@ -142,13 +147,9 @@ public abstract class AWMainActivity extends AppCompatActivity
      * HomeButton intialisieren - Ist der DetailContainer Visible, wird er auch (wieder) angezeigt.
      */
     protected void onCreate(Bundle savedInstanceState, int layout) {
-        Boolean isFirstRun =
-                getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("isFirstRun", true);
-        if (isFirstRun) {
-            //show start activity
-            startActivityForResult(new Intent(this, AWStartActivity.class), ASK_FOR_PERMISSIONS);
-            Toast.makeText(this, "First Run", Toast.LENGTH_LONG).show();
-        }
+        int permissionCheck =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        Log("" + permissionCheck);
         container = R.id.container4fragment;
         Bundle extras = getIntent().getExtras();
         if (extras != null) {

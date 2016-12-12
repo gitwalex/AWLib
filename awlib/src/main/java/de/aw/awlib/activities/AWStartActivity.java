@@ -17,89 +17,102 @@
 package de.aw.awlib.activities;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.application.ApplicationConfig;
 
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static de.aw.awlib.application.AWApplication.DE_AW_APPLICATIONPATH;
+import static de.aw.awlib.application.AWApplication.Log;
 
 /**
- * Template fuer Activities. Implementiert das globale Menu sowie die entsprechenden Reaktionen
- * darauf. Ausserdem wird dafuer gesorgt, dass bei Auswahl des MenuButtons des Geraetes der
- * OverFlow-Butten angezeigt wird. Es wird ein Bundle args bereitgestellt, welches immer gesichert
- * bzw. restored wird.
+ * Start-Activity fuer alle awlib_applications.
+ * <p>
+ * Prueft beim Start auf SDK-Version. Ist diese > 22, werden die minimal notwendigen Berechitgungen
+ * abgefragt.
  */
-public class AWStartActivity extends AppCompatActivity {
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+public final class AWStartActivity extends AppCompatActivity {
+    private static final int ASK_MULTIPLE_PERMISSION_REQUEST_CODE = 1;
+    private ApplicationConfig applicationConfig;
 
-    private void checkPermissions() {
-        int permissionCheck =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionCheck != PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
+    /**
+     * Prueft  auf SDK-Version. Ist diese > 22, werden die minimal notwendigen Berechtiungen
+     * abgefragt.
+     * <p>
+     * Auf jeden Fall werden die notwendigen Verzeichnisse angelegt (nur beim ersten Start) und die
+     * Activity der Application gemaess {@link ApplicationConfig#getStartActivityClass()}
+     * gestartet.
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        applicationConfig = ((AWApplication) getApplicationContext()).getApplicationConfig();
+        if (android.os.Build.VERSION.SDK_INT > 22) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_CALENDAR,
+                    Manifest.permission.READ_CALENDAR}, ASK_MULTIPLE_PERMISSION_REQUEST_CODE);
         } else {
-            getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit().putBoolean("isFirstRun", false)
-                    .apply();
-            setResult(RESULT_OK);
-            finish();
+            startApplication();
         }
     }
 
     /**
-     * Allgemeine Aufgaben fuer onCreate: - rufen von onCreate(Bundle, layout) mit Standardlayout. -
-     * ContentView ist container in activity_container
+     * Prüft die Vergabe der unbedingt beim Start notwendigen Berechtigungen, Sind nich alle
+     * vorhanden, wird derzeit einfach beendet.
      */
-    @SuppressLint("MissingSuperCall")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        checkPermissions();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
-                            .putBoolean("isFirstRun", false).apply();
-                    ApplicationConfig config =
-                            ((AWApplication) getApplicationContext()).getApplicationConfig();
-                    File folder = new File(DE_AW_APPLICATIONPATH);
-                    if (!folder.exists()) {
-                        folder.mkdir();
+            case ASK_MULTIPLE_PERMISSION_REQUEST_CODE:
+                List<String> notGranted = new ArrayList<>();
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            notGranted.add(permissions[i]);
+                        }
+                        i++;
                     }
-                    config.createFiles();
-                    setResult(RESULT_OK);
-                } else {
-                    setResult(RESULT_CANCELED);
+                    if (notGranted.size() == 0) {
+                        startApplication();
+                    } else {
+                        // TODO: 12.12.2016 Unbedingt Dialog erstellen
+                        Log("Sorry, nicht alle Berechtigungen");
+                        finish();
+                    }
                 }
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    /**
+     * Wenn Berechtigungen vergeben sind (SDK-Version > 22) oder dies nicht notwendig ist, werden
+     * hier die Verzeichnisse angelegt und die Activity der App gestartet.
+     */
+    private void startApplication() {
+        Boolean isFirstRun =
+                getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("isFirstRun", true);
+        if (isFirstRun) {
+            File folder = new File(DE_AW_APPLICATIONPATH);
+            if (!folder.exists()) {
+                folder.mkdir();
+            }
+            applicationConfig.createFiles();
+            getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit().putBoolean("isFirstRun", false)
+                    .apply();
+        }
+        Class<? extends AWMainActivity> startActivity = applicationConfig.getStartActivityClass();
+        Intent intent = new Intent(this, startActivity);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
         finish();
     }
 }

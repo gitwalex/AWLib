@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import java.io.File;
 
+import de.aw.awlib.activities.AWMainActivity;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.database_private.AWDBDefinition;
@@ -30,6 +31,7 @@ public abstract class ApplicationConfig {
     private final String APPLICATIONPATH;
     private final Context mContext;
     private AbstractDBHelper mDBHelper;
+    private AWMainActivity startActivityClass;
 
     public ApplicationConfig(Context context) {
         mContext = context.getApplicationContext();
@@ -135,6 +137,8 @@ public abstract class ApplicationConfig {
     public boolean getDebugFlag() {
         return true;
     }
+
+    public abstract Class<? extends AWMainActivity> getStartActivityClass();
 
     /**
      * Wird gerufen, wenn die Datenbank restored wurde
