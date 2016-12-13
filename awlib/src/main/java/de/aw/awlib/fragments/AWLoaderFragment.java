@@ -16,11 +16,16 @@
  */
 package de.aw.awlib.fragments;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -59,7 +64,6 @@ import de.aw.awlib.database.AbstractDBHelper;
  */
 public abstract class AWLoaderFragment extends AWFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String ISRUNNING = "ISRUNNING";
     private View mProgressbar;
 
     @Override
@@ -153,6 +157,22 @@ public abstract class AWLoaderFragment extends AWFragment
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_STORAGE:
+                for (int i = 0; i < permissions.length; i++) {
+                    if (permissions[i]
+                            .equals(Manifest.permission.READ_EXTERNAL_STORAGE) || permissions[i]
+                            .equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        startOrRestartLoader(layout, args);
+                    }
+                    i++;
+                }
+        }
+    }
+
     @CallSuper
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -168,13 +188,21 @@ public abstract class AWLoaderFragment extends AWFragment
      * @param args
      *         Argumente fuer Cursor
      */
-    final protected void startOrRestartLoader(int loaderID, Bundle args) {
-        LoaderManager lm = getLoaderManager();
-        Loader<Cursor> loader = lm.getLoader(loaderID);
-        if (loader != null && !loader.isReset()) {
-            lm.restartLoader(loaderID, args, this);
+    protected void startOrRestartLoader(int loaderID, Bundle args) {
+        int permissionCheck = ContextCompat
+                .checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            LoaderManager lm = getLoaderManager();
+            Loader<Cursor> loader = lm.getLoader(loaderID);
+            if (loader != null && !loader.isReset()) {
+                lm.restartLoader(loaderID, args, this);
+            } else {
+                lm.initLoader(loaderID, args, this);
+            }
         } else {
-            lm.initLoader(loaderID, args, this);
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION_STORAGE);
         }
     }
 }

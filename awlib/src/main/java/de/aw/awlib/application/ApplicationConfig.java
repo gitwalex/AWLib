@@ -138,8 +138,6 @@ public abstract class ApplicationConfig {
         return true;
     }
 
-    public abstract Class<? extends AWMainActivity> getStartActivityClass();
-
     /**
      * Wird gerufen, wenn die Datenbank restored wurde
      */

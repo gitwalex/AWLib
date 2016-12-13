@@ -227,11 +227,12 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         super.onLoadFinished(loader, cursor);
-        indexColumn = cursor.getColumnIndexOrThrow(getString(R.string._id));
-        if (cursor.getCount() == 0) {
-            noEntryView.setVisibility(View.VISIBLE);
-        } else {
-            noEntryView.setVisibility(View.GONE);
+        noEntryView.setVisibility(View.VISIBLE);
+        if (cursor != null) {
+            indexColumn = cursor.getColumnIndexOrThrow(getString(R.string._id));
+            if (cursor.getCount() != 0) {
+                noEntryView.setVisibility(View.GONE);
+            }
         }
         if (mAdapter == null) {
             mAdapter = getCursorAdapter();
@@ -284,6 +285,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
      */
     @CallSuper
     public void onRecyclerItemClick(RecyclerView recyclerView, View view, int position, long id) {
+        mSelectedID = id;
         if (onCursorRecyclerViewListener != null) {
             onCursorRecyclerViewListener
                     .onRecyclerItemClick(mRecyclerView, view, position, id, viewHolderLayout);
@@ -295,6 +297,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
      */
     public boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position,
                                            long id) {
+        mSelectedID = id;
         return onCursorRecyclerViewListener != null && onCursorRecyclerViewListener
                 .onRecyclerItemLongClick(mRecyclerView, view, position, id, viewHolderLayout);
     }

@@ -19,6 +19,8 @@ package de.aw.awlib.recyclerview;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import de.aw.awlib.R;
+
 /**
  * AWLibViewHolder fuer RecyclerView
  */
@@ -37,6 +39,7 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
      */
     public AWLibViewHolder(View view) {
         super(view);
+        view.setTag(R.string.viewholder, this);
     }
 
     /**

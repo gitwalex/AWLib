@@ -122,7 +122,15 @@ public interface AWInterface {
             /**
              *
              */
-            NOLAYOUT = -1
+            REQUEST_PERMISSION_READ_CALENDAR = 100
+            /**
+             *
+             */
+            , REQUEST_PERMISSION_STORAGE = 110
+            /**
+             *
+             */
+            , NOLAYOUT = -1
             /**
              *
              */
