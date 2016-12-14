@@ -484,6 +484,10 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         return new ContentValues(currentContent);
     }
 
+    protected Context getContext() {
+        return AbstractDBHelper.getInstance().getContext();
+    }
+
     protected AWAbstractDBDefinition getDBDefinition() {
         return tbd;
     }

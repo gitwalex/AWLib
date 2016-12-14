@@ -36,7 +36,7 @@ public abstract class AWFragmentActionBar extends AWFragment {
     private OnActionFinishListener mOnActionFinishClickedListener;
 
     /**
-     * Wird gerufen, wenn das Menuitem 'Save' gewaehlt wurde. Ruft die Activity mit der layoutID
+     * Muss nach beendigung der Action gerufen werden. Ruft die Activity mit der layoutID
      */
     @CallSuper
     protected void onActionFinishClicked() {

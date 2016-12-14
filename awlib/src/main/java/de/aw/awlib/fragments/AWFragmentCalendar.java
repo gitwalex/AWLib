@@ -32,7 +32,7 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
                                  int cursorPosition) {
         if (resID == R.id.tvCalendarName) {
             TextView tv = (TextView) view;
-            tv.setText(cursor.getString(1) + ": " + cursor.getString(2));
+            tv.setText(cursor.getString(1));
             return true;
         } else {
             return super.onBindView(holder, view, resID, cursor, cursorPosition);
@@ -42,8 +42,7 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
     @Override
     public Loader<Cursor> onCreateLoader(int p1, Bundle args) {
         Uri mUri = Uri.parse("content://com.android.calendar/calendars");
-        String[] projection =
-                new String[]{Calendars._ID, Calendars.CALENDAR_DISPLAY_NAME, Calendars.VISIBLE};
+        String[] projection = new String[]{Calendars._ID, Calendars.CALENDAR_DISPLAY_NAME};
         String selection = Calendars.CALENDAR_DISPLAY_NAME + " like '%@%'";
         return new CursorLoader(getActivity(), mUri, projection, selection, null, null);
     }
