@@ -16,12 +16,15 @@
  */
 package de.aw.awlib.events;
 
+import android.Manifest;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 
 import java.io.File;
 import java.util.concurrent.ExecutionException;
@@ -47,19 +50,23 @@ public class AWEventService extends IntentService implements AWInterface {
         AWEvent event = extras.getParcelable(AWLIBEVENT);
         switch (event) {
             case DoDatabaseSave:
-                try {
-                    File file = new EventDBSave(this).execute();
-                    Context context = getApplicationContext();
-                    SharedPreferences prefs =
-                            PreferenceManager.getDefaultSharedPreferences(context);
-                    if (prefs.getBoolean(context.getString(R.string.pkExterneSicherung), false)) {
+                if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    try {
+                        File file = new EventDBSave(this).execute();
+                        Context context = getApplicationContext();
+                        SharedPreferences prefs =
+                                PreferenceManager.getDefaultSharedPreferences(context);
+                        if (prefs.getBoolean(context.getString(R.string.pkExterneSicherung),
+                                false)) {
+                        }
+                    } catch (ExecutionException e) {
+                        //TODO Execption bearbeiten
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        //TODO Execption bearbeiten
+                        e.printStackTrace();
                     }
-                } catch (ExecutionException e) {
-                    //TODO Execption bearbeiten
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    //TODO Execption bearbeiten
-                    e.printStackTrace();
                 }
                 break;
             case doVaccum:

@@ -1,8 +1,12 @@
 package de.aw.awlib.fragments;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
@@ -23,7 +27,7 @@ import de.aw.awlib.recyclerview.AWArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
- * FileChooser fuer Dateien.
+ * FileChooser fuer Dateien. Ermittelt vor Anzeige die Berechtigung, wenn erforderlich.
  */
 public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
     protected static final String DIRECTORYNAME = "DIRECTORYNAME";
@@ -48,7 +52,7 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
      * @throws IllegalStateException
      *         wenn das Verzeichnis kein Directory ist
      */
-    public static AWFileChooser newInstance(String directoryAbsolutPathName) {
+    public static AWFileChooser newInstance(@NonNull String directoryAbsolutPathName) {
         Bundle args = new Bundle();
         File file = new File(directoryAbsolutPathName);
         if (!file.isDirectory()) {
@@ -60,8 +64,22 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
         return fragment;
     }
 
-    public static AWFileChooser newInstance(String directoryAbsolutPathName,
-                                            String filterExtension) {
+    /**
+     * Erstellt eine neue Instanz eines FileChooser, zeigt die Daten des uebergebenen
+     * Verzeichnisnamen an
+     *
+     * @param directoryAbsolutPathName
+     *         Absoluter Pafd des Directory
+     * @param filterExtension
+     *         Dateiextension, die gewaehlt werden soll.
+     *
+     * @return Fragment
+     *
+     * @throws IllegalStateException
+     *         wenn das Verzeichnis kein Directory ist
+     */
+    public static AWFileChooser newInstance(@NonNull String directoryAbsolutPathName,
+                                            @NonNull String filterExtension) {
         Bundle args = new Bundle();
         args.putString(FILENAMEFILTER, filterExtension);
         AWFileChooser fragment = newInstance(directoryAbsolutPathName);
@@ -122,7 +140,7 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
     }
 
     /**
-     * Wird ein Directory ausgwaehlt, wird in dieses Directory gewechselt.
+     * Wird ein Directory ausgewaehlt, wird in dieses Directory gewechselt.
      */
     @Override
     public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, Object object) {
@@ -231,14 +249,30 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
         };
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_STORAGE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    createFileList(new File(mDirectoy));
+                }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
     /**
      * Sobald die View erstellt wurde erste Liste zur Verfuegung stellen.
      */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (mDirectoy != null) {
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             createFileList(new File(mDirectoy));
+        } else {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    REQUEST_PERMISSION_STORAGE);
         }
     }
 

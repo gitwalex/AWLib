@@ -88,6 +88,7 @@ public abstract class AWApplication extends Application {
      * Pfad, indem alle Imports zu de.aw.-Applications abgelegt werden
      */
     private static final String IMPORTPATH = "/import";
+    private static final String DATABASEPATH = "/database";
     private String APPLICATIONPATH;
     private AbstractDBHelper mDBHelper;
 
@@ -133,7 +134,7 @@ public abstract class AWApplication extends Application {
         if (!folder.exists()) {
             folder.mkdir();
         }
-        folder = new File(getApplicationDataPath());
+        folder = new File(getApplicationDatabasePath());
         if (!folder.exists()) {
             folder.mkdir();
         }
@@ -165,12 +166,12 @@ public abstract class AWApplication extends Application {
         return APPLICATIONPATH + BACKUPPATH;
     }
 
-    public final String getApplicationDataPath() {
-        return APPLICATIONPATH + "/database";
+    public final String getApplicationDatabaseAbsoluteFilename() {
+        return getDatabasePath(theDatenbankname()).getAbsolutePath();
     }
 
-    public final String getApplicationDatabaseAbsoluteFilename() {
-        return getApplicationDataPath() + "/" + theDatenbankname();
+    public String getApplicationDatabasePath() {
+        return APPLICATIONPATH + DATABASEPATH;
     }
 
     public final String getApplicationExportPath() {
@@ -233,7 +234,8 @@ public abstract class AWApplication extends Application {
 
     @Override
     public void onCreate() {
-        APPLICATIONPATH = AWApplication.DE_AW_APPLICATIONPATH + "/" + theApplicationDirectory();
+        APPLICATIONPATH = AWApplication.DE_AW_APPLICATIONPATH + "/" + theApplicationDirectory()
+                .replace("/", "");
         AWAbstractDBDefinition[] tbds = getDBDefinitionValues();
         if (tbds.length > 0) {
             tbds[0].setAuthority(getAuthority());

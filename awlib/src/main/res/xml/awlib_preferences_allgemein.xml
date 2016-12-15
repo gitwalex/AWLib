@@ -67,8 +67,12 @@
             android:title="@string/titleCopyright"
             />
         <Preference
-            android:key="@string/pkBuildInfo"
-            android:title="@string/titleBuildInfo"
+            android:key="@string/pkCompileInfo"
+            android:title="@string/pkCompileInfo"
+            />
+        <Preference
+            android:key="@string/pkVersionInfo"
+            android:title="@string/pkVersionInfo"
             />
     </PreferenceCategory>
 </PreferenceScreen>

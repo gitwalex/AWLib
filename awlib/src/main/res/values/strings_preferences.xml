@@ -48,8 +48,8 @@
     <string name="titleCopyright">Copyright</string>
     <string name="pkAbout">Über diese App</string>
     <string name="titleAbout">Über diese App</string>
-    <string name="pkBuildInfo">Build-Info</string>
-    <string name="titleBuildInfo">Build-Info</string>
+    <string name="pkCompileInfo">Compile-Info</string>
+    <string name="pkVersionInfo">Version</string>
     <string name="pkExterneSicherung">Remotesicherung</string>
     <string name="smryExterneSicherung">Remotesicherung</string>
     <string name="titleExterneSicherung">Auf Server sichern</string>

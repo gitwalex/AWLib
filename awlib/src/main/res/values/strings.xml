@@ -53,6 +53,7 @@
     <string name="awlib_menu_item_save">Speichern</string>
     <string name="exportErfolgreich">Export erfolgreich</string>
     <string name="viewholder">viewholdertag</string>
+    <string name="dbVersion">Neue DB-Version</string>
 
 
 </resources>
