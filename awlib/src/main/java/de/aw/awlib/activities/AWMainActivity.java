@@ -37,7 +37,6 @@ import java.io.File;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.views.AWBottomSheetCalculator;
 
@@ -125,7 +124,7 @@ public abstract class AWMainActivity extends AppCompatActivity
             if (!folder.exists()) {
                 folder.mkdir();
             }
-            ((AWApplication) getApplicationContext()).getApplicationConfig().createFiles();
+            ((AWApplication) getApplicationContext()).createFiles();
             getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit().putBoolean("isFirstRun", false)
                     .apply();
         }
@@ -191,9 +190,7 @@ public abstract class AWMainActivity extends AppCompatActivity
             }
         }
         super.onCreate(savedInstanceState);
-        ApplicationConfig mAppConfig =
-                ((AWApplication) getApplicationContext()).getApplicationConfig();
-        mDBHelper = mAppConfig.getDBHelper();
+        mDBHelper = ((AWApplication) getApplicationContext()).getDBHelper();
         setContentView(layout);
         mainAction = args.getParcelable(AWLIBACTION);
         mDefaultFAB = (FloatingActionButton) findViewById(R.id.awlib_defaultFAB);

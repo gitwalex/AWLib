@@ -65,10 +65,9 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     private Set<Uri> usedTables = new HashSet<>();
 
     protected AbstractDBHelper(Context context, SQLiteDatabase.CursorFactory cursorFactory) {
-        super(context, ((AWApplication) context.getApplicationContext()).getApplicationConfig()
+        super(context, ((AWApplication) context.getApplicationContext())
                         .getApplicationDatabaseAbsoluteFilename(), cursorFactory,
-                ((AWApplication) context.getApplicationContext()).getApplicationConfig()
-                        .theDatenbankVersion());
+                ((AWApplication) context.getApplicationContext()).theDatenbankVersion());
         dbHelper = this;
         mContext = new WeakReference<>(context.getApplicationContext());
         int resID = R.string._id;

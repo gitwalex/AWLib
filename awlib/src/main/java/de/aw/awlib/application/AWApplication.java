@@ -25,6 +25,8 @@ import android.content.SharedPreferences;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -42,6 +44,9 @@ import java.util.Date;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityDebug;
+import de.aw.awlib.database.AWAbstractDBDefinition;
+import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.database_private.AWDBDefinition;
 
 import static de.aw.awlib.activities.AWInterface.linefeed;
 import static de.aw.awlib.events.EventDBSave.checkDBSaveAlarm;
@@ -71,8 +76,20 @@ public abstract class AWApplication extends Application {
     public static final String DE_AW_APPLICATIONPATH =
             Environment.getExternalStorageDirectory() + "/de.aw";
     private static final String STACKTRACEPATH = "/stackTrace.txt";
+    /**
+     * Pfad, indem alle Backups zu de.aw.-Applications abgelegt werden
+     */
+    private static final String BACKUPPATH = "/backup";
+    /**
+     * Pfad, indem alle Exports zu de.aw.-Applications abgelegt werden
+     */
+    private static final String EXPORTPATH = "/export";
+    /**
+     * Pfad, indem alle Imports zu de.aw.-Applications abgelegt werden
+     */
+    private static final String IMPORTPATH = "/import";
     private String APPLICATIONPATH;
-    private ApplicationConfig mApplicationConfig;
+    private AbstractDBHelper mDBHelper;
 
     /**
      * Loggt Warnungen
@@ -107,10 +124,95 @@ public abstract class AWApplication extends Application {
         Log.e(AWApplication.TAG, message);
     }
 
-    protected abstract ApplicationConfig createApplicationConfig();
+    @NonNull
+    protected abstract AbstractDBHelper createDBHelper(Context context);
 
-    public ApplicationConfig getApplicationConfig() {
-        return mApplicationConfig;
+    @CallSuper
+    public void createFiles() {
+        File folder = new File(getApplicationPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        folder = new File(getApplicationDataPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        folder = new File(getApplicationBackupPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        folder = new File(getApplicationExportPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        folder = new File(getApplicationImportPath());
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+    }
+
+    /**
+     * @return Liefert ein HTML-File  fuer die Auswahl der Preferences 'About'. Das file wird in
+     * /assets/html erwartet.
+     * <p>
+     * Default: Anzeige kein About
+     */
+    public String getAboutHTML() {
+        return "no_about.html";
+    }
+
+    public final String getApplicationBackupPath() {
+        return APPLICATIONPATH + BACKUPPATH;
+    }
+
+    public final String getApplicationDataPath() {
+        return APPLICATIONPATH + "/database";
+    }
+
+    public final String getApplicationDatabaseAbsoluteFilename() {
+        return getApplicationDataPath() + "/" + theDatenbankname();
+    }
+
+    public final String getApplicationExportPath() {
+        return APPLICATIONPATH + EXPORTPATH;
+    }
+
+    public final String getApplicationImportPath() {
+        return APPLICATIONPATH + IMPORTPATH;
+    }
+
+    public final String getApplicationPath() {
+        return APPLICATIONPATH;
+    }
+
+    public abstract String getAuthority();
+
+    /**
+     * @return Liefert ein HTML-File  fuer die Auswahl der Preferences 'Copyright'. Das file wird in
+     * /assets/html erwartet.
+     * <p>
+     * Default: Anzeige kein Copyright
+     */
+    public String getCopyrightHTML() {
+        return "no_copyright.html";
+    }
+
+    protected abstract AWAbstractDBDefinition[] getDBDefinitionValues();
+
+    public AbstractDBHelper getDBHelper() {
+        if (mDBHelper == null) {
+            mDBHelper = createDBHelper(this);
+        }
+        return mDBHelper;
+    }
+
+    /**
+     * @return Das DebugFlag der Application
+     * <p>
+     * Default: True, immer im Debugmodus
+     */
+    public boolean getDebugFlag() {
+        return true;
     }
 
     private void handleUncaughtException(Throwable e) throws IOException {
@@ -131,10 +233,14 @@ public abstract class AWApplication extends Application {
 
     @Override
     public void onCreate() {
-        mApplicationConfig = createApplicationConfig();
-        mApplicationConfig.createDBHelper(this);
-        APPLICATIONPATH = mApplicationConfig.getApplicationPath();
-        boolean mDebugFlag = mApplicationConfig.getDebugFlag();
+        APPLICATIONPATH = AWApplication.DE_AW_APPLICATIONPATH + "/" + theApplicationDirectory();
+        AWAbstractDBDefinition[] tbds = getDBDefinitionValues();
+        if (tbds.length > 0) {
+            tbds[0].setAuthority(getAuthority());
+        }
+        AWDBDefinition.values()[0].setAuthority(getAuthority());
+        createDBHelper(this);
+        boolean mDebugFlag = getDebugFlag();
         super.onCreate();
         PreferenceManager.setDefaultValues(this, R.xml.awlib_preferences_allgemein, false);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -200,6 +306,31 @@ public abstract class AWApplication extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Wird gerufen, wenn die Datenbank restored wurde
+     */
+    public void onRestoreDatabase(Context context) {
+    }
+
+    /**
+     * @return Verzeichnis, in dem die Appplicationsdaten abgelegt werden sollen
+     */
+    public abstract String theApplicationDirectory();
+
+    /**
+     * @return Datenbankversion
+     */
+    public abstract int theDatenbankVersion();
+
+    /**
+     * @return Datenbankname
+     * <p>
+     * Default: "database.db"
+     */
+    public String theDatenbankname() {
+        return "database.db";
     }
 
     /**

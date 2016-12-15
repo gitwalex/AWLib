@@ -40,7 +40,6 @@ import de.aw.awlib.activities.AWActivityActions;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.activities.AWWebViewActivity;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.events.AWEvent;
 import de.aw.awlib.events.AWEventService;
@@ -61,7 +60,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
                     R.string.pkSavePeriodic, R.string.pkCopyright, R.string.pkAbout,
                     R.string.pkBuildInfo, R.string.pkExterneSicherung, R.string.pkServerURL,
                     R.string.pkServerUID};
-    private ApplicationConfig mApplicationConfig;
+    private AWApplication mApplication;
     private Preference regelmSicherung;
 
     /**
@@ -93,8 +92,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
     @CallSuper
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
-        mApplicationConfig =
-                ((AWApplication) getActivity().getApplicationContext()).getApplicationConfig();
+        mApplication = ((AWApplication) getActivity().getApplicationContext());
         addPreferencesFromResource(R.xml.awlib_preferences_allgemein);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         for (int pkKey : mPrefs) {
@@ -104,9 +102,8 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
                 java.util.Date date = new Date(BuildConfig.BuildTime);
                 DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
                 StringBuilder buildInfo = new StringBuilder("Compilezeit: ").append(df.format(date))
-                        .append(", Datenbankversion : ")
-                        .append(mApplicationConfig.theDatenbankVersion()).append(", Version: ")
-                        .append(BuildConfig.VERSION_NAME);
+                        .append(", Datenbankversion : ").append(mApplication.theDatenbankVersion())
+                        .append(", Version: ").append(BuildConfig.VERSION_NAME);
                 preference.setSummary(buildInfo);
             } else if (pkKey == R.string.pkServerUID || pkKey == R.string.pkServerURL) {
                 String value = prefs.getString(key, null);
@@ -142,12 +139,12 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
             return true;
         } else if (getString(R.string.pkCopyright).equals(key)) {
             Intent intent = new Intent(getActivity(), AWWebViewActivity.class);
-            intent.putExtra(ID, mApplicationConfig.getCopyrightHTML());
+            intent.putExtra(ID, mApplication.getCopyrightHTML());
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkAbout).equals(key)) {
             Intent intent = new Intent(getActivity(), AWWebViewActivity.class);
-            intent.putExtra(ID, mApplicationConfig.getAboutHTML());
+            intent.putExtra(ID, mApplication.getAboutHTML());
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkExterneSicherung).equals(key)) {
@@ -161,8 +158,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
         } else if (getString(R.string.pkBuildInfo).equals(key)) {
             Intent intent = new Intent(Intent.ACTION_EDIT);
             AWApplication app = (AWApplication) getContext().getApplicationContext();
-            String databasePath =
-                    app.getApplicationConfig().getApplicationDatabaseAbsoluteFilename();
+            String databasePath = app.getApplicationDatabaseAbsoluteFilename();
             Uri uri = Uri.parse("sqlite:" + databasePath);
             intent.setData(uri);
             startActivity(intent);

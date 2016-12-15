@@ -40,7 +40,6 @@ import java.util.Locale;
 
 import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBAlterHelper;
 import de.aw.awlib.database.AWDBConvert;
@@ -60,7 +59,7 @@ import de.aw.awlib.database.AbstractDBHelper;
  */
 public class AWCSVImporter implements AWResultCodes {
     private final NumberFormat nf = DecimalFormat.getInstance(Locale.getDefault());
-    private final ApplicationConfig mAppconfig;
+    private final AWApplication mAppconfig;
     /**
      * Spaltennamen des Importfiles
      */
@@ -72,7 +71,7 @@ public class AWCSVImporter implements AWResultCodes {
     private List<ContentValues> myEntries = new ArrayList<>();
 
     public AWCSVImporter(Context context) {
-        mAppconfig = ((AWApplication) context.getApplicationContext()).getApplicationConfig();
+        mAppconfig = ((AWApplication) context.getApplicationContext());
     }
 
     private String convert(AWAbstractDBDefinition tbd, int resID, String value)

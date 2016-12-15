@@ -25,7 +25,6 @@ import android.support.annotation.NonNull;
 
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.application.ApplicationConfig;
 
 /**
  * Erweiterung des MainContentProviders.
@@ -35,7 +34,7 @@ import de.aw.awlib.application.ApplicationConfig;
 public class AWContentProvider extends ContentProvider implements AWInterface {
     private boolean batchMode;
     private AbstractDBHelper db;
-    private ApplicationConfig mApplicationConfig;
+    private AWApplication mApplication;
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
@@ -46,7 +45,7 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
         try {
             for (ContentValues cv : values) {
                 long erg = db.insert(uri, null, cv);
-                if (erg == -1 && mApplicationConfig.getDebugFlag()) {
+                if (erg == -1 && mApplication.getDebugFlag()) {
                     AWApplication.Log("Insert fehlgeschlagen! Werte: " + cv.toString());
                 } else {
                     result++;
@@ -74,11 +73,10 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
     }
 
     protected AbstractDBHelper getDBHelper() {
-        if (mApplicationConfig == null) {
-            mApplicationConfig =
-                    ((AWApplication) getContext().getApplicationContext()).getApplicationConfig();
+        if (mApplication == null) {
+            mApplication = ((AWApplication) getContext());
         }
-        return mApplicationConfig.getDBHelper();
+        return mApplication.getDBHelper();
     }
 
     @Override

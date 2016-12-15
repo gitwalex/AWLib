@@ -26,7 +26,6 @@ import java.io.File;
 import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.utils.AWUtils;
 
 /**
@@ -34,12 +33,11 @@ import de.aw.awlib.utils.AWUtils;
  */
 public class EventDBRestore implements AWResultCodes, AWInterface {
     private final Context mContext;
-    private final ApplicationConfig mApplicationConfig;
+    private final AWApplication mApplication;
 
     public EventDBRestore(Context context) {
         mContext = context;
-        mApplicationConfig =
-                ((AWApplication) mContext.getApplicationContext()).getApplicationConfig();
+        mApplication = ((AWApplication) mContext.getApplicationContext());
     }
 
     public void restore(File file) {
@@ -50,17 +48,17 @@ public class EventDBRestore implements AWResultCodes, AWInterface {
         @Override
         protected Integer doInBackground(File... params) {
             int result;
-            String targetFileName = mApplicationConfig.getApplicationDatabaseAbsoluteFilename();
-            mApplicationConfig.getDBHelper().close();
+            String targetFileName = mApplication.getApplicationDatabaseAbsoluteFilename();
+            mApplication.getDBHelper().close();
             result = AWUtils.restoreZipArchivToFile(targetFileName, params[0]);
-            mApplicationConfig.getDBHelper();
+            mApplication.getDBHelper();
             return result;
         }
 
         @Override
         protected void onPostExecute(Integer result) {
             if (result == RESULT_OK) {
-                mApplicationConfig.onRestoreDatabase(mContext);
+                mApplication.onRestoreDatabase(mContext);
                 PackageManager pm = mContext.getPackageManager();
                 Intent intent = pm.getLaunchIntentForPackage(mContext.getPackageName());
                 mContext.startActivity(intent);

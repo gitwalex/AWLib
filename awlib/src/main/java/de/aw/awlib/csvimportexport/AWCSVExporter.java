@@ -38,7 +38,6 @@ import java.util.Locale;
 
 import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
@@ -75,7 +74,7 @@ public class AWCSVExporter {
 
     /**
      * Exportiert eine Tabelle in ein exportfile. Das Exportfile ist unter {@link
-     * ApplicationConfig#getApplicationExportPath()} } zu finden
+     * AWApplication#getApplicationExportPath()} } zu finden
      *
      * @param tbd
      *         Tabelle zum export
@@ -167,15 +166,14 @@ public class AWCSVExporter {
 
         @Override
         protected Integer doInBackground(Void... voids) {
-            ApplicationConfig mAppConfig =
-                    ((AWApplication) mContext.getApplicationContext()).getApplicationConfig();
+            AWApplication mApp = ((AWApplication) mContext.getApplicationContext());
             int[] fromResIDs = new int[c.getColumnCount()];
             for (int i = 0; i < c.getColumnCount(); i++) {
                 String columnname = c.getColumnName(i);
                 fromResIDs[i] = mDBHelper.getResID(columnname);
             }
             List<String[]> list = new ArrayList<>();
-            String filename = mAppConfig.getApplicationExportPath() + "/" + this.filename;
+            String filename = mApp.getApplicationExportPath() + "/" + this.filename;
             File file = new File(filename);
             fullFilename = file.getAbsolutePath();
             FileOutputStream fos;

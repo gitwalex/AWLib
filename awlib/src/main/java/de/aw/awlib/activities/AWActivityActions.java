@@ -145,9 +145,8 @@ public class AWActivityActions extends AWMainActivity
                 switch (event) {
                     case showBackupFiles:
                         // Datenbank wiederherstellen
-                        String backupFolderName =
-                                ((AWApplication) getApplicationContext()).getApplicationConfig()
-                                        .getApplicationBackupPath();
+                        String backupFolderName = ((AWApplication) getApplicationContext())
+                                .getApplicationBackupPath();
                         f = AWFileChooser.newInstance(backupFolderName);
                         subTitleResID = R.string.fileChooserTitleDoRestore;
                         break;

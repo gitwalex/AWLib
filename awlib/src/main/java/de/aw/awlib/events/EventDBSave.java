@@ -38,7 +38,6 @@ import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.application.ApplicationConfig;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.utils.AWUtils;
 
@@ -129,9 +128,9 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
 
     private void init(Context context) {
         mContext = context.getApplicationContext();
-        ApplicationConfig mAppConfig = ((AWApplication) mContext).getApplicationConfig();
-        BACKUPPATH = mAppConfig.getApplicationBackupPath() + "/";
-        DATABASEFILENAME = mAppConfig.getApplicationDatabaseAbsoluteFilename();
+        AWApplication mApplication = ((AWApplication) mContext);
+        BACKUPPATH = mApplication.getApplicationBackupPath() + "/";
+        DATABASEFILENAME = mApplication.getApplicationDatabaseAbsoluteFilename();
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         date = new Date(System.currentTimeMillis());
         Locale locale = Locale.getDefault();
