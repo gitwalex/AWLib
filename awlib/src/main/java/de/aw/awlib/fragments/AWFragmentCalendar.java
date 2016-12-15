@@ -59,7 +59,6 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
                     i++;
                 }
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

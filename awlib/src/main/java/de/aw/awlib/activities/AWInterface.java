@@ -126,6 +126,10 @@ public interface AWInterface {
             /**
              *
              */
+            , REQUEST_PERMISSION_CALENDAR = 110
+            /**
+             *
+             */
             , REQUEST_PERMISSION_STORAGE = 110
             /**
              *

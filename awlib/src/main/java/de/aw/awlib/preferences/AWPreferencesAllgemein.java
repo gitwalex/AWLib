@@ -24,8 +24,10 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.CallSuper;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
 
@@ -88,6 +90,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
         getContext().startService(intent);
     }
 
+    @CallSuper
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
         mApplicationConfig =
@@ -115,6 +118,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
         }
     }
 
+    @CallSuper
     @Override
     public boolean onPreferenceClick(Preference preference) {
         String key = preference.getKey();
@@ -153,6 +157,15 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
             return true;
         } else if (getString(R.string.pkSavePeriodic).equals(key)) {
             EventDBSave.checkDBSaveAlarm(getContext(), preference.getSharedPreferences());
+            return true;
+        } else if (getString(R.string.pkBuildInfo).equals(key)) {
+            Intent intent = new Intent(Intent.ACTION_EDIT);
+            AWApplication app = (AWApplication) getContext().getApplicationContext();
+            String databasePath =
+                    app.getApplicationConfig().getApplicationDatabaseAbsoluteFilename();
+            Uri uri = Uri.parse("sqlite:" + databasePath);
+            intent.setData(uri);
+            startActivity(intent);
             return true;
         }
         return false;
