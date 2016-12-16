@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+  ~ MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
   ~
-  ~ Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+  ~ Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
   ~
   ~ This program is free software; you can redistribute it and/or modify it under the terms of the
   ~ GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -15,14 +15,11 @@
   ~ You should have received a copy of the GNU General Public License along with this program; if
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
-
-<resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="bottomsheet_list_item_height">48dp</dimen>
-    <dimen name="bottomsheet_horizontal_margin">16dp</dimen>
-    <!--Bug in Library. Daher dimens fuer FAB bei  preLollipop festlegen-->
-    <dimen name="fab_margin_right">0dp</dimen>
-    <dimen name="fab_margin_bottom">0dp</dimen>
-    <dimen name="alert_def_padding">18dp</dimen>
-
-</resources>
+<TimePicker
+    android:id="@+id/edit"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/alert_def_padding"
+    android:paddingTop="@dimen/alert_def_padding"
+    android:theme="@style/AppAlertDialogContent"/>

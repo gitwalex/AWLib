@@ -20,10 +20,10 @@
 package de.aw.awlib.fragments;
 
 import android.content.SharedPreferences;
+import android.support.v14.preference.PreferenceFragment;
 import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceGroup;
 import android.text.TextUtils;
 
@@ -37,8 +37,9 @@ import de.aw.awlib.preferences.MainPreferenceInterface;
  *
  * @author alex
  */
-public abstract class AWPreferenceFragment extends PreferenceFragmentCompat
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+public abstract class AWPreferenceFragment extends PreferenceFragment
+        implements SharedPreferences.OnSharedPreferenceChangeListener,
+        Preference.OnPreferenceClickListener {
     /**
      * Initialisiert die Summaries, wenn das Fragment gestartet wird.
      *
@@ -84,7 +85,10 @@ public abstract class AWPreferenceFragment extends PreferenceFragmentCompat
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        updatePrefSummary(findPreference(key));
+        Preference p = findPreference(key);
+        if (p != null) {
+            updatePrefSummary(findPreference(key));
+        }
     }
 
     /**
@@ -128,6 +132,7 @@ public abstract class AWPreferenceFragment extends PreferenceFragmentCompat
         if (p instanceof EditTextPreferenceDate) {
             EditTextPreferenceDate editTextPref = (EditTextPreferenceDate) p;
             p.setSummary(editTextPref.getSummary());
+            p.setOnPreferenceClickListener(this);
             return;
         }
     }

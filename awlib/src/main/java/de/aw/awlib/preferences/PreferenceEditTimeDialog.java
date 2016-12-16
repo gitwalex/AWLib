@@ -17,6 +17,7 @@
 package de.aw.awlib.preferences;
 
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -28,15 +29,15 @@ import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
 import de.aw.awlib.R;
-import de.aw.awlib.fragments.AWFragment;
 
 /**
  * EditTextPreferenceTime: Liest eine Uhrzeit und speichert diese als Long in Preferences. Gibt es
  * einen Default-Wert (Format: HH:mm), wird dieser uebernommen. Ist das Format falsch oder kein
  * DefaultWert vorgegeben, dann wird 00:00 angenommen
  */
-public class PreferenceEditTimeDialog extends AWFragment
+public class PreferenceEditTimeDialog extends DialogFragment
         implements TimePickerDialog.OnTimeSetListener {
+    private boolean isCanceled;
     private int mHour;
     private String mKey;
     private int mMinute;
@@ -47,6 +48,24 @@ public class PreferenceEditTimeDialog extends AWFragment
         bundle.putString("key", preference.getKey());
         fragment.setArguments(bundle);
         return fragment;
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        isCanceled = true;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences prefs = android.support.v7.preference.PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        Bundle args = getArguments();
+        mKey = args.getString("key");
+        String[] split = prefs.getString(mKey, "00:00").split(":");
+        mHour = Integer.parseInt(split[0]);
+        mMinute = Integer.parseInt(split[1]);
     }
 
     @NonNull
@@ -73,14 +92,5 @@ public class PreferenceEditTimeDialog extends AWFragment
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         mHour = hourOfDay;
         mMinute = minute;
-    }
-
-    @Override
-    protected void setInternalArguments(Bundle args) {
-        super.setInternalArguments(args);
-        mKey = args.getString("key");
-        String[] split = prefs.getString(mKey, "00:00").split(":");
-        mHour = Integer.parseInt(split[0]);
-        mMinute = Integer.parseInt(split[1]);
     }
 }

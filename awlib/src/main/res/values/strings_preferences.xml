@@ -19,6 +19,7 @@
     <!-- Preferences Allgemein -->
     <string name="settings">Einstellungen</string>
     <string name="awlib_menu_item_hilfe">Hilfe</string>
+    <string name="TitleAllgemeinPrefs">Allgemein</string>
     <string name="dbTitleDatenbank">Datenbank</string>
     <string name="dbTitleDBVacuum">Aufräumen</string>
     <string name="dbSmryDBVacuum">Datenbank komprimieren</string>

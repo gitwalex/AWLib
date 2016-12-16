@@ -83,13 +83,13 @@
     </style>
     <!-- Style fuer Dialoge -->
     <style name="DialogLayout">
-    <item name="android:animateLayoutChanges">true</item>
-    <item name="android:orientation">vertical</item>
-    <item name="android:paddingLeft">20dp</item>
-    <item name="android:paddingRight">20dp</item>
-    <item name="android:paddingBottom">10dp</item>
-    <item name="android:paddingTop">10dp</item>
-</style>
+        <item name="android:animateLayoutChanges">true</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+    </style>
 
     <style name="HeaderGrey">
         <!-- Header in Listen: Background sehr helles Grau, rechts und links 20dp Padding -->
@@ -177,5 +177,20 @@
     <style name="MaterialDialogSheetAnimation">
         <item name="android:windowEnterAnimation">@anim/popup_show</item>
         <item name="android:windowExitAnimation">@anim/popup_hide</item>
+    </style>
+    <!-- Style for an Preference Entry -->
+    <style name="AppPreference">
+        <item name="android:layout">@layout/preference_material</item>
+    </style>
+
+    <!-- Style for a DialogPreference Entry -->
+    <style name="AppPreference.DialogPreference">
+        <item name="positiveButtonText">@android:string/ok</item>
+        <item name="negativeButtonText">@android:string/cancel</item>
+    </style>
+
+    <style name="AppAlertDialogContent"
+           parent="Theme.AppCompat.DayNight">
+        <!-- To keep the color of EditText -->
     </style>
 </resources>

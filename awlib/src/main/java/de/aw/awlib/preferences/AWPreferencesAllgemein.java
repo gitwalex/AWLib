@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
@@ -39,11 +40,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.sql.Date;
 import java.text.DateFormat;
 
@@ -59,6 +56,7 @@ import de.aw.awlib.events.AWEvent;
 import de.aw.awlib.events.AWEventService;
 import de.aw.awlib.events.EventDBSave;
 import de.aw.awlib.fragments.AWPreferenceFragment;
+import de.aw.awlib.utils.AWUtils;
 
 import static de.aw.awlib.application.AWApplication.DE_AW_APPLICATIONPATH;
 import static de.aw.awlib.events.AWEvent.DoDatabaseSave;
@@ -70,7 +68,7 @@ import static de.aw.awlib.events.AWEvent.doVaccum;
  *
  * @author alex
  */
-public class AWPreferencesAllgemein extends AWPreferenceFragment
+public final class AWPreferencesAllgemein extends AWPreferenceFragment
         implements Preference.OnPreferenceClickListener, AWInterface {
     private static final int[] mPrefs =
             new int[]{R.string.pkDBVacuum, R.string.pkDBSave, R.string.pkDBRestore,
@@ -82,7 +80,7 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
     private Preference regelmSicherung;
 
     private void buildAndShowDialog(int titleRes, int messageRes) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(titleRes);
         builder.setMessage(messageRes);
         builder.setPositiveButton(R.string.awlib_btnAccept, new DialogInterface.OnClickListener() {
@@ -97,35 +95,14 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
     private void copyAndDebugDatabase() throws IOException {
         mApplication.createFiles();
         Intent intent = new Intent(Intent.ACTION_EDIT);
-        AWApplication app = (AWApplication) getContext().getApplicationContext();
+        AWApplication app = (AWApplication) getActivity().getApplicationContext();
         String databasePath = app.getApplicationDatabasePath();
         File src = app.getDatabasePath(app.theDatenbankname());
         File dest = new File(databasePath + File.separator + app.theDatenbankname());
-        copyFile(src, dest);
+        AWUtils.copyFile(getActivity(), src, dest);
         Uri uri = Uri.parse("sqlite:" + dest.getAbsolutePath());
         intent.setData(uri);
         startActivity(intent);
-    }
-
-    private void copyFile(File src, File dest) throws IOException {
-        FileChannel inChannel = null;
-        FileChannel outChannel = null;
-        try {
-            inChannel = new FileInputStream(src).getChannel();
-            outChannel = new FileOutputStream(dest).getChannel();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            inChannel.transferTo(0, inChannel.size(), outChannel);
-        } finally {
-            if (inChannel != null) {
-                inChannel.close();
-            }
-            if (outChannel != null) {
-                outChannel.close();
-            }
-        }
     }
 
     /**
@@ -137,21 +114,22 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
     private void doAction(final AWEvent event) {
         switch (event) {
             case DoDatabaseSave:
-                int permission = ContextCompat.checkSelfPermission(getContext(),
+                int permission = ContextCompat.checkSelfPermission(getActivity(),
                         Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 if (permission == PackageManager.PERMISSION_GRANTED) {
                     startDBSave(event);
                 } else {
                     pendingEvent = event;
-                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    ActivityCompat.requestPermissions(getActivity(),
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_PERMISSION_STORAGE);
                 }
                 break;
             case doVaccum:
                 buildAndShowDialog(R.string.dbTitleDatenbank, R.string.dlgDatenbankAufraeumen);
-                Intent intent = new Intent(getContext(), AWEventService.class);
+                Intent intent = new Intent(getActivity(), AWEventService.class);
                 intent.putExtra(AWLIBEVENT, (Parcelable) event);
-                getContext().startService(intent);
+                getActivity().startService(intent);
                 break;
         }
     }
@@ -218,9 +196,9 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkVersionInfo).equals(key)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             View view =
-                    LayoutInflater.from(getContext()).inflate(R.layout.awlib_pref_dbversion, null);
+                    LayoutInflater.from(getActivity()).inflate(R.layout.awlib_pref_dbversion, null);
             final EditText etVersion = (EditText) view.findViewById(R.id.etVersion);
             builder.setView(view);
             int oldVersion = AbstractDBHelper.getInstance().getReadableDatabase().getVersion();
@@ -237,10 +215,10 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
             builder.create().show();
             return true;
         } else if (getString(R.string.pkSavePeriodic).equals(key)) {
-            EventDBSave.checkDBSaveAlarm(getContext(), preference.getSharedPreferences());
+            EventDBSave.checkDBSaveAlarm(getActivity(), preference.getSharedPreferences());
             return true;
         } else if (getString(R.string.pkCompileInfo).equals(key)) {
-            if (ContextCompat.checkSelfPermission(getContext(),
+            if (ContextCompat.checkSelfPermission(getActivity(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 try {
                     copyAndDebugDatabase();
@@ -249,7 +227,8 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
                 }
             } else {
                 pendingEvent = copyAndDebugDatabase;
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         REQUEST_PERMISSION_STORAGE);
             }
             return true;
@@ -308,8 +287,8 @@ public class AWPreferencesAllgemein extends AWPreferenceFragment
             folder.mkdir();
         }
         mApplication.createFiles();
-        Intent intent = new Intent(getContext(), AWEventService.class);
+        Intent intent = new Intent(getActivity(), AWEventService.class);
         intent.putExtra(AWLIBEVENT, (Parcelable) event);
-        getContext().startService(intent);
+        getActivity().startService(intent);
     }
 }

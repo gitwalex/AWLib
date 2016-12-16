@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -137,6 +138,39 @@ public final class AWUtils {
             }
         }
         return ergebnis;
+    }
+
+    /**
+     * Kopiert ein File. Die Pruefung, ob das Zielfile z.B. wegen Berechtigungen erstellt werden
+     * kann obliegt der aufrufenden Klasse.
+     *
+     * @param context
+     *         Context
+     * @param src
+     *         File, welches kopiert werden soll
+     * @param dest
+     *         TargetFile
+     *
+     * @throws IOException
+     *         Bei Fehlern.
+     */
+    public static void copyFile(Context context, File src, File dest) throws IOException {
+        FileChannel inChannel = null;
+        FileChannel outChannel = null;
+        try {
+            inChannel = new FileInputStream(src).getChannel();
+            outChannel = new FileOutputStream(dest).getChannel();
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (inChannel != null) {
+                inChannel.close();
+            }
+            if (outChannel != null) {
+                outChannel.close();
+            }
+        }
     }
 
     /**
