@@ -25,11 +25,6 @@ import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceGroup;
-import android.text.TextUtils;
-
-import de.aw.awlib.preferences.EditTextPreferenceDate;
-import de.aw.awlib.preferences.EditTextPreferenceTime;
-import de.aw.awlib.preferences.MainPreferenceInterface;
 
 /**
  * Erstellt und bearbeitet die allgemeinen Preferences. Die einzelnen Preferences werden als Wert in
@@ -38,8 +33,7 @@ import de.aw.awlib.preferences.MainPreferenceInterface;
  * @author alex
  */
 public abstract class AWPreferenceFragment extends PreferenceFragment
-        implements SharedPreferences.OnSharedPreferenceChangeListener,
-        Preference.OnPreferenceClickListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
     /**
      * Initialisiert die Summaries, wenn das Fragment gestartet wird.
      *
@@ -92,24 +86,15 @@ public abstract class AWPreferenceFragment extends PreferenceFragment
     }
 
     /**
-     * Stellt den Wert der Preference in die Summary-Zeile ein. Die gilt fuer Preferences, die das
-     * Interface {@link MainPreferenceInterface} implementieren, ListPreferences und
+     * Stellt den Wert der Preference in die Summary-Zeile ein. Dies gilt fuer ListPreferences und
      * EditTextPreferences. Alle anderen Preferences werden nicht barbeitet. Enthaelt der Titel der
      * EditTextPreference als Teilstring 'asswor'  werden statt des Textes Sterne in die
-     * Summaryzeile gesetzt. Liefert MainPreferenceInterface 'null' oder einen leeren String zuruck,
-     * wird nichts in die Summary eingestelle.
+     * Summaryzeile gesetzt.
      *
      * @param p
      *         Preference
      */
     protected void updatePrefSummary(Preference p) {
-        if (p instanceof MainPreferenceInterface) {
-            String summary = ((MainPreferenceInterface) p).getSummaryText();
-            if (!TextUtils.isEmpty(summary)) {
-                p.setSummary(summary);
-            }
-            return;
-        }
         if (p instanceof ListPreference) {
             ListPreference listPref = (ListPreference) p;
             p.setSummary(listPref.getEntry());
@@ -122,17 +107,6 @@ public abstract class AWPreferenceFragment extends PreferenceFragment
             } else {
                 p.setSummary(editTextPref.getText());
             }
-            return;
-        }
-        if (p instanceof EditTextPreferenceTime) {
-            EditTextPreferenceTime editTextPref = (EditTextPreferenceTime) p;
-            p.setSummary(editTextPref.getSummary());
-            return;
-        }
-        if (p instanceof EditTextPreferenceDate) {
-            EditTextPreferenceDate editTextPref = (EditTextPreferenceDate) p;
-            p.setSummary(editTextPref.getSummary());
-            p.setOnPreferenceClickListener(this);
             return;
         }
     }

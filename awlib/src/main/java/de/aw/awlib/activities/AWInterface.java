@@ -57,6 +57,10 @@ public interface AWInterface {
             /**
              *
              */
+            , DIALOGRESULT = "DIALOGRESULT"
+            /**
+             *
+             */
             , NEXTACTIVITY = "NEXTACTIVITY"
             /**
              *
@@ -126,11 +130,19 @@ public interface AWInterface {
             /**
              *
              */
-            , REQUEST_PERMISSION_CALENDAR = 110
+            , REQUEST_TIME = 110
             /**
              *
              */
-            , REQUEST_PERMISSION_STORAGE = 110
+            , REQUEST_PERMISSION_CALENDAR = 120
+            /**
+             *
+             */
+            , REQUEST_PERMISSION_STORAGE = 130
+            /**
+             *
+             */
+            , REQUEST_NUMBER = 140
             /**
              *
              */

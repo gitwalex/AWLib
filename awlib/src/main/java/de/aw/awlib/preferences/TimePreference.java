@@ -24,12 +24,10 @@ import android.util.AttributeSet;
 import de.aw.awlib.R;
 
 /**
- * EditTextPreferenceTime: Liest eine Uhrzeit und speichert diese als Long in Preferences. Gibt es
- * einen Default-Wert (Format: HH:mm), wird dieser uebernommen. Ist das Format falsch oder kein
- * DefaultWert vorgegeben, dann wird 00:00 angenommen
+ * TimePreference: Speichert einen int-Value
  */
 public class TimePreference extends DialogPreference {
-    private int mDialogLayoutResId = R.layout.pref_dialog_time;
+    private int mDialogLayoutResId = R.layout.awlib_pref_dialog_time;
     private int mTime;
 
     public TimePreference(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -65,8 +63,17 @@ public class TimePreference extends DialogPreference {
         setTime(restorePersistedValue ? getPersistedInt(mTime) : (int) defaultValue);
     }
 
+    /**
+     * Persisitiert die Zeit und stellt die gewaehlte Zeit im Format 'HH:mm' ind die Summary ein.
+     *
+     * @param time
+     *         Zeit in Minuten
+     */
     public void setTime(int time) {
         mTime = time;
         persistInt(time);
+        int hours = time / 60;
+        int minutes = time % 60;
+        setSummary(String.format("%02d", hours) + ":" + String.format("%02d", minutes));
     }
 }

@@ -189,8 +189,5 @@
         <item name="negativeButtonText">@android:string/cancel</item>
     </style>
 
-    <style name="AppAlertDialogContent"
-           parent="Theme.AppCompat.DayNight">
-        <!-- To keep the color of EditText -->
-    </style>
+
 </resources>
