@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract.Calendars;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -82,8 +81,7 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
                 lm.initLoader(loaderID, args, this);
             }
         } else {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.READ_CALENDAR},
+            requestPermissions(new String[]{Manifest.permission.READ_CALENDAR},
                     REQUEST_PERMISSION_READ_CALENDAR);
         }
     }

@@ -251,13 +251,13 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         if (constraint == null) {
             constraint = "";
         }
-        mConstraint = constraint;
+        mConstraint = constraint.toString().trim();
         String[] mSelectionArgs = new String[]{"%" + mConstraint + "%"};
         Cursor data = getContext().getContentResolver()
                 .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs, mOrderBy);
         if (data != null && data.moveToFirst()) {
             selectionID = data.getLong(1);
-            selectedText = data.getString(0);
+            selectedText = data.getString(0).trim();
             if (data.getCount() == 1) {
                 sendMessage();
             }

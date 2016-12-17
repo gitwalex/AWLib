@@ -75,6 +75,7 @@ public class NumberPreferenceFragment
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             // generate value to save
+            mNumberPicker.clearFocus();
             int number = mNumberPicker.getValue();
             // Get the related Preference and save the value
             NumberPreference timePreference = ((NumberPreference) getPreference());
