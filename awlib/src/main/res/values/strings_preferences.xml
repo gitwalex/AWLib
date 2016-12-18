@@ -69,5 +69,6 @@
     <string name="pkServerRemoteDirectory">RemoteDirectory</string>
     <string name="cbConnectionType">verschlüsselte Verbindung</string>
     <string name="dlgTitleDate">Datum</string>
+    <string name="prefsSummaryAllgemein">Operationen mit der Datenbank und Infos zur App</string>
 
 </resources>

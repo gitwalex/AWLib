@@ -67,7 +67,9 @@ public class NumberPickerDialog extends AWFragment implements NumberPicker.OnVal
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dlg = super.onCreateDialog(savedInstanceState);
-        dlg.setTitle(mTitle);
+        if (mTitle != 0) {
+            dlg.setTitle(mTitle);
+        }
         return dlg;
     }
 

@@ -23,7 +23,7 @@
             android:summary="@string/dbSmryDBVacuum"
             android:title="@string/dbTitleDBVacuum"
             />
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:defaultValue="false"
             android:key="@string/pkSavePeriodic"
             android:summary="@string/smryDBSavePeriodic"
@@ -34,13 +34,12 @@
             android:title="@string/actionDatenbankSichern"
             />
         <Preference
-            android.summary="@string/dbSmryDatenbankRestore"
             android:key="@string/pkDBRestore"
-            android:title="@string/actionDatenbankRestore"
+            android:title="@string/dbSmryDatenbankRestore"
             />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/titleExterneSicherung">
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:defaultValue="false"
             android:key="@string/pkExterneSicherung"
             android:summary="@string/smryExterneSicherung"

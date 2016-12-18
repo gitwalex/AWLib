@@ -4,6 +4,7 @@
 
     <header
         android:fragment="de.aw.awlib.preferences.AWPreferencesAllgemein"
+        android:summary="@string/prefsSummaryAllgemein"
         android:title="@string/TitleAllgemeinPrefs"/>
 
 </preference-headers>

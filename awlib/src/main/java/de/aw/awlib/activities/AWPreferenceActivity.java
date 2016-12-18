@@ -20,6 +20,7 @@
 package de.aw.awlib.activities;
 
 import android.preference.PreferenceActivity;
+import android.support.v7.preference.PreferenceManager;
 
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class AWPreferenceActivity extends PreferenceActivity {
 
     @Override
     public void onBuildHeaders(List<PreferenceActivity.Header> target) {
+        PreferenceManager.setDefaultValues(this, R.xml.awlib_preferences_allgemein, false);
         loadHeadersFromResource(R.xml.awlib_preference_headers, target);
     }
 }

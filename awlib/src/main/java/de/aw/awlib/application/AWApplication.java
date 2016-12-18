@@ -42,7 +42,6 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.util.Date;
 
-import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityDebug;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBHelper;
@@ -244,7 +243,6 @@ public abstract class AWApplication extends Application {
         createDBHelper(this);
         boolean mDebugFlag = getDebugFlag();
         super.onCreate();
-        PreferenceManager.setDefaultValues(this, R.xml.awlib_preferences_allgemein, false);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         checkDBSaveAlarm(this, prefs);
         if (mDebugFlag) {
