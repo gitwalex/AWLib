@@ -99,6 +99,7 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
         String databasePath = app.getApplicationDatabasePath();
         File src = app.getDatabasePath(app.theDatenbankname());
         File dest = new File(databasePath + File.separator + app.theDatenbankname());
+        dest.delete();
         AWUtils.copyFile(getActivity(), src, dest);
         Uri uri = Uri.parse("sqlite:" + dest.getAbsolutePath());
         intent.setData(uri);
@@ -202,7 +203,8 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
             final EditText etVersion = (EditText) view.findViewById(R.id.etVersion);
             builder.setView(view);
             int oldVersion = AbstractDBHelper.getInstance().getReadableDatabase().getVersion();
-            builder.setTitle("Aktuelle Version" + oldVersion);
+            etVersion.setText("" + oldVersion);
+            builder.setTitle("Aktuelle Version: " + oldVersion);
             builder.setPositiveButton(R.string.awlib_btnAccept,
                     new DialogInterface.OnClickListener() {
                         @Override
