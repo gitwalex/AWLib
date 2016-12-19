@@ -78,6 +78,10 @@ public abstract class AWApplication extends Application {
     /**
      * Pfad, indem alle Backups zu de.aw.-Applications abgelegt werden
      */
+    private static final String PICTUREPATH = "/pictures";
+    /**
+     * Pfad, indem alle Backups zu de.aw.-Applications abgelegt werden
+     */
     private static final String BACKUPPATH = "/backup";
     /**
      * Pfad, indem alle Exports zu de.aw.-Applications abgelegt werden
@@ -183,6 +187,10 @@ public abstract class AWApplication extends Application {
 
     public final String getApplicationPath() {
         return APPLICATIONPATH;
+    }
+
+    public final String getApplicationPicturePath() {
+        return APPLICATIONPATH + PICTUREPATH;
     }
 
     public abstract String getAuthority();

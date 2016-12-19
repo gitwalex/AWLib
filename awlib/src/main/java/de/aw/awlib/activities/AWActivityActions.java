@@ -41,6 +41,7 @@ import de.aw.awlib.fragments.AWFragmentActionBar;
 import de.aw.awlib.fragments.AWFragmentRemoteFileServer;
 import de.aw.awlib.fragments.AWRemoteFileChooser;
 import de.aw.awlib.fragments.AWRemoteServerConnectionData;
+import de.aw.awlib.fragments.AWShowPicture;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWOnArrayRecyclerViewListener;
@@ -160,6 +161,10 @@ public class AWActivityActions extends AWMainActivity
                         f = new AWFragmentRemoteFileServer();
                         getDefaultFAB().setVisibility(View.VISIBLE);
                         getDefaultFAB().setOnClickListener(this);
+                        break;
+                    case ShowPicture:
+                        String filename = args.getString(FILENAME);
+                        f = AWShowPicture.newInstance(filename);
                         break;
                     default:
                         throw new IllegalArgumentException(

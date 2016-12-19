@@ -19,8 +19,10 @@ package de.aw.awlib.fragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -40,9 +42,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWActivityActions;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.activities.AWMainActivity;
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.events.AWEvent;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
@@ -495,6 +499,19 @@ public abstract class AWFragment extends DialogFragment
      */
     public void setTitle(int titleResID) {
         setTitle(getString(titleResID));
+    }
+
+    /**
+     * Startet eine Activity zum anzeigen eines Bildes.
+     *
+     * @param filename
+     *         Absoluter Path zum File. File muss ein Bild enthalten
+     */
+    protected void showPictureFrom(String filename) {
+        Intent intent = new Intent(getActivity(), AWActivityActions.class);
+        intent.putExtra(FILENAME, filename);
+        intent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.ShowPicture);
+        getActivity().startActivity(intent);
     }
 
     /**

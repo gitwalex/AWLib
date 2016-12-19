@@ -16,11 +16,16 @@
  */
 package de.aw.awlib.utils;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -31,11 +36,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import de.aw.awlib.application.AWApplication;
 
 import static de.aw.awlib.AWResultCodes.RESULT_Divers;
 import static de.aw.awlib.AWResultCodes.RESULT_FILE_ERROR;
@@ -173,6 +182,26 @@ public final class AWUtils {
         }
     }
 
+    public static Intent createNewPhoto(Activity activity, String prefix) {
+        // the intent is my camera
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        //Setting the file Uri to my photo
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            String mPath =
+                    ((AWApplication) activity.getApplicationContext()).getApplicationPicturePath();
+            File folder = new File(mPath + "/" + prefix);
+            //if it doesn't exist the folder will be created
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            //getting uri of the file
+            Uri file = Uri.fromFile(getFile(folder, prefix));
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
+            return intent;
+        }
+        return null;
+    }
+
     /**
      * Utility method to read data from InputStream
      */
@@ -190,6 +219,20 @@ public final class AWUtils {
                 fos.close();
             }
         }
+    }
+
+    //this method will create and return the path to the image file
+    private static File getFile(File folder, String prefix) {
+        @SuppressLint("SimpleDateFormat") String timeStamp =
+                new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = prefix + "_" + timeStamp + "_";
+        File image_file = null;
+        try {
+            image_file = File.createTempFile(imageFileName, ".jpg", folder);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image_file;
     }
 
     /**

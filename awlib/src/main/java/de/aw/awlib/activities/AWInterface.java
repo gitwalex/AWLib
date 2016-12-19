@@ -105,6 +105,10 @@ public interface AWInterface {
             /**
              *
              */
+            , FILENAME = "FILENAME"
+            /**
+             *
+             */
             , ACTIONBARSUBTITLE = "ACTIONBARSUBTITLE"
             /**
              * Events fuer {@link AWEvent}
@@ -130,7 +134,7 @@ public interface AWInterface {
             /**
              *
              */
-            , REQUEST_TIME = 110
+            , REQUEST_PICTURE_RESULT = 110
             /**
              *
              */
