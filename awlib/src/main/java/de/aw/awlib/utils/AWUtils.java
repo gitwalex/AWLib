@@ -182,26 +182,6 @@ public final class AWUtils {
         }
     }
 
-    public static Intent createNewPhoto(Activity activity, String prefix) {
-        // the intent is my camera
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        //Setting the file Uri to my photo
-        if (intent.resolveActivity(activity.getPackageManager()) != null) {
-            String mPath =
-                    ((AWApplication) activity.getApplicationContext()).getApplicationPicturePath();
-            File folder = new File(mPath + "/" + prefix);
-            //if it doesn't exist the folder will be created
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            //getting uri of the file
-            Uri file = Uri.fromFile(getFile(folder, prefix));
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
-            return intent;
-        }
-        return null;
-    }
-
     /**
      * Utility method to read data from InputStream
      */
@@ -263,6 +243,26 @@ public final class AWUtils {
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
+    public static Intent prepareNewPhoto(Activity activity, String prefix) {
+        // the intent is my camera
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        //Setting the file Uri to my photo
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+            String mPath =
+                    ((AWApplication) activity.getApplicationContext()).getApplicationPicturePath();
+            File folder = new File(mPath + "/" + prefix);
+            //if it doesn't exist the folder will be created
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            //getting uri of the file
+            Uri file = Uri.fromFile(getFile(folder, prefix));
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
+            return intent;
+        }
+        return null;
     }
 
     /**
