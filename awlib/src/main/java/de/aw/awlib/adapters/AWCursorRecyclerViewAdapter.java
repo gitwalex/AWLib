@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.recyclerview;/*
+package de.aw.awlib.adapters;/*
  * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
@@ -41,6 +41,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
+import de.aw.awlib.recyclerview.AWLibViewHolder;
+
 /**
  * Adapter fuer RecyclerView mit Cursor.
  */
@@ -60,7 +63,7 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
      * @param binder
      *         CursorViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      */
-    protected AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder) {
+    public AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder) {
         this(binder, "_id");
     }
 

@@ -25,6 +25,9 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MotionEvent;
 import android.view.View;
 
+import de.aw.awlib.adapters.AWCursorDragDropRecyclerViewAdapter;
+import de.aw.awlib.adapters.AWCursorRecyclerViewAdapter;
+
 /**
  * RecyclerViewFragment. Bietet Moeglichkeit der Konfiguration Dragging (durch setzten von {@link
  * AWDragSwipeRecyclerViewFragment#setIsDragable(boolean)} oder {@link

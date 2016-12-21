@@ -19,7 +19,7 @@ import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
- * Created by alex on 04.12.2016.
+ * Zeigt alle externen Calendars des Devices
  */
 public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
     private static final int layout = R.layout.awlib_default_recycler_view;
@@ -58,6 +58,12 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
                     i++;
                 }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setTitle(R.string.selectCalendar);
     }
 
     @Override

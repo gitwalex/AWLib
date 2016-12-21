@@ -32,6 +32,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
+import de.aw.awlib.adapters.AWCursorRecyclerViewAdapter;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.fragments.AWLoaderFragment;

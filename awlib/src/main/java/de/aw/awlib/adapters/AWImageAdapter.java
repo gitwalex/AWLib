@@ -1,4 +1,4 @@
-package de.aw.awlib.utils;
+package de.aw.awlib.adapters;
 
 import android.content.Context;
 import android.view.View;
@@ -11,30 +11,47 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 
 /**
- * Created by alex on 19.12.2016.
+ * Adapter fuer Anzeige von Images, die sich auf dem Geraet befinden.
  */
-public class ImageAdapter extends BaseAdapter {
+public class AWImageAdapter extends BaseAdapter {
     private final File[] mImageFiles;
     private final Context mContext;
 
-    public ImageAdapter(Context c, File[] imageFiles) {
+    /**
+     * @param c
+     *         Context
+     * @param imageFiles
+     *         Array der anzuzeigenden Files
+     */
+    public AWImageAdapter(Context c, File[] imageFiles) {
         mContext = c;
         mImageFiles = imageFiles;
     }
 
+    @Override
     public int getCount() {
         return mImageFiles.length;
     }
 
+    @Override
     public File getItem(int position) {
         return mImageFiles[position];
     }
 
+    /**
+     * Die Id des Bildes ist der Wert der Position
+     */
+    @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
-    // create a new ImageView for each item referenced by the Adapter
+    /**
+     * Erstellt bei Bedarf ein ImageView fuer das zu an die position zu ladende Bild.
+     * <p>
+     * Das Bild wird mittels Picasso geladen
+     */
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView imageView;
         if (convertView == null) {

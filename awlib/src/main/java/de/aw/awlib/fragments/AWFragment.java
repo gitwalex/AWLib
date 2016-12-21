@@ -43,8 +43,8 @@ import android.widget.TextView;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityActions;
+import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.activities.AWInterface;
-import de.aw.awlib.activities.AWMainActivity;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.events.AWEvent;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
@@ -455,7 +455,7 @@ public abstract class AWFragment extends DialogFragment
      *         Text des Subtitles
      */
     public void setSubTitle(CharSequence subTitle) {
-        ActionBar bar = ((AWMainActivity) getActivity()).getSupportActionBar();
+        ActionBar bar = ((AWBasicActivity) getActivity()).getSupportActionBar();
         if (bar != null) {
             if (!isSavedActionBarSubtitle) {
                 mSavedActionBarSubtitle = bar.getSubtitle();
@@ -484,7 +484,7 @@ public abstract class AWFragment extends DialogFragment
      *         Text des STitles
      */
     public void setTitle(CharSequence title) {
-        ActionBar bar = ((AWMainActivity) getActivity()).getSupportActionBar();
+        ActionBar bar = ((AWBasicActivity) getActivity()).getSupportActionBar();
         if (bar != null) {
             bar.setTitle(title);
         }

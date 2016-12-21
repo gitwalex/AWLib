@@ -55,6 +55,12 @@
     <string name="viewholder">viewholdertag</string>
     <string name="dbVersion">Neue DB-Version</string>
     <string name="awlib_menu_item_camera">Kamera</string>
+    <string name="selectCalendar">Kalender auswählen</string>
+    <string name="pref_calendar_id">calendarID</string>
+    <string name="pref_calendar_name">calendarname</string>
+    <string name="calendarSelected">Kalendar ausgewählt</string>
+    <string name="pkinsertCalendar">prefKeyInsertCalendar</string>
+    <string name="titleInsertCalendar">In den Kalender einfügen</string>
 
 
 </resources>

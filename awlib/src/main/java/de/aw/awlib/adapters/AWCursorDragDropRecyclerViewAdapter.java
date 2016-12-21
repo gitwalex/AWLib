@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.recyclerview;
+package de.aw.awlib.adapters;
 
 import android.database.Cursor;
 
@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
+import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
 
 /**
  * Adapter fuer RecyclerView, der Drag/Drop und Swipe unterstuetzt. Der Adapter baut eine Liste mit

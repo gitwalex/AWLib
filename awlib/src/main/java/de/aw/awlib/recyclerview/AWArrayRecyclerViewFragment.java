@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import de.aw.awlib.R;
+import de.aw.awlib.adapters.AWArrayRecyclerViewAdapter;
 import de.aw.awlib.fragments.AWFragment;
 
 /**

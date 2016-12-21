@@ -535,7 +535,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @return ResId der Spalten, die zu einer Sortierung herangezogen werden sollen.
      */
-    public final int[] getOrderByItems(AWAbstractDBDefinition tbd) {
+    public int[] getOrderByItems(AWAbstractDBDefinition tbd) {
         return new int[]{tbd.getTableItems()[0]};
     }
 

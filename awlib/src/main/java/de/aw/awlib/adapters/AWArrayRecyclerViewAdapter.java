@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.recyclerview;/*
+package de.aw.awlib.adapters;/*
  * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
@@ -42,6 +42,9 @@ import android.view.ViewGroup;
 import java.util.Arrays;
 import java.util.List;
 
+import de.aw.awlib.recyclerview.AWLibViewHolder;
+import de.aw.awlib.recyclerview.AWOnArrayRecyclerViewListener;
+
 /**
  * Adapter fuer RecyclerView mit List oder Array.
  */
@@ -59,7 +62,7 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
      * @param binder
      *         ArrayViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      */
-    protected AWArrayRecyclerViewAdapter(@NonNull ArrayViewHolderBinder<T> binder) {
+    public AWArrayRecyclerViewAdapter(@NonNull ArrayViewHolderBinder<T> binder) {
         arrayViewHolderBinder = binder;
     }
 
@@ -172,7 +175,7 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
     /**
      * Bindet Daten eines Cursors an einen AWLibViewHolder
      */
-    protected interface ArrayViewHolderBinder<T> {
+    public interface ArrayViewHolderBinder<T> {
         /**
          * Wird vom Adapter gerufen, um den ViewType zu ermitteln
          *

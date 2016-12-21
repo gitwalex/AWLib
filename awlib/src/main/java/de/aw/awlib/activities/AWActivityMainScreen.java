@@ -262,7 +262,7 @@ public abstract class AWActivityMainScreen extends AWMainActivity
         mDrawerLayout.addDrawerListener(mDrawerToggle);
         if (pager != null) {
             pager.addOnPageChangeListener(this);
-            pager.setCurrentItem(args.getInt(AWInterface.LASTSELECTEDPOSITION, 0));
+            pager.setCurrentItem(args.getInt(LASTSELECTEDPOSITION, 0));
         }
     }
 

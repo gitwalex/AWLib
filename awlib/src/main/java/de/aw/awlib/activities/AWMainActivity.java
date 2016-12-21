@@ -17,18 +17,13 @@
 package de.aw.awlib.activities;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
@@ -38,34 +33,19 @@ import de.aw.awlib.views.AWBottomSheetCalculator;
 /**
  * Template fuer Activities. Implementiert das globale Menu sowie die entsprechenden Reaktionen
  * darauf. Ausserdem wird dafuer gesorgt, dass bei Auswahl des MenuButtons des Geraetes der
- * OverFlow-Butten angezeigt wird. Es wird ein Bundle args bereitgestellt, welches immer gesichert
- * bzw. restored wird.
+ * OverFlow-Butten angezeigt wird.
  */
-public abstract class AWMainActivity extends AppCompatActivity
-        implements AWInterface, View.OnClickListener {
+public abstract class AWMainActivity extends AWBasicActivity implements View.OnClickListener {
     /**
      * Layout fuer alle Activities. Beinhaltet ein FrameLayout als container ("container") und einen
      * DetailLayout ("containerDetail").
      */
     private static final int layout = R.layout.awlib_activity_main;
-    private static final int ASK_FOR_PERMISSIONS = 2;
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
-    private static final int ASK_MULTIPLE_PERMISSION_REQUEST_CODE = 2;
-    /**
-     * ID fuer Fragment-Container. Hier koennen Fragmente eingehaengt werden
-     */
-    protected static int container;
-    /**
-     * Bundle fuer Argumente. Wird in SaveStateInstance gesichert und in onCreate
-     * wiederhergestellt.
-     */
-    protected final Bundle args = new Bundle();
     protected AbstractDBHelper mDBHelper;
     /**
      * Default FloatingActionButton. Rechts unten, Icon ist 'Add', standardmaessig View.GONE
      */
     private FloatingActionButton mDefaultFAB;
-    private Toolbar mToolbar;
     private MainAction mainAction;
 
     public FloatingActionButton getDefaultFAB() {
@@ -85,26 +65,6 @@ public abstract class AWMainActivity extends AppCompatActivity
         return mainAction;
     }
 
-    /**
-     * @return Liefert die Toolbar der View zurueck.
-     */
-    public Toolbar getToolbar() {
-        return mToolbar;
-    }
-
-    /**
-     * Hides a Keyboard
-     *
-     * @see "stackoverflow.com/questions/1109022/close-hide-the-android-soft-keyboard"
-     */
-    public void hide_keyboard() {
-        View view = getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm =
-                    (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
 
     @Override
     public void onClick(View v) {
@@ -124,34 +84,12 @@ public abstract class AWMainActivity extends AppCompatActivity
      * - Initialisiert IntermediateProgress in ActionBar -  ermitteln der gesicherten Argumente -
      * HomeButton intialisieren - Ist der DetailContainer Visible, wird er auch (wieder) angezeigt.
      */
+    @Override
     protected void onCreate(Bundle savedInstanceState, int layout) {
-        container = R.id.container4fragment;
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            args.putAll(extras);
-        }
-        String nextActivity = args.getString(NEXTACTIVITY);
-        if (nextActivity != null) {
-            try {
-                Intent intent = new Intent(this, Class.forName(nextActivity));
-                intent.putExtras(args);
-                startActivity(intent);
-            } catch (ClassNotFoundException e) {
-                //TODO Execption bearbeiten
-                e.printStackTrace();
-            }
-        }
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState, layout);
         mDBHelper = ((AWApplication) getApplicationContext()).getDBHelper();
-        setContentView(layout);
         mainAction = args.getParcelable(AWLIBACTION);
         mDefaultFAB = (FloatingActionButton) findViewById(R.id.awlib_defaultFAB);
-        mToolbar = (Toolbar) findViewById(R.id.awlib_toolbar);
-        setSupportActionBar(mToolbar);
-        if (savedInstanceState != null) {
-            args.putAll(savedInstanceState);
-            setSubTitle(args.getCharSequence(ACTIONBARSUBTITLE));
-        }
         ActionBar bar = getSupportActionBar();
         assert bar != null;
         bar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
@@ -197,44 +135,5 @@ public abstract class AWMainActivity extends AppCompatActivity
             setResult(RESULT_OK);
         }
         return isConsumed;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setSubTitle(args.getString(ACTIONBARSUBTITLE));
-    }
-
-    /**
-     * Sicherung aller Argumente
-     */
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putAll(args);
-        super.onSaveInstanceState(outState);
-    }
-
-    /**
-     * Setzt den SubTitle in der SupportActionBar
-     *
-     * @param subTitle
-     *         Text des Subtitles
-     */
-    public void setSubTitle(CharSequence subTitle) {
-        ActionBar bar = getSupportActionBar();
-        if (bar != null) {
-            bar.setSubtitle(subTitle);
-        }
-        args.putCharSequence(ACTIONBARSUBTITLE, subTitle);
-    }
-
-    /**
-     * Setzt den SubTitle in der SupportActionBar
-     *
-     * @param subTitleResID
-     *         resID des Subtitles
-     */
-    public void setSubTitle(int subTitleResID) {
-        setSubTitle(getString(subTitleResID));
     }
 }

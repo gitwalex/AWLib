@@ -20,6 +20,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
+import de.aw.awlib.adapters.AWCursorDragDropRecyclerViewAdapter;
+
 /**
  * Created by alex on 23.07.2016.
  */
