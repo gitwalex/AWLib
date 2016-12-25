@@ -181,14 +181,14 @@ public class CalendarReminder {
     /**
      * Setzt ein neues Datum fuer einen Kalendereintrag
      *
-     * @param calendarItemID
+     * @param eventID
      *         ID des items des Kalenders
      * @param date
      *         Neues Datum
      *
      * @return true, wenn erfolgreich
      */
-    public boolean updateEventDate(long calendarItemID, Date date) {
+    public boolean updateEventDate(long eventID, Date date) {
         if (ContextCompat.checkSelfPermission(mContext,
                 Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
             ContentResolver cr = mContext.getContentResolver();
@@ -196,7 +196,7 @@ public class CalendarReminder {
             // The new title for the event
             values.put(CalendarContract.Events.DTSTART, date.getTime());
             values.put(CalendarContract.Events.DTEND, date.getTime());
-            Uri updateUri = ContentUris.withAppendedId(Events.CONTENT_URI, calendarItemID);
+            Uri updateUri = ContentUris.withAppendedId(Events.CONTENT_URI, eventID);
             return (cr.update(updateUri, values, null, null) != 0);
         }
         return false;

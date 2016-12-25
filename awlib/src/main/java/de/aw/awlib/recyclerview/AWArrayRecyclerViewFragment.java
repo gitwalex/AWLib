@@ -32,13 +32,10 @@ import de.aw.awlib.adapters.AWArrayRecyclerViewAdapter;
 import de.aw.awlib.fragments.AWFragment;
 
 /**
- * Erstellt eine Liste ueber Daten einer Tabelle.
+ * Erstellt eine Liste ueber Daten eines Arrays.
  * <p/>
- * In der RecyclerView wird als Tag der Name der nutzenden Klasse gespeichert und damit bei
- * OnRecyclerItemClick() bzw. OnRecyclerItemLongClick() im Parent mitgeliefert.
- * <p/>
- * Als Standard erhaelt die RecyclerView als ID den Wert des Layout. Durch args.setInt(VIEWID,
- * value) erhaelt die RecyclerView eine andere ID.
+ * Ein ArrayAdapter kann ueber {@link AWArrayRecyclerViewFragment#getArrayAdapter()} geliefert
+ * werden.
  */
 public class AWArrayRecyclerViewFragment<T> extends AWFragment
         implements AWArrayRecyclerViewAdapter.ArrayViewHolderBinder<T>, View.OnClickListener,
