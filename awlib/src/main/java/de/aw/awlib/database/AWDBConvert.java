@@ -63,7 +63,7 @@ public class AWDBConvert {
         AWApplication.Log(message);
     }
 
-    public static String convert(AWAbstractDBDefinition tbd, int resID, String value) {
+    public static String convert(int resID, String value) {
         Character format = AbstractDBHelper.getInstance().getFormat(resID);
         if (format != null & value != null) {
             switch (format) {

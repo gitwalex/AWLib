@@ -33,7 +33,6 @@ import android.widget.TextView;
 
 import de.aw.awlib.R;
 import de.aw.awlib.adapters.AWCursorRecyclerViewAdapter;
-import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.fragments.AWLoaderFragment;
 
@@ -65,7 +64,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     private int layout = R.layout.awlib_default_recycler_view;
     private View noEntryView;
     private AWOnCursorRecyclerViewListener onCursorRecyclerViewListener;
-    private AWAbstractDBDefinition tbd;
     private int viewHolderLayout;
     private int[] viewResIDs;
 
@@ -191,7 +189,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
                 try {
                     TextView tv = (TextView) view;
                     String text = AWDBConvert
-                            .convert(tbd, fromResIDs[viewPosition], cursor.getString(viewPosition));
+                            .convert(fromResIDs[viewPosition], cursor.getString(viewPosition));
                     tv.setText(text);
                 } catch (ClassCastException e) {
                     throw new IllegalStateException(
@@ -215,7 +213,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         viewResIDs = args.getIntArray(VIEWRESIDS);
         fromResIDs = args.getIntArray(FROMRESIDS);
         mSelectedID = args.getLong(SELECTEDVIEWHOLDERITEM, NOID);
-        tbd = args.getParcelable(DBDEFINITION);
     }
 
     public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {

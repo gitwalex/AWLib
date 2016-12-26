@@ -111,9 +111,8 @@ public abstract class AWApplication extends Application {
      * @param message
      *         Fehlermeldung
      */
-    public static void LogError(Context context, String message) {
-        File logFile = new File(
-                ((AWApplication) context.getApplicationContext()).APPLICATIONPATH + "/LOG.txt");
+    public static void LogError(String message) {
+        File logFile = new File(DE_AW_APPLICATIONPATH + "/LOG.txt");
         try {
             FileOutputStream fileout = new FileOutputStream(logFile, true);
             OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);

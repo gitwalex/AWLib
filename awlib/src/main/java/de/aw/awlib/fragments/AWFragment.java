@@ -109,7 +109,7 @@ public abstract class AWFragment extends DialogFragment
     }
 
     protected final void LogError(String message) {
-        AWApplication.LogError(getActivity(), message);
+        AWApplication.LogError(message);
     }
 
     /**

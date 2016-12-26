@@ -848,7 +848,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             database.setTransactionSuccessful();
             Log("DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion + " erfolgreich!");
         } catch (Exception e) {
-            LogError(getContext(),
+            LogError(
                     "DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion + " fehlgeschlagen!");
             e.printStackTrace();
         } finally {
