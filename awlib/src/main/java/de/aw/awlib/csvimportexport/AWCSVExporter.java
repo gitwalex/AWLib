@@ -16,7 +16,6 @@
  */
 package de.aw.awlib.csvimportexport;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -62,14 +61,16 @@ public class AWCSVExporter {
     }
 
     private final ExportCursorListener mExportCursorListener;
-    private final Context mContext;
     private final AbstractDBHelper mDBHelper;
     private String fullFilename;
+    private String mApplicationExportPath;
 
-    public AWCSVExporter(@NonNull Context context, @NonNull ExportCursorListener listener) {
+    public AWCSVExporter(@NonNull AbstractDBHelper abstractDBHelper,
+                         @NonNull ExportCursorListener listener) {
         mExportCursorListener = listener;
-        mContext = context.getApplicationContext();
-        mDBHelper = AbstractDBHelper.getInstance();
+        mApplicationExportPath =
+                abstractDBHelper.getApplicationContext().getApplicationExportPath();
+        mDBHelper = abstractDBHelper;
     }
 
     /**
@@ -100,7 +101,7 @@ public class AWCSVExporter {
             selection += " GROUP BY " + groupBy;
         }
         String[] projection = tbd.columnNames(fromResIDs);
-        Cursor c = mContext.getContentResolver()
+        Cursor c = mDBHelper.getContentResolver()
                 .query(tbd.getUri(), projection, selection, selectionArgs, null);
         doExport(tbd, c);
     }
@@ -166,14 +167,13 @@ public class AWCSVExporter {
 
         @Override
         protected Integer doInBackground(Void... voids) {
-            AWApplication mApp = ((AWApplication) mContext.getApplicationContext());
             int[] fromResIDs = new int[c.getColumnCount()];
             for (int i = 0; i < c.getColumnCount(); i++) {
                 String columnname = c.getColumnName(i);
                 fromResIDs[i] = mDBHelper.getResID(columnname);
             }
             List<String[]> list = new ArrayList<>();
-            String filename = mApp.getApplicationExportPath() + "/" + this.filename;
+            String filename = mApplicationExportPath + "/" + this.filename;
             File file = new File(filename);
             fullFilename = file.getAbsolutePath();
             FileOutputStream fos;
@@ -195,7 +195,7 @@ public class AWCSVExporter {
                         columns = new String[c.getColumnCount()];
                         for (int j = 0; j < c.getColumnCount(); j++) {
                             int resID = fromResIDs[j];
-                            char format = AbstractDBHelper.getInstance().getFormat(resID);
+                            char format = mDBHelper.getFormat(resID);
                             switch (format) {
                                 case 'C':
                                     Long amount = c.getLong(j);

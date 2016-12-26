@@ -153,7 +153,6 @@ public class AWActivityActions extends AWMainActivity
                         break;
                     case configRemoteFileServer:
                         AWRemoteFileServer mRemoteFileServer = new AWRemoteFileServer(this);
-                        args.putParcelable(REMOTEFILESERVER, mRemoteFileServer);
                         f = AWRemoteFileChooser.newInstance(mRemoteFileServer);
                         setSubTitle(mRemoteFileServer.getURL());
                         break;

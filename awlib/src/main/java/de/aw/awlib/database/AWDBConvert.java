@@ -63,8 +63,8 @@ public class AWDBConvert {
         AWApplication.Log(message);
     }
 
-    public static String convert(int resID, String value) {
-        Character format = AbstractDBHelper.getInstance().getFormat(resID);
+    public static String convert(AbstractDBHelper mDBHelper, int resID, String value) {
+        Character format = mDBHelper.getFormat(resID);
         if (format != null & value != null) {
             switch (format) {
                 case 'D':// Datum

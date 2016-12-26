@@ -28,6 +28,7 @@ import android.widget.FilterQueryProvider;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
+import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBHelper;
 
@@ -69,7 +70,8 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     }
 
     private void buildSelectionArguments(String mUserSelection, String[] mUserSelectionArgs) {
-        mSelection = AbstractDBHelper.getInstance().columnName(fromResID) + " Like ? ";
+        AWApplication mAppContext = (AWApplication) getContext().getApplicationContext();
+        mSelection = mAppContext.getDBHelper().columnName(fromResID) + " Like ? ";
         mOrderBy = "LENGTH(" + mMainColumn + ")";
         if (mUserSelection != null) {
             if (mUserSelectionArgs != null) {
@@ -146,9 +148,11 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         this.mOnTextChangeListener = mOnTextChangeListener;
         this.tbd = tbd;
         this.fromResID = fromResID;
-        mMainColumn = AbstractDBHelper.getInstance().columnName(this.fromResID);
-        mProjection = new String[]{AbstractDBHelper.getInstance().columnName(fromResID),
-                AbstractDBHelper.getInstance().columnName(R.string._id)};
+        AbstractDBHelper mDBHelper =
+                ((AWApplication) getContext().getApplicationContext()).getDBHelper();
+        mMainColumn = mDBHelper.columnName(this.fromResID);
+        mProjection =
+                new String[]{mDBHelper.columnName(fromResID), mDBHelper.columnName(R.string._id)};
         buildSelectionArguments(selection, selectionArgs);
         SimpleCursorAdapter mSimpleCursorAdapter =
                 new SimpleCursorAdapter(getContext(), android.R.layout.simple_dropdown_item_1line,
@@ -263,8 +267,9 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
             }
         }
         setDropDownHeight(getLineHeight() * 18);
-        columnIndex =
-                data.getColumnIndexOrThrow(AbstractDBHelper.getInstance().columnName(fromResID));
+        AbstractDBHelper mDBHelper =
+                ((AWApplication) getContext().getApplicationContext()).getDBHelper();
+        columnIndex = data.getColumnIndexOrThrow(mDBHelper.columnName(fromResID));
         return data;
     }
 

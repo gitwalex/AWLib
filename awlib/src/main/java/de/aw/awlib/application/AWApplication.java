@@ -45,7 +45,6 @@ import java.util.Date;
 import de.aw.awlib.activities.AWActivityDebug;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBHelper;
-import de.aw.awlib.database_private.AWDBDefinition;
 
 import static de.aw.awlib.activities.AWInterface.linefeed;
 import static de.aw.awlib.events.EventDBSave.checkDBSaveAlarm;
@@ -246,7 +245,7 @@ public abstract class AWApplication extends Application {
         if (tbds.length > 0) {
             tbds[0].setAuthority(getAuthority());
         }
-        AWDBDefinition.values()[0].setAuthority(getAuthority());
+        AbstractDBHelper.AWDBDefinition.values()[0].setAuthority(getAuthority());
         createDBHelper(this);
         boolean mDebugFlag = getDebugFlag();
         super.onCreate();

@@ -128,7 +128,7 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
 
     private void init(Context context) {
         mContext = context.getApplicationContext();
-        AWApplication mApplication = ((AWApplication) mContext);
+        AWApplication mApplication = ((AWApplication) mContext.getApplicationContext());
         BACKUPPATH = mApplication.getApplicationBackupPath() + "/";
         DATABASEFILENAME = mApplication.getApplicationDatabaseAbsoluteFilename();
         prefs = PreferenceManager.getDefaultSharedPreferences(context);

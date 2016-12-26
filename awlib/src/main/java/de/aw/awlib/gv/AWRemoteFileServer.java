@@ -18,12 +18,11 @@ package de.aw.awlib.gv;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Parcel;
 import android.preference.PreferenceManager;
 
 import de.aw.awlib.R;
+import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AbstractDBHelper;
-import de.aw.awlib.database_private.AWDBDefinition;
 import de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType;
 
 import static de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType.SSL;
@@ -32,18 +31,9 @@ import static de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType.SSL;
  * Stammdaten fuer einen AWRemoteFileServer.
  */
 public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
-    public static final Creator<AWRemoteFileServer> CREATOR = new Creator<AWRemoteFileServer>() {
-        @Override
-        public AWRemoteFileServer createFromParcel(Parcel source) {
-            return new AWRemoteFileServer(source);
-        }
-
-        @Override
-        public AWRemoteFileServer[] newArray(int size) {
-            return new AWRemoteFileServer[size];
-        }
-    };
-    private static final AWDBDefinition tbd = AWDBDefinition.RemoteServer;
+    private static final AbstractDBHelper.AWDBDefinition tbd =
+            AbstractDBHelper.AWDBDefinition.RemoteServer;
+    private final AbstractDBHelper mDBHelper;
     private ConnectionType mConnectionType;
     private String mMainDirectory;
     private String mURL;
@@ -51,12 +41,14 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
     private String mUserPassword;
 
     public AWRemoteFileServer(Context context) {
-        super(context, tbd);
+        super(tbd);
+        mDBHelper = ((AWApplication) context.getApplicationContext()).getDBHelper();
         put(R.string.column_connectionType, SSL.name());
     }
 
     public AWRemoteFileServer(Context context, long id) throws LineNotFoundException {
-        super(context, tbd, id);
+        super(tbd, id);
+        mDBHelper = ((AWApplication) context.getApplicationContext()).getDBHelper();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         mURL = getAsString(R.string.column_serverurl);
         mUserID = getAsString(R.string.column_serverurl);
@@ -65,17 +57,6 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         if (mURL != null) {
             mUserPassword = prefs.getString(mURL, null);
         }
-    }
-
-    protected AWRemoteFileServer(Parcel in) {
-        super(in);
-        this.mURL = in.readString();
-        this.mUserID = in.readString();
-        this.mUserPassword = in.readString();
-        this.mMainDirectory = in.readString();
-        int tmpMConnectionType = in.readInt();
-        this.mConnectionType =
-                tmpMConnectionType == -1 ? null : ConnectionType.values()[tmpMConnectionType];
     }
 
     /**
@@ -101,17 +82,17 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         return result;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     public String getBackupDirectory() {
         return mMainDirectory;
     }
 
     public ConnectionType getConnectionType() {
         return mConnectionType;
+    }
+
+    @Override
+    public AbstractDBHelper getDBHelper() {
+        return mDBHelper;
     }
 
     /**
@@ -211,16 +192,6 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(mURL, mUserPassword).apply();
         return super.update(db);
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-        dest.writeString(this.mURL);
-        dest.writeString(this.mUserID);
-        dest.writeString(this.mUserPassword);
-        dest.writeString(this.mMainDirectory);
-        dest.writeInt(this.mConnectionType == null ? -1 : this.mConnectionType.ordinal());
     }
 }
 

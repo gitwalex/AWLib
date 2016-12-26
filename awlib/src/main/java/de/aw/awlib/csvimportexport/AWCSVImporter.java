@@ -78,7 +78,7 @@ public class AWCSVImporter implements AWResultCodes {
             throws ParseException {
         Long amount;
         if (value != null) {
-            char format = AbstractDBHelper.getInstance().getFormat(resID);
+            char format = mAppconfig.getDBHelper().getFormat(resID);
             switch (format) {
                 case 'D':// Datum
                     Date date;
@@ -158,7 +158,7 @@ public class AWCSVImporter implements AWResultCodes {
                 AWAbstractDBDefinition tbd = db.getDBDefinition(tablename);
                 try {
                     for (int resID : columnsResIDs) {
-                        AbstractDBHelper.getInstance().columnName(resID);
+                        mAppconfig.getDBHelper().columnName(resID);
                     }
                     myEntries.remove(myEntries.size() - 1);
                 } catch (IllegalArgumentException e1) {

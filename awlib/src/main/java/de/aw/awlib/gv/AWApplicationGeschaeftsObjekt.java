@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 
 import java.text.ParseException;
@@ -50,7 +49,7 @@ import de.aw.awlib.database.AbstractDBHelper;
  * @author alex
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parcelable {
+public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
     /**
      * Flag, ob gerade Daten importiert werden.
      */
@@ -70,8 +69,8 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     /**
      * Abbild der jeweiligen Zeile der Datenbank. Werden nicht direkt geaendert.
      */
-    private ContentValues currentContent = new ContentValues();
-    private boolean isDirty;
+    protected ContentValues currentContent = new ContentValues();
+    protected boolean isDirty;
 
     /**
      * Legt ein neues Geschaeftsobject auf Basis eines anderen GO an. Alle Werte, die in dem neuen
@@ -80,13 +79,12 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @param tbd
      *         AWAbstractDBDefinition
      * @param go
-     *         Geschaeftsobject, dessen Daten kopiert werden sollen.
      */
-    protected AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd,
+    protected AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd,
                                             AWApplicationGeschaeftsObjekt go) {
-        this(context, tbd);
+        this(tbd);
         for (int resID : tbd.getTableItems()) {
-            Object value = go.currentContent.get(AbstractDBHelper.getInstance().columnName(resID));
+            Object value = go.currentContent.get(getDBHelper().columnName(resID));
             if (value != null) {
                 put(resID, value);
             }
@@ -106,10 +104,10 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @throws android.content.res.Resources.NotFoundException
      *         Wenn kein Datensatz mit dieser ID gefunden wurde.
      */
-    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd, Long id)
+    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd, Long id)
             throws LineNotFoundException {
-        this(context, tbd);
-        fillContent(context, id);
+        this(tbd);
+        fillContent(getDBHelper().getApplicationContext(), id);
         id = getID();
         selectionArgs = new String[]{id.toString()};
     }
@@ -120,16 +118,19 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @param tbd
      *         AWAbstractDBDefinition
      */
-    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd) {
+    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd) {
         this.tbd = tbd;
-        selection = context.getString(R.string._id) + " = ?";
-        for (int resID : tbd.getTableItems()) {
-            char format = AbstractDBHelper.getInstance().getFormat(resID);
-            switch (format) {
-                case 'B':
-                    // Vorbelegung mit Wert 'false'
-                    put(resID, false);
-                    break;
+        AbstractDBHelper mDBHelper = getDBHelper();
+        if (mDBHelper != null) {
+            selection = getDBHelper().getApplicationContext().getString(R.string._id) + " = ?";
+            for (int resID : tbd.getTableItems()) {
+                char format = getDBHelper().getFormat(resID);
+                switch (format) {
+                    case 'B':
+                        // Vorbelegung mit Wert 'false'
+                        put(resID, false);
+                        break;
+                }
             }
         }
     }
@@ -166,7 +167,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @return true, wenn ein Wert ungleich null enthalten ist
      */
     public final boolean containsValue(int resID) {
-        String key = AbstractDBHelper.getInstance().columnName(resID);
+        String key = getDBHelper().columnName(resID);
         return currentContent.get(key) != null;
     }
 
@@ -174,7 +175,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         String newValue = null;
         if (value != null) {
             newValue = value.toString();
-            char format = AbstractDBHelper.getInstance().getFormat(resID);
+            char format = getDBHelper().getFormat(resID);
             switch (format) {
                 case 'B':
                     if (AWDBConvert.convertBoolean(newValue)) {
@@ -205,15 +206,10 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         result = db.delete(tbd, selection, selectionArgs);
         isDirty = true;
         if (result != 0) {
-            currentContent.putNull(AbstractDBHelper.getInstance().columnName(R.string._id));
+            currentContent.putNull(getDBHelper().columnName(R.string._id));
             id = null;
         }
         return result;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     /**
@@ -268,7 +264,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         }
         id = getAsLong(R.string._id);
         selectionArgs = new String[]{id.toString()};
-        currentContent.remove(AbstractDBHelper.getInstance().columnName(R.string._id));
+        currentContent.remove(getDBHelper().columnName(R.string._id));
         isDirty = false;
     }
 
@@ -368,7 +364,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     }
 
     protected Resources getApplicationResources() {
-        return AbstractDBHelper.getInstance().getApplicationResources();
+        return getDBHelper().getApplicationResources();
     }
 
     /**
@@ -380,13 +376,13 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Boolean getAsBoolean(int resID) {
-        String key = AbstractDBHelper.getInstance().columnName(resID);
+        String key = getDBHelper().columnName(resID);
         String value = currentContent.getAsString(key);
         return AWDBConvert.convertBoolean(value);
     }
 
     public final byte[] getAsByteArray(int resID) {
-        String key = AbstractDBHelper.getInstance().columnName(resID);
+        String key = getDBHelper().columnName(resID);
         return currentContent.getAsByteArray(key);
     }
 
@@ -423,7 +419,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Integer getAsInt(int resID) {
-        String key = AbstractDBHelper.getInstance().columnName(resID);
+        String key = getDBHelper().columnName(resID);
         return currentContent.getAsInteger(key);
     }
 
@@ -436,7 +432,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Integer getAsInt(int resID, int defaultValue) {
-        String key = AbstractDBHelper.getInstance().columnName(resID);
+        String key = getDBHelper().columnName(resID);
         Integer value = currentContent.getAsInteger(key);
         if (value == null) {
             value = defaultValue;
@@ -453,7 +449,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Long getAsLong(int resID) {
-        String key = AbstractDBHelper.getInstance().columnName(resID);
+        String key = getDBHelper().columnName(resID);
         return currentContent.getAsLong(key);
     }
 
@@ -478,7 +474,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final String getAsString(int resID) {
-        String key = AbstractDBHelper.getInstance().columnName(resID);
+        String key = getDBHelper().columnName(resID);
         return currentContent.getAsString(key);
     }
 
@@ -493,9 +489,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         return tbd;
     }
 
-    public AbstractDBHelper getDBHelper() {
-        return AbstractDBHelper.getInstance();
-    }
+    public abstract AbstractDBHelper getDBHelper();
 
     /**
      * @return ID des Geschaeftsvorfalls
@@ -524,7 +518,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         }
         id = db.insert(tbd, null, currentContent);
         if (id != -1) {
-            currentContent.put(AbstractDBHelper.getInstance().columnName(R.string._id), id);
+            currentContent.put(getDBHelper().columnName(R.string._id), id);
         } else {
             AWApplication
                     .Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME + " fehlgeschlagen! Werte: " +
@@ -574,7 +568,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     public boolean put(int resID, Object value) {
         String newValue;
-        String key = AbstractDBHelper.getInstance().columnName(resID);
+        String key = getDBHelper().columnName(resID);
         if (value != null && !value.toString().isEmpty()) {
             newValue = convertValue(resID, value);
             currentContent.put(key, newValue);
@@ -603,7 +597,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *         wenn ResID nicht in der Tabelle vorhanden ist
      */
     public boolean put(int resID, byte[] value) {
-        String key = AbstractDBHelper.getInstance().columnName(resID);
+        String key = getDBHelper().columnName(resID);
         if (value == null) {
             currentContent.putNull(key);
         } else {
@@ -627,7 +621,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         if (resID == R.string._id) {
             throw new UnsupportedOperationException("ID entfernen nur mit delete()!");
         }
-        currentContent.putNull(AbstractDBHelper.getInstance().columnName(resID));
+        currentContent.putNull(getDBHelper().columnName(resID));
         isDirty = true;
     }
 
@@ -655,7 +649,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
                     "AWApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
         }
         if (isDirty) {
-            currentContent.put(AbstractDBHelper.getInstance().columnName(R.string._id), getID());
+            currentContent.put(getDBHelper().columnName(R.string._id), getID());
             selectionArgs = new String[]{id.toString()};
             result = db.update(tbd, currentContent, selection, selectionArgs);
             if (result != 1) {
@@ -666,16 +660,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
             isDirty = false;
         }
         return result;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.selection);
-        dest.writeValue(this.id);
-        dest.writeStringArray(this.selectionArgs);
-        dest.writeParcelable(this.currentContent, flags);
-        dest.writeByte(this.isDirty ? (byte) 1 : (byte) 0);
-        dest.writeParcelable(this.tbd, flags);
     }
 
     public static class LineNotFoundException extends AWException {

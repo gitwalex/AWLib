@@ -74,7 +74,7 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
 
     protected AbstractDBHelper getDBHelper() {
         if (mApplication == null) {
-            mApplication = ((AWApplication) getContext());
+            mApplication = ((AWApplication) getContext().getApplicationContext());
         }
         return mApplication.getDBHelper();
     }

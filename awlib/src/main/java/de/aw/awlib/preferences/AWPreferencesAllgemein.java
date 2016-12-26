@@ -202,7 +202,9 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
                     LayoutInflater.from(getActivity()).inflate(R.layout.awlib_pref_dbversion, null);
             final EditText etVersion = (EditText) view.findViewById(R.id.etVersion);
             builder.setView(view);
-            int oldVersion = AbstractDBHelper.getInstance().getReadableDatabase().getVersion();
+            final AbstractDBHelper mDBHelper =
+                    ((AWApplication) getActivity().getApplicationContext()).getDBHelper();
+            int oldVersion = mDBHelper.getReadableDatabase().getVersion();
             etVersion.setText("" + oldVersion);
             builder.setTitle("Aktuelle Version: " + oldVersion);
             builder.setPositiveButton(R.string.awlib_btnAccept,
@@ -210,8 +212,7 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             int newVersion = Integer.parseInt(etVersion.getText().toString());
-                            AbstractDBHelper.getInstance().getWritableDatabase()
-                                    .setVersion(newVersion);
+                            mDBHelper.getWritableDatabase().setVersion(newVersion);
                         }
                     });
             builder.create().show();

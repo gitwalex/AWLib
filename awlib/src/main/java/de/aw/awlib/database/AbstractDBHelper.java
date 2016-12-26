@@ -24,6 +24,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -41,7 +43,6 @@ import java.util.Set;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.database_private.AWDBDefinition;
 
 import static de.aw.awlib.application.AWApplication.Log;
 import static de.aw.awlib.application.AWApplication.LogError;
@@ -59,8 +60,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     private final Map<Character, String> formate = new HashMap<>();
     private final Map<String, Integer> mapColumnName2ResID = new HashMap<>();
     private final Map<Integer, String> mapResID2ColumnName = new HashMap<>();
-    private final WeakReference<Resources> mAppResources;
-    private final WeakReference<ContentResolver> mContentResolver;
+    private final WeakReference<AWApplication> mApplicationContext;
     /**
      * DBHelperTemplate ist ein Singleton.
      */
@@ -72,8 +72,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 cursorFactory,
                 ((AWApplication) context.getApplicationContext()).theDatenbankVersion());
         dbHelper = this;
-        mAppResources = new WeakReference<>(context.getApplicationContext().getResources());
-        mContentResolver = new WeakReference<>(context.getContentResolver());
+        mApplicationContext = new WeakReference<>((AWApplication) context.getApplicationContext());
         int resID = R.string._id;
         AWAbstractDBDefinition[] tbds = getAllDBDefinition();
         mapResID2Formate.put(resID, 'I');
@@ -160,10 +159,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             indexSQL.append(", ").append(column);
         }
         return indexSQL.toString();
-    }
-
-    public static AbstractDBHelper getInstance() {
-        return dbHelper;
     }
 
     /**
@@ -393,8 +388,12 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     public abstract AWAbstractDBDefinition[] getAllDBDefinition();
 
+    public AWApplication getApplicationContext() {
+        return mApplicationContext.get();
+    }
+
     public final Resources getApplicationResources() {
-        return mAppResources.get();
+        return mApplicationContext.get().getResources();
     }
 
     /**
@@ -436,6 +435,10 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             indexSQL.append(", ").append(column);
         }
         return indexSQL.toString();
+    }
+
+    public ContentResolver getContentResolver() {
+        return mApplicationContext.get().getContentResolver();
     }
 
     /**
@@ -785,7 +788,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     @CallSuper
     protected boolean notifyCursors(Uri uri) {
-        mContentResolver.get().notifyChange(uri, null);
+        mApplicationContext.get().getContentResolver().notifyChange(uri, null);
         return uri.getLastPathSegment().equals(AWDBDefinition.RemoteServer.name());
     }
 
@@ -906,6 +909,282 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             usedTables.add(uri);
         }
         return rows;
+    }
+
+    /**
+     * @author Alexander Winkler
+     *         <p/>
+     *         Aufzaehlung der Tabellen der Datenbank. 1. Parameter ist ein Integer-Array der resIds
+     *         (R.string.xxx)der Tabellenspalten
+     */
+    @SuppressWarnings("unused")
+    public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
+        RemoteServer() {
+            @Override
+            public int[] getTableItems() {
+                return new int[]{R.string._id//
+                        , R.string.column_serverurl//
+                        , R.string.column_userID//
+                        , R.string.column_connectionType//
+                        , R.string.column_maindirectory//
+                };
+            }
+        };
+        public static final Creator<AWDBDefinition> CREATOR = new Creator<AWDBDefinition>() {
+            @Override
+            public AWDBDefinition createFromParcel(Parcel in) {
+                return AWDBDefinition.values()[in.readInt()];
+            }
+
+            @Override
+            public AWDBDefinition[] newArray(int size) {
+                return new AWDBDefinition[size];
+            }
+        };
+        private static String mAuthority;
+        private Uri mUri;
+
+        /**
+         * Liefert zu einer resID ein MAX(resID) zurueck.
+         *
+         * @param resID
+         *         resID des Items
+         *
+         * @return Select Max im Format MAX(itemname) AS itemname
+         */
+        public String SQLMaxItem(int resID) {
+            return SQLMaxItem(resID, false);
+        }
+
+        /**
+         * Liefert zu einer resID ein MAX(resID) zurueck.
+         *
+         * @param resID
+         *         resID des Items
+         * @param fullQualified
+         *         ob der Name vollquelifiziert sein soll
+         *
+         * @return Select Max im Format MAX(Tablename.itemname) AS itemname
+         */
+        private String SQLMaxItem(int resID, boolean fullQualified) {
+            String spalte = dbHelper.columnName(resID);
+            if (fullQualified) {
+                return "max(" + name() + "." + spalte + ") AS " + spalte;
+            }
+            return "max(" + spalte + ") AS " + spalte;
+        }
+
+        /**
+         * Erstellt SubSelect.
+         *
+         * @param tbd
+         *         AbstractDBHelper.AWDBDefinition
+         * @param resID
+         *         resID der Spalte
+         * @param column
+         *         Sapalte, die ermittelt wird.
+         * @param selection
+         *         Kann null sein
+         * @param selectionArgs
+         *         kann null sein. Es wird keinerlei Pruefung vorgenommen.
+         *
+         * @return SubSelect
+         */
+        public String SQLSubSelect(AbstractDBHelper.AWDBDefinition tbd, int resID, String column,
+                                   String selection, String[] selectionArgs) {
+            String spalte = tbd.columnName(resID);
+            String sql = " (SELECT " + column + " FROM " + tbd.name() + " b ? ) AS " + spalte;
+            if (selectionArgs != null) {
+                for (String args : selectionArgs) {
+                    selection = selection.replaceFirst("\\?", args);
+                }
+            }
+            if (!TextUtils.isEmpty(selection)) {
+                sql = sql.replace("?", " WHERE " + selection);
+            } else {
+                sql = sql.replace("?", "");
+            }
+            return sql;
+        }
+
+        /**
+         * Liefert zu einer resID ein SUM(resID) zurueck.
+         *
+         * @param resID
+         *         resID des Items
+         *
+         * @return Select Max im Format SUM(itemname) AS itemname
+         */
+        public String SQLSumItem(int resID) {
+            return SQLSumItem(resID, false);
+        }
+
+        /**
+         * Liefert zu einer resID ein SUM(resID) zurueck.
+         *
+         * @param resID
+         *         resID des Items
+         * @param fullQualified
+         *         ob der Name vollquelifiziert sein soll
+         *
+         * @return Select Max im Format SUM(Tablename.itemname) AS itemname
+         */
+        public String SQLSumItem(int resID, boolean fullQualified) {
+            String spalte = columnName(resID);
+            if (fullQualified) {
+                return "sum(" + name() + "." + spalte + ") AS " + spalte;
+            }
+            return "sum(" + spalte + ") AS " + spalte;
+        }
+
+        /**
+         * Name einer Columns als String
+         *
+         * @param resID
+         *         ResId, zu der der Columnname gewuenscht werden.
+         *
+         * @return Name der Columns
+         *
+         * @throws ResIDNotFoundException
+         *         wenn ResId nicht in der Liste der Columns enthalten ist.
+         */
+        public String columnName(int resID) {
+            return dbHelper.columnName(resID);
+        }
+
+        /**
+         * Liste der Columns als StringArray
+         *
+         * @param resIDs
+         *         Liste der ResId, zu denen die Columnnames gewuenscht werden.
+         *
+         * @return Liste der Columns. Anm Ende wird noch die Spalte '_id' hinzugefuegt.
+         *
+         * @throws ResIDNotFoundException
+         *         wenn ResId nicht in der Liste der Columns enthalten ist.
+         * @throws IllegalArgumentException
+         *         wenn initialize(context) nicht gerufen wurde
+         */
+        public String[] columnNames(int... resIDs) {
+            return dbHelper.columnNames(resIDs);
+        }
+
+        /**
+         * Wird beim Erstellen der DB Nach Anlage aller Tabellen und Indices gerufen. Hier koennen
+         * noch Nacharbeiten durchgefuehrt werden
+         *
+         * @param helper
+         *         AWDBAlterHelper database
+         */
+        public void createDatabase(AWDBAlterHelper helper) {
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        /**
+         * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
+         *
+         * @param tableindex
+         *         Array, zu dem die Namen ermittelt werden sollen
+         *
+         * @return ColumnNamen, Komma getrennt
+         */
+        public String getCommaSeperatedList(@NonNull int[] tableindex) {
+            return dbHelper.getCommaSeperatedList(tableindex);
+        }
+
+        /**
+         * @return den String fuer den Aubau einer View (ohne CREATE View AS name). Muss bei Views
+         * ueberscheiben werden. Standard: null
+         */
+        public String getCreateViewSQL() {
+            return null;
+        }
+
+        /**
+         * Format der Spalte anhand der ResID
+         *
+         * @param resID
+         *         der Spalte
+         *
+         * @return Format
+         */
+        public char getFormat(int resID) {
+            return dbHelper.getFormat(resID);
+        }
+
+        /**
+         * Liste der fuer eine sinnvolle Sortierung notwendigen Spalten.
+         *
+         * @return ResId der Spalten, die zu einer Sortierung herangezogen werden sollen.
+         */
+        public int[] getOrderByItems() {
+            return new int[]{getTableItems()[0]};
+        }
+
+        /**
+         * Liefert ein Array der Columns zurueck, nach den sortiert werden sollte,
+         *
+         * @return Array der Columns, nach denen sortiert werden soll.
+         */
+        public String[] getOrderColumns() {
+            int[] columItems = getOrderByItems();
+            return columnNames(columItems);
+        }
+
+        /**
+         * OrderBy-String - direkt fuer SQLITE verwendbar.
+         *
+         * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
+         */
+        public String getOrderString() {
+            String[] orderColumns = getOrderColumns();
+            StringBuilder order = new StringBuilder(orderColumns[0]);
+            for (int i = 1; i < orderColumns.length; i++) {
+                order.append(", ").append(orderColumns[i]);
+            }
+            return order.toString();
+        }
+
+        /**
+         * OrderBy-String - direkt fuer SQLITE verwendbar.
+         *
+         * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
+         */
+        public String getOrderString(int... orderColumns) {
+            return getCommaSeperatedList(orderColumns);
+        }
+
+        @Override
+        public Uri getUri() {
+            if (mUri == null) {
+                mUri = Uri.parse("content://" + mAuthority + "/" + name());
+            }
+            return mUri;
+        }
+
+        /**
+         * Indicator, ob AbstractDBHelper.AWDBDefinition eine View ist. Default false
+         *
+         * @return false. Wenn DBDefintion eine View ist, muss dies zwingend ueberschreiben werden,
+         * sonst wirds in DBHelper als Tabelle angelegt.
+         */
+        public boolean isView() {
+            return false;
+        }
+
+        @Override
+        public void setAuthority(String authority) {
+            mAuthority = authority;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            out.writeInt(ordinal());
+        }
     }
 }
 

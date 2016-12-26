@@ -121,11 +121,8 @@ public interface AWInterface {
             /**
              * Filter fuer einen Filenamen. Wird in {@link AWFileChooser} verwendet.
              */
-            , FILENAMEFILTER = "FILENAMEFILTER"
-            /**
-             * Daten fuer einen Server
-             */
-            , REMOTEFILESERVER = "REMOTEFILESERVER";
+            , FILENAMEFILTER = "FILENAMEFILTER"//
+            ;
     int
             /**
              *

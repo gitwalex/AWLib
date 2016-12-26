@@ -36,7 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import de.aw.awlib.R;
-import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
@@ -92,9 +92,9 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
      */
     public static AWRemoteFileChooser newInstance(AWRemoteFileServer fileServer) {
         Bundle args = new Bundle();
-        args.putParcelable(REMOTEFILESERVER, fileServer);
         AWRemoteFileChooser fragment = new AWRemoteFileChooser();
         fragment.setArguments(args);
+        fragment.setRemoteFileServer(fileServer);
         return fragment;
     }
 
@@ -148,12 +148,13 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
                                                 Object object) {
         final FTPFile file = (FTPFile) object;
         if (file.isDirectory()) {
+            AWApplication mAppContext = ((AWApplication) getContext().getApplicationContext());
             mUri = withAppendedPath(mUri, file.getName());
             mRemoteFileServer.setMainDirectory(mUri.getEncodedPath());
             if (mRemoteFileServer.isInserted()) {
-                mRemoteFileServer.update(getActivity(), AbstractDBHelper.getInstance());
+                mRemoteFileServer.update(getActivity(), mAppContext.getDBHelper());
             } else {
-                mRemoteFileServer.insert(getActivity(), AbstractDBHelper.getInstance());
+                mRemoteFileServer.insert(getActivity(), mAppContext.getDBHelper());
             }
             mOnActionFinishListener.onActionFinishClicked(layout);
             return true;
@@ -228,12 +229,6 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mRemoteFileServer = args.getParcelable(REMOTEFILESERVER);
-    }
-
-    @Override
     public void onDismiss(int layoutID, DialogInterface dialog) {
         if (!isCanceled) {
             if (!mRemoteFileServer.isValid()) {
@@ -305,6 +300,10 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
         args.putInt(LAYOUT, layout);
         args.putIntArray(VIEWRESIDS, viewResIDs);
         args.putInt(VIEWHOLDERLAYOUT, viewHolderLayout);
+    }
+
+    public void setRemoteFileServer(AWRemoteFileServer remoteFileServer) {
+        this.mRemoteFileServer = remoteFileServer;
     }
 }
 
