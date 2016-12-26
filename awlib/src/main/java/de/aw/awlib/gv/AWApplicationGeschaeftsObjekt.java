@@ -18,6 +18,7 @@ package de.aw.awlib.gv;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -366,6 +367,10 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         }
     }
 
+    protected Resources getApplicationResources() {
+        return AbstractDBHelper.getInstance().getApplicationResources();
+    }
+
     /**
      * Liefert den Wert aus dem Geschaeftsobjekt zu Spalte resID als Boolean.
      *
@@ -482,10 +487,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     public final ContentValues getContent() {
         return new ContentValues(currentContent);
-    }
-
-    protected Context getContext() {
-        return AbstractDBHelper.getInstance().getContext();
     }
 
     protected AWAbstractDBDefinition getDBDefinition() {

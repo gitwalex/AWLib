@@ -44,7 +44,7 @@ public final class AWDBAlterHelper {
     public AWDBAlterHelper(AbstractDBHelper dbhelper, SQLiteDatabase database) {
         this.dbhelper = dbhelper;
         this.database = database;
-        idColumn = dbhelper.getContext().getString(R.string._id);
+        idColumn = dbhelper.getApplicationResources().getString(R.string._id);
     }
 
     /**

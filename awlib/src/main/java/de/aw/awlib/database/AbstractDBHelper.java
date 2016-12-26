@@ -16,8 +16,10 @@
  */
 package de.aw.awlib.database;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -57,7 +59,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     private final Map<Character, String> formate = new HashMap<>();
     private final Map<String, Integer> mapColumnName2ResID = new HashMap<>();
     private final Map<Integer, String> mapResID2ColumnName = new HashMap<>();
-    private final WeakReference<Context> mContext;
+    private final WeakReference<Resources> mAppResources;
+    private final WeakReference<ContentResolver> mContentResolver;
     /**
      * DBHelperTemplate ist ein Singleton.
      */
@@ -69,7 +72,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 cursorFactory,
                 ((AWApplication) context.getApplicationContext()).theDatenbankVersion());
         dbHelper = this;
-        mContext = new WeakReference<>(context.getApplicationContext());
+        mAppResources = new WeakReference<>(context.getApplicationContext().getResources());
+        mContentResolver = new WeakReference<>(context.getContentResolver());
         int resID = R.string._id;
         AWAbstractDBDefinition[] tbds = getAllDBDefinition();
         mapResID2Formate.put(resID, 'I');
@@ -389,6 +393,10 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     public abstract AWAbstractDBDefinition[] getAllDBDefinition();
 
+    public final Resources getApplicationResources() {
+        return mAppResources.get();
+    }
+
     /**
      * Liefert die Liste der Spalten einer Tabelle zuruck.
      *
@@ -428,10 +436,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             indexSQL.append(", ").append(column);
         }
         return indexSQL.toString();
-    }
-
-    public final Context getContext() {
-        return mContext.get();
     }
 
     /**
@@ -629,7 +633,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * @return DBDefinition der Tabellennamen. Kann leer sein.
      */
     public final List<AWAbstractDBDefinition> getTableNamesForColumn(int columnresID) {
-        String column = getContext().getString(columnresID);
+        String column = getApplicationResources().getString(columnresID);
         List<String> tables = getTableNamesForColumn(column);
         List<AWAbstractDBDefinition> tbdList = new ArrayList<>();
         for (String table : tables) {
@@ -781,7 +785,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     @CallSuper
     protected boolean notifyCursors(Uri uri) {
-        mContext.get().getContentResolver().notifyChange(uri, null);
+        mContentResolver.get().notifyChange(uri, null);
         return uri.getLastPathSegment().equals(AWDBDefinition.RemoteServer.name());
     }
 
