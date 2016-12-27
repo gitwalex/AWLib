@@ -72,7 +72,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 ((AWApplication) context.getApplicationContext()).theDatenbankVersion());
         mApplicationContext = new WeakReference<>((AWApplication) context.getApplicationContext());
         int resID = R.string._id;
-        AWAbstractDBDefinition[] tbds = getAllDBDefinition();
         mapResID2Formate.put(resID, 'I');
         mapColumnName2ResID.put(context.getString(resID), resID);
         String[] s = {"TTEXT", "DDate", "NNUMERIC", "MNUMERIC", "BBoolean", "CNUMERIC", "PNUMERIC",
@@ -98,7 +97,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 mapColumnName2ResID.put(value, mResID);
             }
         }
-        for (AWAbstractDBDefinition tbd : tbds) {
+        for (AWAbstractDBDefinition tbd : getAllDBDefinition()) {
             int[] columns = tbd.getTableItems();
             for (int mResID : columns) {
                 String value = context.getString(mResID);
@@ -438,10 +437,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
 
     public ContentResolver getContentResolver() {
         return mApplicationContext.get().getContentResolver();
-    }
-
-    public Context getContext() {
-        return mApplicationContext.get();
     }
 
     /**
