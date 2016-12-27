@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 
 import java.text.ParseException;
@@ -49,7 +50,7 @@ import de.aw.awlib.database.AbstractDBHelper;
  * @author alex
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
+public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parcelable {
     /**
      * Flag, ob gerade Daten importiert werden.
      */
@@ -60,6 +61,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      * belegt.
      */
     private final AWAbstractDBDefinition tbd;
+    private final AWApplication mContext;
     protected String selection;
     /**
      * ID des AWApplicationGeschaeftsObjekt
@@ -69,8 +71,8 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
     /**
      * Abbild der jeweiligen Zeile der Datenbank. Werden nicht direkt geaendert.
      */
-    protected ContentValues currentContent = new ContentValues();
-    protected boolean isDirty;
+    private ContentValues currentContent = new ContentValues();
+    private boolean isDirty;
 
     /**
      * Legt ein neues Geschaeftsobject auf Basis eines anderen GO an. Alle Werte, die in dem neuen
@@ -80,11 +82,11 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      *         AWAbstractDBDefinition
      * @param go
      */
-    protected AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd,
+    protected AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd,
                                             AWApplicationGeschaeftsObjekt go) {
-        this(tbd);
+        this(context, tbd);
         for (int resID : tbd.getTableItems()) {
-            Object value = go.currentContent.get(getDBHelper().columnName(resID));
+            Object value = go.currentContent.get(mContext.getDBHelper().columnName(resID));
             if (value != null) {
                 put(resID, value);
             }
@@ -104,10 +106,10 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      * @throws android.content.res.Resources.NotFoundException
      *         Wenn kein Datensatz mit dieser ID gefunden wurde.
      */
-    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd, Long id)
+    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd, Long id)
             throws LineNotFoundException {
-        this(tbd);
-        fillContent(getDBHelper().getApplicationContext(), id);
+        this(context, tbd);
+        fillContent(mContext.getDBHelper().getApplicationContext(), id);
         id = getID();
         selectionArgs = new String[]{id.toString()};
     }
@@ -118,13 +120,12 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      * @param tbd
      *         AWAbstractDBDefinition
      */
-    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd) {
+    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd) {
         this.tbd = tbd;
-        AbstractDBHelper mDBHelper = getDBHelper();
-        if (mDBHelper != null) {
-            selection = getDBHelper().getApplicationContext().getString(R.string._id) + " = ?";
+        mContext = (AWApplication) context.getApplicationContext();
+        selection = mContext.getString(R.string._id) + " = ?";
             for (int resID : tbd.getTableItems()) {
-                char format = getDBHelper().getFormat(resID);
+                char format = mContext.getDBHelper().getFormat(resID);
                 switch (format) {
                     case 'B':
                         // Vorbelegung mit Wert 'false'
@@ -132,16 +133,16 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
                         break;
                 }
             }
-        }
     }
 
-    protected AWApplicationGeschaeftsObjekt(Parcel in) {
+    protected AWApplicationGeschaeftsObjekt(Context context, Parcel in) {
+        this(context, (AWAbstractDBDefinition) in
+                .readParcelable(AWAbstractDBDefinition.class.getClassLoader()));
         this.selection = in.readString();
         this.id = (Long) in.readValue(Long.class.getClassLoader());
         this.selectionArgs = in.createStringArray();
         this.currentContent = in.readParcelable(ContentValues.class.getClassLoader());
         this.isDirty = in.readByte() != 0;
-        this.tbd = in.readParcelable(AWAbstractDBDefinition.class.getClassLoader());
     }
 
     public static boolean isImport() {
@@ -167,7 +168,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      * @return true, wenn ein Wert ungleich null enthalten ist
      */
     public final boolean containsValue(int resID) {
-        String key = getDBHelper().columnName(resID);
+        String key = mContext.getDBHelper().columnName(resID);
         return currentContent.get(key) != null;
     }
 
@@ -175,7 +176,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
         String newValue = null;
         if (value != null) {
             newValue = value.toString();
-            char format = getDBHelper().getFormat(resID);
+            char format = mContext.getDBHelper().getFormat(resID);
             switch (format) {
                 case 'B':
                     if (AWDBConvert.convertBoolean(newValue)) {
@@ -206,10 +207,15 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
         result = db.delete(tbd, selection, selectionArgs);
         isDirty = true;
         if (result != 0) {
-            currentContent.putNull(getDBHelper().columnName(R.string._id));
+            currentContent.putNull(mContext.getDBHelper().columnName(R.string._id));
             id = null;
         }
         return result;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     /**
@@ -264,7 +270,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
         }
         id = getAsLong(R.string._id);
         selectionArgs = new String[]{id.toString()};
-        currentContent.remove(getDBHelper().columnName(R.string._id));
+        currentContent.remove(mContext.getDBHelper().columnName(R.string._id));
         isDirty = false;
     }
 
@@ -364,7 +370,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
     }
 
     protected Resources getApplicationResources() {
-        return getDBHelper().getApplicationResources();
+        return mContext.getResources();
     }
 
     /**
@@ -376,13 +382,13 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Boolean getAsBoolean(int resID) {
-        String key = getDBHelper().columnName(resID);
+        String key = mContext.getDBHelper().columnName(resID);
         String value = currentContent.getAsString(key);
         return AWDBConvert.convertBoolean(value);
     }
 
     public final byte[] getAsByteArray(int resID) {
-        String key = getDBHelper().columnName(resID);
+        String key = mContext.getDBHelper().columnName(resID);
         return currentContent.getAsByteArray(key);
     }
 
@@ -419,7 +425,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Integer getAsInt(int resID) {
-        String key = getDBHelper().columnName(resID);
+        String key = mContext.getDBHelper().columnName(resID);
         return currentContent.getAsInteger(key);
     }
 
@@ -432,7 +438,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Integer getAsInt(int resID, int defaultValue) {
-        String key = getDBHelper().columnName(resID);
+        String key = mContext.getDBHelper().columnName(resID);
         Integer value = currentContent.getAsInteger(key);
         if (value == null) {
             value = defaultValue;
@@ -449,7 +455,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Long getAsLong(int resID) {
-        String key = getDBHelper().columnName(resID);
+        String key = mContext.getDBHelper().columnName(resID);
         return currentContent.getAsLong(key);
     }
 
@@ -474,7 +480,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final String getAsString(int resID) {
-        String key = getDBHelper().columnName(resID);
+        String key = mContext.getDBHelper().columnName(resID);
         return currentContent.getAsString(key);
     }
 
@@ -488,8 +494,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
     protected AWAbstractDBDefinition getDBDefinition() {
         return tbd;
     }
-
-    public abstract AbstractDBHelper getDBHelper();
 
     /**
      * @return ID des Geschaeftsvorfalls
@@ -518,7 +522,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
         }
         id = db.insert(tbd, null, currentContent);
         if (id != -1) {
-            currentContent.put(getDBHelper().columnName(R.string._id), id);
+            currentContent.put(mContext.getDBHelper().columnName(R.string._id), id);
         } else {
             AWApplication
                     .Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME + " fehlgeschlagen! Werte: " +
@@ -568,7 +572,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      */
     public boolean put(int resID, Object value) {
         String newValue;
-        String key = getDBHelper().columnName(resID);
+        String key = mContext.getDBHelper().columnName(resID);
         if (value != null && !value.toString().isEmpty()) {
             newValue = convertValue(resID, value);
             currentContent.put(key, newValue);
@@ -597,7 +601,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
      *         wenn ResID nicht in der Tabelle vorhanden ist
      */
     public boolean put(int resID, byte[] value) {
-        String key = getDBHelper().columnName(resID);
+        String key = mContext.getDBHelper().columnName(resID);
         if (value == null) {
             currentContent.putNull(key);
         } else {
@@ -621,7 +625,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
         if (resID == R.string._id) {
             throw new UnsupportedOperationException("ID entfernen nur mit delete()!");
         }
-        currentContent.putNull(getDBHelper().columnName(resID));
+        currentContent.putNull(mContext.getDBHelper().columnName(resID));
         isDirty = true;
     }
 
@@ -649,7 +653,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
                     "AWApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
         }
         if (isDirty) {
-            currentContent.put(getDBHelper().columnName(R.string._id), getID());
+            currentContent.put(mContext.getDBHelper().columnName(R.string._id), getID());
             selectionArgs = new String[]{id.toString()};
             result = db.update(tbd, currentContent, selection, selectionArgs);
             if (result != 1) {
@@ -660,6 +664,16 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface {
             isDirty = false;
         }
         return result;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(this.tbd, flags);
+        dest.writeString(this.selection);
+        dest.writeValue(this.id);
+        dest.writeStringArray(this.selectionArgs);
+        dest.writeParcelable(this.currentContent, flags);
+        dest.writeByte(this.isDirty ? (byte) 1 : (byte) 0);
     }
 
     public static class LineNotFoundException extends AWException {

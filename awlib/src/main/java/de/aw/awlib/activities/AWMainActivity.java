@@ -26,8 +26,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import de.aw.awlib.R;
-import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.views.AWBottomSheetCalculator;
 
 /**
@@ -41,7 +39,6 @@ public abstract class AWMainActivity extends AWBasicActivity implements View.OnC
      * DetailLayout ("containerDetail").
      */
     private static final int layout = R.layout.awlib_activity_main;
-    protected AbstractDBHelper mDBHelper;
     /**
      * Default FloatingActionButton. Rechts unten, Icon ist 'Add', standardmaessig View.GONE
      */
@@ -65,7 +62,6 @@ public abstract class AWMainActivity extends AWBasicActivity implements View.OnC
         return mainAction;
     }
 
-
     @Override
     public void onClick(View v) {
     }
@@ -87,7 +83,6 @@ public abstract class AWMainActivity extends AWBasicActivity implements View.OnC
     @Override
     protected void onCreate(Bundle savedInstanceState, int layout) {
         super.onCreate(savedInstanceState, layout);
-        mDBHelper = ((AWApplication) getApplicationContext()).getDBHelper();
         mainAction = args.getParcelable(AWLIBACTION);
         mDefaultFAB = (FloatingActionButton) findViewById(R.id.awlib_defaultFAB);
         ActionBar bar = getSupportActionBar();

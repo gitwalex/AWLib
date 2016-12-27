@@ -16,70 +16,131 @@
  */
 package de.aw.awlib.gv;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
 import de.aw.awlib.R;
-import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType;
 
+import static de.aw.awlib.activities.AWInterface.NOID;
 import static de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType.SSL;
 
 /**
  * Stammdaten fuer einen AWRemoteFileServer.
  */
-public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
+public class AWRemoteFileServer implements Parcelable {
+    public static final Parcelable.Creator<AWRemoteFileServer> CREATOR =
+            new Parcelable.Creator<AWRemoteFileServer>() {
+                @Override
+                public AWRemoteFileServer createFromParcel(Parcel source) {
+                    return new AWRemoteFileServer(source);
+                }
+
+                @Override
+                public AWRemoteFileServer[] newArray(int size) {
+                    return new AWRemoteFileServer[size];
+                }
+            };
     private static final AbstractDBHelper.AWDBDefinition tbd =
             AbstractDBHelper.AWDBDefinition.RemoteServer;
-    private final AbstractDBHelper mDBHelper;
+    private final String mSelection = tbd.columnName(R.string._id) + " = ?";
+    private ContentValues currentContent = new ContentValues();
     private ConnectionType mConnectionType;
+    private long mID = NOID;
     private String mMainDirectory;
+    private String[] mSelectionArgs;
     private String mURL;
     private String mUserID;
     private String mUserPassword;
 
     public AWRemoteFileServer(Context context) {
-        super(tbd);
-        mDBHelper = ((AWApplication) context.getApplicationContext()).getDBHelper();
-        put(R.string.column_connectionType, SSL.name());
+        put(context, R.string.column_connectionType, SSL.name());
     }
 
-    public AWRemoteFileServer(Context context, long id) throws LineNotFoundException {
-        super(tbd, id);
-        mDBHelper = ((AWApplication) context.getApplicationContext()).getDBHelper();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        mURL = getAsString(R.string.column_serverurl);
-        mUserID = getAsString(R.string.column_serverurl);
-        mMainDirectory = getAsString(R.string.column_maindirectory);
-        this.mConnectionType = ConnectionType.valueOf(getAsString(R.string.column_connectionType));
+    public AWRemoteFileServer(Context context, long id)
+            throws AWApplicationGeschaeftsObjekt.LineNotFoundException {
+        fillContent(context, id);
+        mSelectionArgs = new String[]{String.valueOf(id)};
+        mURL = currentContent.getAsString(context.getString(R.string.column_serverurl));
+        mUserID = currentContent.getAsString(context.getString(R.string.column_userID));
+        mMainDirectory =
+                currentContent.getAsString(context.getString(R.string.column_maindirectory));
+        this.mConnectionType = ConnectionType.valueOf(
+                currentContent.getAsString(context.getString(R.string.column_connectionType)));
         if (mURL != null) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             mUserPassword = prefs.getString(mURL, null);
         }
     }
 
-    /**
-     * Nicht benutzen. Stattdessen {@link AWRemoteFileServer#delete(Context, AbstractDBHelper)}
-     * benutzen
-     *
-     * @throws UnsupportedOperationException
-     */
-    @Deprecated
-    @Override
-    public int delete(AbstractDBHelper db) {
-        throw new UnsupportedOperationException(
-                "Nicht benutzen: Stattdessen delete(Context, AbstractDBHelper");
+    protected AWRemoteFileServer(Parcel in) {
+        int tmpMConnectionType = in.readInt();
+        this.mConnectionType =
+                tmpMConnectionType == -1 ? null : ConnectionType.values()[tmpMConnectionType];
+        this.mMainDirectory = in.readString();
+        this.mURL = in.readString();
+        this.mUserID = in.readString();
+        this.mUserPassword = in.readString();
+        this.currentContent = in.readParcelable(ContentValues.class.getClassLoader());
+        this.mSelectionArgs = in.createStringArray();
+        this.mID = in.readLong();
     }
 
     public int delete(Context context, AbstractDBHelper db) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int result = super.delete(db);
+        int result = db.delete(tbd.getUri(), mSelection, mSelectionArgs);
         if (result != 0) {
             SharedPreferences.Editor editor = prefs.edit();
             editor.remove(mURL).apply();
         }
         return result;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * Fuellt das Geschaeftsobjekt anhand der uebergebenen Daten aus der DB
+     *
+     * @param id
+     *         id des Objektes
+     *
+     * @throws AWApplicationGeschaeftsObjekt.LineNotFoundException
+     *         wenn keine Zeile gefunden wurde.
+     */
+    public final void fillContent(Context context, Long id)
+            throws AWApplicationGeschaeftsObjekt.LineNotFoundException {
+        mSelectionArgs = new String[]{id.toString()};
+        Cursor c = context.getContentResolver()
+                .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), mSelection,
+                        mSelectionArgs, null);
+        try {
+            if (c.moveToFirst()) {
+                currentContent.clear();
+                for (int i = 0; i < c.getColumnCount(); i++) {
+                    String value = c.getString(i);
+                    if (value != null) {
+                        currentContent.put(c.getColumnName(i), c.getString(i));
+                    }
+                }
+                currentContent.remove(context.getString(R.string._id));
+            } else {
+                throw new AWApplicationGeschaeftsObjekt.LineNotFoundException(
+                        tbd.name() + ": Zeile mit id " + id + " nicht gefunden.");
+            }
+        } finally {
+            if (!c.isClosed()) {
+                c.close();
+            }
+        }
     }
 
     public String getBackupDirectory() {
@@ -88,11 +149,6 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
 
     public ConnectionType getConnectionType() {
         return mConnectionType;
-    }
-
-    @Override
-    public AbstractDBHelper getDBHelper() {
-        return mDBHelper;
     }
 
     /**
@@ -116,38 +172,30 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         return mUserPassword;
     }
 
-    /**
-     * Nicht benutzen. Stattdessen {@link AWRemoteFileServer#insert(Context, AbstractDBHelper)} )}
-     * benutzen
-     *
-     * @throws UnsupportedOperationException
-     */
-    @Deprecated
-    @Override
-    public long insert(AbstractDBHelper db) {
-        throw new UnsupportedOperationException(
-                "Nicht benutzen: Stattdessen insert(Context, AbstractDBHelper");
-    }
-
     public long insert(Context context, AbstractDBHelper db) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         long id = -1;
         if (isValid()) {
-            id = super.insert(db);
+            id = db.insert(tbd, null, currentContent);
             if (id != -1) {
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString(mURL, mUserPassword).apply();
             }
         }
+        mID = id;
+        mSelectionArgs = new String[]{String.valueOf(id)};
         return id;
+    }
+
+    public boolean isInserted() {
+        return mID != NOID;
     }
 
     public boolean isValid() {
         return mURL != null && mUserID != null && mUserPassword != null && mConnectionType != null;
     }
 
-    @Override
-    public boolean put(int resID, Object value) {
+    public void put(Context context, int resID, Object value) {
         if (resID == R.string.column_serverurl) {
             mURL = (String) value;
         } else if (resID == R.string.column_userID) {
@@ -157,11 +205,11 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         } else if (resID == R.string.column_connectionType) {
             mConnectionType = ConnectionType.valueOf((String) value);
         }
-        return super.put(resID, value);
+        currentContent.put(context.getString(resID), (String) value);
     }
 
-    public void setMainDirectory(String mMainDirectory) {
-        put(R.string.column_maindirectory, mMainDirectory);
+    public void setMainDirectory(Context context, String mMainDirectory) {
+        put(context, R.string.column_maindirectory, mMainDirectory);
     }
 
     /**
@@ -171,27 +219,26 @@ public class AWRemoteFileServer extends AWApplicationGeschaeftsObjekt {
         mUserPassword = password;
     }
 
-    /**
-     * Nicht benutzen. Stattdessen {@link AWRemoteFileServer#update(Context, AbstractDBHelper)} )}
-     * benutzen
-     *
-     * @throws UnsupportedOperationException
-     */
-    @Deprecated
-    @Override
-    public int update(AbstractDBHelper db) {
-        throw new UnsupportedOperationException(
-                "Nicht benutzen: Stattdessen update(Context, AbstractDBHelper");
-    }
-
     public int update(Context context, AbstractDBHelper db) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (!isValid()) {
             return 0;
         }
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(mURL, mUserPassword).apply();
-        return super.update(db);
+        return db.update(tbd, currentContent, mSelection, mSelectionArgs);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.mConnectionType == null ? -1 : this.mConnectionType.ordinal());
+        dest.writeString(this.mMainDirectory);
+        dest.writeString(this.mURL);
+        dest.writeString(this.mUserID);
+        dest.writeString(this.mUserPassword);
+        dest.writeParcelable(this.currentContent, flags);
+        dest.writeStringArray(this.mSelectionArgs);
+        dest.writeLong(this.mID);
     }
 }
 

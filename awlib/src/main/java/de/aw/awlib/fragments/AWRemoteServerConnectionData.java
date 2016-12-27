@@ -28,19 +28,21 @@ public class AWRemoteServerConnectionData extends AWFragment {
             new int[]{R.string.column_serverurl, R.string.column_userID};
     private EditText mPasswortEditText;
     private AWRemoteFileServer mRemoteFileServer;
+    private EditText mUIDEditText;
+    private EditText mURLEditText;
 
     public static AWRemoteServerConnectionData newInstance(AWRemoteFileServer fileServer) {
         Bundle args = new Bundle();
         AWRemoteServerConnectionData fragment = new AWRemoteServerConnectionData();
+        args.putParcelable(REMOTEFILESERVER, fileServer);
         fragment.setArguments(args);
-        fragment.setRemoteFileServer(fileServer);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        awlib_gv = mRemoteFileServer;
+        mRemoteFileServer = args.getParcelable(REMOTEFILESERVER);
     }
 
     @NonNull
@@ -53,14 +55,18 @@ public class AWRemoteServerConnectionData extends AWFragment {
 
     @Override
     protected boolean onOKButtonClicked() {
+        mRemoteFileServer
+                .put(getContext(), R.string.column_serverurl, mURLEditText.getText().toString());
+        mRemoteFileServer
+                .put(getContext(), R.string.column_userID, mUIDEditText.getText().toString());
         mRemoteFileServer.setUserPassword(mPasswortEditText.getText().toString());
         if (mRemoteFileServer.isValid()) {
             AWApplication mAppConfig = (AWApplication) getContext().getApplicationContext();
             AbstractDBHelper db = mAppConfig.getDBHelper();
             if (mRemoteFileServer.isInserted()) {
-                mRemoteFileServer.update(getActivity(), db);
+                mRemoteFileServer.update(getContext(), db);
             } else {
-                mRemoteFileServer.insert(getActivity(), db);
+                mRemoteFileServer.insert(getContext(), db);
             }
             View view = getView();
             if (view != null) {
@@ -74,6 +80,8 @@ public class AWRemoteServerConnectionData extends AWFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mURLEditText = (EditText) view.findViewById(R.id.awlib_etDBServerName);
+        mUIDEditText = (EditText) view.findViewById(R.id.awlib_etDBUserName);
         mPasswortEditText = (EditText) view.findViewById(R.id.awlib_etDBUserPW);
         mPasswortEditText.setText(mRemoteFileServer.getUserPassword());
         CheckBox mConnectionTypeCheckBox = (CheckBox) view.findViewById(R.id.cbConnectionType);
@@ -82,9 +90,10 @@ public class AWRemoteServerConnectionData extends AWFragment {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (buttonView.isChecked()) {
-                            mRemoteFileServer.put(R.string.column_connectionType, SSL.name());
+                            mRemoteFileServer
+                                    .put(getContext(), R.string.column_connectionType, SSL.name());
                         } else {
-                            mRemoteFileServer.put(R.string.column_connectionType,
+                            mRemoteFileServer.put(getContext(), R.string.column_connectionType,
                                     AWRemoteFileServerHandler.ConnectionType.NONSSL.name());
                         }
                     }
@@ -98,9 +107,5 @@ public class AWRemoteServerConnectionData extends AWFragment {
         args.putInt(LAYOUT, layout);
         args.putIntArray(VIEWRESIDS, viewResIDs);
         args.putIntArray(FROMRESIDS, fromResIDs);
-    }
-
-    public void setRemoteFileServer(AWRemoteFileServer remoteFileServer) {
-        this.mRemoteFileServer = remoteFileServer;
     }
 }
