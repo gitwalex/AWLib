@@ -179,50 +179,47 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
     }
 
     @Override
-    protected boolean onBindView(AWLibViewHolder holder, View view, int resID, FTPFile file) {
+    public void onBindViewHolder(AWLibViewHolder holder, FTPFile file) {
         TextView tv;
-        boolean consumed = false;
         switch (holder.getItemViewType()) {
             case BACKTOPARENT:
-                consumed = true;
-                if (resID == R.id.folderImage) {
-                    ImageView img = (ImageView) view;
-                    img.setImageResource(R.drawable.ic_open_folder);
-                    consumed = true;
-                } else if (resID == R.id.awlib_fileName) {
-                    tv = (TextView) view;
-                    if (mDirectoyList.size() == 0) {
-                        tv.setText(".");
-                    } else {
-                        tv.setText(file.getName());
+                for (int resID : viewResIDs) {
+                    View view = holder.findViewById(resID);
+                    if (resID == R.id.folderImage) {
+                        ImageView img = (ImageView) view;
+                        img.setImageResource(R.drawable.ic_open_folder);
+                    } else if (resID == R.id.awlib_fileName) {
+                        tv = (TextView) view;
+                        if (mDirectoyList.size() == 0) {
+                            tv.setText(".");
+                        } else {
+                            tv.setText(file.getName());
+                        }
+                    } else if (resID == R.id.awlib_fileData) {
+                        view.setVisibility(View.GONE);
                     }
-                    consumed = true;
-                } else if (resID == R.id.awlib_fileData) {
-                    view.setVisibility(View.GONE);
-                    consumed = true;
                 }
                 break;
             default:
-                if (resID == R.id.folderImage) {
-                    ImageView img = (ImageView) view;
-                    if (file.isDirectory()) {
-                        img.setImageResource(R.drawable.ic_closed_folder);
-                    } else {
-                        img.setImageResource(R.drawable.ic_file_generic);
+                for (int resID : viewResIDs) {
+                    View view = holder.findViewById(resID);
+                    if (resID == R.id.folderImage) {
+                        ImageView img = (ImageView) view;
+                        if (file.isDirectory()) {
+                            img.setImageResource(R.drawable.ic_closed_folder);
+                        } else {
+                            img.setImageResource(R.drawable.ic_file_generic);
+                        }
+                    } else if (resID == R.id.awlib_fileName) {
+                        tv = (TextView) view;
+                        tv.setText(file.getName());
+                    } else if (resID == R.id.awlib_fileData) {
+                        view.setVisibility(View.VISIBLE);
+                        tv = (TextView) view;
+                        tv.setText(Formatter.formatFileSize(getContext(), file.getSize()));
                     }
-                    consumed = true;
-                } else if (resID == R.id.awlib_fileName) {
-                    tv = (TextView) view;
-                    tv.setText(file.getName());
-                    consumed = true;
-                } else if (resID == R.id.awlib_fileData) {
-                    view.setVisibility(View.VISIBLE);
-                    tv = (TextView) view;
-                    tv.setText(Formatter.formatFileSize(getContext(), file.getSize()));
-                    consumed = true;
                 }
         }
-        return consumed;
     }
 
     @Override

@@ -936,98 +936,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 this.dbHelper = dbHelper;
             }
 
-            /**
-             * Liefert zu einer resID ein MAX(resID) zurueck.
-             *
-             * @param resID
-             *         resID des Items
-             *
-             * @return Select Max im Format MAX(itemname) AS itemname
-             */
-            public String SQLMaxItem(int resID) {
-                return SQLMaxItem(resID, false);
-            }
 
-            /**
-             * Liefert zu einer resID ein MAX(resID) zurueck.
-             *
-             * @param resID
-             *         resID des Items
-             * @param fullQualified
-             *         ob der Name vollquelifiziert sein soll
-             *
-             * @return Select Max im Format MAX(Tablename.itemname) AS itemname
-             */
-            private String SQLMaxItem(int resID, boolean fullQualified) {
-                String spalte = dbHelper.columnName(resID);
-                if (fullQualified) {
-                    return "max(" + name() + "." + spalte + ") AS " + spalte;
-                }
-                return "max(" + spalte + ") AS " + spalte;
-            }
-
-            /**
-             * Erstellt SubSelect.
-             *
-             * @param tbd
-             *         AbstractDBHelper.AWDBDefinition
-             * @param resID
-             *         resID der Spalte
-             * @param column
-             *         Sapalte, die ermittelt wird.
-             * @param selection
-             *         Kann null sein
-             * @param selectionArgs
-             *         kann null sein. Es wird keinerlei Pruefung vorgenommen.
-             *
-             * @return SubSelect
-             */
-            public String SQLSubSelect(AbstractDBHelper.AWDBDefinition tbd, int resID,
-                                       String column, String selection, String[] selectionArgs) {
-                String spalte = tbd.columnName(resID);
-                String sql = " (SELECT " + column + " FROM " + tbd.name() + " b ? ) AS " + spalte;
-                if (selectionArgs != null) {
-                    for (String args : selectionArgs) {
-                        selection = selection.replaceFirst("\\?", args);
-                    }
-                }
-                if (!TextUtils.isEmpty(selection)) {
-                    sql = sql.replace("?", " WHERE " + selection);
-                } else {
-                    sql = sql.replace("?", "");
-                }
-                return sql;
-            }
-
-            /**
-             * Liefert zu einer resID ein SUM(resID) zurueck.
-             *
-             * @param resID
-             *         resID des Items
-             *
-             * @return Select Max im Format SUM(itemname) AS itemname
-             */
-            public String SQLSumItem(int resID) {
-                return SQLSumItem(resID, false);
-            }
-
-            /**
-             * Liefert zu einer resID ein SUM(resID) zurueck.
-             *
-             * @param resID
-             *         resID des Items
-             * @param fullQualified
-             *         ob der Name vollquelifiziert sein soll
-             *
-             * @return Select Max im Format SUM(Tablename.itemname) AS itemname
-             */
-            public String SQLSumItem(int resID, boolean fullQualified) {
-                String spalte = columnName(resID);
-                if (fullQualified) {
-                    return "sum(" + name() + "." + spalte + ") AS " + spalte;
-                }
-                return "sum(" + spalte + ") AS " + spalte;
-            }
 
             /**
              * Name einer Columns als String
@@ -1076,17 +985,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 return 0;
             }
 
-            /**
-             * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-             *
-             * @param tableindex
-             *         Array, zu dem die Namen ermittelt werden sollen
-             *
-             * @return ColumnNamen, Komma getrennt
-             */
-            public String getCommaSeperatedList(@NonNull int[] tableindex) {
-                return dbHelper.getCommaSeperatedList(tableindex);
-            }
 
             /**
              * @return den String fuer den Aubau einer View (ohne CREATE View AS name). Muss bei Views
@@ -1096,17 +994,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 return null;
             }
 
-            /**
-             * Format der Spalte anhand der ResID
-             *
-             * @param resID
-             *         der Spalte
-             *
-             * @return Format
-             */
-            public char getFormat(int resID) {
-                return dbHelper.getFormat(resID);
-            }
 
             /**
              * Liste der fuer eine sinnvolle Sortierung notwendigen Spalten.
@@ -1141,14 +1028,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 return order.toString();
             }
 
-            /**
-             * OrderBy-String - direkt fuer SQLITE verwendbar.
-             *
-             * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
-             */
-            public String getOrderString(int... orderColumns) {
-                return getCommaSeperatedList(orderColumns);
-            }
 
             @Override
             public Uri getUri() {

@@ -194,45 +194,44 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
         return false;
     }
 
-    protected boolean onBindView(AWLibViewHolder holder, View view, int resID, File file) {
+    @Override
+    public void onBindViewHolder(AWLibViewHolder holder, File file) {
         TextView tv;
-        boolean consumed = false;
         switch (holder.getItemViewType()) {
             case HASPARENTFOLDER:
-                if (resID == R.id.folderImage) {
-                    ImageView img = (ImageView) view;
-                    img.setImageResource(R.drawable.ic_open_folder);
-                    consumed = true;
-                } else if (resID == R.id.awlib_fileName) {
-                    tv = (TextView) view;
-                    tv.setText("..");
-                    consumed = true;
-                } else if (resID == R.id.awlib_fileData) {
-                    tv = (TextView) view;
-                    tv.setText(file.getAbsolutePath());
-                    consumed = true;
+                for (int resID : viewResIDs) {
+                    View view = holder.findViewById(resID);
+                    if (resID == R.id.folderImage) {
+                        ImageView img = (ImageView) view;
+                        img.setImageResource(R.drawable.ic_open_folder);
+                    } else if (resID == R.id.awlib_fileName) {
+                        tv = (TextView) view;
+                        tv.setText("..");
+                    } else if (resID == R.id.awlib_fileData) {
+                        tv = (TextView) view;
+                        tv.setText(file.getAbsolutePath());
+                    }
                 }
                 break;
             default:
-                if (resID == R.id.folderImage) {
-                    ImageView img = (ImageView) view;
-                    if (file.isDirectory()) {
-                        img.setImageResource(R.drawable.ic_closed_folder);
-                    } else {
-                        img.setImageResource(R.drawable.ic_file_generic);
+                for (int resID : viewResIDs) {
+                    View view = holder.findViewById(resID);
+                    if (resID == R.id.folderImage) {
+                        ImageView img = (ImageView) view;
+                        if (file.isDirectory()) {
+                            img.setImageResource(R.drawable.ic_closed_folder);
+                        } else {
+                            img.setImageResource(R.drawable.ic_file_generic);
+                        }
+                    } else if (resID == R.id.awlib_fileName) {
+                        tv = (TextView) view;
+                        tv.setText(file.getName());
+                    } else if (resID == R.id.awlib_fileData) {
+                        tv = (TextView) view;
+                        tv.setText(Formatter.formatFileSize(getContext(), file.length()));
                     }
-                    consumed = true;
-                } else if (resID == R.id.awlib_fileName) {
-                    tv = (TextView) view;
-                    tv.setText(file.getName());
-                    consumed = true;
-                } else if (resID == R.id.awlib_fileData) {
-                    tv = (TextView) view;
-                    tv.setText(Formatter.formatFileSize(getContext(), file.length()));
-                    consumed = true;
                 }
         }
-        return consumed;
     }
 
     @Override

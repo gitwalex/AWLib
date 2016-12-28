@@ -18,7 +18,6 @@ package de.aw.awlib.recyclerview;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
@@ -164,36 +163,15 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     }
 
     /**
-     * Binden von Daten an eine View, die keine TextView ist.
+     * Wird vom Adapter zum belegen der Views des holder gerufen
      *
      * @param holder
-     *         AWLibViewHolder. Hier sind alle Views zu finden.
-     * @param view
-     *         View
-     * @param resID
-     *         ResID der der Spalte des Cursors. Ist -1, wenn es mehr Views als CursorSpalten gibt.
+     *         ViewHolder
      * @param object
-     *         Aktuelles Object
-     *
-     * @return true, wenn die View vollstaendig bearbeitet wurde. Bei Rueckgabe von false wird davon
-     * ausgegangen, dass es sich um eine TextView handelt und der Text aus dem Cursor an der
-     * Position gesetzt. Default: false.
-     */
-    protected boolean onBindView(AWLibViewHolder holder, View view, int resID, T object) {
-        return false;
-    }
-
-    /**
-     * Ruft fuer jede einzelne viewResID {@link AWArrayRecyclerViewFragment#onBindView(AWLibViewHolder,
-     * View, int, Object)}
+     *         Object des Arrays
      */
     @Override
-    public final void onBindViewHolder(AWLibViewHolder holder, T object) {
-        onPreBindViewHolder(object, holder);
-        for (int viewResID : viewResIDs) {
-            View view = holder.findViewById(viewResID);
-            onBindView(holder, view, viewResID, object);
-        }
+    public void onBindViewHolder(AWLibViewHolder holder, T object) {
     }
 
     @Override
@@ -224,21 +202,6 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     public void onPause() {
         super.onPause();
         args.putInt(LASTSELECTEDPOSITION, getRecyclerViewPosition());
-    }
-
-    /**
-     * Wird in onBindViewHolder() gerufen. Hier koennen Vorarbeiten fuer die Ermittlung der Daten
-     * durchgefuehrt werden, z.B. je Holder Daten aus dem Cursor lesen. Hier wird im Holder die ID
-     * aus dem Cursor gespeichert. Aussederm wird geprueft, ob der Holder zu der id als Selected
-     * markiert wurde. Ist dies so, wird der Holder selected.
-     *
-     * @param object
-     *         aktuelles Object aus Adapter.
-     * @param holder
-     *         AWLibViewHolder
-     */
-    @CallSuper
-    protected void onPreBindViewHolder(T object, AWLibViewHolder holder) {
     }
 
     @Override
