@@ -95,10 +95,9 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
     private void copyAndDebugDatabase() throws IOException {
         mApplication.createFiles();
         Intent intent = new Intent(Intent.ACTION_EDIT);
-        AWApplication app = (AWApplication) getActivity().getApplicationContext();
-        String databasePath = app.getApplicationDatabasePath();
-        File src = app.getDatabasePath(app.theDatenbankname());
-        File dest = new File(databasePath + File.separator + app.theDatenbankname());
+        String databasePath = mApplication.getApplicationDatabasePath();
+        File src = mApplication.getDatabasePath(mApplication.theDatenbankname());
+        File dest = new File(databasePath + File.separator + mApplication.theDatenbankname());
         dest.delete();
         AWUtils.copyFile(getActivity(), src, dest);
         Uri uri = Uri.parse("sqlite:" + dest.getAbsolutePath());
