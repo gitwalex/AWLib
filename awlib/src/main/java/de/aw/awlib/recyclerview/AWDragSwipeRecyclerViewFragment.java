@@ -20,6 +20,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MotionEvent;
@@ -50,13 +51,19 @@ public class AWDragSwipeRecyclerViewFragment extends AWCursorRecyclerViewFragmen
      */
     public AWCursorRecyclerViewAdapter getCursorAdapter() {
         AWCursorDragDropRecyclerViewAdapter mAdapter =
-                new AWCursorDragDropRecyclerViewAdapter(this);
-        callbackTouchHelper = new AWSimpleItemTouchHelperCallback(mAdapter);
+                new AWCursorDragDropRecyclerViewAdapter(this, viewHolderLayout);
+        callbackTouchHelper = getItemTouchCallback(mAdapter);
         callbackTouchHelper.setIsDragable(isDragable);
         callbackTouchHelper.setIsSwipeable(isSwipeable);
         mTouchHelper = new ItemTouchHelper(callbackTouchHelper);
         mTouchHelper.attachToRecyclerView(mRecyclerView);
         return mAdapter;
+    }
+
+    @NonNull
+    protected AWSimpleItemTouchHelperCallback getItemTouchCallback(
+            AWCursorDragDropRecyclerViewAdapter mAdapter) {
+        return new AWSimpleItemTouchHelperCallback(mAdapter);
     }
 
     /**

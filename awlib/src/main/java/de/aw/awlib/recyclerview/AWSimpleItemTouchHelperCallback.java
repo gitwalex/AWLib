@@ -50,12 +50,12 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     @Override
-    public boolean isItemViewSwipeEnabled() {
+    public final boolean isItemViewSwipeEnabled() {
         return isSwipeable;
     }
 
     @Override
-    public boolean isLongPressDragEnabled() {
+    public final boolean isLongPressDragEnabled() {
         return isDragable;
     }
 
@@ -71,11 +71,11 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
     }
 
-    public void setIsDragable(boolean isDragable) {
+    public final void setIsDragable(boolean isDragable) {
         this.isDragable = isDragable;
     }
 
-    public void setIsSwipeable(boolean isSwipeable) {
+    public final void setIsSwipeable(boolean isSwipeable) {
         this.isSwipeable = isSwipeable;
     }
 }

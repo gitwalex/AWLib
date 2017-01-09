@@ -41,8 +41,9 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
     /**
      * Initialisiert und baut die Liste der Positionen auf
      */
-    public AWCursorDragDropRecyclerViewAdapter(AWCursorRecyclerViewFragment binder) {
-        super(binder);
+    public AWCursorDragDropRecyclerViewAdapter(AWCursorRecyclerViewFragment binder,
+                                               int viewHolderLayout) {
+        super(binder, viewHolderLayout);
     }
 
     /**

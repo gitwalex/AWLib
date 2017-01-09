@@ -38,6 +38,7 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -52,6 +53,7 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
     private final String mRowIDColumn;
     private final AdapterDataObserver mDataObserver;
     private final AWCursorRecyclerViewFragment cursorRecyclerViewFragment;
+    private final int viewHolderLayout;
     private Cursor mCursor;
     private boolean mDataValid;
     private RecyclerView mRecyclerView;
@@ -63,8 +65,9 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
      * @param binder
      *         CursorViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      */
-    public AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder) {
-        this(binder, "_id");
+    public AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder,
+                                       int viewHolderLayout) {
+        this(binder, "_id", viewHolderLayout);
     }
 
     /**
@@ -76,10 +79,11 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
      *         Spalte, die als ID verwendet werden soll
      */
     protected AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder,
-                                          @NonNull String idColumn) {
+                                          @NonNull String idColumn, int viewHolderLayout) {
         cursorRecyclerViewFragment = binder;
         mDataObserver = new AdapterDataObserver();
         mRowIDColumn = idColumn;
+        this.viewHolderLayout = viewHolderLayout;
         setHasStableIds(true);
     }
 
@@ -137,7 +141,7 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
         if (!mCursor.moveToPosition(position)) {
             throw new IllegalStateException("couldn't move cursor to position " + position);
         }
-        cursorRecyclerViewFragment.onBindViewHolder(viewHolder, position, mCursor);
+        cursorRecyclerViewFragment.onBindViewHolder(viewHolder, mCursor);
     }
 
     @Override
@@ -150,13 +154,11 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
         }
     }
 
-    /**
-     * Ist der Cursor gueltig, wird das {@link AWCursorRecyclerViewFragment#onCreateViewHolder(ViewGroup,
-     * int)} aus dem Konstructor aufgerufen
-     */
     @Override
     public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
-        AWLibViewHolder holder = cursorRecyclerViewFragment.onCreateViewHolder(viewGroup, itemType);
+        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+        final View rowView = inflater.inflate(viewHolderLayout, viewGroup, false);
+        AWLibViewHolder holder = new AWLibViewHolder(rowView);
         holder.setOnClickListener(this);
         holder.setOnLongClickListener(this);
         return holder;

@@ -25,9 +25,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -58,6 +56,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
      */
     protected long mSelectedID;
     protected int indexColumn;
+    protected int viewHolderLayout;
     private int[] fromResIDs;
     /**
      * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
@@ -66,11 +65,10 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     private int layout = R.layout.awlib_default_recycler_view;
     private View noEntryView;
     private AWOnCursorRecyclerViewListener onCursorRecyclerViewListener;
-    private int viewHolderLayout;
     private int[] viewResIDs;
 
     public AWCursorRecyclerViewAdapter getCursorAdapter() {
-        return new AWCursorRecyclerViewAdapter(this);
+        return new AWCursorRecyclerViewAdapter(this, viewHolderLayout);
     }
 
     /**
@@ -181,7 +179,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
      *         Wenn eine View bearbeitet wird, die TextView ist und fillView(...) hat false
      *         zurueckgegeben.
      */
-    public final void onBindViewHolder(AWLibViewHolder holder, int position, Cursor cursor) {
+    public final void onBindViewHolder(AWLibViewHolder holder, Cursor cursor) {
         onPreBindViewHolder(cursor, holder);
         for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
             int resID = viewResIDs[viewPosition];
@@ -219,11 +217,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         mSelectedID = args.getLong(SELECTEDVIEWHOLDERITEM, NOID);
     }
 
-    public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
-        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        final View rowView = inflater.inflate(viewHolderLayout, viewGroup, false);
-        return new AWLibViewHolder(rowView);
-    }
 
     @CallSuper
     @Override
