@@ -23,17 +23,25 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import de.aw.awlib.adapters.AWCursorDragDropRecyclerViewAdapter;
 
 /**
- * Created by alex on 23.07.2016.
+ * Helper fuer Drag- und/oder Swipe-RecyclerView
  */
-public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
-    private final AWCursorDragDropRecyclerViewAdapter mAdapter;
+public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
+    protected final AWCursorDragDropRecyclerViewAdapter mAdapter;
     private boolean isDragable;
     private boolean isSwipeable;
 
+    /**
+     * @param adapter
+     *         AWCursorDragDropRecyclerViewAdapter
+     */
     public AWSimpleItemTouchHelperCallback(AWCursorDragDropRecyclerViewAdapter adapter) {
         mAdapter = adapter;
     }
 
+    /**
+     * Setzt die MovementFlags. In der Default-Implementation wird Dragging bei nach oben/unten
+     * unterstuetzt, ausserdem Swip bei links ooder rechts
+     */
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         // Set movement flags based on the layout manager
@@ -59,22 +67,51 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         return isDragable;
     }
 
+    /**
+     * Wird gerufen, wenn Items der RecyclerView bewegt werden.
+     */
     @Override
-    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-                          RecyclerView.ViewHolder target) {
-        mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
-        return true;
-    }
+    public abstract boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                   RecyclerView.ViewHolder target);
 
     @Override
-    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
+    public final void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+        int position = viewHolder.getAdapterPosition();
+        long id = viewHolder.getItemId();
+        onSwiped(viewHolder, direction, position, id);
     }
 
+    /**
+     * Wird bei swipe gerufen.
+     *
+     * @param viewHolder
+     *         ViewHolder
+     * @param direction
+     *         Richtung des Swipe
+     * @param position
+     *         Position des Items in der RecyclerView
+     * @param id
+     *         des Items in der RecalcerView
+     */
+    protected abstract void onSwiped(RecyclerView.ViewHolder viewHolder, int direction,
+                                     int position, long id);
+
+    /**
+     * Steuert, ob eine RecyclerView Dragable ist
+     *
+     * @param isDragable
+     *         true: ist Dragable
+     */
     public final void setIsDragable(boolean isDragable) {
         this.isDragable = isDragable;
     }
 
+    /**
+     * Steuert, ob eine RecyclerView Swapable ist
+     *
+     * @param isSwipeable
+     *         true: ist Swapable
+     */
     public final void setIsSwipeable(boolean isSwipeable) {
         this.isSwipeable = isSwipeable;
     }

@@ -63,7 +63,7 @@ public class AWDragSwipeRecyclerViewFragment extends AWCursorRecyclerViewFragmen
     @NonNull
     protected AWSimpleItemTouchHelperCallback getItemTouchCallback(
             AWCursorDragDropRecyclerViewAdapter mAdapter) {
-        return new AWSimpleItemTouchHelperCallback(mAdapter);
+        return new AWDragSwipeHelperCallback(mAdapter);
     }
 
     /**

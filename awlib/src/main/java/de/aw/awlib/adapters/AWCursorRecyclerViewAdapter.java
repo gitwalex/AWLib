@@ -54,7 +54,7 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
     private final AdapterDataObserver mDataObserver;
     private final AWCursorRecyclerViewFragment cursorRecyclerViewFragment;
     private final int viewHolderLayout;
-    private Cursor mCursor;
+    protected Cursor mCursor;
     private boolean mDataValid;
     private RecyclerView mRecyclerView;
     private int mRowIdColumnIndex;

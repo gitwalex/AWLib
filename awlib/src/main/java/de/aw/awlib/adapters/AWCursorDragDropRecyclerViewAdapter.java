@@ -17,14 +17,15 @@
 package de.aw.awlib.adapters;
 
 import android.database.Cursor;
+import android.util.SparseIntArray;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
-import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
+import de.aw.awlib.recyclerview.AWDragSwipeHelperCallback;
+import de.aw.awlib.recyclerview.AWDragSwipeRecyclerViewFragment;
 
 /**
  * Adapter fuer RecyclerView, der Drag/Drop und Swipe unterstuetzt. Der Adapter baut eine Liste mit
@@ -33,15 +34,17 @@ import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
  */
 public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAdapter {
     /**
-     * Liste der Positionen des Cursoers. Wird fuer das Mapping der angezeigten und die
+     * Liste der Positionen des Cursors. Wird fuer das Mapping der angezeigten und die
      * tatsaechlichen Position im Adapter verwendet.
      */
     private final List<Integer> mItems = new ArrayList<>();
+    private SparseIntArray mItemList = new SparseIntArray();
+    private int removed = 0;
 
     /**
      * Initialisiert und baut die Liste der Positionen auf
      */
-    public AWCursorDragDropRecyclerViewAdapter(AWCursorRecyclerViewFragment binder,
+    public AWCursorDragDropRecyclerViewAdapter(AWDragSwipeRecyclerViewFragment binder,
                                                int viewHolderLayout) {
         super(binder, viewHolderLayout);
     }
@@ -66,7 +69,7 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
      */
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return super.getItemCount() - removed;
     }
 
     /**
@@ -84,7 +87,7 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
      * @param position
      *         Position des Items, zu dem die ID benoetigt wird
      *
-     * @return die Position. Entfernet/verchobene Items werden beruecksichtig
+     * @return die Position. Entfernte/verschobene Items werden beruecksichtig
      */
     @Override
     public long getItemId(int position) {
@@ -94,18 +97,19 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
 
     /**
      * Entfernt ein Item an der Position. Funktioniert nur, wenn {@link
-     * AWSimpleItemTouchHelperCallback#setIsSwipeable(boolean)} mit true gerufen wurde.
+     * AWDragSwipeHelperCallback#setIsSwipeable(boolean)} mit true gerufen wurde.
      *
      * @param position
-     *         Position des items im Adapter, das entfern werden soll
+     *         Position des items im Adapter, das entfernt werden soll
      */
     public void onItemDismiss(int position) {
+        removed++;
         mItems.remove(position);
         notifyItemRemoved(position);
     }
 
     /**
-     * Vertauscht zwei Items. Funktioniert nur, wenn {@link AWSimpleItemTouchHelperCallback#setIsDragable(boolean)}
+     * Vertauscht zwei Items. Funktioniert nur, wenn {@link AWDragSwipeHelperCallback#setIsDragable(boolean)}
      * mit true gerufen wurde.
      *
      * @param fromPosition

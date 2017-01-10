@@ -68,7 +68,7 @@ public class AWFragmentCSVImport extends AWFragment implements AWResultCodes {
              * Oeffnen des exportfiles
              *
              * @param result
-             *         Result des Exports
+             *         HTTPDownloadResult des Exports
              */
             @Override
             protected void onPostExecute(Integer result) {
