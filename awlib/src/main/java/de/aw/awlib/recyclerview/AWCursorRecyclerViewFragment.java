@@ -217,7 +217,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         mSelectedID = args.getLong(SELECTEDVIEWHOLDERITEM, NOID);
     }
 
-
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -268,10 +267,13 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
      */
     @CallSuper
     protected void onPreBindViewHolder(Cursor cursor, AWLibViewHolder holder) {
-        //        int indexID = cursor.getColumnIndexOrThrow(tbd.columnName(R.string._id));
-        //        long id = cursor.getLong(indexID);
-        //        boolean selected = (id == mSelectedID);
-        //        holder.setSelected(selected);
+        int indexID = cursor.getColumnIndex(getString(R.string._id));
+        if (indexID != -1) {
+            long id = cursor.getLong(indexID);
+            boolean selected = (id == mSelectedID);
+            holder.setSelected(selected);
+            holder.setID(id);
+        }
     }
 
     /**

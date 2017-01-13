@@ -38,7 +38,7 @@ import de.aw.awlib.adapters.AWCursorRecyclerViewAdapter;
  *
  * @see AWCursorDragDropRecyclerViewAdapter
  */
-public class AWDragSwipeRecyclerViewFragment extends AWCursorRecyclerViewFragment {
+public abstract class AWDragSwipeRecyclerViewFragment extends AWCursorRecyclerViewFragment {
     private Drawable backgroundOnStartDrag;
     private AWSimpleItemTouchHelperCallback callbackTouchHelper;
     private boolean isDragable;
@@ -61,10 +61,8 @@ public class AWDragSwipeRecyclerViewFragment extends AWCursorRecyclerViewFragmen
     }
 
     @NonNull
-    protected AWSimpleItemTouchHelperCallback getItemTouchCallback(
-            AWCursorDragDropRecyclerViewAdapter mAdapter) {
-        return new AWDragSwipeHelperCallback(mAdapter);
-    }
+    protected abstract AWSimpleItemTouchHelperCallback getItemTouchCallback(
+            AWCursorDragDropRecyclerViewAdapter mAdapter);
 
     /**
      * Ist mittels {@link AWDragSwipeRecyclerViewFragment#setOneTouchStartDragResID(int)} eine resID
