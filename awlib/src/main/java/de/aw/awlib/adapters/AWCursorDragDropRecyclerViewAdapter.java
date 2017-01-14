@@ -18,14 +18,19 @@ package de.aw.awlib.adapters;
 
 import android.database.Cursor;
 import android.util.SparseIntArray;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import de.aw.awlib.application.AWApplication;
+import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWDragSwipeHelperCallback;
 import de.aw.awlib.recyclerview.AWDragSwipeRecyclerViewFragment;
+import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
  * Adapter fuer RecyclerView, der Drag/Drop und Swipe unterstuetzt. Der Adapter baut eine Liste mit
@@ -39,6 +44,8 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
      */
     private final List<Integer> mItems = new ArrayList<>();
     private SparseIntArray mItemList = new SparseIntArray();
+    private long mPendigItemPosition = -1;
+    private int mUndoViewHolderLayout;
     private int removed = 0;
 
     /**
@@ -95,6 +102,29 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
         return super.getItemId(mPosition);
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (position == mPendigItemPosition) {
+            return AWCursorRecyclerViewFragment.UNDOSWIPEVIEWTYPE;
+        }
+        return super.getItemViewType(position);
+    }
+
+    @Override
+    public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
+        switch (itemType) {
+            case AWCursorRecyclerViewFragment.UNDOSWIPEVIEWTYPE:
+                LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+                final View rowView = inflater.inflate(mUndoViewHolderLayout, viewGroup, false);
+                AWLibViewHolder holder = new AWLibViewHolder(rowView);
+                holder.setOnClickListener(this);
+                holder.setOnLongClickListener(this);
+                return holder;
+            default:
+                return super.onCreateViewHolder(viewGroup, itemType);
+        }
+    }
+
     /**
      * Entfernt ein Item an der Position. Funktioniert nur, wenn {@link
      * AWDragSwipeHelperCallback#setIsSwipeable(boolean)} mit true gerufen wurde.
@@ -124,6 +154,11 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
         notifyItemMoved(fromPosition, toPosition);
         AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
         return true;
+    }
+
+    public void setPendingItemPosition(int undoViewHolderLayout, int position) {
+        mPendigItemPosition = position;
+        mUndoViewHolderLayout = undoViewHolderLayout;
     }
 
     /**
