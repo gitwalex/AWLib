@@ -50,10 +50,10 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  */
 public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHolder>
         implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
+    protected final int viewHolderLayout;
     private final String mRowIDColumn;
     private final AdapterDataObserver mDataObserver;
     private final AWCursorRecyclerViewFragment cursorRecyclerViewFragment;
-    private final int viewHolderLayout;
     protected Cursor mCursor;
     private boolean mDataValid;
     private RecyclerView mRecyclerView;

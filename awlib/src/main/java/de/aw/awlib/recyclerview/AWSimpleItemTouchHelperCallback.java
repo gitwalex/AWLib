@@ -78,7 +78,7 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
     public final void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         int position = viewHolder.getAdapterPosition();
         long id = viewHolder.getItemId();
-        onSwiped(viewHolder, direction, position, id);
+        onSwiped(mAdapter, viewHolder, direction, position, id);
     }
 
     /**
@@ -93,7 +93,8 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
      * @param id
      *         des Items in der RecalcerView
      */
-    protected abstract void onSwiped(RecyclerView.ViewHolder viewHolder, int direction,
+    protected abstract void onSwiped(AWCursorDragDropRecyclerViewAdapter adapter,
+                                     RecyclerView.ViewHolder viewHolder, int direction,
                                      int position, long id);
 
     /**

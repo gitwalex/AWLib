@@ -35,7 +35,9 @@ public class AWDragSwipeHelperCallback extends AWSimpleItemTouchHelperCallback {
         return true;
     }
 
-    protected void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position,
+    @Override
+    protected void onSwiped(AWCursorDragDropRecyclerViewAdapter adapter,
+                            RecyclerView.ViewHolder viewHolder, int direction, int position,
                             long id) {
         mAdapter.onItemDismiss(position);
     }

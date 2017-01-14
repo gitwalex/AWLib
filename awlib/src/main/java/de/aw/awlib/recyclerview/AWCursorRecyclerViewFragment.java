@@ -47,7 +47,7 @@ import de.aw.awlib.fragments.AWLoaderFragment;
  */
 public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     public final static int minCardWidth = 800;
-    public final int DEFAULTVIEWTYPE = 0;
+    public static final int DEFAULTVIEWTYPE = 0, UNDOSWIPEVIEWTYPE = -1;
     protected RecyclerView mRecyclerView;
     protected AWCursorRecyclerViewAdapter mAdapter;
     protected LayoutManager mLayoutManager;
@@ -270,8 +270,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         int indexID = cursor.getColumnIndex(getString(R.string._id));
         if (indexID != -1) {
             long id = cursor.getLong(indexID);
-            boolean selected = (id == mSelectedID);
-            holder.setSelected(selected);
             holder.setID(id);
         }
     }
