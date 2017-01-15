@@ -16,6 +16,7 @@
  */
 package de.aw.awlib.recyclerview;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -26,7 +27,7 @@ import de.aw.awlib.adapters.AWCursorDragDropRecyclerViewAdapter;
  * Helper fuer Drag- und/oder Swipe-RecyclerView
  */
 public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
-    protected final AWCursorDragDropRecyclerViewAdapter mAdapter;
+    private final AWCursorDragDropRecyclerViewAdapter mAdapter;
     private boolean isDragable;
     private boolean isSwipeable;
 
@@ -34,13 +35,21 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
      * @param adapter
      *         AWCursorDragDropRecyclerViewAdapter
      */
-    public AWSimpleItemTouchHelperCallback(AWCursorDragDropRecyclerViewAdapter adapter) {
+    public AWSimpleItemTouchHelperCallback(@NonNull AWCursorDragDropRecyclerViewAdapter adapter) {
         mAdapter = adapter;
+    }
+
+    @NonNull
+    public AWCursorDragDropRecyclerViewAdapter getAdapter() {
+        return mAdapter;
     }
 
     /**
      * Setzt die MovementFlags. In der Default-Implementation wird Dragging bei nach oben/unten
-     * unterstuetzt, ausserdem Swip bei links ooder rechts
+     * unterstuetzt, ausserdem Swipe bei links ooder rechts.
+     * <p>
+     * handelt es sich beim LayoutMagaer um einen GGridLayoutManager, wird nur Dragging (in alle
+     * Richtungen) unterstuetzt.
      */
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
@@ -78,7 +87,7 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
     public final void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         int position = viewHolder.getAdapterPosition();
         long id = viewHolder.getItemId();
-        onSwiped(mAdapter, viewHolder, direction, position, id);
+        onSwiped(viewHolder, direction, position, id);
     }
 
     /**
@@ -91,10 +100,9 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
      * @param position
      *         Position des Items in der RecyclerView
      * @param id
-     *         des Items in der RecalcerView
+     *         ID des Items
      */
-    protected abstract void onSwiped(AWCursorDragDropRecyclerViewAdapter adapter,
-                                     RecyclerView.ViewHolder viewHolder, int direction,
+    protected abstract void onSwiped(RecyclerView.ViewHolder viewHolder, int direction,
                                      int position, long id);
 
     /**

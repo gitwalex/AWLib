@@ -67,7 +67,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     private AWOnCursorRecyclerViewListener onCursorRecyclerViewListener;
     private int[] viewResIDs;
 
-    public AWCursorRecyclerViewAdapter getCursorAdapter() {
+    protected AWCursorRecyclerViewAdapter getCursorAdapter() {
         return new AWCursorRecyclerViewAdapter(this, viewHolderLayout);
     }
 
@@ -345,8 +345,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         // use a linear layout manager
         mLayoutManager = getLayoutManager();
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = getCursorAdapter();
-        mRecyclerView.setAdapter(mAdapter);
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                 .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);

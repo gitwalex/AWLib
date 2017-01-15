@@ -17,10 +17,10 @@
 package de.aw.awlib.recyclerview;
 
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.Loader;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MotionEvent;
@@ -39,30 +39,44 @@ import de.aw.awlib.adapters.AWCursorRecyclerViewAdapter;
  * @see AWCursorDragDropRecyclerViewAdapter
  */
 public abstract class AWDragSwipeRecyclerViewFragment extends AWCursorRecyclerViewFragment {
-    private Drawable backgroundOnStartDrag;
     private AWSimpleItemTouchHelperCallback callbackTouchHelper;
     private boolean isDragable;
     private boolean isSwipeable;
     private ItemTouchHelper mTouchHelper;
     private int oneTouchStartDragResID = -1;
 
-    /**
-     * @return Liefert einen AWCursorDragDropRecyclerViewAdapter zurueck.
-     */
-    public AWCursorRecyclerViewAdapter getCursorAdapter() {
-        AWCursorDragDropRecyclerViewAdapter mAdapter =
-                new AWCursorDragDropRecyclerViewAdapter(this, viewHolderLayout);
+    protected void configure(AWCursorDragDropRecyclerViewAdapter mAdapter) {
         callbackTouchHelper = getItemTouchCallback(mAdapter);
         callbackTouchHelper.setIsDragable(isDragable);
         callbackTouchHelper.setIsSwipeable(isSwipeable);
         mTouchHelper = new ItemTouchHelper(callbackTouchHelper);
         mTouchHelper.attachToRecyclerView(mRecyclerView);
-        return mAdapter;
+    }
+
+    /**
+     * @return Liefert einen AWCursorDragDropRecyclerViewAdapter zurueck.
+     */
+    protected AWCursorRecyclerViewAdapter getCursorAdapter() {
+        return new AWCursorDragDropRecyclerViewAdapter(this, viewHolderLayout);
     }
 
     @NonNull
     protected abstract AWSimpleItemTouchHelperCallback getItemTouchCallback(
             AWCursorDragDropRecyclerViewAdapter mAdapter);
+
+    /**
+     * Ist der Adapter == null, wird ein neuer erstellt und konfiguriert
+     */
+    @CallSuper
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (mAdapter == null) {
+            mAdapter = getCursorAdapter();
+            configure((AWCursorDragDropRecyclerViewAdapter) mAdapter);
+            mRecyclerView.setAdapter(mAdapter);
+        }
+        super.onLoadFinished(loader, cursor);
+    }
 
     /**
      * Ist mittels {@link AWDragSwipeRecyclerViewFragment#setOneTouchStartDragResID(int)} eine resID
@@ -75,21 +89,24 @@ public abstract class AWDragSwipeRecyclerViewFragment extends AWCursorRecyclerVi
     @Override
     protected void onPreBindViewHolder(Cursor cursor, final AWLibViewHolder holder) {
         super.onPreBindViewHolder(cursor, holder);
+        View handleView;
         if (oneTouchStartDragResID != -1) {
-            View handleView = holder.findViewById(oneTouchStartDragResID);
-            handleView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                        AWDragSwipeRecyclerViewFragment.this.onStartDrag(holder);
-                    }
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_UP) {
-                        AWDragSwipeRecyclerViewFragment.this.onStopDrag(holder);
-                    }
-                    return false;
-                }
-            });
+            handleView = holder.findViewById(oneTouchStartDragResID);
+        } else {
+            handleView = holder.itemView;
         }
+        handleView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                    AWDragSwipeRecyclerViewFragment.this.onStartDrag(holder);
+                }
+                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_UP) {
+                    AWDragSwipeRecyclerViewFragment.this.onStopDrag(holder);
+                }
+                return false;
+            }
+        });
     }
 
     private void onStartDrag(AWLibViewHolder holder) {

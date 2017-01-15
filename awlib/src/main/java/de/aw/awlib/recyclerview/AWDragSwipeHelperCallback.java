@@ -31,14 +31,13 @@ public class AWDragSwipeHelperCallback extends AWSimpleItemTouchHelperCallback {
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                           RecyclerView.ViewHolder target) {
-        mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+        getAdapter().onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
         return true;
     }
 
     @Override
-    protected void onSwiped(AWCursorDragDropRecyclerViewAdapter adapter,
-                            RecyclerView.ViewHolder viewHolder, int direction, int position,
+    protected void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position,
                             long id) {
-        mAdapter.onItemDismiss(position);
+        getAdapter().onItemDismiss(position);
     }
 }
