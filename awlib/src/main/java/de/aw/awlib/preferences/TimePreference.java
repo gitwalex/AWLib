@@ -1,7 +1,9 @@
+package de.aw.awlib.preferences;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.preferences;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -51,18 +52,6 @@ public class TimePreference extends DialogPreference {
         return mTime;
     }
 
-    @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
-        // Default value from attribute. Fallback value is set to 0.
-        return a.getInt(index, 0);
-    }
-
-    @Override
-    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        // Read the value. Use the default value if it is not possible.
-        setTime(restorePersistedValue ? getPersistedInt(mTime) : (int) defaultValue);
-    }
-
     /**
      * Persisitiert die Zeit und stellt die gewaehlte Zeit im Format 'HH:mm' ind die Summary ein.
      *
@@ -75,5 +64,17 @@ public class TimePreference extends DialogPreference {
         int hours = time / 60;
         int minutes = time % 60;
         setSummary(String.format("%02d", hours) + ":" + String.format("%02d", minutes));
+    }
+
+    @Override
+    protected Object onGetDefaultValue(TypedArray a, int index) {
+        // Default value from attribute. Fallback value is set to 0.
+        return a.getInt(index, 0);
+    }
+
+    @Override
+    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+        // Read the value. Use the default value if it is not possible.
+        setTime(restorePersistedValue ? getPersistedInt(mTime) : (int) defaultValue);
     }
 }

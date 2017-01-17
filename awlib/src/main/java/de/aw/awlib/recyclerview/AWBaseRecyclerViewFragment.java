@@ -18,23 +18,18 @@ package de.aw.awlib.recyclerview;
  */
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.adapters.AWCursorRecyclerViewAdapter;
-import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.database.AWDBConvert;
-import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.fragments.AWLoaderFragment;
 
 /**
@@ -46,40 +41,30 @@ import de.aw.awlib.fragments.AWLoaderFragment;
  * Als Standard erhaelt die RecyclerView als ID den Wert des Layout. Durch args.setInt(VIEWID,
  * value) erhaelt die RecyclerView eine andere ID.
  */
-public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
-    public final static int minCardWidth = 800;
+public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
     public static final int DEFAULTVIEWTYPE = 0;
-    protected RecyclerView mRecyclerView;
-    protected AWCursorRecyclerViewAdapter mAdapter;
+    public final static int minCardWidth = 800;
+    protected AWBaseRecyclerViewAdapter mAdapter;
     protected LayoutManager mLayoutManager;
-    /**
-     * Die zuletzt ausgewaehlte ID, die selektiert wurde.
-     */
-    protected long mSelectedID;
-    protected int indexColumn;
+    protected RecyclerView mRecyclerView;
     protected int viewHolderLayout;
-    private int[] fromResIDs;
     /**
      * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
     private int layout = R.layout.awlib_default_recycler_view;
+    private AWBaseRecyclerViewListener mBaseRecyclerViewListener;
+    private long mSelectedID;
     private View noEntryView;
-    private AWBaseRecyclerViewListener onCursorRecyclerViewListener;
-    private int[] viewResIDs;
 
-    protected AWCursorRecyclerViewAdapter getCursorAdapter() {
-        return new AWCursorRecyclerViewAdapter(this, viewHolderLayout);
-    }
+    protected abstract AWBaseRecyclerViewAdapter getBaseAdapter();
 
     /**
-     * @param cursor
-     *         Cursor
      * @param position
      *         aktuelle position in RecyclerView
-     * @return Liefert als ViewType {@link AWCursorRecyclerViewFragment#DEFAULTVIEWTYPE} zurueck
+     * @return Liefert als ViewType {@link AWBaseRecyclerViewFragment#DEFAULTVIEWTYPE} zurueck
      */
-    public int getItemViewType(Cursor cursor, int position) {
+    public int getItemViewType(int position) {
         return DEFAULTVIEWTYPE;
     }
 
@@ -139,32 +124,10 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
-            onCursorRecyclerViewListener = (AWBaseRecyclerViewListener) activity;
+            mBaseRecyclerViewListener = (AWBaseRecyclerViewListener) activity;
         } catch (ClassCastException e) {
             // Nix tun. Activity muss keinen RecyclerListerer implementieren.
         }
-    }
-
-    /**
-     * Binden von Daten an eine View, die keine TextView ist.
-     *
-     * @param holder
-     *         AWLibViewHolder. Hier sind alle Views zu finden.
-     * @param view
-     *         View
-     * @param resID
-     *         ResID der der Spalte des Cursors. Ist -1, wenn es mehr Views als CursorSpalten gibt.
-     * @param cursor
-     *         Aktueller Cursor
-     * @param cursorPosition
-     *         Position innerhalb des Cursors, dessen Daten gebunden werden sollen.
-     * @return true, wenn die View vollstaendig bearbeitet wurde. Bei Rueckgabe von false wird davon
-     * ausgegangen, dass es sich um eine TextView handelt und der Text aus dem Cursor an der
-     * Position gesetzt. Default: false.
-     */
-    protected boolean onBindView(AWLibViewHolder holder, View view, int resID, Cursor cursor,
-                                 int cursorPosition) {
-        return false;
     }
 
     @Override
@@ -177,27 +140,9 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
      *         Wenn eine View bearbeitet wird, die TextView ist und fillView(...) hat false
      *         zurueckgegeben.
      */
-    public final void onBindViewHolder(AWLibViewHolder holder, Cursor cursor) {
-        onPreBindViewHolder(cursor, holder);
-        for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
-            int resID = viewResIDs[viewPosition];
-            View view = holder.findViewById(resID);
-            if (!onBindView(holder, view, resID, cursor, viewPosition) && fromResIDs != null &&
-                    viewPosition < fromResIDs.length) {
-                try {
-                    AbstractDBHelper mDBHelper =
-                            ((AWApplication) getContext().getApplicationContext()).getDBHelper();
-                    TextView tv = (TextView) view;
-                    String text = AWDBConvert.convert(mDBHelper, fromResIDs[viewPosition],
-                            cursor.getString(viewPosition));
-                    tv.setText(text);
-                } catch (ClassCastException e) {
-                    throw new IllegalStateException(
-                            "View mit ResID " + resID + " [" + getString(resID) +
-                                    "] ist keine TextView und muss in onBindView belegt werden.");
-                }
-            }
-        }
+    @CallSuper
+    protected void onBindViewHolder(AWLibViewHolder holder, int position) {
+        onPreBindViewHolder(holder, position);
     }
 
     /**
@@ -210,40 +155,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         super.onCreate(savedInstanceState);
         layout = args.getInt(LAYOUT);
         viewHolderLayout = args.getInt(VIEWHOLDERLAYOUT);
-        viewResIDs = args.getIntArray(VIEWRESIDS);
-        fromResIDs = args.getIntArray(FROMRESIDS);
-        mSelectedID = args.getLong(SELECTEDVIEWHOLDERITEM, NOID);
-    }
-
-    @CallSuper
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        super.onLoadFinished(loader, cursor);
-        noEntryView.setVisibility(View.VISIBLE);
-        if (cursor != null) {
-            indexColumn = cursor.getColumnIndexOrThrow(getString(R.string._id));
-            if (cursor.getCount() != 0) {
-                noEntryView.setVisibility(View.GONE);
-            }
-        }
-        if (mAdapter == null) {
-            mAdapter = getCursorAdapter();
-            mRecyclerView.setAdapter(mAdapter);
-        }
-        mAdapter.swapCursor(cursor); // swap the new cursor in.
-    }
-
-    /*
-         * (non-Javadoc)
-         * @see
-         * android.app.LoaderManager.LoaderCallbacks#onLoaderReset(android.content
-         * .Loader)
-         */
-    @Override
-    public void onLoaderReset(Loader<Cursor> p1) {
-        if (mAdapter != null) {
-            mAdapter.swapCursor(null);
-        }
     }
 
     @Override
@@ -252,24 +163,8 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         args.putInt(LASTSELECTEDPOSITION, getRecyclerViewPosition());
     }
 
-    /**
-     * Wird in onBindViewHolder() gerufen. Hier koennen Vorarbeiten fuer die Ermittlung der Daten
-     * durchgefuehrt werden, z.B. je Holder Daten aus dem Cursor lesen. Hier wird im Holder die ID
-     * aus dem Cursor gespeichert. Aussederm wird geprueft, ob der Holder zu der id als Selected
-     * markiert wurde. Ist dies so, wird der Holder selected.
-     *
-     * @param cursor
-     *         aktueller Cursor.
-     * @param holder
-     *         AWLibViewHolder
-     */
-    @CallSuper
-    protected void onPreBindViewHolder(Cursor cursor, AWLibViewHolder holder) {
-        int indexID = cursor.getColumnIndex(getString(R.string._id));
-        if (indexID != -1) {
-            long id = cursor.getLong(indexID);
-            holder.setID(id);
-        }
+    protected void onPreBindViewHolder(AWLibViewHolder holder, int position) {
+
     }
 
     /**
@@ -277,10 +172,10 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
      * Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
      */
     @CallSuper
-    public void onRecyclerItemClick(RecyclerView recyclerView, View view, int position, long id) {
+    protected void onRecyclerItemClick(View view, int position, long id) {
         mSelectedID = id;
-        if (onCursorRecyclerViewListener != null) {
-            onCursorRecyclerViewListener
+        if (mBaseRecyclerViewListener != null) {
+            mBaseRecyclerViewListener
                     .onRecyclerItemClick(mRecyclerView, view, position, id, viewHolderLayout);
         }
     }
@@ -288,10 +183,10 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     /**
      * Wird vom Adapter gerufen, wenn ein Item der RecyclerView long-geclickt wurde.
      */
-    public boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position,
-                                           long id) {
+    @CallSuper
+    protected boolean onRecyclerItemLongClick(View view, int position, long id) {
         mSelectedID = id;
-        return onCursorRecyclerViewListener != null && onCursorRecyclerViewListener
+        return mBaseRecyclerViewListener != null && mBaseRecyclerViewListener
                 .onRecyclerItemLongClick(mRecyclerView, view, position, id, viewHolderLayout);
     }
 
@@ -299,6 +194,14 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     public void onResume() {
         super.onResume();
         int position = args.getInt(LASTSELECTEDPOSITION);
+        noEntryView.setVisibility(View.VISIBLE);
+        if (mAdapter == null) {
+            mAdapter = getBaseAdapter();
+            mRecyclerView.setAdapter(mAdapter);
+        }
+        if (mAdapter.getItemCount() > 0) {
+            noEntryView.setVisibility(View.GONE);
+        }
         mRecyclerView.scrollToPosition(position);
     }
 
@@ -343,7 +246,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         // use a linear layout manager
         mLayoutManager = getLayoutManager();
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mAdapter);
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                      .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -353,5 +255,64 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     protected void setInternalArguments(Bundle args) {
         super.setInternalArguments(args);
         args.putInt(LAYOUT, layout);
+    }
+
+    public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHolder>
+            implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
+        protected final int viewHolderLayout;
+        private RecyclerView mRecyclerView;
+
+        /**
+         * Initialisiert Adapter.
+         *
+         * @param viewHolderLayout
+         *         Layout der ItemView
+         */
+        public AWBaseRecyclerViewAdapter(int viewHolderLayout) {
+            this.viewHolderLayout = viewHolderLayout;
+        }
+
+        @Override
+        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
+            mRecyclerView = recyclerView;
+        }
+
+        @Override
+        public void onBindViewHolder(AWLibViewHolder holder, int position) {
+            AWBaseRecyclerViewFragment.this.onBindViewHolder(holder, position);
+        }
+
+        @Override
+        public void onClick(AWLibViewHolder holder) {
+            View v = holder.getView();
+            int position = mRecyclerView.getChildAdapterPosition(v);
+            long id = mRecyclerView.getChildItemId(v);
+            AWBaseRecyclerViewFragment.this.onRecyclerItemClick(v, position, id);
+        }
+
+        @Override
+        public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
+            LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+            final View rowView = inflater.inflate(viewHolderLayout, viewGroup, false);
+            AWLibViewHolder holder = new AWLibViewHolder(rowView);
+            holder.setOnClickListener(this);
+            holder.setOnLongClickListener(this);
+            return holder;
+        }
+
+        @Override
+        public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+            super.onDetachedFromRecyclerView(recyclerView);
+            mRecyclerView = null;
+        }
+
+        @Override
+        public boolean onLongClick(AWLibViewHolder holder) {
+            View v = holder.itemView;
+            int position = mRecyclerView.getChildAdapterPosition(v);
+            long id = mRecyclerView.getChildItemId(v);
+            return AWBaseRecyclerViewFragment.this.onRecyclerItemLongClick(v, position, id);
+        }
     }
 }

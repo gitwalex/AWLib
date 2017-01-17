@@ -1,5 +1,22 @@
 package de.aw.awlib.utils;
 
+/*
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ *
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; if
+ * not, see <http://www.gnu.org/licenses/>.
+ */
+
 import android.os.AsyncTask;
 
 import org.apache.commons.net.ftp.FTP;
@@ -117,6 +134,16 @@ public class AWRemoteFileServerHandler {
     }
 
     /**
+     * @param files
+     *         die nach Abschluss von {@link AWRemoteFileServerHandler#listFilesInDirectory(String,
+     *         FTPFileFilter)} oder {@link AWRemoteFileServerHandler#listFiles(FTPFileFilter)}
+     *         ermittelten Files.
+     */
+    private void setFiles(FTPFile[] files) {
+        mFiles = files;
+    }
+
+    /**
      * Listet alle Files im RootDirectory des Servers. Das Ergebnis kann durch {@link
      * AWRemoteFileServerHandler#getFiles()} abgeholt werden.
      *
@@ -159,16 +186,6 @@ public class AWRemoteFileServerHandler {
                 }
             }
         }.execute();
-    }
-
-    /**
-     * @param files
-     *         die nach Abschluss von {@link AWRemoteFileServerHandler#listFilesInDirectory(String,
-     *         FTPFileFilter)} oder {@link AWRemoteFileServerHandler#listFiles(FTPFileFilter)}
-     *         ermittelten Files.
-     */
-    private void setFiles(FTPFile[] files) {
-        mFiles = files;
     }
 
     /**

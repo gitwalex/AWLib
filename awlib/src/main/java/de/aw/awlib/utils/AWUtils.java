@@ -1,7 +1,9 @@
+package de.aw.awlib.utils;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -60,70 +61,10 @@ public final class AWUtils {
     /**
      * Erstellt ein Zip-Archiv und fuegt die Files eines Directories dem Zip-Archiv hinzu.
      *
-     * @param zos
-     *         ZipOutputStraem
-     * @param parrentDirectoryName
-     *         Name des ParentDirectories.
-     *
-     * @throws IOException
-     *         Bei Fehlern
-     */
-    private static void addDirToZipArchive(ZipOutputStream zos, String parrentDirectoryName)
-            throws IOException {
-        File directoryToZip = new File(parrentDirectoryName);
-        if (!directoryToZip.isDirectory()) {
-            addFileToZipArchive(zos, directoryToZip);
-            return;
-        }
-        for (File fileToZip : directoryToZip.listFiles()) {
-            String zipEntryName;
-            if (fileToZip.isDirectory()) {
-                zipEntryName = fileToZip.getName();
-                System.out.println("+" + zipEntryName);
-                addDirToZipArchive(zos, zipEntryName);
-            } else {
-                addFileToZipArchive(zos, fileToZip);
-            }
-        }
-    }
-
-    /**
-     * Fuegt die Files dem Zip-Archiv hinzu.
-     *
-     * @param zos
-     *         ZipOutputStraem
-     * @param fileToZip
-     *         File, welches gezipt werden soll
-     *
-     * @throws IOException
-     *         Bei Fehlern
-     */
-    private static void addFileToZipArchive(ZipOutputStream zos, File fileToZip)
-            throws IOException {
-        if (fileToZip == null || !fileToZip.exists()) {
-            return;
-        }
-        String zipEntryName = fileToZip.getName();
-        System.out.println("   " + zipEntryName);
-        byte[] buffer = new byte[BUFFERSIZE];
-        FileInputStream fis = new FileInputStream(fileToZip);
-        zos.putNextEntry(new ZipEntry(zipEntryName));
-        int length;
-        while ((length = fis.read(buffer)) > 0) {
-            zos.write(buffer, 0, length);
-        }
-        zos.closeEntry();
-        fis.close();
-    }
-
-    /**
-     * Erstellt ein Zip-Archiv und fuegt die Files eines Directories dem Zip-Archiv hinzu.
-     *
      * @param target
      *         File, in dem das Archiv gespeichert werden soll
      * @param fileToZip
      *         Name des zu zippenden Verzeichnisses/Datei
-     *
      * @return Ergebnis der Operation
      */
     public static int addToZipArchive(File target, String fileToZip) {
@@ -159,7 +100,6 @@ public final class AWUtils {
      *         File, welches kopiert werden soll
      * @param dest
      *         TargetFile
-     *
      * @throws IOException
      *         Bei Fehlern.
      */
@@ -183,44 +123,10 @@ public final class AWUtils {
     }
 
     /**
-     * Utility method to read data from InputStream
-     */
-    private static void extractEntry(InputStream is, String extractTo) throws IOException {
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(extractTo);
-            final byte[] buf = new byte[BUFFERSIZE];
-            int length;
-            while ((length = is.read(buf, 0, buf.length)) >= 0) {
-                fos.write(buf, 0, length);
-            }
-        } finally {
-            if (fos != null) {
-                fos.close();
-            }
-        }
-    }
-
-    //this method will create and return the path to the image file
-    private static File getFile(File folder, String prefix) {
-        @SuppressLint("SimpleDateFormat") String timeStamp =
-                new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = prefix + "_" + timeStamp + "_";
-        File image_file = null;
-        try {
-            image_file = File.createTempFile(imageFileName, ".jpg", folder);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return image_file;
-    }
-
-    /**
      * Prueft, ob Internetverbindung vorhanden ist.
      *
      * @param context
      *         Context
-     *
      * @return true, wenn irgendeine Internetverbindung vorhanden ist.
      */
     public static boolean hasInternetConnection(Context context) {
@@ -235,7 +141,6 @@ public final class AWUtils {
      *
      * @param context
      *         Context
-     *
      * @return true, wenn WiFi-Verbindung.
      */
     public static boolean isInternetWifi(Context context) {
@@ -282,7 +187,6 @@ public final class AWUtils {
      *         Key. Parceable
      * @param <V>
      *         Value. Parceable
-     *
      * @return Map
      */
     public static <K extends Parcelable, V extends Parcelable> Map<K, V> readParcelableMap(
@@ -349,6 +253,96 @@ public final class AWUtils {
             parcel.writeParcelable(e.getKey(), flags);
             parcel.writeParcelable(e.getValue(), flags);
         }
+    }
+
+    /**
+     * Erstellt ein Zip-Archiv und fuegt die Files eines Directories dem Zip-Archiv hinzu.
+     *
+     * @param zos
+     *         ZipOutputStraem
+     * @param parrentDirectoryName
+     *         Name des ParentDirectories.
+     * @throws IOException
+     *         Bei Fehlern
+     */
+    private static void addDirToZipArchive(ZipOutputStream zos, String parrentDirectoryName)
+            throws IOException {
+        File directoryToZip = new File(parrentDirectoryName);
+        if (!directoryToZip.isDirectory()) {
+            addFileToZipArchive(zos, directoryToZip);
+            return;
+        }
+        for (File fileToZip : directoryToZip.listFiles()) {
+            String zipEntryName;
+            if (fileToZip.isDirectory()) {
+                zipEntryName = fileToZip.getName();
+                System.out.println("+" + zipEntryName);
+                addDirToZipArchive(zos, zipEntryName);
+            } else {
+                addFileToZipArchive(zos, fileToZip);
+            }
+        }
+    }
+
+    /**
+     * Fuegt die Files dem Zip-Archiv hinzu.
+     *
+     * @param zos
+     *         ZipOutputStraem
+     * @param fileToZip
+     *         File, welches gezipt werden soll
+     * @throws IOException
+     *         Bei Fehlern
+     */
+    private static void addFileToZipArchive(ZipOutputStream zos, File fileToZip)
+            throws IOException {
+        if (fileToZip == null || !fileToZip.exists()) {
+            return;
+        }
+        String zipEntryName = fileToZip.getName();
+        System.out.println("   " + zipEntryName);
+        byte[] buffer = new byte[BUFFERSIZE];
+        FileInputStream fis = new FileInputStream(fileToZip);
+        zos.putNextEntry(new ZipEntry(zipEntryName));
+        int length;
+        while ((length = fis.read(buffer)) > 0) {
+            zos.write(buffer, 0, length);
+        }
+        zos.closeEntry();
+        fis.close();
+    }
+
+    /**
+     * Utility method to read data from InputStream
+     */
+    private static void extractEntry(InputStream is, String extractTo) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(extractTo);
+            final byte[] buf = new byte[BUFFERSIZE];
+            int length;
+            while ((length = is.read(buf, 0, buf.length)) >= 0) {
+                fos.write(buf, 0, length);
+            }
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
+    }
+
+    //this method will create and return the path to the image file
+    private static File getFile(File folder, String prefix) {
+        @SuppressLint("SimpleDateFormat") String timeStamp =
+                new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = prefix + "_" + timeStamp + "_";
+        File image_file = null;
+        try {
+            image_file = File.createTempFile(imageFileName, ".jpg", folder);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image_file;
     }
 }
 

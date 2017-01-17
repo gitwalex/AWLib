@@ -1,7 +1,9 @@
+package de.aw.awlib.enums;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.enums;
 
 import android.content.Context;
 
@@ -159,14 +160,6 @@ public enum AWDateSelector {
     public final int textResID;
 
     /**
-     * @param textResID
-     *         ResID des Klartextes fuer die jeweilige Enum
-     */
-    AWDateSelector(int textResID) {
-        this.textResID = textResID;
-    }
-
-    /**
      * Texte der Aufzaehlung als Array
      */
     public static String[] getDateTexte(Context context) {
@@ -184,7 +177,6 @@ public enum AWDateSelector {
      *
      * @param cal
      *         Datum
-     *
      * @return Ultimo des Monats in Date
      */
     private static Calendar getUltimoDate(Calendar cal) {
@@ -192,6 +184,14 @@ public enum AWDateSelector {
         cal.set(Calendar.DAY_OF_MONTH, 1);
         cal.add(Calendar.DAY_OF_MONTH, -1);
         return cal;
+    }
+
+    /**
+     * @param textResID
+     *         ResID des Klartextes fuer die jeweilige Enum
+     */
+    AWDateSelector(int textResID) {
+        this.textResID = textResID;
     }
 
     /**
@@ -222,7 +222,6 @@ public enum AWDateSelector {
     /**
      * @param cal
      *         Basisdatum
-     *
      * @return Liefert den Quartalsbeginn zum Basisdatum cal
      */
     public Calendar getQuartalBeginn(Calendar cal) {
@@ -249,15 +248,14 @@ public enum AWDateSelector {
          *
          * @param vonBisDate
          *         zu vr
-         *
          * @return
          */
         public boolean equals(VonBisDate vonBisDate) {
             if (vonBisDate == null) {
                 return false;
             }
-            return vonBisDate.startDate.toString().equals(startDate.toString()) | vonBisDate.endDate
-                    .equals(endDate);
+            return vonBisDate.startDate.toString().equals(startDate.toString()) |
+                    vonBisDate.endDate.equals(endDate);
         }
 
         /**

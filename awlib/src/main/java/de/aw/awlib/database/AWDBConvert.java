@@ -1,7 +1,9 @@
+package de.aw.awlib.database;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.database;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -32,8 +33,8 @@ import de.aw.awlib.application.AWApplication;
  * Klasse zum konvertieren von Daten in ein anderes Format
  */
 public class AWDBConvert {
+    public static final Locale mLocale = Locale.getDefault();
     public static final DateFormat DATEFORMAT = DateFormat.getDateInstance();
-    private static final Locale mLocale = Locale.getDefault();
     public static final DateFormat mSqliteDateFormat = new SimpleDateFormat("yyyy-MM-dd", mLocale);
     public static final DateFormat mDateFormat = new SimpleDateFormat("dd.MM.yyyy", mLocale);
     public static final DateFormat mHBCIFormat = new SimpleDateFormat("yyyy-MM-dd", mLocale);
@@ -57,10 +58,6 @@ public class AWDBConvert {
         PERCENTFORMAT.setMaximumFractionDigits(2);
         PERCENTFORMAT.setMinimumFractionDigits(2);
         // PERCENTFORMAT.applyPattern("#.##%");
-    }
-
-    protected static void Log(String message) {
-        AWApplication.Log(message);
     }
 
     public static String convert(AbstractDBHelper mDBHelper, int resID, String value) {
@@ -103,7 +100,6 @@ public class AWDBConvert {
      *
      * @param value
      *         Datum als String im SQLLite-Format('yyyy-mm-tt')
-     *
      * @return Date
      *
      * @throws ParseException,
@@ -130,7 +126,6 @@ public class AWDBConvert {
      *
      * @param value
      *         value
-     *
      * @return true, wenn 1. value ="X" oder value = "x" oder value = "true". Sonst false.
      */
     public static Boolean convertBoolean(String value) {
@@ -157,7 +152,6 @@ public class AWDBConvert {
     /**
      * @param value
      *         value
-     *
      * @return konvertiertes double im Currency-Longforamt. Wert wird entsprechend gerundet.
      */
     public static Long convertCurrency(double value) {
@@ -169,7 +163,6 @@ public class AWDBConvert {
      *
      * @param millis
      *         Datum in Millis
-     *
      * @return Datum im Format TT.MM.YYYY
      */
     public static String convertDate(long millis) {
@@ -179,7 +172,6 @@ public class AWDBConvert {
     /**
      * @param date
      *         Datum
-     *
      * @return Date als String im Format dd.MM.YYYY
      */
     public static String convertDate(Date date) {
@@ -191,7 +183,6 @@ public class AWDBConvert {
      *
      * @param value
      *         Datum im SQLite-Format
-     *
      * @return Datum als String
      */
     public static String convertDate(String value) {
@@ -212,7 +203,6 @@ public class AWDBConvert {
     /**
      * @param number
      *         number
-     *
      * @return Liefert eine Zahl (mit entsprechenden Nachkommastellen) als String zurueck. Damit
      * kann z.B. die Menge WP angezeigt werden.
      */
@@ -250,5 +240,9 @@ public class AWDBConvert {
 
     public static double getNumberDigits() {
         return mNumberDigits;
+    }
+
+    protected static void Log(String message) {
+        AWApplication.Log(message);
     }
 }

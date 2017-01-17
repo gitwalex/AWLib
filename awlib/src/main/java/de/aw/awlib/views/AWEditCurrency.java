@@ -1,7 +1,9 @@
+package de.aw.awlib.views;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.views;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -58,6 +59,10 @@ public class AWEditCurrency extends EditText implements AWInterface {
         return mBroadcastIndex;
     }
 
+    public void setBroadcastIndex(int index) {
+        mBroadcastIndex = index;
+    }
+
     /**
      * Liefert den aktuell eingegebenen Text als Long zurueck
      *
@@ -74,6 +79,24 @@ public class AWEditCurrency extends EditText implements AWInterface {
             }
         }
         return amount;
+    }
+
+    /**
+     * Setzt einen long-Wert als Text. Dieser wird in das entsprechende Curency-Format
+     * umformatiert.
+     *
+     * @param amount
+     */
+    public void setValue(Long amount) {
+        if (amount == null) {
+            amount = 0L;
+        }
+        this.amount = amount;
+        if (hasFocus()) {
+            setValueAsDouble();
+        } else {
+            setText(AWDBConvert.convertCurrency(amount));
+        }
     }
 
     /**
@@ -144,10 +167,6 @@ public class AWEditCurrency extends EditText implements AWInterface {
         super.onTextChanged(text, start, lengthBefore, lengthAfter);
     }
 
-    public void setBroadcastIndex(int index) {
-        mBroadcastIndex = index;
-    }
-
     /**
      * Setz den ColorMode. Wenn true (default), wird ein Negativer Wert rot dargestellt. Bei false
      * werden alle Werte schwarz dargestellt.
@@ -160,24 +179,6 @@ public class AWEditCurrency extends EditText implements AWInterface {
 
     public void setOnLongValueChangedListener(OnLongValueChangedListener listener) {
         mOnLongValueChangedListener = listener;
-    }
-
-    /**
-     * Setzt einen long-Wert als Text. Dieser wird in das entsprechende Curency-Format
-     * umformatiert.
-     *
-     * @param amount
-     */
-    public void setValue(Long amount) {
-        if (amount == null) {
-            amount = 0L;
-        }
-        this.amount = amount;
-        if (hasFocus()) {
-            setValueAsDouble();
-        } else {
-            setText(AWDBConvert.convertCurrency(amount));
-        }
     }
 
     private void setValueAsDouble() {

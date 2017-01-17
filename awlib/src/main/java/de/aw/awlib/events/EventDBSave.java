@@ -1,7 +1,9 @@
+package de.aw.awlib.events;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.events;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -55,24 +56,6 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
     private AWNotification mNotification;
     private SharedPreferences prefs;
 
-    public EventDBSave(Context context) {
-        init(context);
-    }
-
-    public EventDBSave() {
-    }
-
-    private static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
-        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AWEventService.class);
-        intent.setAction(AWLIBACTION);
-        PendingIntent alarmIntent =
-                PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        mAlarmManager.cancel(alarmIntent);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.remove(context.getString(R.string.nextDoDBSave)).apply();
-    }
-
     /**
      * Prueft, ob die automatische Sicherung der DB in den Preferences gewuenscht ist, dann ggfs.
      * Alarm setzen. Ansonsten einen ggfs. vorhandenen Alarm cancel.
@@ -88,6 +71,17 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
         } else {
             cancelDBSaveAlarm(context, prefs);
         }
+    }
+
+    private static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
+        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AWEventService.class);
+        intent.setAction(AWLIBACTION);
+        PendingIntent alarmIntent =
+                PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        mAlarmManager.cancel(alarmIntent);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(context.getString(R.string.nextDoDBSave)).apply();
     }
 
     /**
@@ -115,6 +109,13 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
         PendingIntent newAlarmIntent =
                 PendingIntent.getService(context, 0, newIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         mAlarmManager.set(ALARM_TYPE, nextDBSave, newAlarmIntent);
+    }
+
+    public EventDBSave(Context context) {
+        init(context);
+    }
+
+    public EventDBSave() {
     }
 
     public File execute() throws ExecutionException, InterruptedException {

@@ -1,5 +1,7 @@
+package de.aw.awlib.csvimportexport;
+
 /*
- * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.csvimportexport;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -102,7 +103,7 @@ public class AWCSVExporter {
         }
         String[] projection = tbd.columnNames(fromResIDs);
         Cursor c = mDBHelper.getContentResolver()
-                .query(tbd.getUri(), projection, selection, selectionArgs, null);
+                            .query(tbd.getUri(), projection, selection, selectionArgs, null);
         doExport(tbd, c);
     }
 

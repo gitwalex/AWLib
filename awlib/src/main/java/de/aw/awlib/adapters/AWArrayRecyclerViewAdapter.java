@@ -1,19 +1,3 @@
-/*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
- *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
- *
- * This program is free software; you can redistribute it and/or modify it under the terms of the
- * GNU General Public License as published by the Free Software Foundation; either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; if
- * not, see <http://www.gnu.org/licenses/>.
- */
 package de.aw.awlib.adapters;/*
  * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
  *
@@ -30,6 +14,23 @@ package de.aw.awlib.adapters;/*
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+/*
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ *
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; if
+ * not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  *
  */
@@ -92,7 +93,6 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
      *         aktueller viewHolder
      * @param position
      *         position des Holders
-     *
      * @throws IndexOutOfBoundsException
      *         wenn nicht genuegend Elemente in mValues
      */
@@ -181,7 +181,6 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
          *
          * @param object
          *         aus mValues
-         *
          * @return ViewType
          */
         int getItemViewType(int position, T object);
@@ -204,7 +203,6 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
          *         ViewGroup
          * @param itemType
          *         Typ der View gemaess {@link RecyclerView.Adapter#getItemViewType(int)}
-         *
          * @return neuen Viewholder
          */
         AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType);

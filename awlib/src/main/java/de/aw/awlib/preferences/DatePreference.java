@@ -1,5 +1,7 @@
+package de.aw.awlib.preferences;
+
 /*
- * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.preferences;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -51,6 +52,11 @@ public class DatePreference extends DialogPreference {
         return mCalendar;
     }
 
+    public void setDate(long timeInMillis) {
+        mCalendar.setTimeInMillis(timeInMillis);
+        setInternalValues();
+    }
+
     @Override
     public int getDialogLayoutResource() {
         return mDialogLayoutResId;
@@ -78,11 +84,6 @@ public class DatePreference extends DialogPreference {
     @Override
     protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
         setDate(restoreValue ? getPersistedLong(mCalendar.getTimeInMillis()) : (int) defaultValue);
-    }
-
-    public void setDate(long timeInMillis) {
-        mCalendar.setTimeInMillis(timeInMillis);
-        setInternalValues();
     }
 
     public void setDate(int year, int month, int day) {

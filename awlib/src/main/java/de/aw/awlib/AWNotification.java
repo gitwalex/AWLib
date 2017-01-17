@@ -1,7 +1,9 @@
+package de.aw.awlib;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -84,7 +85,6 @@ public class AWNotification implements AWInterface {
      *
      * @param contentText
      *         ContentText
-     *
      * @return NotifyID
      */
     public int createNotification(@NonNull String contentText) {
@@ -98,7 +98,6 @@ public class AWNotification implements AWInterface {
      *         ContentTitel
      * @param contentText
      *         ContentText
-     *
      * @return NotifyID
      */
     public int createNotification(@NonNull String contentTitle, @NonNull String contentText) {
@@ -123,7 +122,10 @@ public class AWNotification implements AWInterface {
      */
     protected NotificationCompat.Builder getNotification() {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).
-                setSmallIcon(R.drawable.ic_stat_action_account).setAutoCancel(true);
+                                                                                             setSmallIcon(
+                                                                                                     R.drawable.ic_stat_action_account)
+                                                                                     .setAutoCancel(
+                                                                                             true);
         if (ticker != null) {
             mBuilder.setTicker(ticker);
         }
@@ -155,7 +157,6 @@ public class AWNotification implements AWInterface {
      *
      * @param contentText
      *         Text
-     *
      * @return NotifyID
      */
     public int replaceNotification(@NonNull String contentText) {
@@ -169,7 +170,6 @@ public class AWNotification implements AWInterface {
      *         Title der Notification
      * @param contentText
      *         Text der Notification
-     *
      * @return NotifyID
      */
     public int replaceNotification(@NonNull String contentTitle, @NonNull String contentText) {
@@ -189,7 +189,6 @@ public class AWNotification implements AWInterface {
      *         Header der Liste.
      * @param contentListTexte
      *         Liste der NotificationTexte
-     *
      * @return die NotificationID
      */
     public int replaceNotification(@NonNull String contentListHeader,

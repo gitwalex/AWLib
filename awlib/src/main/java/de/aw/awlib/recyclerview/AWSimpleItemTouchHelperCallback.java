@@ -1,7 +1,9 @@
+package de.aw.awlib.recyclerview;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.recyclerview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -72,8 +73,8 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
         int swipeFlags = 0;
         if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
             if (isDragable) {
-                dragFlags =
-                        ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+                dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT |
+                        ItemTouchHelper.RIGHT;
             }
             swipeFlags = 0;
         } else {
@@ -86,6 +87,7 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
         }
         return makeMovementFlags(dragFlags, swipeFlags);
     }
+
     @Override
     public final boolean isItemViewSwipeEnabled() {
         return isSwipeable;
@@ -112,8 +114,9 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
                         (float) itemView.getRight(), (float) itemView.getBottom(), mPaint);
                 //Set the image icon for Left swipe
                 c.drawBitmap(mIcon, (float) itemView.getRight() - mIcon.getWidth(),
-                        (float) itemView.getTop() + ((float) itemView.getBottom() - (float) itemView
-                                .getTop() - mIcon.getHeight()) / 2, mPaint);
+                        (float) itemView.getTop() +
+                                ((float) itemView.getBottom() - (float) itemView.getTop() -
+                                        mIcon.getHeight()) / 2, mPaint);
             } else {
 
             /* Set your color for positive displacement */
@@ -121,9 +124,9 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
                 c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX,
                         (float) itemView.getBottom(), mPaint);
                 // Set the image icon for Right swipe
-                c.drawBitmap(mIcon, (float) itemView.getLeft(),
-                        (float) itemView.getTop() + ((float) itemView.getBottom() - (float) itemView
-                                .getTop() - mIcon.getHeight()) / 2, mPaint);
+                c.drawBitmap(mIcon, (float) itemView.getLeft(), (float) itemView.getTop() +
+                        ((float) itemView.getBottom() - (float) itemView.getTop() -
+                                mIcon.getHeight()) / 2, mPaint);
             }
             // Fade out the view as it is swiped out of the parent's bounds
             final float alpha = ALPHA_FULL - Math.abs(dX) / (float) viewHolder.itemView.getWidth();

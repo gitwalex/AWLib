@@ -1,7 +1,9 @@
+package de.aw.awlib.database;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.database;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -66,6 +67,55 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     private SQLiteDatabase db;
     private Set<Uri> usedTables = new HashSet<>();
 
+    /**
+     * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
+     *
+     * @param columnResIds
+     *         Array, zu dem die Namen ermittelt werden sollen
+     * @return ColumnNamen, Komma getrennt
+     */
+    public final static String getCommaSeperatedList(@NonNull Context context,
+                                                     @NonNull int[] columnResIds) {
+        StringBuilder indexSQL = new StringBuilder(context.getString(columnResIds[0]));
+        for (int j = 1; j < columnResIds.length; j++) {
+            String column = context.getString(columnResIds[j]);
+            indexSQL.append(", ").append(column);
+        }
+        return indexSQL.toString();
+    }
+
+    /**
+     * Liefert zu einer Liste die entsprechenden ColumnNamen getrennt durch Kommata zurueck
+     *
+     * @param columns
+     *         Liste der Columns
+     * @return ColumnNamen, Komma getrennt
+     */
+    public final static String getCommaSeperatedList(@NonNull List<String> columns) {
+        StringBuilder indexSQL = new StringBuilder(columns.get(0));
+        for (int j = 1; j < columns.size(); j++) {
+            String column = columns.get(j);
+            indexSQL.append(", ").append(column);
+        }
+        return indexSQL.toString();
+    }
+
+    /**
+     * Liefert zu einer Liste die entsprechenden ColumnNamen getrennt durch Kommata zurueck
+     *
+     * @param columns
+     *         Liste der Columns
+     * @return ColumnNamen, Komma getrennt
+     */
+    public final static String getCommaSeperatedList(@NonNull String[] columns) {
+        StringBuilder indexSQL = new StringBuilder(columns[0]);
+        for (int j = 1; j < columns.length; j++) {
+            String column = columns[j];
+            indexSQL.append(", ").append(column);
+        }
+        return indexSQL.toString();
+    }
+
     protected AbstractDBHelper(Context context, SQLiteDatabase.CursorFactory cursorFactory) {
         super(context, ((AWApplication) context.getApplicationContext()).theDatenbankname(),
                 cursorFactory,
@@ -108,63 +158,10 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     }
 
     /**
-     * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-     *
-     * @param columnResIds
-     *         Array, zu dem die Namen ermittelt werden sollen
-     *
-     * @return ColumnNamen, Komma getrennt
-     */
-    public final static String getCommaSeperatedList(@NonNull Context context,
-                                                     @NonNull int[] columnResIds) {
-        StringBuilder indexSQL = new StringBuilder(context.getString(columnResIds[0]));
-        for (int j = 1; j < columnResIds.length; j++) {
-            String column = context.getString(columnResIds[j]);
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
-    /**
-     * Liefert zu einer Liste die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-     *
-     * @param columns
-     *         Liste der Columns
-     *
-     * @return ColumnNamen, Komma getrennt
-     */
-    public final static String getCommaSeperatedList(@NonNull List<String> columns) {
-        StringBuilder indexSQL = new StringBuilder(columns.get(0));
-        for (int j = 1; j < columns.size(); j++) {
-            String column = columns.get(j);
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
-    /**
-     * Liefert zu einer Liste die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-     *
-     * @param columns
-     *         Liste der Columns
-     *
-     * @return ColumnNamen, Komma getrennt
-     */
-    public final static String getCommaSeperatedList(@NonNull String[] columns) {
-        StringBuilder indexSQL = new StringBuilder(columns[0]);
-        for (int j = 1; j < columns.length; j++) {
-            String column = columns[j];
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
-    /**
      * Liefert zu einer resID ein MAX(resID) zurueck.
      *
      * @param resID
      *         resID des Items
-     *
      * @return Select Max im Format MAX(itemname) AS itemname
      */
     public final String SQLMaxItem(int resID) {
@@ -185,7 +182,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *         Kann null sein
      * @param selectionArgs
      *         kann null sein. Es wird keinerlei Pruefung vorgenommen.
-     *
      * @return SubSelect
      */
     public final String SQLSubSelect(AWAbstractDBDefinition tbd, int resID, String column,
@@ -210,7 +206,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @param resID
      *         resID des Items
-     *
      * @return Select Max im Format SUM(itemname) AS itemname
      */
     public final String SQLSumItem(int resID) {
@@ -230,7 +225,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     /**
      * @param resID
      *         resID
-     *
      * @return Liefert den Spaltennamen zu einer resID zurueck
      */
     public final String columnName(int resID) {
@@ -244,7 +238,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *         ResIDs, die in der prjection gewuenscht sind
      * @param args
      *         Spaltenbezeichungen als String[]
-     *
      * @return projection
      */
     public final String[] columnNames(int[] resIDs, String... args) {
@@ -276,7 +269,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @param resIDs
      *         Liste der ResId, zu denen die Columnnames gewuenscht werden.
-     *
      * @return Liste der Columns. Anm Ende wird noch die Spalte '_id' hinzugefuegt.
      *
      * @throws AWAbstractDBDefinition.ResIDNotFoundException
@@ -399,7 +391,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @param tbd
      *         AWAbstractDBDefinition
-     *
      * @return Liste der Columns.
      */
     public final List<String> getColumnsForTable(AWAbstractDBDefinition tbd) {
@@ -423,7 +414,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @param tableindex
      *         Array, zu dem die Namen ermittelt werden sollen
-     *
      * @return ColumnNamen, Komma getrennt
      */
     public final String getCommaSeperatedList(@NonNull int[] tableindex) {
@@ -444,7 +434,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @param tablename
      *         Name der Tabelle als String
-     *
      * @return AWAbstractDBDefinition
      */
     public abstract AWAbstractDBDefinition getDBDefinition(String tablename);
@@ -456,7 +445,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *         database
      * @param tableName
      *         Name der Tabelle
-     *
      * @return Curur ueber die Daten(columnName, Typ, boolean NotNull, Defaultwert, ist Primarykey)
      */
     public final Cursor getDatabaseTableInfo(SQLiteDatabase database, String tableName) {
@@ -467,7 +455,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     /**
      * @param resID
      *         resID
-     *
      * @return Liefert das Format der column zurueck
      */
     public final Character getFormat(Integer resID) {
@@ -516,7 +503,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *         Selection
      * @param selectionArgs
      *         SelectionArgs
-     *
      * @return Anzahl der  Zeilen.
      */
     public final long getNumberOfRows(AWAbstractDBDefinition tbd, String selection,
@@ -591,7 +577,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @param resId
      *         ResID der Colimn
-     *
      * @return Format der Column fuer SQLite im Klartext
      */
     public final String getSQLiteFormat(Integer resId) {
@@ -605,7 +590,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     /**
      * @param database
      *         Database
-     *
      * @return Liefert eine Liste der Tabellennamen zurueck
      */
     protected List<String> getTableNames(SQLiteDatabase database) {
@@ -630,7 +614,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @param columnresID
      *         resID des Spaltennamens
-     *
      * @return DBDefinition der Tabellennamen. Kann leer sein.
      */
     public final List<AWAbstractDBDefinition> getTableNamesForColumn(int columnresID) {
@@ -648,7 +631,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *
      * @param columnName
      *         Spaltenname
-     *
      * @return Liste der Tabellennamen. Kann leer sein.
      */
     public final List<String> getTableNamesForColumn(String columnName) {
@@ -673,7 +655,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     /**
      * @param database
      *         Database
-     *
      * @return Liefert eine Liste der Viewnamen zurueck
      */
     protected List<String> getViewNames(SQLiteDatabase database) {
@@ -780,7 +761,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *         uri der Tabelle, die waehrend der gesamten Transaktion benutzt wurde. Alle Cursor zu
      *         diesen Tabellen werden ueber eine Aenderung informiert. Wenn keine weiteren von
      *         dieser Tabelle abhaengigen Uris informiert werden solle, wars das dann.
-     *
      * @return true, wenn es sich bei der betroffenen Tabelle um eine zentrale tabelle handelt. Dann
      * kann der erbende DBHelper nichts von dieser Tabelle wissen. Sonst false.
      */
@@ -851,10 +831,11 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 }
             }
             database.setTransactionSuccessful();
-            Log("DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion + " erfolgreich!");
+            Log("DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion +
+                    " erfolgreich!");
         } catch (Exception e) {
-            LogError(
-                    "DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion + " fehlgeschlagen!");
+            LogError("DatenbankUpgrade von Version " + oldVersion + " nach " + newVersion +
+                    " fehlgeschlagen!");
             e.printStackTrace();
         } finally {
             database.endTransaction();
@@ -935,7 +916,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             public void setDBHelper(AbstractDBHelper dbHelper) {
                 this.dbHelper = dbHelper;
             }
-
 
 
             /**

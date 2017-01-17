@@ -1,7 +1,9 @@
+package de.aw.awlib.fragments;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -228,8 +229,8 @@ public abstract class AWFragment extends DialogFragment
                         if (AWFragment.this.onOKButtonClicked()) {
                         }
                     }
-                })
-                .setNegativeButton(R.string.awlib_btnCancel, new DialogInterface.OnClickListener() {
+                }).setNegativeButton(R.string.awlib_btnCancel,
+                new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         // Nix tun
@@ -349,8 +350,8 @@ public abstract class AWFragment extends DialogFragment
     public void onStart() {
         super.onStart();
         if (timer != 0) {
-            Log("Fragment " + getClass().getSimpleName() + " Startdauer: " + String
-                    .valueOf(System.currentTimeMillis() - timer));
+            Log("Fragment " + getClass().getSimpleName() + " Startdauer: " +
+                    String.valueOf(System.currentTimeMillis() - timer));
             timer = 0;
         }
     }

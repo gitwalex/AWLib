@@ -1,7 +1,9 @@
+package de.aw.awlib.views;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.views;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -52,6 +53,23 @@ public class AWTextCurrency extends TextView {
         return value;
     }
 
+    /**
+     * Setzt einen long-Wert als Text. Dieser wird in das entsprechende Currency-Format
+     * umformatiert.
+     *
+     * @param amount
+     *         Wert zur Anzeige
+     */
+    public void setValue(long amount) {
+        value = amount;
+        setText(AWDBConvert.convertCurrency(value));
+        if (colorMode && value < 0) {
+            setTextColor(Color.RED);
+        } else {
+            setTextColor(Color.BLACK);
+        }
+    }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -71,22 +89,5 @@ public class AWTextCurrency extends TextView {
      */
     public void setColorMode(boolean colorMode) {
         this.colorMode = colorMode;
-    }
-
-    /**
-     * Setzt einen long-Wert als Text. Dieser wird in das entsprechende Currency-Format
-     * umformatiert.
-     *
-     * @param amount
-     *         Wert zur Anzeige
-     */
-    public void setValue(long amount) {
-        value = amount;
-        setText(AWDBConvert.convertCurrency(value));
-        if (colorMode && value < 0) {
-            setTextColor(Color.RED);
-        } else {
-            setTextColor(Color.BLACK);
-        }
     }
 }

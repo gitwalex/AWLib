@@ -1,7 +1,9 @@
+package de.aw.awlib.fragments;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -56,8 +57,8 @@ public abstract class AWFragmentActionBar extends AWFragment {
         try {
             mOnActionFinishClickedListener = (OnActionFinishListener) context;
         } catch (ClassCastException e) {
-            throw new IllegalStateException(context.getClass()
-                    .getSimpleName() + " muss OnActionFinishClickedListener implementieren");
+            throw new IllegalStateException(context.getClass().getSimpleName() +
+                    " muss OnActionFinishClickedListener implementieren");
         }
     }
 

@@ -1,7 +1,9 @@
+package de.aw.awlib.views;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.views;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -100,6 +101,16 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     }
 
     /**
+     * Dann kann diese View mehrmals in einem Layout verwendet werden.
+     *
+     * @param index
+     *         index
+     */
+    public void setBroadcastIndex(int index) {
+        mBroadcastIndex = index;
+    }
+
+    /**
      * Liefert den gueltigen Text zurueck. Entweder den im Textfeld, ist ein Validator gesetzt, der
      * entsprechende Text aus dem Cursor.
      *
@@ -111,6 +122,10 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         } else {
             return getText().toString();
         }
+    }
+
+    public void setSelectedText(String text) {
+        selectedText = text;
     }
 
     /**
@@ -139,7 +154,6 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
      *         Argumente zur Selection
      * @param fromResID
      *         Feld, welches fuer die Selection benutzt werden soll.
-     *
      * @throws NullPointerException,
      *         wenn LoaderManager null ist.
      */
@@ -246,7 +260,6 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
      *
      * @param constraint
      *         Text
-     *
      * @return den neuen Cursor
      */
     @Override
@@ -258,7 +271,8 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         mConstraint = constraint.toString().trim();
         String[] mSelectionArgs = new String[]{"%" + mConstraint + "%"};
         Cursor data = getContext().getContentResolver()
-                .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs, mOrderBy);
+                                  .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs,
+                                          mOrderBy);
         if (data != null && data.moveToFirst()) {
             selectionID = data.getLong(1);
             selectedText = data.getString(0).trim();
@@ -311,20 +325,6 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     public void setAsValidator(Validator validator) {
         super.setValidator(validator);
         isValidatorSet = true;
-    }
-
-    /**
-     * Dann kann diese View mehrmals in einem Layout verwendet werden.
-     *
-     * @param index
-     *         index
-     */
-    public void setBroadcastIndex(int index) {
-        mBroadcastIndex = index;
-    }
-
-    public void setSelectedText(String text) {
-        selectedText = text;
     }
 
     /**

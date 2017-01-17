@@ -1,19 +1,3 @@
-/*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
- *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
- *
- * This program is free software; you can redistribute it and/or modify it under the terms of the
- * GNU General Public License as published by the Free Software Foundation; either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program; if
- * not, see <http://www.gnu.org/licenses/>.
- */
 package de.aw.awlib.adapters;/*
  * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
  *
@@ -30,6 +14,23 @@ package de.aw.awlib.adapters;/*
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+/*
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ *
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; if
+ * not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  *
  */
@@ -51,9 +52,9 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
 public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHolder>
         implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
     protected final int viewHolderLayout;
-    private final String mRowIDColumn;
-    private final AdapterDataObserver mDataObserver;
     private final AWCursorRecyclerViewFragment cursorRecyclerViewFragment;
+    private final AdapterDataObserver mDataObserver;
+    private final String mRowIDColumn;
     protected Cursor mCursor;
     private boolean mDataValid;
     private RecyclerView mRecyclerView;
@@ -128,7 +129,6 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
      *         aktueller viewHolder
      * @param position
      *         position des Holders
-     *
      * @throws IllegalStateException
      *         wenn der Cursor als invald erklaert wurde oder die Position vom Cursor nicht erreicht
      *         werden kann

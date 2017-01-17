@@ -1,7 +1,9 @@
+package de.aw.awlib.application;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.application;
 
 import android.app.Application;
 import android.app.FragmentManager;
@@ -239,8 +240,8 @@ public abstract class AWApplication extends Application {
 
     @Override
     public void onCreate() {
-        APPLICATIONPATH = AWApplication.DE_AW_APPLICATIONPATH + "/" + theApplicationDirectory()
-                .replace("/", "");
+        APPLICATIONPATH = AWApplication.DE_AW_APPLICATIONPATH + "/" +
+                theApplicationDirectory().replace("/", "");
         AWAbstractDBDefinition[] tbds = getDBDefinitionValues();
         if (tbds.length > 0) {
             tbds[0].setAuthority(getAuthority());
@@ -265,8 +266,9 @@ public abstract class AWApplication extends Application {
                 // -violation-2-instances-1-expected-on-rotati/25252425#25252425
                 StrictMode.setVmPolicy(
                         new StrictMode.VmPolicy.Builder().detectLeakedClosableObjects()
-                                .detectLeakedRegistrationObjects().detectLeakedSqlLiteObjects()
-                                .penaltyLog().build());
+                                                         .detectLeakedRegistrationObjects()
+                                                         .detectLeakedSqlLiteObjects().penaltyLog()
+                                                         .build());
                 // Schreiben/Lesen auf Disk erlauben
                 StrictMode.allowThreadDiskReads();
                 StrictMode.allowThreadDiskWrites();

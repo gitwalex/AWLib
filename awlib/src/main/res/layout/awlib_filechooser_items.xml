@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+  ~ AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
   ~
-  ~ Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+  ~ Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
   ~
   ~ This program is free software; you can redistribute it and/or modify it under the terms of the
   ~ GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -15,12 +15,11 @@
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/awlib_item_selector"
-    android:orientation="horizontal">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:background="@drawable/awlib_item_selector"
+              android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/folderImage"

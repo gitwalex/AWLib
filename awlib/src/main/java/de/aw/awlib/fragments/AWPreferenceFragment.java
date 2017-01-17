@@ -1,7 +1,12 @@
-/*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+/**
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ */
+package de.aw.awlib.fragments;
+
+/*
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ *
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,10 +19,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
-package de.aw.awlib.fragments;
 
 import android.content.SharedPreferences;
 import android.support.v14.preference.PreferenceFragment;
@@ -59,7 +60,7 @@ public abstract class AWPreferenceFragment extends PreferenceFragment
         super.onPause();
         // Unregister the listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()
-                .unregisterOnSharedPreferenceChangeListener(this);
+                             .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     /**

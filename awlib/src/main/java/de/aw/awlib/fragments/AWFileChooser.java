@@ -1,5 +1,22 @@
 package de.aw.awlib.fragments;
 
+/*
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ *
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; if
+ * not, see <http://www.gnu.org/licenses/>.
+ */
+
 import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -46,7 +63,6 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
      *
      * @param directoryAbsolutPathName
      *         Absoluter Pafd des Directory
-     *
      * @return Fragment
      *
      * @throws IllegalStateException
@@ -72,7 +88,6 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
      *         Absoluter Pafd des Directory
      * @param filterExtension
      *         Dateiextension, die gewaehlt werden soll.
-     *
      * @return Fragment
      *
      * @throws IllegalStateException
@@ -242,8 +257,8 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
         mFilenameFilter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
-                return filenameFilter == null || filename.toLowerCase()
-                        .endsWith("." + filenameFilter);
+                return filenameFilter == null ||
+                        filename.toLowerCase().endsWith("." + filenameFilter);
             }
         };
     }
@@ -266,8 +281,9 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat
+                .checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED) {
             createFileList(new File(mDirectoy));
         } else {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},

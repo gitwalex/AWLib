@@ -1,5 +1,7 @@
+package de.aw.awlib.csvimportexport;
+
 /*
- * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.csvimportexport;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -101,8 +102,8 @@ public class AWCSVImporter implements AWResultCodes {
                 case 'K':// Number
                 case 'C':// Currency
                     try {
-                        amount = (long) (nf.parse(value)
-                                .doubleValue() * AWDBConvert.mCurrencyDigits);
+                        amount = (long) (nf.parse(value).doubleValue() *
+                                AWDBConvert.mCurrencyDigits);
                         value = amount.toString();
                     } catch (ParseException e) {
                         throw new CurrencyParseException("Currencyfehler", value);

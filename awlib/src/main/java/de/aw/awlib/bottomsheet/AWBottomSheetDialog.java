@@ -1,7 +1,9 @@
+package de.aw.awlib.bottomsheet;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.bottomsheet;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -133,7 +134,7 @@ public class AWBottomSheetDialog extends ExpandedBottomSheetDialog {
         this.checkedItems = checkedItems;
         TypedValue value = new TypedValue();
         getContext().getTheme()
-                .resolveAttribute(android.R.attr.listChoiceIndicatorMultiple, value, true);
+                    .resolveAttribute(android.R.attr.listChoiceIndicatorMultiple, value, true);
         checkMarkDrawableResId = value.resourceId;
         mAdapter.notifyDataSetChanged();
     }
@@ -157,13 +158,13 @@ public class AWBottomSheetDialog extends ExpandedBottomSheetDialog {
     }
 
     @Override
-    public void setTitle(CharSequence title) {
-        mTitle = title;
+    public void setTitle(int titleId) {
+        setTitle(getContext().getString(titleId));
     }
 
     @Override
-    public void setTitle(int titleId) {
-        setTitle(getContext().getString(titleId));
+    public void setTitle(CharSequence title) {
+        mTitle = title;
     }
 
     /**
@@ -219,7 +220,8 @@ public class AWBottomSheetDialog extends ExpandedBottomSheetDialog {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new ViewHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.awlib_bottomsheet_item, parent, false));
+                                                .inflate(R.layout.awlib_bottomsheet_item, parent,
+                                                        false));
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

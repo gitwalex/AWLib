@@ -1,7 +1,9 @@
+package de.aw.awlib.gv;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.gv;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -112,7 +113,6 @@ public class AWRemoteFileServer implements Parcelable {
      *
      * @param id
      *         id des Objektes
-     *
      * @throws AWApplicationGeschaeftsObjekt.LineNotFoundException
      *         wenn keine Zeile gefunden wurde.
      */
@@ -120,8 +120,8 @@ public class AWRemoteFileServer implements Parcelable {
             throws AWApplicationGeschaeftsObjekt.LineNotFoundException {
         mSelectionArgs = new String[]{id.toString()};
         Cursor c = context.getContentResolver()
-                .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), mSelection,
-                        mSelectionArgs, null);
+                          .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), mSelection,
+                                  mSelectionArgs, null);
         try {
             if (c.moveToFirst()) {
                 currentContent.clear();
@@ -172,6 +172,13 @@ public class AWRemoteFileServer implements Parcelable {
         return mUserPassword;
     }
 
+    /**
+     * setzt Passwort
+     */
+    public void setUserPassword(String password) {
+        mUserPassword = password;
+    }
+
     public long insert(Context context, AbstractDBHelper db) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         long id = -1;
@@ -210,13 +217,6 @@ public class AWRemoteFileServer implements Parcelable {
 
     public void setMainDirectory(Context context, String mMainDirectory) {
         put(context, R.string.column_maindirectory, mMainDirectory);
-    }
-
-    /**
-     * setzt Passwort
-     */
-    public void setUserPassword(String password) {
-        mUserPassword = password;
     }
 
     public int update(Context context, AbstractDBHelper db) {

@@ -1,7 +1,9 @@
+package de.aw.awlib.gv;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.gv;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -74,23 +75,18 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     private ContentValues currentContent = new ContentValues();
     private boolean isDirty;
 
+    public static boolean isImport() {
+        return isImport;
+    }
+
     /**
-     * Legt ein neues Geschaeftsobject auf Basis eines anderen GO an. Alle Werte, die in dem neuen
-     * GO moeglich sind, werden kopiert.
+     * Setzt ein Flag, ob Import stattfindet
      *
-     * @param tbd
-     *         AWAbstractDBDefinition
-     * @param go
+     * @param flag
+     *         true: Import findet statt
      */
-    protected AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd,
-                                            AWApplicationGeschaeftsObjekt go) {
-        this(context, tbd);
-        for (int resID : tbd.getTableItems()) {
-            Object value = go.currentContent.get(mContext.getDBHelper().columnName(resID));
-            if (value != null) {
-                put(resID, value);
-            }
-        }
+    public static void setIsImport(boolean flag) {
+        isImport = flag;
     }
 
     /**
@@ -100,7 +96,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *         Tabelle, der der GV zugeordnet ist.
      * @param id
      *         ID des Geschaeftsvorfalls in der entsprechenden Tabelle.
-     *
      * @throws LineNotFoundException
      *         Wenn keine Zeile mit der id gefunden wurde.
      * @throws android.content.res.Resources.NotFoundException
@@ -124,15 +119,34 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         this.tbd = tbd;
         mContext = (AWApplication) context.getApplicationContext();
         selection = mContext.getString(R.string._id) + " = ?";
-            for (int resID : tbd.getTableItems()) {
-                char format = mContext.getDBHelper().getFormat(resID);
-                switch (format) {
-                    case 'B':
-                        // Vorbelegung mit Wert 'false'
-                        put(resID, false);
-                        break;
-                }
+        for (int resID : tbd.getTableItems()) {
+            char format = mContext.getDBHelper().getFormat(resID);
+            switch (format) {
+                case 'B':
+                    // Vorbelegung mit Wert 'false'
+                    put(resID, false);
+                    break;
             }
+        }
+    }
+
+    /**
+     * Legt ein neues Geschaeftsobject auf Basis eines anderen GO an. Alle Werte, die in dem neuen
+     * GO moeglich sind, werden kopiert.
+     *
+     * @param tbd
+     *         AWAbstractDBDefinition
+     * @param go
+     */
+    protected AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd,
+                                            AWApplicationGeschaeftsObjekt go) {
+        this(context, tbd);
+        for (int resID : tbd.getTableItems()) {
+            Object value = go.currentContent.get(mContext.getDBHelper().columnName(resID));
+            if (value != null) {
+                put(resID, value);
+            }
+        }
     }
 
     protected AWApplicationGeschaeftsObjekt(Context context, Parcel in) {
@@ -145,26 +159,11 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         this.isDirty = in.readByte() != 0;
     }
 
-    public static boolean isImport() {
-        return isImport;
-    }
-
-    /**
-     * Setzt ein Flag, ob Import stattfindet
-     *
-     * @param flag
-     *         true: Import findet statt
-     */
-    public static void setIsImport(boolean flag) {
-        isImport = flag;
-    }
-
     /**
      * Prueft, ob ein Wert geaendert wurde oder bereits in der DB vorhanden ist.
      *
      * @param resID
      *         resID der Spalte
-     *
      * @return true, wenn ein Wert ungleich null enthalten ist
      */
     public final boolean containsValue(int resID) {
@@ -221,7 +220,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     /**
      * @param o
      *         zu vergleichendes Object.
-     *
      * @return true,  wenn das vergleichende Object ein Geschaeftsobjekte ist, beide auf die gleiche
      * Tabelle zeigen (DBDefiniton)und die gleiche Anzahl Werte mit den gleichen Inhalten in den
      * ContentValues vorhanden sind.
@@ -279,7 +277,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @param id
      *         in der Tabelle
-     *
      * @throws LineNotFoundException
      *         Wenn keine Zeile mit der id gefunden wurde.
      */
@@ -297,15 +294,14 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *         selection
      * @param selectionArgs
      *         selectionArgs
-     *
      * @throws LineNotFoundException
      *         wenn keine Zeile gefunden wurde.
      */
     public final void fillContent(Context context, Long id, String selection,
                                   String[] selectionArgs) throws LineNotFoundException {
         Cursor c = context.getContentResolver()
-                .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), selection, selectionArgs,
-                        null);
+                          .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), selection,
+                                  selectionArgs, null);
         try {
             if (c.moveToFirst()) {
                 fillContent(c);
@@ -328,7 +324,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *         Where-Clause
      * @param selectionArgs
      *         Argumente
-     *
      * @throws LineNotFoundException
      *         Wenn keine Zeile mit der zur Selektion gefunden wurde.
      * @throws IllegalStateException
@@ -338,7 +333,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
             throws LineNotFoundException {
         String[] projection = tbd.columnNames(tbd.getTableItems());
         Cursor c = context.getContentResolver()
-                .query(tbd.getUri(), projection, selection, selectionArgs, null);
+                          .query(tbd.getUri(), projection, selection, selectionArgs, null);
         try {
             if (c.getCount() > 1) {
                 AWApplication.Log("selection" + selection);
@@ -378,7 +373,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @param resID
      *         resID der Spalte
-     *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Boolean getAsBoolean(int resID) {
@@ -397,7 +391,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @param datum
      *         Datum im SQLite-Format
-     *
      * @return Date-Objekt oder null
      */
     public final Date getAsDate(String datum) {
@@ -421,7 +414,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @param resID
      *         resID der Spalte
-     *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Integer getAsInt(int resID) {
@@ -434,7 +426,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @param resID
      *         resID der Spalte
-     *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Integer getAsInt(int resID, int defaultValue) {
@@ -451,7 +442,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @param resID
      *         resID der Spalte
-     *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Long getAsLong(int resID) {
@@ -476,7 +466,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @param resID
      *         resID der Spalte
-     *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final String getAsString(int resID) {
@@ -524,9 +513,9 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         if (id != -1) {
             currentContent.put(mContext.getDBHelper().columnName(R.string._id), id);
         } else {
-            AWApplication
-                    .Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME + " fehlgeschlagen! Werte: " +
-                            currentContent.toString());
+            AWApplication.Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME +
+                    " fehlgeschlagen! Werte: " +
+                    currentContent.toString());
             currentContent.clear();
         }
         selectionArgs = new String[]{id.toString()};
@@ -563,7 +552,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *         bereits identisch vorhanden (DB oder als geaenderter Wert), wird nichts eingefuegt.
      *         Ist value == null oder ein leerer String, wird ein ggfs. geaenderter Wert in der
      *         Spalte und nach Update dann auch aus der DB entfernt.
-     *
      * @return true, wenn die Aktion erfolgreich war, also ein Wert eingefuegt/entfernt wurde.
      * false, wenn der gleiche Wert bereitsvorhanden war.
      *
@@ -593,7 +581,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *         ResID der Spalte, die eingefuegt werden soll.
      * @param value
      *         BlobWert, der eingefuegt werden soll.
-     *
      * @return true, wenn die Aktion erfolgreich war, also ein Wert eingefuegt/entfernt wurde.
      * false, wenn der gleiche Wert bereitsvorhanden war.
      *
@@ -616,7 +603,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @param resID
      *         ResID der Spalte, die entfernt werden soll.
-     *
      * @throws UnsupportedOperationException
      *         wennn _id entfernt werden soll.
      */

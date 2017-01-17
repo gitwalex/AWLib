@@ -1,7 +1,9 @@
+package de.aw.awlib.security;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.security;
 
 import android.support.annotation.NonNull;
 import android.util.Base64;
@@ -43,32 +44,12 @@ public final class AWAESEncrypter {
     private Cipher ecipher;
 
     /**
-     * Erstellt einen Encrypter.
-     *
-     * @param key,
-     *         der fuer die Ver-/Entschlueselung gueltig ist
-     *
-     * @throws IllegalArgumentException
-     *         wenn passphrase und mKey nicht zueinander passen.
-     * @throws Exception
-     *         bei sonstigen Fehlern
-     */
-    private AWAESEncrypter(byte[] key) throws Exception {
-        SecretKey secret = new SecretKeySpec(key, "AES");
-        ecipher = Cipher.getInstance("AES");
-        ecipher.init(Cipher.ENCRYPT_MODE, secret);
-        dcipher = Cipher.getInstance("AES");
-        dcipher.init(Cipher.DECRYPT_MODE, secret);
-    }
-
-    /**
      * Checked, ob das uebergebene Passwort zum Schluessel passt
      *
      * @param passPhrase
      *         Passwort
      * @param mKey
      *         passender Key
-     *
      * @return true, wenn Schluesel und key zusammenpassen. Dann kann ueber {@link
      * AWAESEncrypter#getDefault()} der entsprechende Encrypter besorgt werden. Sonst false.
      */
@@ -93,7 +74,6 @@ public final class AWAESEncrypter {
      *
      * @param key
      *         key
-     *
      * @return Encrypter passend zum key.
      *
      * @throws Exception
@@ -109,7 +89,6 @@ public final class AWAESEncrypter {
      *
      * @param password
      *         Passwort
-     *
      * @return key
      *
      * @throws Exception
@@ -137,11 +116,28 @@ public final class AWAESEncrypter {
     }
 
     /**
+     * Erstellt einen Encrypter.
+     *
+     * @param key,
+     *         der fuer die Ver-/Entschlueselung gueltig ist
+     * @throws IllegalArgumentException
+     *         wenn passphrase und mKey nicht zueinander passen.
+     * @throws Exception
+     *         bei sonstigen Fehlern
+     */
+    private AWAESEncrypter(byte[] key) throws Exception {
+        SecretKey secret = new SecretKeySpec(key, "AES");
+        ecipher = Cipher.getInstance("AES");
+        ecipher.init(Cipher.ENCRYPT_MODE, secret);
+        dcipher = Cipher.getInstance("AES");
+        dcipher.init(Cipher.DECRYPT_MODE, secret);
+    }
+
+    /**
      * Entschluesselt einen String
      *
      * @param decrypt
      *         String zum entschluesseln
-     *
      * @return Entschluesselten String
      *
      * @throws Exception
@@ -158,7 +154,6 @@ public final class AWAESEncrypter {
      *
      * @param decrypt
      *         Bytefolge zum entschluesseln
-     *
      * @return Entschluesselte Bytefolge
      *
      * @throws Exception
@@ -173,7 +168,6 @@ public final class AWAESEncrypter {
      *
      * @param encrypt
      *         String zum verschluesseln
-     *
      * @return Verschluesselten String
      *
      * @throws Exception
@@ -190,7 +184,6 @@ public final class AWAESEncrypter {
      *
      * @param encrypt
      *         Bytefolge zum verschluesseln
-     *
      * @return Verschluesselte Bytefolge
      *
      * @throws Exception

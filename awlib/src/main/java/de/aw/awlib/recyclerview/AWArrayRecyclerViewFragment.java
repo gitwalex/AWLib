@@ -1,7 +1,9 @@
+package de.aw.awlib.recyclerview;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.recyclerview;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -65,7 +66,6 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
      *         Position in View
      * @param object
      *         aktuelles Object
-     *
      * @return Liefert als ViewType {@link AWArrayRecyclerViewFragment#DEFAULTVIEWTYPE} zurueck
      */
     @Override
@@ -107,7 +107,6 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
      *
      * @param minCardWidth
      *         minimale Breits einer Card in dp
-     *
      * @return Anzahl der Cards, die in eine Zelie passen. Ist mindestens eins.
      */
     protected int maxRecyclerViewColumns(int minCardWidth) {
@@ -122,7 +121,7 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
 
     /**
      * Wird aus onClick(...) gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs.
-     * die Activity gerufen, die einen {@link AWOnCursorRecyclerViewListener} implementiert hat.
+     * die Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
      */
     @Override
     public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, Object object) {
@@ -142,10 +141,10 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     }
 
     /**
-     * Activity kann (muss aber nicht) AWOnCursorRecyclerViewListener implementieren. In diesem Fall
+     * Activity kann (muss aber nicht) AWBaseRecyclerViewListener implementieren. In diesem Fall
      * wird die entsprechende Methode bei Bedarf aufgerufen.
      *
-     * @see AWOnCursorRecyclerViewListener
+     * @see AWBaseRecyclerViewListener
      */
     @Override
     public void onAttach(Context activity) {

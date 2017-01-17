@@ -1,7 +1,9 @@
+package de.aw.awlib.calculator;
+
 /*
- * MonMa: Eine freie Android-App fuer Verwaltung privater Finanzen
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
  *
- * Copyright [2015] [Alexander Winkler, 23730 Neustadt/Germany]
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation; either version 3 of the
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-package de.aw.awlib.calculator;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -56,6 +57,10 @@ public class CalculatorTextCurrency extends AWTextCurrency
 
     public int getIndex() {
         return mIndex;
+    }
+
+    public void setIndex(int index) {
+        mIndex = index;
     }
 
     public void hideCalculator() {
@@ -119,10 +124,6 @@ public class CalculatorTextCurrency extends AWTextCurrency
     @Override
     public void onResultChanged(Double result) {
         setValue((long) (result * 100));
-    }
-
-    public void setIndex(int index) {
-        mIndex = index;
     }
 
     @Override

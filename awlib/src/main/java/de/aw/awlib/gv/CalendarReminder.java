@@ -1,5 +1,22 @@
 package de.aw.awlib.gv;
 
+/*
+ * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ *
+ * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; if
+ * not, see <http://www.gnu.org/licenses/>.
+ */
+
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -40,7 +57,6 @@ public class CalendarReminder {
      *         Titel
      * @param body
      *         Body
-     *
      * @return ID des Event, -1 bei Fehler
      */
     public long createDailyEvent(long calendarID, String title, String body) {
@@ -64,14 +80,13 @@ public class CalendarReminder {
      *         Title des Events
      * @param body
      *         Body des Events (optional)
-     *
      * @return die ID des eingefuegten Events. -1, wenn ein Fehler aufgetreten ist.
      */
     public long createEvent(long calendarID, @NonNull Date start, @Nullable Date end,
                             @NonNull String title, @Nullable String body) {
         long id = -1;
-        if (ContextCompat.checkSelfPermission(mContext,
-                Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_CALENDAR) ==
+                PackageManager.PERMISSION_GRANTED) {
             ContentResolver cr = mContext.getContentResolver();
             ContentValues values = createEventValues(calendarID, start, end, title, body);
             Uri uri = cr.insert(Events.CONTENT_URI, values);
@@ -95,7 +110,6 @@ public class CalendarReminder {
      *         Title des Events
      * @param body
      *         Body des Events (optional)
-     *
      * @return die ID des eingefuegten Events. -1, wenn ein Fehler aufgetreten ist.
      */
     private ContentValues createEventValues(long calendarID, @NonNull Date start,
@@ -120,12 +134,11 @@ public class CalendarReminder {
      *
      * @param calendarItemID
      *         ID des Eintrages, der geloescht werden soll
-     *
      * @return true, wenn erfolgreich
      */
     public boolean deleteEvent(long calendarItemID) {
-        if (ContextCompat.checkSelfPermission(mContext,
-                Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_CALENDAR) ==
+                PackageManager.PERMISSION_GRANTED) {
             ContentResolver cr = mContext.getContentResolver();
             Uri deleteUri = ContentUris.withAppendedId(Events.CONTENT_URI, calendarItemID);
             return (cr.delete(deleteUri, null, null) != -1);
@@ -134,8 +147,8 @@ public class CalendarReminder {
     }
 
     public void dumpEvents() {
-        if (ContextCompat.checkSelfPermission(mContext,
-                Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_CALENDAR) ==
+                PackageManager.PERMISSION_GRANTED) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -156,7 +169,7 @@ public class CalendarReminder {
                                     Events.SYNC_DATA7, Events.SYNC_DATA8, Events.SYNC_DATA9,
                                     Events.SYNC_DATA10};
                     Cursor c = mContext.getContentResolver()
-                            .query(Events.CONTENT_URI, projection, null, null, null);
+                                       .query(Events.CONTENT_URI, projection, null, null, null);
                     try {
                         if (c.moveToFirst()) {
                             do {
@@ -185,12 +198,11 @@ public class CalendarReminder {
      *         ID des items des Kalenders
      * @param date
      *         Neues Datum
-     *
      * @return true, wenn erfolgreich
      */
     public boolean updateEventDate(long eventID, Date date) {
-        if (ContextCompat.checkSelfPermission(mContext,
-                Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_CALENDAR) ==
+                PackageManager.PERMISSION_GRANTED) {
             ContentResolver cr = mContext.getContentResolver();
             ContentValues values = new ContentValues();
             // The new title for the event
