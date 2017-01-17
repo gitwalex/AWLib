@@ -17,17 +17,16 @@
 package de.aw.awlib.adapters;
 
 import android.database.Cursor;
+import android.util.LongSparseArray;
 import android.util.SparseIntArray;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWDragSwipeHelperCallback;
 import de.aw.awlib.recyclerview.AWDragSwipeRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
@@ -43,9 +42,9 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
      * tatsaechlichen Position im Adapter verwendet.
      */
     private final List<Integer> mItems = new ArrayList<>();
+    private final AWDragSwipeRecyclerViewFragment mBinder;
     private SparseIntArray mItemList = new SparseIntArray();
-    private long mPendigItemPosition = -1;
-    private int mUndoViewHolderLayout;
+    private LongSparseArray<Runnable> mPendingDeleteItems = new LongSparseArray<>();
     private int removed = 0;
 
     /**
@@ -54,6 +53,7 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
     public AWCursorDragDropRecyclerViewAdapter(AWDragSwipeRecyclerViewFragment binder,
                                                int viewHolderLayout) {
         super(binder, viewHolderLayout);
+        mBinder = binder;
     }
 
     /**
@@ -103,25 +103,29 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
     }
 
     @Override
-    public int getItemViewType(int position) {
-        if (position == mPendigItemPosition) {
-            return AWCursorRecyclerViewFragment.UNDOSWIPEVIEWTYPE;
+    public void onBindViewHolder(AWLibViewHolder viewHolder, final int position) {
+        super.onBindViewHolder(viewHolder, position);
+        final long id = getItemId(position);
+        final Runnable mRunnable = mPendingDeleteItems.get(id);
+        if (mRunnable != null) {
+            mBinder.onBindPendingDeleteViewHolder(viewHolder, mCursor);
+            View view = viewHolder.itemView.findViewById(R.id.tvDoUndo);
+            view.postDelayed(mRunnable, 10000);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    v.removeCallbacks(mRunnable);
+                    mPendingDeleteItems.delete(id);
+                    notifyItemChanged(position);
+                }
+            });
         }
-        return super.getItemViewType(position);
     }
 
     @Override
-    public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
-        switch (itemType) {
-            case AWCursorRecyclerViewFragment.UNDOSWIPEVIEWTYPE:
-                LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-                final View rowView = inflater.inflate(mUndoViewHolderLayout, viewGroup, false);
-                AWLibViewHolder holder = new AWLibViewHolder(rowView);
-                holder.setOnClickListener(this);
-                holder.setOnLongClickListener(this);
-                return holder;
-            default:
-                return super.onCreateViewHolder(viewGroup, itemType);
+    public void onClick(AWLibViewHolder holder) {
+        if (mPendingDeleteItems.get(holder.getID()) == null) {
+            super.onClick(holder);
         }
     }
 
@@ -156,9 +160,8 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
         return true;
     }
 
-    public void setPendingItemPosition(int undoViewHolderLayout, int position) {
-        mPendigItemPosition = position;
-        mUndoViewHolderLayout = undoViewHolderLayout;
+    public void setPendingDeleteItem(long id, Runnable runnable) {
+        mPendingDeleteItems.put(id, runnable);
     }
 
     /**

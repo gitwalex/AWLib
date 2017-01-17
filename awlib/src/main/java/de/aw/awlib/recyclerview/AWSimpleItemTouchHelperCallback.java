@@ -16,20 +16,33 @@
  */
 package de.aw.awlib.recyclerview;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.View;
 
+import de.aw.awlib.R;
 import de.aw.awlib.adapters.AWCursorDragDropRecyclerViewAdapter;
 
 /**
  * Helper fuer Drag- und/oder Swipe-RecyclerView
  */
 public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
+    protected final Paint mPaint = new Paint();
     private final AWCursorDragDropRecyclerViewAdapter mAdapter;
+    private final float ALPHA_FULL = 1.0f;
+    protected Bitmap mIcon;
+    private boolean canUndo;
     private boolean isDragable;
     private boolean isSwipeable;
+    private int mIconRessource = R.drawable.ic_action_discard;
 
     /**
      * @param adapter
@@ -37,6 +50,7 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
      */
     public AWSimpleItemTouchHelperCallback(@NonNull AWCursorDragDropRecyclerViewAdapter adapter) {
         mAdapter = adapter;
+        mPaint.setColor(Color.RED);
     }
 
     @NonNull
@@ -46,26 +60,32 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
 
     /**
      * Setzt die MovementFlags. In der Default-Implementation wird Dragging bei nach oben/unten
-     * unterstuetzt, ausserdem Swipe bei links ooder rechts.
+     * unterstuetzt, ausserdem Swipe bei links oder rechts.
      * <p>
-     * handelt es sich beim LayoutMagaer um einen GGridLayoutManager, wird nur Dragging (in alle
+     * handelt es sich beim LayoutManager um einen GridLayoutManager, wird nur Dragging (in alle
      * Richtungen) unterstuetzt.
      */
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         // Set movement flags based on the layout manager
+        int dragFlags = 0;
+        int swipeFlags = 0;
         if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-            final int dragFlags =
-                    ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-            final int swipeFlags = 0;
-            return makeMovementFlags(dragFlags, swipeFlags);
+            if (isDragable) {
+                dragFlags =
+                        ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+            }
+            swipeFlags = 0;
         } else {
-            final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-            final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-            return makeMovementFlags(dragFlags, swipeFlags);
+            if (isDragable) {
+                dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+            }
+            if (isSwipeable) {
+                swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+            }
         }
+        return makeMovementFlags(dragFlags, swipeFlags);
     }
-
     @Override
     public final boolean isItemViewSwipeEnabled() {
         return isSwipeable;
@@ -74,6 +94,43 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
     @Override
     public final boolean isLongPressDragEnabled() {
         return isDragable;
+    }
+
+    @Override
+    public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                            float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        if (canUndo && actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+            if (mIcon == null) {
+                Context mContext = recyclerView.getContext();
+                mIcon = BitmapFactory.decodeResource(mContext.getResources(), mIconRessource);
+            }
+            View itemView = viewHolder.itemView;
+            if (dX < 0) {
+                // Draw Rect with varying left side, equal to the item's right side
+                // plus negative displacement dX
+                c.drawRect((float) itemView.getRight() + dX, (float) itemView.getTop(),
+                        (float) itemView.getRight(), (float) itemView.getBottom(), mPaint);
+                //Set the image icon for Left swipe
+                c.drawBitmap(mIcon, (float) itemView.getRight() - mIcon.getWidth(),
+                        (float) itemView.getTop() + ((float) itemView.getBottom() - (float) itemView
+                                .getTop() - mIcon.getHeight()) / 2, mPaint);
+            } else {
+
+            /* Set your color for positive displacement */
+                // Draw Rect with varying right side, equal to displacement dX
+                c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX,
+                        (float) itemView.getBottom(), mPaint);
+                // Set the image icon for Right swipe
+                c.drawBitmap(mIcon, (float) itemView.getLeft(),
+                        (float) itemView.getTop() + ((float) itemView.getBottom() - (float) itemView
+                                .getTop() - mIcon.getHeight()) / 2, mPaint);
+            }
+            // Fade out the view as it is swiped out of the parent's bounds
+            final float alpha = ALPHA_FULL - Math.abs(dX) / (float) viewHolder.itemView.getWidth();
+            viewHolder.itemView.setAlpha(alpha);
+            viewHolder.itemView.setTranslationX(dX);
+        }
+        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
 
     /**
@@ -104,6 +161,10 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
      */
     protected abstract void onSwiped(RecyclerView.ViewHolder viewHolder, int direction,
                                      int position, long id);
+
+    public void setCanUndoSwipe(boolean canUndo) {
+        this.canUndo = canUndo;
+    }
 
     /**
      * Steuert, ob eine RecyclerView Dragable ist

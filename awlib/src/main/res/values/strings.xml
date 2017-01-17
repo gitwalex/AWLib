@@ -61,6 +61,8 @@
     <string name="calendarSelected">Kalendar ausgewählt</string>
     <string name="pkinsertCalendar">prefKeyInsertCalendar</string>
     <string name="titleInsertCalendar">In den Kalender einfügen</string>
+    <string name="tvGeloescht">Gelöscht</string>
+    <string name="tvRueckgaengig">Rückgängig</string>
 
 
 </resources>

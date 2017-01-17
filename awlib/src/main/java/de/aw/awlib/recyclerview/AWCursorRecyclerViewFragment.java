@@ -47,7 +47,7 @@ import de.aw.awlib.fragments.AWLoaderFragment;
  */
 public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
     public final static int minCardWidth = 800;
-    public static final int DEFAULTVIEWTYPE = 0, UNDOSWIPEVIEWTYPE = -1;
+    public static final int DEFAULTVIEWTYPE = 0;
     protected RecyclerView mRecyclerView;
     protected AWCursorRecyclerViewAdapter mAdapter;
     protected LayoutManager mLayoutManager;
@@ -345,6 +345,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWLoaderFragment {
         // use a linear layout manager
         mLayoutManager = getLayoutManager();
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                 .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
