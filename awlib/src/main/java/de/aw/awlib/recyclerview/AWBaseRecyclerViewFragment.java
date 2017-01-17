@@ -24,12 +24,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import de.aw.awlib.R;
+import de.aw.awlib.adapters.AWBaseRecyclerViewAdapter;
 import de.aw.awlib.fragments.AWLoaderFragment;
 
 /**
@@ -49,15 +48,18 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
     protected RecyclerView mRecyclerView;
     protected int viewHolderLayout;
     /**
+     * Die zuletzt ausgewaehlte ID, die selektiert wurde.
+     */
+    protected long mSelectedID;
+    protected View noEntryView;
+    /**
      * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
     private int layout = R.layout.awlib_default_recycler_view;
     private AWBaseRecyclerViewListener mBaseRecyclerViewListener;
-    private long mSelectedID;
-    private View noEntryView;
 
-    protected abstract AWBaseRecyclerViewAdapter getBaseAdapter();
+    protected abstract AWBaseRecyclerViewAdapter getCursorAdapter();
 
     /**
      * @param position
@@ -130,6 +132,9 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
         }
     }
 
+    public void onBindPendingDeleteViewHolder(AWLibViewHolder viewHolder) {
+    }
+
     @Override
     protected final boolean onBindView(View view, int resID) {
         return super.onBindView(view, resID);
@@ -141,7 +146,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
      *         zurueckgegeben.
      */
     @CallSuper
-    protected void onBindViewHolder(AWLibViewHolder holder, int position) {
+    public void onBindViewHolder(AWLibViewHolder holder, int position) {
         onPreBindViewHolder(holder, position);
     }
 
@@ -164,7 +169,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
     }
 
     protected void onPreBindViewHolder(AWLibViewHolder holder, int position) {
-
     }
 
     /**
@@ -172,7 +176,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
      * Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
      */
     @CallSuper
-    protected void onRecyclerItemClick(View view, int position, long id) {
+    public void onRecyclerItemClick(View view, int position, long id) {
         mSelectedID = id;
         if (mBaseRecyclerViewListener != null) {
             mBaseRecyclerViewListener
@@ -184,7 +188,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
      * Wird vom Adapter gerufen, wenn ein Item der RecyclerView long-geclickt wurde.
      */
     @CallSuper
-    protected boolean onRecyclerItemLongClick(View view, int position, long id) {
+    public boolean onRecyclerItemLongClick(View view, int position, long id) {
         mSelectedID = id;
         return mBaseRecyclerViewListener != null && mBaseRecyclerViewListener
                 .onRecyclerItemLongClick(mRecyclerView, view, position, id, viewHolderLayout);
@@ -196,7 +200,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
         int position = args.getInt(LASTSELECTEDPOSITION);
         noEntryView.setVisibility(View.VISIBLE);
         if (mAdapter == null) {
-            mAdapter = getBaseAdapter();
+            mAdapter = getCursorAdapter();
             mRecyclerView.setAdapter(mAdapter);
         }
         if (mAdapter.getItemCount() > 0) {
@@ -255,64 +259,5 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
     protected void setInternalArguments(Bundle args) {
         super.setInternalArguments(args);
         args.putInt(LAYOUT, layout);
-    }
-
-    public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHolder>
-            implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
-        protected final int viewHolderLayout;
-        private RecyclerView mRecyclerView;
-
-        /**
-         * Initialisiert Adapter.
-         *
-         * @param viewHolderLayout
-         *         Layout der ItemView
-         */
-        public AWBaseRecyclerViewAdapter(int viewHolderLayout) {
-            this.viewHolderLayout = viewHolderLayout;
-        }
-
-        @Override
-        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-            super.onAttachedToRecyclerView(recyclerView);
-            mRecyclerView = recyclerView;
-        }
-
-        @Override
-        public void onBindViewHolder(AWLibViewHolder holder, int position) {
-            AWBaseRecyclerViewFragment.this.onBindViewHolder(holder, position);
-        }
-
-        @Override
-        public void onClick(AWLibViewHolder holder) {
-            View v = holder.getView();
-            int position = mRecyclerView.getChildAdapterPosition(v);
-            long id = mRecyclerView.getChildItemId(v);
-            AWBaseRecyclerViewFragment.this.onRecyclerItemClick(v, position, id);
-        }
-
-        @Override
-        public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
-            LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-            final View rowView = inflater.inflate(viewHolderLayout, viewGroup, false);
-            AWLibViewHolder holder = new AWLibViewHolder(rowView);
-            holder.setOnClickListener(this);
-            holder.setOnLongClickListener(this);
-            return holder;
-        }
-
-        @Override
-        public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-            super.onDetachedFromRecyclerView(recyclerView);
-            mRecyclerView = null;
-        }
-
-        @Override
-        public boolean onLongClick(AWLibViewHolder holder) {
-            View v = holder.itemView;
-            int position = mRecyclerView.getChildAdapterPosition(v);
-            long id = mRecyclerView.getChildItemId(v);
-            return AWBaseRecyclerViewFragment.this.onRecyclerItemLongClick(v, position, id);
-        }
     }
 }

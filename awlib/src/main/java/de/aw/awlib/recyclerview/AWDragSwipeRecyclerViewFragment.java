@@ -65,8 +65,6 @@ public abstract class AWDragSwipeRecyclerViewFragment extends AWCursorRecyclerVi
     protected abstract AWSimpleItemTouchHelperCallback getItemTouchCallback(
             AWCursorDragDropRecyclerViewAdapter mAdapter);
 
-    public void onBindPendingDeleteViewHolder(AWLibViewHolder viewHolder, Cursor mCursor) {
-    }
 
     /**
      * Ist der Adapter == null, wird ein neuer erstellt und konfiguriert

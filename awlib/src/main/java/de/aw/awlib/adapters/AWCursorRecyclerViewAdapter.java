@@ -30,7 +30,6 @@ package de.aw.awlib.adapters;/*
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 /**
  *
  */
@@ -38,10 +37,6 @@ package de.aw.awlib.adapters;/*
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
@@ -49,15 +44,13 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
 /**
  * Adapter fuer RecyclerView mit Cursor.
  */
-public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHolder>
+public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
         implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
     protected final int viewHolderLayout;
-    private final AWCursorRecyclerViewFragment cursorRecyclerViewFragment;
     private final AdapterDataObserver mDataObserver;
     private final String mRowIDColumn;
-    protected Cursor mCursor;
+    private Cursor mCursor;
     private boolean mDataValid;
-    private RecyclerView mRecyclerView;
     private int mRowIdColumnIndex;
 
     /**
@@ -81,7 +74,7 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
      */
     protected AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder,
                                           @NonNull String idColumn, int viewHolderLayout) {
-        cursorRecyclerViewFragment = binder;
+        super(binder, viewHolderLayout);
         mDataObserver = new AdapterDataObserver();
         mRowIDColumn = idColumn;
         this.viewHolderLayout = viewHolderLayout;
@@ -110,18 +103,6 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
         return super.getItemId(position);
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        mCursor.moveToPosition(position);
-        return cursorRecyclerViewFragment.getItemViewType(mCursor, position);
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        mRecyclerView = recyclerView;
-    }
-
     /**
      * Ist der Cursor gueltig, wird der CursorViewHolderBinder aus dem Konstructor aufgerufen
      *
@@ -141,41 +122,7 @@ public class AWCursorRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewH
         if (!mCursor.moveToPosition(position)) {
             throw new IllegalStateException("couldn't move cursor to position " + position);
         }
-        cursorRecyclerViewFragment.onBindViewHolder(viewHolder, mCursor);
-    }
-
-    @Override
-    public void onClick(AWLibViewHolder holder) {
-        if (cursorRecyclerViewFragment != null) {
-            View v = holder.getView();
-            int position = mRecyclerView.getChildAdapterPosition(v);
-            long id = mRecyclerView.getChildItemId(v);
-            cursorRecyclerViewFragment.onRecyclerItemClick(mRecyclerView, v, position, id);
-        }
-    }
-
-    @Override
-    public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
-        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        final View rowView = inflater.inflate(viewHolderLayout, viewGroup, false);
-        AWLibViewHolder holder = new AWLibViewHolder(rowView);
-        holder.setOnClickListener(this);
-        holder.setOnLongClickListener(this);
-        return holder;
-    }
-
-    @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView);
-        mRecyclerView = null;
-    }
-
-    @Override
-    public boolean onLongClick(AWLibViewHolder holder) {
-        View v = holder.getView();
-        int position = mRecyclerView.getChildAdapterPosition(v);
-        long id = mRecyclerView.getChildItemId(v);
-        return cursorRecyclerViewFragment.onRecyclerItemLongClick(mRecyclerView, v, position, id);
+        ((AWCursorRecyclerViewFragment) getBinder()).onBindViewHolder(viewHolder, mCursor);
     }
 
     /**

@@ -18,19 +18,15 @@ package de.aw.awlib.adapters;
  */
 
 import android.database.Cursor;
-import android.util.LongSparseArray;
 import android.util.SparseIntArray;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.recyclerview.AWDragSwipeHelperCallback;
 import de.aw.awlib.recyclerview.AWDragSwipeRecyclerViewFragment;
-import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
  * Adapter fuer RecyclerView, der Drag/Drop und Swipe unterstuetzt. Der Adapter baut eine Liste mit
@@ -43,9 +39,7 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
      * tatsaechlichen Position im Adapter verwendet.
      */
     private final List<Integer> mItems = new ArrayList<>();
-    private final AWDragSwipeRecyclerViewFragment mBinder;
     private SparseIntArray mItemList = new SparseIntArray();
-    private LongSparseArray<Runnable> mPendingDeleteItems = new LongSparseArray<>();
     private int removed = 0;
 
     /**
@@ -54,7 +48,6 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
     public AWCursorDragDropRecyclerViewAdapter(AWDragSwipeRecyclerViewFragment binder,
                                                int viewHolderLayout) {
         super(binder, viewHolderLayout);
-        mBinder = binder;
     }
 
     /**
@@ -102,33 +95,6 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
         return super.getItemId(mPosition);
     }
 
-    @Override
-    public void onBindViewHolder(AWLibViewHolder viewHolder, final int position) {
-        super.onBindViewHolder(viewHolder, position);
-        final long id = getItemId(position);
-        final Runnable mRunnable = mPendingDeleteItems.get(id);
-        if (mRunnable != null) {
-            mBinder.onBindPendingDeleteViewHolder(viewHolder, mCursor);
-            View view = viewHolder.itemView.findViewById(R.id.tvDoUndo);
-            view.postDelayed(mRunnable, 10000);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    v.removeCallbacks(mRunnable);
-                    mPendingDeleteItems.delete(id);
-                    notifyItemChanged(position);
-                }
-            });
-        }
-    }
-
-    @Override
-    public void onClick(AWLibViewHolder holder) {
-        if (mPendingDeleteItems.get(holder.getID()) == null) {
-            super.onClick(holder);
-        }
-    }
-
     /**
      * Entfernt ein Item an der Position. Funktioniert nur, wenn {@link
      * AWDragSwipeHelperCallback#setIsSwipeable(boolean)} mit true gerufen wurde.
@@ -157,10 +123,6 @@ public class AWCursorDragDropRecyclerViewAdapter extends AWCursorRecyclerViewAda
         notifyItemMoved(fromPosition, toPosition);
         AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
         return true;
-    }
-
-    public void setPendingDeleteItem(long id, Runnable runnable) {
-        mPendingDeleteItems.put(id, runnable);
     }
 
     /**
