@@ -46,7 +46,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
      * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
-    protected AWBaseRecyclerViewAdapter getCursorAdapter() {
+    protected AWBaseRecyclerViewAdapter getBaseAdapter() {
         return new AWCursorRecyclerViewAdapter(this, viewHolderLayout);
     }
 
@@ -113,7 +113,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
             }
         }
         if (mAdapter == null) {
-            mAdapter = getCursorAdapter();
+            mAdapter = getBaseAdapter();
             mRecyclerView.setAdapter(mAdapter);
         }
         ((AWCursorRecyclerViewAdapter) mAdapter).swapCursor(cursor); // swap the new cursor in.

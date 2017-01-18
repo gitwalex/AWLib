@@ -30,7 +30,6 @@ package de.aw.awlib.adapters;/*
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 /**
  *
  */
@@ -54,8 +53,8 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
     private final ArrayViewHolderBinder<T> arrayViewHolderBinder;
     private RecyclerView mRecyclerView;
     private List<T> mValues;
-    private AWOnArrayRecyclerViewListener onRecyclerItemClickListener;
-    private AWOnArrayRecyclerViewListener onRecyclerItemLongClickListener;
+    private AWOnArrayRecyclerViewListener<T> onRecyclerItemClickListener;
+    private AWOnArrayRecyclerViewListener<T> onRecyclerItemLongClickListener;
 
     /**
      * Initialisiert Adapter.
@@ -142,12 +141,12 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
     }
 
     public void setOnRecyclerItemClickListener(
-            AWOnArrayRecyclerViewListener onRecyclerItemClickListener) {
+            AWOnArrayRecyclerViewListener<T> onRecyclerItemClickListener) {
         this.onRecyclerItemClickListener = onRecyclerItemClickListener;
     }
 
     public void setOnRecyclerItemLongClickListener(
-            AWOnArrayRecyclerViewListener onRecyclerItemLongClickListener) {
+            AWOnArrayRecyclerViewListener<T> onRecyclerItemLongClickListener) {
         this.onRecyclerItemLongClickListener = onRecyclerItemLongClickListener;
     }
 

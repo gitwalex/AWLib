@@ -30,14 +30,14 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import de.aw.awlib.R;
-import de.aw.awlib.adapters.AWCursorDragDropRecyclerViewAdapter;
+import de.aw.awlib.adapters.AWBaseRecyclerViewAdapter;
 
 /**
  * Helper fuer Drag- und/oder Swipe-RecyclerView
  */
-public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
+public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     protected final Paint mPaint = new Paint();
-    private final AWCursorDragDropRecyclerViewAdapter mAdapter;
+    private final AWBaseRecyclerViewAdapter mAdapter;
     private final float ALPHA_FULL = 1.0f;
     protected Bitmap mIcon;
     private boolean canUndo;
@@ -47,15 +47,15 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
 
     /**
      * @param adapter
-     *         AWCursorDragDropRecyclerViewAdapter
+     *         AWBaseRecyclerViewAdapter
      */
-    public AWSimpleItemTouchHelperCallback(@NonNull AWCursorDragDropRecyclerViewAdapter adapter) {
+    public AWSimpleItemTouchHelperCallback(@NonNull AWBaseRecyclerViewAdapter adapter) {
         mAdapter = adapter;
         mPaint.setColor(Color.RED);
     }
 
     @NonNull
-    public AWCursorDragDropRecyclerViewAdapter getAdapter() {
+    public AWBaseRecyclerViewAdapter getAdapter() {
         return mAdapter;
     }
 
@@ -136,18 +136,11 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
 
-    /**
-     * Wird gerufen, wenn Items der RecyclerView bewegt werden.
-     */
     @Override
-    public abstract boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-                                   RecyclerView.ViewHolder target);
-
-    @Override
-    public final void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        int position = viewHolder.getAdapterPosition();
-        long id = viewHolder.getItemId();
-        onSwiped(viewHolder, direction, position, id);
+    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                          RecyclerView.ViewHolder target) {
+        getAdapter().onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+        return true;
     }
 
     /**
@@ -162,8 +155,17 @@ public abstract class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Ca
      * @param id
      *         ID des Items
      */
-    protected abstract void onSwiped(RecyclerView.ViewHolder viewHolder, int direction,
-                                     int position, long id);
+    protected void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position,
+                            long id) {
+        getAdapter().onItemDismiss(position);
+    }
+
+    @Override
+    public final void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+        int position = viewHolder.getAdapterPosition();
+        long id = viewHolder.getItemId();
+        onSwiped(viewHolder, direction, position, id);
+    }
 
     public void setCanUndoSwipe(boolean canUndo) {
         this.canUndo = canUndo;

@@ -119,8 +119,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
      * Wird ein Directory ausgwaehlt, wird in dieses Directory gewechselt.
      */
     @Override
-    public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, Object object) {
-        FTPFile file = (FTPFile) object;
+    public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, FTPFile file) {
         if (file.isDirectory()) {
             String filename = file.getName();
             if (filename.equals("..")) {
@@ -138,7 +137,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
             }
             getExecuter().listFilesInDirectory(mUri.getEncodedPath(), mFileFilter);
         } else {
-            super.onArrayRecyclerItemClick(recyclerView, view, object);
+            super.onArrayRecyclerItemClick(recyclerView, view, file);
         }
     }
 
@@ -147,8 +146,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
      */
     @Override
     public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view,
-                                                Object object) {
-        final FTPFile file = (FTPFile) object;
+                                                FTPFile file) {
         if (file.isDirectory()) {
             AWApplication mAppContext = ((AWApplication) getContext().getApplicationContext());
             mUri = withAppendedPath(mUri, file.getName());
@@ -161,7 +159,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
             mOnActionFinishListener.onActionFinishClicked(layout);
             return true;
         }
-        return super.onArrayRecyclerItemLongClick(recyclerView, view, object);
+        return super.onArrayRecyclerItemLongClick(recyclerView, view, file);
     }
 
     @Override

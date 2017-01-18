@@ -39,7 +39,7 @@ import de.aw.awlib.fragments.AWFragment;
  */
 public class AWArrayRecyclerViewFragment<T> extends AWFragment
         implements AWArrayRecyclerViewAdapter.ArrayViewHolderBinder<T>, View.OnClickListener,
-        View.OnLongClickListener, AWOnArrayRecyclerViewListener {
+        View.OnLongClickListener, AWOnArrayRecyclerViewListener<T> {
     public final static int minCardWidth = 800;
     public final int DEFAULTVIEWTYPE = 0;
     protected RecyclerView mRecyclerView;
@@ -54,7 +54,7 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
     private int layout = R.layout.awlib_default_recycler_view;
-    private AWOnArrayRecyclerViewListener onArrayRecyclerViewListener;
+    private AWOnArrayRecyclerViewListener<T> onArrayRecyclerViewListener;
     private int viewHolderLayout;
 
     public AWArrayRecyclerViewAdapter<T> getArrayAdapter() {
@@ -124,7 +124,7 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
      * die Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
      */
     @Override
-    public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, Object object) {
+    public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, T object) {
         if (onArrayRecyclerViewListener != null) {
             onArrayRecyclerViewListener.onArrayRecyclerItemClick(mRecyclerView, view, object);
         }
@@ -134,8 +134,7 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
      * Wird aus onLongClick(...) gerufen, wenn ein Item der RecyclerView long-geclickt wurde.
      */
     @Override
-    public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view,
-                                                Object object) {
+    public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view, T object) {
         return onArrayRecyclerViewListener != null && onArrayRecyclerViewListener
                 .onArrayRecyclerItemLongClick(mRecyclerView, view, object);
     }

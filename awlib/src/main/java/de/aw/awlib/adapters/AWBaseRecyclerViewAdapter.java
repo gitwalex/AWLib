@@ -23,9 +23,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.aw.awlib.R;
+import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
+import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
 
 /**
  * Created by alex on 17.01.2017.
@@ -36,6 +41,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     private final AWBaseRecyclerViewFragment mBinder;
     private RecyclerView mRecyclerView;
     private LongSparseArray<Runnable> mPendingDeleteItems = new LongSparseArray<>();
+    private int removed;
 
     /**
      * Initialisiert Adapter.
@@ -52,8 +58,24 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         return mBinder;
     }
 
+    /**
+     * @return Liste der IDs der Items.
+     */
+    public List<Long> getItemIDs() {
+        int size = getItemCount();
+        List<Long> mItemIDList = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            mItemIDList.add(getItemId(i));
+        }
+        return mItemIDList;
+    }
+
     public RecyclerView getRecyclerView() {
         return mRecyclerView;
+    }
+
+    public int getRemoved() {
+        return removed;
     }
 
     @Override
@@ -107,6 +129,34 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
         mRecyclerView = null;
+    }
+
+    /**
+     * Entfernt ein Item an der Position. Funktioniert nur, wenn {@link
+     * AWSimpleItemTouchHelperCallback#setIsSwipeable(boolean)} mit true gerufen wurde.
+     *
+     * @param position
+     *         Position des items im Adapter, das entfernt werden soll
+     */
+    public void onItemDismiss(int position) {
+        removed++;
+        notifyItemRemoved(position);
+    }
+
+    /**
+     * Vertauscht zwei Items. Funktioniert nur, wenn {@link AWSimpleItemTouchHelperCallback#setIsDragable(boolean)}
+     * mit true gerufen wurde.
+     *
+     * @param fromPosition
+     *         urspruengliche Position
+     * @param toPosition
+     *         Neue Position
+     * @return Immer true
+     */
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        notifyItemMoved(fromPosition, toPosition);
+        AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
+        return true;
     }
 
     @Override

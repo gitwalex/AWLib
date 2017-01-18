@@ -158,12 +158,11 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
      * Wird ein Directory ausgewaehlt, wird in dieses Directory gewechselt.
      */
     @Override
-    public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, Object object) {
-        File file = (File) object;
+    public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, File file) {
         if (file.isDirectory()) {
             createFileList(file);
         } else {
-            super.onArrayRecyclerItemClick(recyclerView, view, object);
+            super.onArrayRecyclerItemClick(recyclerView, view, file);
         }
     }
 
@@ -172,8 +171,7 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
      */
     @Override
     public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view,
-                                                Object object) {
-        final File file = (File) object;
+                                                final File file) {
         if (!file.isDirectory()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setPositiveButton(R.string.awlib_btnAccept,
@@ -190,7 +188,7 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
             dlg.show();
             return true;
         }
-        return super.onArrayRecyclerItemLongClick(recyclerView, view, object);
+        return super.onArrayRecyclerItemLongClick(recyclerView, view, file);
     }
 
     /**

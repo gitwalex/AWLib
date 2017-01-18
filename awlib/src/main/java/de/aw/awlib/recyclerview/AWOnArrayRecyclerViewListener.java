@@ -24,7 +24,7 @@ import android.view.View;
  * Convenience- Methoden fuer onClick(View view), OnLongClick (View view). Liefert zu der View
  * weitere Parameter mit
  */
-public interface AWOnArrayRecyclerViewListener {
+public interface AWOnArrayRecyclerViewListener<T> {
     /**
      * Convenience- Methode fuer onClick(View v). Liefert zu der View weitere Parameter mit
      *
@@ -35,7 +35,7 @@ public interface AWOnArrayRecyclerViewListener {
      * @param object,
      *         welches selektiert wurde
      */
-    void onArrayRecyclerItemClick(RecyclerView parent, View view, Object object);
+    void onArrayRecyclerItemClick(RecyclerView parent, View view, T object);
 
     /**
      * Convenience- Methode fuer onLongClick(View v). Liefert zu der View weitere Parameter mit
@@ -47,5 +47,5 @@ public interface AWOnArrayRecyclerViewListener {
      * @param object,
      *         welches selektiert wurde
      */
-    boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view, Object object);
+    boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view, T object);
 }
