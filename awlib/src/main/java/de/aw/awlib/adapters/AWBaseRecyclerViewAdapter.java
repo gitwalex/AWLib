@@ -18,7 +18,7 @@ package de.aw.awlib.adapters;
  */
 
 import android.support.v7.widget.RecyclerView;
-import android.util.LongSparseArray;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,10 +37,11 @@ import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
  */
 public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHolder>
         implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
+    public static final int UNDODELETEVIEW = -1;
     protected final int viewHolderLayout;
     private final AWBaseRecyclerViewFragment mBinder;
     private RecyclerView mRecyclerView;
-    private LongSparseArray<Runnable> mPendingDeleteItems = new LongSparseArray<>();
+    private SparseArray<Runnable> mPendingDeleteItems = new SparseArray<>();
     private int removed;
 
     /**
@@ -52,6 +53,10 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     public AWBaseRecyclerViewAdapter(AWBaseRecyclerViewFragment binder, int viewHolderLayout) {
         this.viewHolderLayout = viewHolderLayout;
         mBinder = binder;
+    }
+
+    protected void bindTheViewHolder(final AWLibViewHolder viewHolder, int position) {
+        mBinder.onBindViewHolder(viewHolder, position);
     }
 
     public AWBaseRecyclerViewFragment getBinder() {
@@ -70,6 +75,14 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         return mItemIDList;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (mPendingDeleteItems.get(position) != null) {
+            return UNDODELETEVIEW;
+        }
+        return super.getItemViewType(position);
+    }
+
     public RecyclerView getRecyclerView() {
         return mRecyclerView;
     }
@@ -85,40 +98,54 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     @Override
-    public void onBindViewHolder(AWLibViewHolder viewHolder, int position) {
-        final int mPosition = position;
-        final long id = getItemId(position);
-        final Runnable mRunnable = mPendingDeleteItems.get(id);
-        if (mRunnable != null) {
-            mBinder.onBindPendingDeleteViewHolder(viewHolder);
-            View view = viewHolder.itemView.findViewById(R.id.tvDoUndo);
-            view.postDelayed(mRunnable, 10000);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    v.removeCallbacks(mRunnable);
-                    mPendingDeleteItems.delete(id);
-                    notifyItemChanged(mPosition);
+    public final void onBindViewHolder(final AWLibViewHolder viewHolder, int position) {
+        switch (viewHolder.getItemViewType()) {
+            case UNDODELETEVIEW:
+                final Runnable mRunnable = mPendingDeleteItems.get(position);
+                if (mRunnable != null) {
+                    mBinder.onBindPendingDeleteViewHolder(viewHolder);
+                    View view = viewHolder.itemView.findViewById(R.id.tvDoUndo);
+                    view.postDelayed(mRunnable, 10000);
+                    view.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            v.removeCallbacks(mRunnable);
+                            int mPosition = viewHolder.getAdapterPosition();
+                            mPendingDeleteItems.delete(mPosition);
+                            notifyItemChanged(mPosition);
+                        }
+                    });
                 }
-            });
+                break;
+            default:
+                bindTheViewHolder(viewHolder, position);
         }
-        mBinder.onBindViewHolder(viewHolder, position);
     }
 
     @Override
     public void onClick(AWLibViewHolder holder) {
-        if (mPendingDeleteItems.get(holder.getID()) == null) {
-            View v = holder.getView();
-            int position = mRecyclerView.getChildAdapterPosition(v);
-            long id = mRecyclerView.getChildItemId(v);
-            mBinder.onRecyclerItemClick(v, position, id);
+        int position = mRecyclerView.getChildAdapterPosition(holder.itemView);
+        switch (holder.getItemViewType()) {
+            case UNDODELETEVIEW:
+                break;
+            default:
+                View v = holder.getView();
+                long id = mRecyclerView.getChildItemId(v);
+                mBinder.onRecyclerItemClick(v, position, id);
         }
     }
 
     @Override
     public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        final View rowView = inflater.inflate(viewHolderLayout, viewGroup, false);
+        View rowView;
+        switch (itemType) {
+            case UNDODELETEVIEW:
+                rowView = inflater.inflate(R.layout.can_undo_view, viewGroup, false);
+                break;
+            default:
+                rowView = inflater.inflate(viewHolderLayout, viewGroup, false);
+        }
         AWLibViewHolder holder = new AWLibViewHolder(rowView);
         holder.setOnClickListener(this);
         holder.setOnLongClickListener(this);
@@ -167,7 +194,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         return mBinder.onRecyclerItemLongClick(v, position, id);
     }
 
-    public void setPendingDeleteItem(long id, Runnable runnable) {
-        mPendingDeleteItems.put(id, runnable);
+    public void setPendingDeleteItem(int position, Runnable runnable) {
+        mPendingDeleteItems.put(position, runnable);
     }
 }

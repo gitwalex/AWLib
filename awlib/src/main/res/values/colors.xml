@@ -16,6 +16,8 @@
   -->
 
 <resources>
+    <color name="cardViewUndo">#FFFF0000</color>
+
     <color name="cardViewWPBackground">#0F0000ff</color>
     <color name="cardViewCashBackground">#0Fffff00</color>
     <color name="cardViewCashBackgroundOnline">#0F0fff00</color>

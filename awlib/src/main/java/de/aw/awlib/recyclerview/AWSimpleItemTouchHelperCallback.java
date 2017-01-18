@@ -157,7 +157,6 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
      */
     protected void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position,
                             long id) {
-        getAdapter().onItemDismiss(position);
     }
 
     @Override

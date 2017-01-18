@@ -99,6 +99,10 @@
         <item name="android:paddingRight">20dp</item>
     </style>
 
+    <style name="UndoCardView" parent="@style/AWLibCardView">
+        <item name="android:background">@color/cardViewUndo</item>
+    </style>
+
     <style name="AWLibCardView" parent="@style/CardView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

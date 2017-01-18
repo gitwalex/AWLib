@@ -82,12 +82,34 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     }
 
     /**
+     * Ist der Cursor gueltig, wird der CursorViewHolderBinder aus dem Konstructor aufgerufen
+     *
+     * @param viewHolder
+     *         aktueller viewHolder
+     * @param position
+     *         position des Holders
+     * @throws IllegalStateException
+     *         wenn der Cursor als invald erklaert wurde oder die Position vom Cursor nicht erreicht
+     *         werden kann
+     */
+    @Override
+    protected void bindTheViewHolder(AWLibViewHolder viewHolder, int position) {
+        if (!mDataValid) {
+            throw new IllegalStateException("this should only be called when the cursor is valid");
+        }
+        if (!mCursor.moveToPosition(position)) {
+            throw new IllegalStateException("couldn't move cursor to position " + position);
+        }
+        ((AWCursorRecyclerViewFragment) getBinder()).onBindViewHolder(viewHolder, mCursor);
+    }
+
+    /**
      * @return Anzahl der Element im Cursor. Ist der Cursor ungueltig, wird 0 zurueckgeliefert.
      */
     @Override
     public int getItemCount() {
         if (mDataValid && mCursor != null) {
-            return mCursor.getCount();
+            return mCursor.getCount() - getRemoved();
         }
         return 0;
     }
@@ -101,28 +123,6 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
             return mCursor.getLong(mRowIdColumnIndex);
         }
         return super.getItemId(position);
-    }
-
-    /**
-     * Ist der Cursor gueltig, wird der CursorViewHolderBinder aus dem Konstructor aufgerufen
-     *
-     * @param viewHolder
-     *         aktueller viewHolder
-     * @param position
-     *         position des Holders
-     * @throws IllegalStateException
-     *         wenn der Cursor als invald erklaert wurde oder die Position vom Cursor nicht erreicht
-     *         werden kann
-     */
-    @Override
-    public void onBindViewHolder(AWLibViewHolder viewHolder, int position) {
-        if (!mDataValid) {
-            throw new IllegalStateException("this should only be called when the cursor is valid");
-        }
-        if (!mCursor.moveToPosition(position)) {
-            throw new IllegalStateException("couldn't move cursor to position " + position);
-        }
-        ((AWCursorRecyclerViewFragment) getBinder()).onBindViewHolder(viewHolder, mCursor);
     }
 
     /**
