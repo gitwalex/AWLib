@@ -22,6 +22,7 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,10 @@ import de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
 
+import static de.aw.awlib.activities.AWInterface.NOID;
+
 /**
- * Created by alex on 17.01.2017.
+ * Basis-Adapter fuer RecyclerView. Unterstuetzt Swipe und Drag.
  */
 public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHolder>
         implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
@@ -41,12 +44,14 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     protected final int viewHolderLayout;
     private final AWBaseRecyclerViewFragment mBinder;
     private RecyclerView mRecyclerView;
-    private SparseArray<Runnable> mPendingDeleteItems = new SparseArray<>();
+    private SparseArray<PendingDeleteItemWorker> mPendingDeleteItems = new SparseArray<>();
     private int removed;
 
     /**
      * Initialisiert Adapter.
      *
+     * @param binder
+     *         Binder fuer onBindView
      * @param viewHolderLayout
      *         Layout der ItemView
      */
@@ -55,16 +60,20 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         mBinder = binder;
     }
 
+    /**
+     * Wird gerufen, wenn es sich beim erstellten ViewHolder nicht um eine DeleteView handelt.
+     *
+     * @param viewHolder
+     *         viewHolder
+     * @param position
+     *         Position
+     */
     protected void bindTheViewHolder(final AWLibViewHolder viewHolder, int position) {
         mBinder.onBindViewHolder(viewHolder, position);
     }
 
-    public AWBaseRecyclerViewFragment getBinder() {
-        return mBinder;
-    }
-
     /**
-     * @return Liste der IDs der Items.
+     * @return Liste der IDs der Items, die nach remove bzw. drag noch vorhanden ist.
      */
     public List<Long> getItemIDs() {
         int size = getItemCount();
@@ -101,15 +110,30 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     public final void onBindViewHolder(final AWLibViewHolder viewHolder, int position) {
         switch (viewHolder.getItemViewType()) {
             case UNDODELETEVIEW:
-                final Runnable mRunnable = mPendingDeleteItems.get(position);
-                if (mRunnable != null) {
+                final PendingDeleteItemWorker mPendingDeleteItem =
+                        mPendingDeleteItems.get(position);
+                if (mPendingDeleteItem != null) {
                     mBinder.onBindPendingDeleteViewHolder(viewHolder);
                     View view = viewHolder.itemView.findViewById(R.id.tvDoUndo);
+                    final Runnable mRunnable = mPendingDeleteItem.getRunnable();
                     view.postDelayed(mRunnable, 10000);
                     view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             v.removeCallbacks(mRunnable);
+                            int mPosition = viewHolder.getAdapterPosition();
+                            mPendingDeleteItems.delete(mPosition);
+                            notifyItemChanged(mPosition);
+                        }
+                    });
+                    TextView tv = (TextView) viewHolder.findViewById(R.id.tvGeloescht);
+                    if (mPendingDeleteItem.getTextResID() != NOID) {
+                        tv.setText(mPendingDeleteItem.getTextResID());
+                    }
+                    tv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            v.post(mPendingDeleteItem.getRunnable());
                             int mPosition = viewHolder.getAdapterPosition();
                             mPendingDeleteItems.delete(mPosition);
                             notifyItemChanged(mPosition);
@@ -194,7 +218,35 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         return mBinder.onRecyclerItemLongClick(v, position, id);
     }
 
-    public void setPendingDeleteItem(int position, Runnable runnable) {
-        mPendingDeleteItems.put(position, runnable);
+    public void setPendingDeleteItem(PendingDeleteItemWorker worker) {
+        mPendingDeleteItems.put(worker.getPosition(), worker);
+    }
+
+    public static class PendingDeleteItemWorker {
+        private final int mPosition;
+        private final Runnable mRunnable;
+        private int textResID = NOID;
+
+        public PendingDeleteItemWorker(int position, Runnable runnable) {
+            mPosition = position;
+            mRunnable = runnable;
+        }
+
+        public int getPosition() {
+            return mPosition;
+        }
+
+        public Runnable getRunnable() {
+            return mRunnable;
+        }
+
+        public int getTextResID() {
+            return textResID;
+        }
+
+        public void setTextResID(int textResID) {
+            this.textResID = textResID;
+        }
     }
 }
+

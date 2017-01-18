@@ -49,6 +49,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     protected final int viewHolderLayout;
     private final AdapterDataObserver mDataObserver;
     private final String mRowIDColumn;
+    private final AWCursorRecyclerViewFragment mBinder;
     private Cursor mCursor;
     private boolean mDataValid;
     private int mRowIdColumnIndex;
@@ -75,6 +76,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     protected AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder,
                                           @NonNull String idColumn, int viewHolderLayout) {
         super(binder, viewHolderLayout);
+        mBinder = binder;
         mDataObserver = new AdapterDataObserver();
         mRowIDColumn = idColumn;
         this.viewHolderLayout = viewHolderLayout;
@@ -100,7 +102,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
         if (!mCursor.moveToPosition(position)) {
             throw new IllegalStateException("couldn't move cursor to position " + position);
         }
-        ((AWCursorRecyclerViewFragment) getBinder()).onBindViewHolder(viewHolder, mCursor);
+        mBinder.onBindViewHolder(viewHolder, mCursor);
     }
 
     /**
