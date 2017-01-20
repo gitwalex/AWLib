@@ -38,8 +38,16 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
+
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 /**
  * Adapter fuer RecyclerView mit Cursor.
@@ -53,6 +61,8 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     private Cursor mCursor;
     private boolean mDataValid;
     private int mRowIdColumnIndex;
+    private int removed;
+    private Map<Long, Long> mItemIDs = new HashMap<>();
 
     /**
      * Initialisiert Adapter. Cursor muss eine Spalte '_id' enthalten.
@@ -105,15 +115,43 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
         mBinder.onBindViewHolder(viewHolder, mCursor);
     }
 
+    private void doLog() {
+        List<Long> list = getItemIDs();
+        StringBuilder sb = new StringBuilder();
+        for (long value : list) {
+            sb.append(" ,").append(value);
+        }
+        AWApplication.Log("Liste:" + sb.toString());
+    }
+
     /**
      * @return Anzahl der Element im Cursor. Ist der Cursor ungueltig, wird 0 zurueckgeliefert.
      */
     @Override
     public int getItemCount() {
         if (mDataValid && mCursor != null) {
-            return mCursor.getCount() - getRemoved();
+            return mCursor.getCount() - removed;
         }
         return 0;
+    }
+
+    /**
+     * @return Liste der IDs der Items, die nach remove bzw. drag noch vorhanden ist.
+     */
+    public List<Long> getItemIDs() {
+        List<Long> mItemIDList = new ArrayList<>();
+        if (mDataValid && mCursor != null) {
+            int size = mCursor.getCount();
+            for (int i = 0; i < size; i++) {
+                mCursor.moveToPosition(i);
+                long mID = mCursor.getLong(mRowIdColumnIndex);
+                Long value = mItemIDs.get(mID);
+                if (value == null || value != NO_POSITION) {
+                    mItemIDList.add(mID);
+                }
+            }
+        }
+        return mItemIDList;
     }
 
     /**
@@ -121,10 +159,46 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
      */
     @Override
     public long getItemId(int position) {
-        if (mDataValid && mCursor != null && mCursor.moveToPosition(position)) {
-            return mCursor.getLong(mRowIdColumnIndex);
+        if (mDataValid && mCursor != null) {
+            mCursor.moveToPosition(position);
+            long mID = mCursor.getLong(mRowIdColumnIndex);
+            //            while (mItemIDs.get(mID) != null) {
+            //                Long mPositionID = mItemIDs.get(mID);
+            //                if (mPositionID == NO_POSITION) {
+            //                    position++;
+            //                    mCursor.moveToPosition(position);
+            //                    mID = mCursor.getLong(mRowIdColumnIndex);
+            //                } else {
+            //                    mID = mPositionID;
+            //                    break;
+            //                }
+            //            }
+            return mID;
         }
         return super.getItemId(position);
+    }
+
+    @Override
+    protected void onItemDismiss(int position) {
+        super.onItemDismiss(position);
+        if (mDataValid && mCursor != null) {
+            mItemIDs.put(getItemId(position), (long) NO_POSITION);
+            removed++;
+        }
+        doLog();
+    }
+
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (mDataValid && mCursor != null) {
+            mCursor.moveToPosition(fromPosition);
+            long fromID = mCursor.getLong(mRowIdColumnIndex);
+            mCursor.moveToPosition(toPosition);
+            long toID = mCursor.getLong(mRowIdColumnIndex);
+            mItemIDs.put(fromID, toID);
+            mItemIDs.put(fromID, toID);
+        }
+        super.onItemMove(fromPosition, toPosition);
     }
 
     /**
@@ -147,6 +221,9 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
             mRowIdColumnIndex = -1;
             mDataValid = false;
         }
+        removed = 0;
+        mItemIDs.clear();
+        doLog();
         notifyDataSetChanged();
         return oldCursor;
     }

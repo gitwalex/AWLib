@@ -87,6 +87,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
             mAdapter = getBaseAdapter();
         }
         configure(mAdapter);
+        mAdapter.setTouchHelper(callbackTouchHelper);
         return mAdapter;
     }
 

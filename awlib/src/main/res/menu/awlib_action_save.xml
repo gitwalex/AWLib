@@ -24,7 +24,7 @@
         android:orderInCategory="1"
         android:title="@string/awlib_menu_item_save"
         app:showAsAction="always"
-        tools:ignore="AppCompatResource"></item>
+        tools:ignore="AppCompatResource"/>
 
 
 </menu>
