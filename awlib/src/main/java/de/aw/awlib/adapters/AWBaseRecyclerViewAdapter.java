@@ -20,10 +20,15 @@ package de.aw.awlib.adapters;
 import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.AdapterDataObserver;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
@@ -49,6 +54,8 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     private int mTextResID = R.string.tvGeloescht;
     private AWOnScrollListener mOnScrollListener;
     private AWSimpleItemTouchHelperCallback mTouchHelper;
+    private SparseIntArray mItemIDs = new SparseIntArray();
+    private AdapterDataObserver mOnDataAchangeListener;
 
     /**
      * Initialisiert Adapter.
@@ -75,12 +82,42 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         mBinder.onBindViewHolder(viewHolder, position);
     }
 
+    protected final int convertPosition(int position) {
+        int mPosition = position;
+        for (int index = 0; index < mItemIDs.size(); index++) {
+            int key = mItemIDs.keyAt(index);
+            if (mPosition >= key) {
+                Integer value = mItemIDs.valueAt(index);
+                if (value == NO_POSITION) {
+                    mPosition++;
+                }
+            }
+        }
+        return mPosition;
+    }
+
+    /**
+     * @return Liste der IDs der Items, die nach remove bzw. drag noch vorhanden ist.
+     */
+    public List<Long> getItemIDs() {
+        int size = getItemCount();
+        List<Long> mItemIDList = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            mItemIDList.add(getItemId(i));
+        }
+        return mItemIDList;
+    }
+
     @Override
     public int getItemViewType(int position) {
         if (mPendingDeleteItemPosition == position) {
             return UNDODELETEVIEW;
         }
         return super.getItemViewType(position);
+    }
+
+    public int getNumberOfRemovedItems() {
+        return mItemIDs.size();
     }
 
     public RecyclerView getRecyclerView() {
@@ -93,6 +130,13 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         mRecyclerView = recyclerView;
         mOnScrollListener = new AWOnScrollListener();
         mRecyclerView.addOnScrollListener(mOnScrollListener);
+        mOnDataAchangeListener = new AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                mItemIDs.clear();
+            }
+        };
+        registerAdapterDataObserver(mOnDataAchangeListener);
     }
 
     @Override
@@ -159,6 +203,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         super.onDetachedFromRecyclerView(recyclerView);
         mRecyclerView.removeOnScrollListener(mOnScrollListener);
         mRecyclerView = null;
+        unregisterAdapterDataObserver(mOnDataAchangeListener);
     }
 
     /**
@@ -169,10 +214,10 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
      *         Position des items im Adapter, das entfernt werden soll
      */
     @CallSuper
-    protected void onItemDismiss(int position) {
+    public void onItemDismiss(int position) {
         if (position != NO_POSITION) {
+            mItemIDs.put(convertPosition(position), NO_POSITION);
             notifyItemRemoved(position);
-            notifyItemChanged(position);
             mPendingDeleteItemPosition = NO_POSITION;
             //            if (mPendingDeleteItemPosition == position) {
             //                if (mDataChangedObserver != null) {
@@ -195,6 +240,8 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
      */
     @CallSuper
     public void onItemMove(int fromPosition, int toPosition) {
+        mItemIDs.put(fromPosition, toPosition);
+        mItemIDs.put(fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
         AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
         if (mDataChangedObserver != null) {
