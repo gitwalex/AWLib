@@ -121,9 +121,9 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
      * @return Anzahl der Element im Cursor. Ist der Cursor ungueltig, wird 0 zurueckgeliefert.
      */
     @Override
-    public int getItemCount() {
+    public int getAdapterCount() {
         if (mDataValid && mCursor != null) {
-            return mCursor.getCount() - getNumberOfRemovedItems();
+            return mCursor.getCount();
         }
         return 0;
     }
@@ -134,11 +134,8 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     @Override
     public long getItemId(int position) {
         if (mDataValid && mCursor != null) {
-            int mPosition = convertPosition(position);
-            mCursor.moveToPosition(mPosition);
-            long mID = mCursor.getLong(mRowIdColumnIndex);
-            AWApplication.Log("Pos: " + mPosition + ", ID: " + mID);
-            return mID;
+            mCursor.moveToPosition(getAdapterPosition(position));
+            return mCursor.getLong(mRowIdColumnIndex);
         }
         return super.getItemId(position);
     }

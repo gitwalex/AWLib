@@ -100,7 +100,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         }
     }
 
-
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -145,6 +144,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
      */
     @CallSuper
     protected void onPreBindViewHolder(Cursor cursor, AWLibViewHolder holder) {
+        onPreBindViewHolder(holder);
         int indexID = cursor.getColumnIndex(getString(R.string._id));
         if (indexID != -1) {
             long id = cursor.getLong(indexID);

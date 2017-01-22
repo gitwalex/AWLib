@@ -69,12 +69,14 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
     private boolean isSwipeable;
     private ItemTouchHelper mTouchHelper;
     private int oneTouchStartDragResID = -1;
+    private boolean canUndoSwipe;
 
     protected void configure(AWBaseRecyclerViewAdapter mAdapter) {
         callbackTouchHelper = getItemTouchCallback(mAdapter);
         if (callbackTouchHelper != null) {
             callbackTouchHelper.setIsDragable(isDragable);
             callbackTouchHelper.setIsSwipeable(isSwipeable);
+            callbackTouchHelper.setCanUndoSwipe(canUndoSwipe);
             mTouchHelper = new ItemTouchHelper(callbackTouchHelper);
             mTouchHelper.attachToRecyclerView(mRecyclerView);
         }
@@ -87,7 +89,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
             mAdapter = getBaseAdapter();
         }
         configure(mAdapter);
-        mAdapter.setTouchHelper(callbackTouchHelper);
         return mAdapter;
     }
 
@@ -182,7 +183,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
      */
     @CallSuper
     public void onBindViewHolder(AWLibViewHolder holder, int position) {
-        onPreBindViewHolder(holder, position);
+        onPreBindViewHolder(holder);
     }
 
     /**
@@ -223,8 +224,9 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
      *         wenn es keine View mit dieer resID gibt
      */
     @CallSuper
-    protected void onPreBindViewHolder(final AWLibViewHolder holder, int position) {
+    protected void onPreBindViewHolder(final AWLibViewHolder holder) {
         View handleView;
+        holder.itemView.setHapticFeedbackEnabled(true);
         if (oneTouchStartDragResID != -1) {
             handleView = holder.findViewById(oneTouchStartDragResID);
             handleView.setOnTouchListener(new View.OnTouchListener() {
@@ -285,12 +287,12 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
         super.onSaveInstanceState(outState);
     }
 
-    private void onStartDrag(AWLibViewHolder holder) {
+    public void onStartDrag(RecyclerView.ViewHolder holder) {
         holder.itemView.setPressed(true);
         mTouchHelper.startDrag(holder);
     }
 
-    private void onStopDrag(AWLibViewHolder holder) {
+    public void onStopDrag(AWLibViewHolder holder) {
         holder.itemView.setPressed(false);
     }
 
@@ -333,6 +335,13 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                      .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    }
+
+    public void setCanUndoSwipe(boolean canUndoSwipe) {
+        this.canUndoSwipe = canUndoSwipe;
+        if (callbackTouchHelper != null) {
+            callbackTouchHelper.setCanUndoSwipe(canUndoSwipe);
+        }
     }
 
     @Override
