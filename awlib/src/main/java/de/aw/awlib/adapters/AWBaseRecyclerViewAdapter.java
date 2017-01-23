@@ -21,13 +21,13 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import de.aw.awlib.R;
@@ -53,9 +53,10 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     private AdapterDataChangedObserver mDataChangedObserver;
     private int mTextResID = R.string.tvGeloescht;
     private AWOnScrollListener mOnScrollListener;
-    private SparseIntArray mItemIDs = new SparseIntArray();
     private AdapterDataObserver mOnDataAchangeListener;
     private int removed;
+    private int maxPosition;
+    private List<Integer> mItemIDs = new ArrayList<>();
 
     /**
      * Initialisiert Adapter.
@@ -85,25 +86,21 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     protected abstract int getAdapterCount();
 
     protected final int getAdapterPosition(int position) {
-        int mPosition = position;
-        for (int index = 0; index < mItemIDs.size(); index++) {
-            int key = mItemIDs.keyAt(index);
-            if (mPosition >= key) {
-                if (mItemIDs.valueAt(index) == NO_POSITION) {
-                    mPosition++;
+        if (maxPosition <= position) {
+            for (int i = maxPosition; i <= position; i++) {
+                if (!mItemIDs.contains(i)) {
+                    mItemIDs.add(i);
                 }
             }
+            maxPosition = position;
         }
-        int value = mItemIDs.get(mPosition, NO_POSITION);
-        if (value != NO_POSITION) {
-            mPosition = value;
-        }
-        return mPosition;
+        return mItemIDs.get(position);
     }
 
     @Override
     public final int getItemCount() {
-        return getAdapterCount() - removed;
+        int count = getAdapterCount() - removed;
+        return count < 0 ? 0 : count;
     }
 
     /**
@@ -139,7 +136,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         mOnDataAchangeListener = new AdapterDataObserver() {
             @Override
             public void onChanged() {
-                mItemIDs.clear();
                 removed = 0;
             }
         };
@@ -155,8 +151,8 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        int mPosition = mPendingDeleteItemPosition;
                         mPendingDeleteItemPosition = NO_POSITION;
-                        int mPosition = viewHolder.getAdapterPosition();
                         notifyItemChanged(mPosition);
                     }
                 });
@@ -165,13 +161,12 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                 tv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int mPosition = viewHolder.getAdapterPosition();
-                        onItemDismiss(mPosition);
+                        onItemDismiss(mPendingDeleteItemPosition);
                     }
                 });
                 break;
             default:
-                bindTheViewHolder(viewHolder, position);
+                bindTheViewHolder(viewHolder, getAdapterPosition(position));
         }
     }
 
@@ -227,9 +222,9 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                 long mID = getItemId(position);
                 mDataChangedObserver.onItemRemoved(mID);
             }
-            mItemIDs.put(getAdapterPosition(position), NO_POSITION);
-            removed++;
+            mItemIDs.remove(position);
             notifyItemRemoved(position);
+            removed++;
             mPendingDeleteItemPosition = NO_POSITION;
         }
     }
@@ -245,8 +240,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
      */
     @CallSuper
     public void onItemMove(int fromPosition, int toPosition) {
-        mItemIDs.put(fromPosition, toPosition);
-        mItemIDs.put(fromPosition, toPosition);
+        Collections.swap(mItemIDs, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
         AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
         if (mDataChangedObserver != null) {
