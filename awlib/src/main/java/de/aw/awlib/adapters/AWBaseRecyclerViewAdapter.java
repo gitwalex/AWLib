@@ -110,8 +110,9 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
 
     @Override
     public final long getItemId(int position) {
-        if (!mItemPositions.contains(position)) {
-            mItemPositions.add(position, position);
+        int index = mItemPositions.size();
+        for (int i = index; i < position + 1; i++) {
+            mItemPositions.add(i);
         }
         return getAdapterItemID(mItemPositions.get(position));
     }
