@@ -132,12 +132,12 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
      * @return die ID der Position, wenn der Cursor gueltig ist. Ansonsten NO_ID
      */
     @Override
-    public long getItemId(int position) {
+    protected long getAdapterItemID(int position) {
         if (mDataValid && mCursor != null) {
-            mCursor.moveToPosition(getAdapterPosition(position));
+            mCursor.moveToPosition(position);
             return mCursor.getLong(mRowIdColumnIndex);
         }
-        return super.getItemId(position);
+        return super.getAdapterItemID(position);
     }
 
     @Override
