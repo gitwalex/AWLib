@@ -40,7 +40,6 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private final AWBaseRecyclerViewAdapter mAdapter;
     private final float ALPHA_FULL = 1.0f;
     protected Bitmap mIcon;
-    private boolean canUndo;
     private boolean isDragable;
     private boolean isSwipeable;
     private int mIconRessource = R.drawable.ic_action_discard;
@@ -101,7 +100,7 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                             float dX, float dY, int actionState, boolean isCurrentlyActive) {
-        if (canUndo && actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             if (mIcon == null) {
                 Context mContext = recyclerView.getContext();
                 mIcon = BitmapFactory.decodeResource(mContext.getResources(), mIconRessource);
@@ -166,9 +165,6 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         onSwiped(viewHolder, direction, position, id);
     }
 
-    public void setCanUndoSwipe(boolean canUndo) {
-        this.canUndo = canUndo;
-    }
 
     /**
      * Steuert, ob eine RecyclerView Dragable ist

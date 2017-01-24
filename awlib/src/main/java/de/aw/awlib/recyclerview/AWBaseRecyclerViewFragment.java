@@ -69,14 +69,12 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
     private boolean isSwipeable;
     private ItemTouchHelper mTouchHelper;
     private int oneTouchStartDragResID = -1;
-    private boolean canUndoSwipe;
 
     protected void configure(AWBaseRecyclerViewAdapter mAdapter) {
         callbackTouchHelper = getItemTouchCallback(mAdapter);
         if (callbackTouchHelper != null) {
             callbackTouchHelper.setIsDragable(isDragable);
             callbackTouchHelper.setIsSwipeable(isSwipeable);
-            callbackTouchHelper.setCanUndoSwipe(canUndoSwipe);
             mTouchHelper = new ItemTouchHelper(callbackTouchHelper);
             mTouchHelper.attachToRecyclerView(mRecyclerView);
         }
@@ -335,13 +333,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                      .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-    }
-
-    public void setCanUndoSwipe(boolean canUndoSwipe) {
-        this.canUndoSwipe = canUndoSwipe;
-        if (callbackTouchHelper != null) {
-            callbackTouchHelper.setCanUndoSwipe(canUndoSwipe);
-        }
     }
 
     @Override

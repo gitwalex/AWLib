@@ -19,6 +19,7 @@ package de.aw.awlib.adapters;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.view.LayoutInflater;
@@ -55,8 +56,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     private AWOnScrollListener mOnScrollListener;
     private AdapterDataObserver mOnDataAchangeListener;
     private int removed;
-    private int maxPosition;
-    private List<Integer> mItemIDs = new ArrayList<>();
+    private List<Integer> mItemPositions = new ArrayList<>();
 
     /**
      * Initialisiert Adapter.
@@ -86,15 +86,10 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     protected abstract int getAdapterCount();
 
     protected final int getAdapterPosition(int position) {
-        if (maxPosition <= position) {
-            for (int i = maxPosition; i <= position; i++) {
-                if (!mItemIDs.contains(i)) {
-                    mItemIDs.add(i);
-                }
-            }
-            maxPosition = position;
+        if (!mItemPositions.contains(position)) {
+            mItemPositions.add(position, position);
         }
-        return mItemIDs.get(position);
+        return mItemPositions.get(position);
     }
 
     @Override
@@ -137,6 +132,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
             @Override
             public void onChanged() {
                 removed = 0;
+                mItemPositions.clear();
             }
         };
         registerAdapterDataObserver(mOnDataAchangeListener);
@@ -222,7 +218,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                 long mID = getItemId(position);
                 mDataChangedObserver.onItemRemoved(mID);
             }
-            mItemIDs.remove(position);
+            mItemPositions.remove(position);
             notifyItemRemoved(position);
             removed++;
             mPendingDeleteItemPosition = NO_POSITION;
@@ -240,7 +236,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
      */
     @CallSuper
     public void onItemMove(int fromPosition, int toPosition) {
-        Collections.swap(mItemIDs, fromPosition, toPosition);
+        Collections.swap(mItemPositions, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
         AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
         if (mDataChangedObserver != null) {
@@ -276,6 +272,19 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         void onItemMoved(int fromPosition, int toPosition);
 
         void onItemRemoved(long id);
+    }
+
+    public static class Item {
+    }
+
+    public class SortedItemList extends SortedList<Item> {
+        public SortedItemList(Callback<Item> callback) {
+            super(Item.class, callback);
+        }
+
+        public SortedItemList(Callback<Item> callback, int initialCapacity) {
+            super(Item.class, callback, initialCapacity);
+        }
     }
 
     private class AWOnScrollListener extends OnScrollListener {
