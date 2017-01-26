@@ -143,7 +143,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     @Override
     public void onItemDismiss(int position) {
         super.onItemDismiss(position);
-        doLog();
+        //        doLog();
     }
 
     /**
@@ -166,7 +166,6 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
             mRowIdColumnIndex = -1;
             mDataValid = false;
         }
-        doLog();
         notifyDataSetChanged();
         return oldCursor;
     }
