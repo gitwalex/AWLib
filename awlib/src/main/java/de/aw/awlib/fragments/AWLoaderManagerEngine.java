@@ -37,6 +37,7 @@ import static de.aw.awlib.activities.AWInterface.ORDERBY;
 import static de.aw.awlib.activities.AWInterface.PROJECTION;
 import static de.aw.awlib.activities.AWInterface.SELECTION;
 import static de.aw.awlib.activities.AWInterface.SELECTIONARGS;
+import static de.aw.awlib.application.AWApplication.Log;
 import static de.aw.awlib.application.AWApplication.LogError;
 
 /**
@@ -72,21 +73,28 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
     private final Context mContext;
     private final LoaderManager mLoaderManager;
 
-    public AWLoaderManagerEngine(AWBasicActivity activity,
-                                 LoaderManager.LoaderCallbacks<Cursor> callback) {
-        this(activity, activity.getSupportLoaderManager(), callback);
+    public AWLoaderManagerEngine(AWBasicActivity activity) {
+        mContext = activity;
+        mLoaderManager = activity.getSupportLoaderManager();
+        try {
+            //noinspection unchecked
+            mCallback = (LoaderManager.LoaderCallbacks<Cursor>) activity;
+        } catch (ClassCastException e) {
+            Log("Activity must implement LoaderManager.LoaderCallbacks<Cursor>)");
+            throw e;
+        }
     }
 
-    private AWLoaderManagerEngine(Context context, LoaderManager loadermanager,
-                                  LoaderManager.LoaderCallbacks<Cursor> callback) {
-        mContext = context;
-        mLoaderManager = loadermanager;
-        mCallback = callback;
-    }
-
-    public AWLoaderManagerEngine(AWFragment fragment,
-                                 LoaderManager.LoaderCallbacks<Cursor> callback) {
-        this(fragment.getContext(), fragment.getLoaderManager(), callback);
+    public AWLoaderManagerEngine(AWFragment fragment) {
+        mContext = fragment.getContext();
+        mLoaderManager = fragment.getLoaderManager();
+        try {
+            //noinspection unchecked
+            mCallback = (LoaderManager.LoaderCallbacks<Cursor>) fragment;
+        } catch (ClassCastException e) {
+            Log("Fragment must implement LoaderManager.LoaderCallbacks<Cursor>)");
+            throw e;
+        }
     }
 
     /**
@@ -173,7 +181,7 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
      * @param args
      *         Argumente fuer Cursor
      */
-    protected void startOrRestartLoader(int loaderID, Bundle args) {
+    public void startOrRestartLoader(int loaderID, Bundle args) {
         Loader<Cursor> loader = mLoaderManager.getLoader(loaderID);
         if (loader != null && !loader.isReset()) {
             mLoaderManager.restartLoader(loaderID, args, this);

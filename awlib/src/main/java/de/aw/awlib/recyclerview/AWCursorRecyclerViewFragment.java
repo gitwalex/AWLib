@@ -18,7 +18,9 @@ package de.aw.awlib.recyclerview;
  */
 
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.annotation.CallSuper;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.TextView;
@@ -29,6 +31,7 @@ import de.aw.awlib.adapters.AWCursorRecyclerViewAdapter;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.fragments.AWLoaderManagerEngine;
 
 /**
  * Erstellt eine Liste ueber Daten einer Tabelle.
@@ -39,8 +42,10 @@ import de.aw.awlib.database.AbstractDBHelper;
  * Als Standard erhaelt die RecyclerView als ID den Wert des Layout. Durch args.setInt(VIEWID,
  * value) erhaelt die RecyclerView eine andere ID.
  */
-public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFragment {
+public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFragment
+        implements LoaderManager.LoaderCallbacks<Cursor> {
     protected int indexColumn;
+    private AWLoaderManagerEngine mLoaderEngine;
 
     /**
      * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
@@ -48,6 +53,13 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
      */
     protected AWBaseRecyclerViewAdapter getBaseAdapter() {
         return new AWCursorRecyclerViewAdapter(this, viewHolderLayout);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mLoaderEngine = new AWLoaderManagerEngine(this);
+        mLoaderEngine.startOrRestartLoader(layout, args);
     }
 
     /**
@@ -100,10 +112,14 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         }
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        super.onLoadFinished(loader, cursor);
         noEntryView.setVisibility(View.VISIBLE);
         if (cursor != null) {
             indexColumn = cursor.getColumnIndexOrThrow(getString(R.string._id));
@@ -150,5 +166,9 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
             long id = cursor.getLong(indexID);
             holder.setID(id);
         }
+    }
+
+    protected void startOrRestartLoader(int loaderID, Bundle args) {
+        mLoaderEngine.startOrRestartLoader(loaderID, args);
     }
 }

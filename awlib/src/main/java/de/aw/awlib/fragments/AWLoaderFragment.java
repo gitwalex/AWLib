@@ -62,7 +62,7 @@ public abstract class AWLoaderFragment extends AWFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mLoaderEngine = new AWLoaderManagerEngine(this, this);
+        mLoaderEngine = new AWLoaderManagerEngine(this);
         mLoaderEngine.startOrRestartLoader(layout, args);
     }
 

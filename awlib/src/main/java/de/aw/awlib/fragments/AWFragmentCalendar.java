@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract.Calendars;
 import android.support.annotation.NonNull;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -96,13 +95,7 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
         int permissionCheck =
                 ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CALENDAR);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            LoaderManager lm = getLoaderManager();
-            Loader<Cursor> loader = lm.getLoader(loaderID);
-            if (loader != null && !loader.isReset()) {
-                lm.restartLoader(loaderID, args, this);
-            } else {
-                lm.initLoader(loaderID, args, this);
-            }
+            super.startOrRestartLoader(loaderID, args);
         } else {
             requestPermissions(new String[]{Manifest.permission.READ_CALENDAR},
                     REQUEST_PERMISSION_READ_CALENDAR);

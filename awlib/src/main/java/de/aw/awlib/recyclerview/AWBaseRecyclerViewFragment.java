@@ -18,11 +18,9 @@ package de.aw.awlib.recyclerview;
  */
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
-import android.support.v4.content.Loader;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,7 +33,7 @@ import android.view.WindowManager;
 
 import de.aw.awlib.R;
 import de.aw.awlib.adapters.AWBaseRecyclerViewAdapter;
-import de.aw.awlib.fragments.AWLoaderFragment;
+import de.aw.awlib.fragments.AWFragment;
 
 /**
  * Erstellt eine Liste ueber Daten einer Tabelle.
@@ -46,8 +44,7 @@ import de.aw.awlib.fragments.AWLoaderFragment;
  * Als Standard erhaelt die RecyclerView als ID den Wert des Layout. Durch args.setInt(VIEWID,
  * value) erhaelt die RecyclerView eine andere ID.
  */
-public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
-    public static final int DEFAULTVIEWTYPE = 0;
+public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     public final static int minCardWidth = 800;
     protected AWBaseRecyclerViewAdapter mAdapter;
     protected LayoutManager mLayoutManager;
@@ -62,7 +59,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
      * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
-    private int layout = R.layout.awlib_default_recycler_view;
+    protected int layout = R.layout.awlib_default_recycler_view;
     private AWBaseRecyclerViewListener mBaseRecyclerViewListener;
     private AWSimpleItemTouchHelperCallback callbackTouchHelper;
     private boolean isDragable;
@@ -95,14 +92,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
         return null;
     }
 
-    /**
-     * @param position
-     *         aktuelle position in RecyclerView
-     * @return Liefert als ViewType {@link AWBaseRecyclerViewFragment#DEFAULTVIEWTYPE} zurueck
-     */
-    public int getItemViewType(int position) {
-        return DEFAULTVIEWTYPE;
-    }
 
     /**
      * In der DefaultImplementierung wird hier ein neuer LinearLayoutManager zurueckgegeben.
@@ -194,18 +183,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWLoaderFragment {
         super.onCreate(savedInstanceState);
         layout = args.getInt(LAYOUT);
         viewHolderLayout = args.getInt(VIEWHOLDERLAYOUT);
-    }
-
-    /**
-     * Ist der Adapter == null, wird ein neuer erstellt und konfiguriert
-     */
-    @CallSuper
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (mAdapter == null) {
-            mRecyclerView.setAdapter(getCustomAdapter());
-        }
-        super.onLoadFinished(loader, cursor);
     }
 
     @Override
