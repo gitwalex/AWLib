@@ -19,7 +19,6 @@ package de.aw.awlib.adapters;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.util.SparseIntArray;
@@ -113,11 +112,10 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     /**
-     * Liefet zur Position die Position im Adapter unter Beruecksichtigung der geloeschten Items
-     *
      * @param position
      *         Position in der RecyclerView
-     * @return die Position im Adapter
+     * @return zur Position der RecyclerView die Position im Adapter unter Beruecksichtigung der
+     * geloeschten Items
      */
     private int getAdapterPosition(int position) {
         int mPosition = position;
@@ -134,8 +132,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     /**
-     * @return Liefert die Anzahl der im Adapter vorhandenen Items abzueglich der bereits entfernten
-     * Items
+     * @return Anzahl der im Adapter vorhandenen Items abzueglich der bereits entfernten Items
      */
     @Override
     public final int getItemCount() {
@@ -156,12 +153,9 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     /**
-     * Ermittelt zur Position in der RecyclerView die Position im Adapter unter beruecksichtigung
-     * geloeschter und verschoberner Items
-     *
      * @param position
      *         Position in der RecyclerView
-     * @return Position im Adapter
+     * @return Position im Adapter unter Beruecksichtigung geloeschter und verschobener Items
      */
     @Override
     public final long getItemId(int position) {
@@ -169,11 +163,11 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public final int getItemViewType(int position) {
         if (mPendingDeleteItemPosition == position) {
             return UNDODELETEVIEW;
         }
-        return super.getItemViewType(position);
+        return getViewType(position);
     }
 
     public RecyclerView getRecyclerView() {
@@ -191,6 +185,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         return super.getItemViewType(position);
     }
 
+    @CallSuper
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
@@ -339,15 +334,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
 
     public void setTextResID(@StringRes int textresID) {
         mTextResID = textresID;
-    }
-
-    public static class Item {
-    }
-
-    public class SortedItemList extends SortedList<Item> {
-        public SortedItemList(Callback<Item> callback) {
-            super(Item.class, callback);
-        }
     }
 
     private class AWOnScrollListener extends OnScrollListener {

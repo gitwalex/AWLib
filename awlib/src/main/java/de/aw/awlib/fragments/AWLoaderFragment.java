@@ -18,17 +18,13 @@ package de.aw.awlib.fragments;
  */
 
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.View;
 
 import de.aw.awlib.R;
-import de.aw.awlib.database.AWAbstractDBDefinition;
-import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
@@ -61,74 +57,19 @@ import de.aw.awlib.database.AbstractDBHelper;
 public abstract class AWLoaderFragment extends AWFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
     private View mProgressbar;
+    private AWLoaderManagerEngine mLoaderEngine;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        startOrRestartLoader(layout, args);
+        mLoaderEngine = new AWLoaderManagerEngine(this, this);
+        mLoaderEngine.startOrRestartLoader(layout, args);
     }
 
-    /**
-     * Aufbau des Select-Statements.
-     * <p/>
-     * Ueber args kann folgendes gesteuert werden:
-     * <p/>
-     * args.getStringArray(PROJECTION): Columns, die ermittelt werden sollen. Ist das Feld nicht
-     * belegt, werden die Spalten gemaess args.getIntArray(FROMRESIDS) geholt.
-     * <p>
-     * args.getString(SELECTION): Where-Clause
-     * <p>
-     * args.getStringArray(SELECTIONARGS): Argumente fuer SELECTION
-     * <p>
-     * args.getString(GROUPBY): GroupBy-Clause
-     * <p>
-     * args.getString(ORDERBY): OrderBy-Clause. Ist dies nicht belegt, wird der Cursor gemaess
-     * {@link AbstractDBHelper#getOrderString(AWAbstractDBDefinition)} sortiert.
-     *
-     * @throws NullPointerException
-     *         wenn args.getParcelable(DBDEFINITION) Null liefert
-     * @throws NullPointerException
-     *         wenn weder PROJECTION noch FROMRESIDS belegt sind
-     * @see LoaderManager.LoaderCallbacks#onCreateLoader(int, Bundle)
-     */
     @Override
     public Loader<Cursor> onCreateLoader(int p1, Bundle args) {
         if (mProgressbar != null) {
             mProgressbar.setVisibility(View.VISIBLE);
-        }
-        AWAbstractDBDefinition tbd = args.getParcelable(DBDEFINITION);
-        if (tbd != null) {
-            Uri mUri = tbd.getUri();
-            String[] projection = args.getStringArray(PROJECTION);
-            int[] fromResIDs = args.getIntArray(FROMRESIDS);
-            if (projection != null && fromResIDs != null) {
-                LogError(getClass().getSimpleName() +
-                        ": PROJECTION und FROMRESIDS sind belegt! Pruefen!");
-            }
-            if (projection == null) {
-                // Null: Also fromResIDs
-                projection = tbd.columnNames(fromResIDs);
-            }
-            if (projection == null) {
-                // IMMER noch Null - Fehler!
-                throw new NullPointerException(
-                        "Weder PROJECTION noch FROMRESIDS belegt. Weiss nicht, was tun");
-            }
-            String selection = args.getString(SELECTION);
-            String[] selectionArgs = args.getStringArray(SELECTIONARGS);
-            String groupBy = args.getString(GROUPBY);
-            if (groupBy != null) {
-                if (selection == null) {
-                    selection = " 1=1";
-                }
-                selection = selection + " GROUP BY " + groupBy;
-            }
-            String orderBy = args.getString(ORDERBY);
-            if (orderBy == null) {
-                orderBy = tbd.getOrderString();
-            }
-            return new CursorLoader(getActivity(), mUri, projection, selection, selectionArgs,
-                    orderBy);
         }
         return null;
     }
@@ -169,12 +110,6 @@ public abstract class AWLoaderFragment extends AWFragment
      *         Argumente fuer Cursor
      */
     protected void startOrRestartLoader(int loaderID, Bundle args) {
-        LoaderManager lm = getLoaderManager();
-        Loader<Cursor> loader = lm.getLoader(loaderID);
-        if (loader != null && !loader.isReset()) {
-            lm.restartLoader(loaderID, args, this);
-        } else {
-            lm.initLoader(loaderID, args, this);
-        }
+        mLoaderEngine.startOrRestartLoader(loaderID, args);
     }
 }
