@@ -21,13 +21,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -61,37 +58,33 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      */
     protected int layout = R.layout.awlib_default_recycler_view;
     private AWBaseRecyclerViewListener mBaseRecyclerViewListener;
-    private AWSimpleItemTouchHelperCallback callbackTouchHelper;
-    private boolean isDragable;
-    private boolean isSwipeable;
-    private ItemTouchHelper mTouchHelper;
-    private int oneTouchStartDragResID = -1;
+    private int onTouchStartDragResID = -1;
+    private AWBaseRecyclerViewAdapter.OnDragListener mOnDragListener;
+    private AWBaseRecyclerViewAdapter.OnSwipeListener mOnSwipeListener;
 
-    protected void configure(AWBaseRecyclerViewAdapter mAdapter) {
-        callbackTouchHelper = getItemTouchCallback(mAdapter);
-        if (callbackTouchHelper != null) {
-            callbackTouchHelper.setIsDragable(isDragable);
-            callbackTouchHelper.setIsSwipeable(isSwipeable);
-            mTouchHelper = new ItemTouchHelper(callbackTouchHelper);
-            mTouchHelper.attachToRecyclerView(mRecyclerView);
-        }
-    }
+    /**
+     * @return einen BaseAdapter
+     */
+    protected abstract AWBaseRecyclerViewAdapter createBaseAdapter();
 
-    protected abstract AWBaseRecyclerViewAdapter getBaseAdapter();
-
+    /**
+     * Initialisiert den Adapter, dieser Adapter wird ggfs. neu erstellt
+     *
+     * @return Adapter
+     */
     private AWBaseRecyclerViewAdapter getCustomAdapter() {
         if (mAdapter == null) {
-            mAdapter = getBaseAdapter();
+            mAdapter = createBaseAdapter();
         }
-        configure(mAdapter);
+        if (mOnDragListener != null) {
+            mAdapter.setOnDragListener(mOnDragListener);
+        }
+        if (mOnSwipeListener != null) {
+            mAdapter.setOnSwipeListener(mOnSwipeListener);
+        }
+        mAdapter.setOnTouchStartDragResID(onTouchStartDragResID);
         return mAdapter;
     }
-
-    protected AWSimpleItemTouchHelperCallback getItemTouchCallback(
-            AWBaseRecyclerViewAdapter mAdapter) {
-        return null;
-    }
-
 
     /**
      * In der DefaultImplementierung wird hier ein neuer LinearLayoutManager zurueckgegeben.
@@ -155,9 +148,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
         }
     }
 
-    public void onBindPendingDeleteViewHolder(AWLibViewHolder viewHolder) {
-    }
-
     @Override
     protected final boolean onBindView(View view, int resID) {
         return super.onBindView(view, resID);
@@ -192,31 +182,14 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     /**
-     * Ist mittels {@link AWBaseRecyclerViewFragment#setOneTouchStartDragResID(int)} eine resID
-     * einer View der Detailview gesetzt worden, wird diese als startDrag-Event konfiguriert.
+     * Ist mittels {@link AWBaseRecyclerViewFragment#setOnTouchStartDragResID(int)} eine resID einer
+     * View der Detailview gesetzt worden, wird diese als startDrag-Event konfiguriert.
      *
      * @throws NullPointerException
      *         wenn es keine View mit dieer resID gibt
      */
     @CallSuper
     protected void onPreBindViewHolder(final AWLibViewHolder holder) {
-        View handleView;
-        holder.itemView.setHapticFeedbackEnabled(true);
-        if (oneTouchStartDragResID != -1) {
-            handleView = holder.findViewById(oneTouchStartDragResID);
-            handleView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                        AWBaseRecyclerViewFragment.this.onStartDrag(holder);
-                    }
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_UP) {
-                        AWBaseRecyclerViewFragment.this.onStopDrag(holder);
-                    }
-                    return false;
-                }
-            });
-        }
     }
 
     /**
@@ -260,15 +233,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     public void onSaveInstanceState(Bundle outState) {
         args.putLong(SELECTEDVIEWHOLDERITEM, mSelectedID);
         super.onSaveInstanceState(outState);
-    }
-
-    public void onStartDrag(RecyclerView.ViewHolder holder) {
-        holder.itemView.setPressed(true);
-        mTouchHelper.startDrag(holder);
-    }
-
-    public void onStopDrag(AWLibViewHolder holder) {
-        holder.itemView.setPressed(false);
     }
 
     /**
@@ -319,28 +283,28 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     /**
-     * Konfiguration, ob die RecyclerView Draggable ist
+     * Setzt den OnDragListener. In diesem Fall wird die RecyclerView Dragable     *
      *
-     * @param isDragable
-     *         true: ist Draggable
+     * @param listener
+     *         OnDragListener
      */
-    public void setIsDragable(boolean isDragable) {
-        this.isDragable = isDragable;
-        if (callbackTouchHelper != null) {
-            callbackTouchHelper.setIsDragable(isDragable);
+    public void setOnDragListener(AWBaseRecyclerViewAdapter.OnDragListener listener) {
+        mOnDragListener = listener;
+        if (mAdapter != null) {
+            mAdapter.setOnDragListener(listener);
         }
     }
 
     /**
-     * Konfiguration, ob die RecyclerView Swipeable ist
+     * Setzt den OnSwipeListener. In diesem Fall wird die RecyclerView Swipeable
      *
-     * @param isSwipeable
-     *         true: ist Swipeable
+     * @param listener
+     *         OnSwipeListener
      */
-    public void setIsSwipeable(boolean isSwipeable) {
-        this.isSwipeable = isSwipeable;
-        if (callbackTouchHelper != null) {
-            callbackTouchHelper.setIsDragable(isSwipeable);
+    public void setOnSwipeListener(AWBaseRecyclerViewAdapter.OnSwipeListener listener) {
+        mOnSwipeListener = listener;
+        if (mAdapter != null) {
+            mAdapter.setOnSwipeListener(listener);
         }
     }
 
@@ -352,7 +316,10 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      * @param resID
      *         resID der View, bei deren Beruehrung der Drag/Drop Vorgand starten soll
      */
-    public void setOneTouchStartDragResID(@IdRes int resID) {
-        this.oneTouchStartDragResID = resID;
+    public void setOnTouchStartDragResID(@IdRes int resID) {
+        this.onTouchStartDragResID = resID;
+        if (mAdapter != null) {
+            mAdapter.setOnTouchStartDragResID(resID);
+        }
     }
 }

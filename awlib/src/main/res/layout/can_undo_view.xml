@@ -26,52 +26,70 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextViewMain.Medium"
-            />
+        android:orientation="horizontal">
 
         <LinearLayout
-            android:id="@+id/llUndoView"
+            android:id="@+id/llGeloescht"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:orientation="vertical"
             android:paddingEnd="20dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
             android:paddingStart="20dp">
 
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextViewMain.Medium"
+                />
+
+            <TextView
                 android:id="@+id/tvGeloescht"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|center_horizontal"
-                android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:text="@string/tvGeloescht"
                 android:textAppearance="@style/TextViewMain.Medium"
                 android:textColor="@color/white"/>
 
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextViewMain.Medium"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llUndo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="20dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingStart="20dp">
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextViewMain.Medium"/>
+
+            <TextView
                 android:id="@+id/tvDoUndo"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|center_horizontal"
-                android:layout_weight="1"
                 android:gravity="end"
                 android:text="@string/tvRueckgaengig"
                 android:textAppearance="@style/TextViewMain.Medium"
                 android:textColor="@color/white"/>
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextViewMain.Medium"
-            />
 
     </LinearLayout>
 

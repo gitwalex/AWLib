@@ -70,18 +70,20 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         // Set movement flags based on the layout manager
         int dragFlags = 0;
         int swipeFlags = 0;
-        if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-            if (isDragable) {
-                dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT |
-                        ItemTouchHelper.RIGHT;
-            }
-            swipeFlags = 0;
-        } else {
-            if (isDragable) {
-                dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-            }
-            if (isSwipeable) {
-                swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+        if (getAdapter().isViewEnabled(viewHolder)) {
+            if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+                if (isDragable) {
+                    dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT |
+                            ItemTouchHelper.RIGHT;
+                }
+                swipeFlags = 0;
+            } else {
+                if (isDragable) {
+                    dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+                }
+                if (isSwipeable) {
+                    swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+                }
             }
         }
         return makeMovementFlags(dragFlags, swipeFlags);
@@ -138,7 +140,7 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                           RecyclerView.ViewHolder target) {
-        getAdapter().onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+        getAdapter().onDragged(recyclerView, viewHolder, target);
         return true;
     }
 
@@ -162,9 +164,8 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public final void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         int position = viewHolder.getAdapterPosition();
         long id = viewHolder.getItemId();
-        onSwiped(viewHolder, direction, position, id);
+        getAdapter().onSwiped(viewHolder, direction, position, id);
     }
-
 
     /**
      * Steuert, ob eine RecyclerView Dragable ist
