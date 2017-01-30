@@ -219,12 +219,8 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     public void onResume() {
         super.onResume();
         int position = args.getInt(LASTSELECTEDPOSITION);
-        noEntryView.setVisibility(View.VISIBLE);
         if (mAdapter == null) {
             mRecyclerView.setAdapter(getCustomAdapter());
-        }
-        if (mAdapter.getItemCount() > 0) {
-            noEntryView.setVisibility(View.GONE);
         }
         mRecyclerView.scrollToPosition(position);
     }

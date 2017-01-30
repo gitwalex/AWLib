@@ -57,7 +57,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     private int mPendingDeleteItemPosition = NO_POSITION;
     private int mTextResID = R.string.tvGeloescht;
     private AWOnScrollListener mOnScrollListener;
-    private AdapterDataObserver mOnDataAchangeListener;
+    private AdapterDataObserver mOnDataChangeListener;
     private int removed;
     private SparseIntArray mItemPositions = new SparseIntArray();
     private AWSimpleItemTouchHelperCallback callbackTouchHelper;
@@ -218,7 +218,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         }
         mOnScrollListener = new AWOnScrollListener();
         mRecyclerView.addOnScrollListener(mOnScrollListener);
-        mOnDataAchangeListener = new AdapterDataObserver() {
+        mOnDataChangeListener = new AdapterDataObserver() {
             @Override
             public void onChanged() {
                 removed = 0;
@@ -226,7 +226,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                 super.onChanged();
             }
         };
-        registerAdapterDataObserver(mOnDataAchangeListener);
+        registerAdapterDataObserver(mOnDataChangeListener);
     }
 
     @Override
@@ -312,7 +312,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         }
         mRecyclerView.removeOnScrollListener(mOnScrollListener);
         mRecyclerView = null;
-        unregisterAdapterDataObserver(mOnDataAchangeListener);
+        unregisterAdapterDataObserver(mOnDataChangeListener);
     }
 
     public void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from,

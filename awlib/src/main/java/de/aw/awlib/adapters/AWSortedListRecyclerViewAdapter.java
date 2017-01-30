@@ -17,36 +17,41 @@ package de.aw.awlib.adapters;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 
 import java.util.Arrays;
 import java.util.List;
 
-import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
+import de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment;
+import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
  * Created by alex on 29.01.2017.
  */
-public abstract class AWSortedListCursorRecyclerViewAdapter<T extends AWSortedListCursorRecyclerViewAdapter.Item>
-        extends AWCursorRecyclerViewAdapter {
+public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecyclerViewAdapter.Item>
+        extends AWBaseRecyclerViewAdapter {
     final SortedItemList sortedItemList;
+    private ItemGenerator<T> mItemgenerator;
 
-    public AWSortedListCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder,
-                                                 int viewHolderLayout) {
+    public AWSortedListRecyclerViewAdapter(@NonNull Class<T> clazz,
+                                           @NonNull AWBaseRecyclerViewFragment binder,
+                                           int viewHolderLayout) {
         super(binder, viewHolderLayout);
-        sortedItemList = createSortedItemList();
-    }
-
-    protected AWSortedListCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder,
-                                                    @NonNull String idColumn,
-                                                    int viewHolderLayout) {
-        super(binder, idColumn, viewHolderLayout);
-        sortedItemList = createSortedItemList();
+        sortedItemList = new SortedItemList(clazz);
     }
 
     public int add(T item) {
         return sortedItemList.add(item);
+    }
+
+    public void addAll(Cursor cursor, ItemGenerator<T> generator) {
+        mItemgenerator = generator;
+        int newSize = getAdapterCount() > 20 ? 20 : getAdapterCount();
+        for (int i = sortedItemList.size(); i < newSize; i++) {
+            sortedItemList.add(generator.createItem(i));
+        }
     }
 
     public void addAll(List<T> items) {
@@ -69,29 +74,27 @@ public abstract class AWSortedListCursorRecyclerViewAdapter<T extends AWSortedLi
 
     public abstract boolean areItemsTheSame(T item1, T item2);
 
-    public void clear() {
-        sortedItemList.beginBatchedUpdates();
-        //remove items at end, to avoid unnecessary array shifting
-        while (sortedItemList.size() > 0) {
-            sortedItemList.removeItemAt(sortedItemList.size() - 1);
+    @Override
+    protected void bindTheViewHolder(AWLibViewHolder viewHolder, int position) {
+        if (sortedItemList.size() < position + 1) {
+            int newSize = position + 20 > getAdapterCount() ? position + 20 : getAdapterCount();
+            for (int i = sortedItemList.size(); i < newSize; i++) {
+                sortedItemList.add(mItemgenerator.createItem(i));
+            }
         }
-        sortedItemList.endBatchedUpdates();
+        super.bindTheViewHolder(viewHolder, position);
+    }
+
+    public void clear() {
+        sortedItemList.clear();
     }
 
     public abstract int compare(T o1, T o2);
-
-    public abstract T createItem(int position);
-
-    public abstract SortedItemList createSortedItemList();
 
     public T get(int position) {
         return sortedItemList.get(position);
     }
 
-    @Override
-    public int getAdapterCount() {
-        return sortedItemList.size();
-    }
 
     @Override
     protected long getAdapterItemID(int position) {
@@ -114,6 +117,10 @@ public abstract class AWSortedListCursorRecyclerViewAdapter<T extends AWSortedLi
         sortedItemList.updateItemAt(index, item);
     }
 
+    public interface ItemGenerator<T> {
+        T createItem(int position);
+    }
+
     public static abstract class Item {
         public abstract long getID();
     }
@@ -131,17 +138,17 @@ public abstract class AWSortedListCursorRecyclerViewAdapter<T extends AWSortedLi
     public class MCallback extends SortedList.Callback<T> {
         @Override
         public boolean areContentsTheSame(T oldItem, T newItem) {
-            return AWSortedListCursorRecyclerViewAdapter.this.areContentsTheSame(oldItem, newItem);
+            return AWSortedListRecyclerViewAdapter.this.areContentsTheSame(oldItem, newItem);
         }
 
         @Override
         public boolean areItemsTheSame(T item1, T item2) {
-            return AWSortedListCursorRecyclerViewAdapter.this.areItemsTheSame(item1, item2);
+            return AWSortedListRecyclerViewAdapter.this.areItemsTheSame(item1, item2);
         }
 
         @Override
         public int compare(T o1, T o2) {
-            return AWSortedListCursorRecyclerViewAdapter.this.compare(o1, o2);
+            return AWSortedListRecyclerViewAdapter.this.compare(o1, o2);
         }
 
         @Override
