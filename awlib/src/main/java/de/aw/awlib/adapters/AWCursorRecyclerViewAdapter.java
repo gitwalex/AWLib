@@ -99,12 +99,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
      */
     @Override
     protected void bindTheViewHolder(AWLibViewHolder viewHolder, int position) {
-        if (!mDataValid) {
-            throw new IllegalStateException("this should only be called when the cursor is valid");
-        }
-        if (!mCursor.moveToPosition(position)) {
-            throw new IllegalStateException("couldn't move cursor to position " + position);
-        }
+        moveCursor(position);
         mBinder.onBindViewHolder(viewHolder, mCursor);
     }
 
@@ -138,6 +133,16 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
             return mCursor.getLong(mRowIdColumnIndex);
         }
         return super.getAdapterItemID(position);
+    }
+
+    protected final Cursor moveCursor(int position) {
+        if (!mDataValid) {
+            throw new IllegalStateException("this should only be called when the cursor is valid");
+        }
+        if (!mCursor.moveToPosition(position)) {
+            throw new IllegalStateException("couldn't move cursor to position " + position);
+        }
+        return mCursor;
     }
 
     @Override

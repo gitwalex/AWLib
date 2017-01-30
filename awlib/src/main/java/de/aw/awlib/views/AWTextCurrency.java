@@ -18,11 +18,13 @@ package de.aw.awlib.views;
  */
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.TextView;
 
+import de.aw.awlib.R;
 import de.aw.awlib.database.AWDBConvert;
 
 /**
@@ -40,10 +42,12 @@ public class AWTextCurrency extends TextView {
 
     public AWTextCurrency(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setValue(attrs);
     }
 
     public AWTextCurrency(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        setValue(attrs);
     }
 
     /**
@@ -51,6 +55,44 @@ public class AWTextCurrency extends TextView {
      */
     public long getValue() {
         return value;
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        if (!isInEditMode()) {
+            setValue(0);
+        }
+        setEms(minCharacters);
+        setGravity(Gravity.END);
+    }
+
+    /**
+     * Setzt den ColorMode.
+     *
+     * @param colorMode
+     *         colorMode. Wenn true (default), wird ein Negativer Wert rot dargestellt. Bei false
+     *         werden alle Werte schwarz dargestellt.
+     */
+    public void setColorMode(boolean colorMode) {
+        this.colorMode = colorMode;
+    }
+
+    public void setValue(String value) {
+        setValue(Long.parseLong(value));
+    }
+
+    private void setValue(AttributeSet attrs) {
+        TypedArray a = getContext().getTheme()
+                                   .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
+        try {
+            String val = a.getString(R.styleable.AWTextCurrency_value);
+            if (val != null) {
+                setValue(val);
+            }
+        } finally {
+            a.recycle();
+        }
     }
 
     /**
@@ -68,26 +110,5 @@ public class AWTextCurrency extends TextView {
         } else {
             setTextColor(Color.BLACK);
         }
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        if (!isInEditMode()) {
-            setValue(0);
-        }
-        setEms(minCharacters);
-        setGravity(Gravity.RIGHT | Gravity.END);
-    }
-
-    /**
-     * Setzt den ColorMode.
-     *
-     * @param colorMode
-     *         colorMode. Wenn true (default), wird ein Negativer Wert rot dargestellt. Bei false
-     *         werden alle Werte schwarz dargestellt.
-     */
-    public void setColorMode(boolean colorMode) {
-        this.colorMode = colorMode;
     }
 }

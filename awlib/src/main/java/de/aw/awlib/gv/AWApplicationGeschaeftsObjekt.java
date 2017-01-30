@@ -74,6 +74,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      */
     private ContentValues currentContent = new ContentValues();
     private boolean isDirty;
+    private boolean isUpdatable = true;
 
     public static boolean isImport() {
         return isImport;
@@ -107,6 +108,15 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         fillContent(mContext.getDBHelper().getApplicationContext(), id);
         id = getID();
         selectionArgs = new String[]{id.toString()};
+    }
+
+    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd, Cursor c) {
+        this(context, tbd);
+        for (int index = 0; index < c.getColumnCount(); index++) {
+            String column = c.getColumnName(index);
+            currentContent.put(column, c.getString(index));
+            isUpdatable = false;
+        }
     }
 
     /**
@@ -637,6 +647,10 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         if (id == null) {
             throw new IllegalStateException(
                     "AWApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
+        }
+        if (!isUpdatable) {
+            throw new IllegalStateException(
+                    "AWApplicationGeschaeftsObjekt kann nicht upgedatet werden!");
         }
         if (isDirty) {
             currentContent.put(mContext.getDBHelper().columnName(R.string._id), getID());

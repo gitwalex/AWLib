@@ -18,6 +18,8 @@ package de.aw.awlib.recyclerview;
  */
 
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -33,6 +35,7 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     private Long mID;
     private OnClickListener mOnClickListener;
     private OnLongClickListener mOnLonClickListener;
+    private ViewDataBinding viewDataBinding;
 
     /**
      * Erstellt AWLibViewHolder.
@@ -69,17 +72,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     }
 
     /**
-     * Wenn Die Tabelle eine Spalte '_id' hat, wird in {@link AWCursorRecyclerViewFragment#onPreBindViewHolder(Cursor,
-     * AWLibViewHolder)} die ID gesetzt.
-     *
-     * @param id
-     *         id
-     */
-    public void setID(long id) {
-        this.mID = id;
-    }
-
-    /**
      * Liefert ein Tag aus der View zuruck. Es kann ein Defaultwert vorgegeben werden. dieser wird
      * zurueckgeliefert, wenn kein entsprechendes Tag in der View gefunden wird.
      *
@@ -104,6 +96,13 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
         return itemView;
     }
 
+    public ViewDataBinding getViewDataBinding() {
+        if (viewDataBinding == null) {
+            viewDataBinding = DataBindingUtil.bind(itemView);
+        }
+        return viewDataBinding;
+    }
+
     /**
      * @return ob der Holder auswaehlbar ist. Siehe {@link AWLibViewHolder#setSelectable(boolean)}
      */
@@ -112,33 +111,11 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     }
 
     /**
-     * Setzt ein Flag, ob der Holder selecatble ist.
-     *
-     * @param selectable
-     *         Flag. true: ist selectable
-     */
-    public void setSelectable(boolean selectable) {
-        isSelectable = selectable;
-    }
-
-    /**
      * @return ob der Holder durch eine vorherige Selection ausgewaehlt ist. Siehe {@link
      * AWLibViewHolder#setSelected(boolean)}
      */
     public boolean isSelected() {
         return isSelected;
-    }
-
-    /**
-     * Setzt ein Flag, ob der Holder selectiert wurde. Es wird itemView.setSelected(flag)
-     * durchgefuehrt
-     *
-     * @param isSelected
-     *         Flag. true: ist selectiert
-     */
-    public void setSelected(boolean isSelected) {
-        this.isSelected = isSelected;
-        itemView.setSelected(isSelected);
     }
 
     @Override
@@ -151,6 +128,17 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     @Override
     public boolean onLongClick(View v) {
         return mOnLonClickListener != null && mOnLonClickListener.onLongClick(this);
+    }
+
+    /**
+     * Wenn Die Tabelle eine Spalte '_id' hat, wird in {@link AWCursorRecyclerViewFragment#onPreBindViewHolder(Cursor,
+     * AWLibViewHolder)} die ID gesetzt.
+     *
+     * @param id
+     *         id
+     */
+    public void setID(long id) {
+        this.mID = id;
     }
 
     /**
@@ -173,6 +161,28 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     public void setOnLongClickListener(OnLongClickListener onLongClickListener) {
         mOnLonClickListener = onLongClickListener;
         itemView.setOnLongClickListener(this);
+    }
+
+    /**
+     * Setzt ein Flag, ob der Holder selecatble ist.
+     *
+     * @param selectable
+     *         Flag. true: ist selectable
+     */
+    public void setSelectable(boolean selectable) {
+        isSelectable = selectable;
+    }
+
+    /**
+     * Setzt ein Flag, ob der Holder selectiert wurde. Es wird itemView.setSelected(flag)
+     * durchgefuehrt
+     *
+     * @param isSelected
+     *         Flag. true: ist selectiert
+     */
+    public void setSelected(boolean isSelected) {
+        this.isSelected = isSelected;
+        itemView.setSelected(isSelected);
     }
 
     /**

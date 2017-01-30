@@ -91,6 +91,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         mBinder.onBindViewHolder(viewHolder, position);
     }
 
+
     private void configure() {
         if (callbackTouchHelper == null) {
             callbackTouchHelper = new AWSimpleItemTouchHelperCallback(this);
@@ -446,6 +447,13 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     public interface OnDragListener {
         void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from,
                        RecyclerView.ViewHolder to);
+    }
+
+    private class AWAdapterDataObserver extends AdapterDataObserver {
+        @Override
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            super.onItemRangeMoved(fromPosition, toPosition, itemCount);
+        }
     }
 
     private class AWOnScrollListener extends OnScrollListener {
