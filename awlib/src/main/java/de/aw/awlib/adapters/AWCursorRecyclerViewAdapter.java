@@ -36,7 +36,10 @@ package de.aw.awlib.adapters;/*
 
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.util.SparseIntArray;
 
 import java.util.List;
 
@@ -44,18 +47,24 @@ import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
+import static android.support.v7.widget.RecyclerView.NO_ID;
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
+
 /**
  * Adapter fuer RecyclerView mit Cursor.
  */
 public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
         implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
     protected final int viewHolderLayout;
-    private final AdapterDataObserver mDataObserver;
+    private final CursorDataObserver mDataObserver;
     private final String mRowIDColumn;
     private final AWCursorRecyclerViewFragment mBinder;
     private Cursor mCursor;
     private boolean mDataValid;
     private int mRowIdColumnIndex;
+    private int removed;
+    private SparseIntArray mItemPositions = new SparseIntArray();
+    private AWAdapterDataObserver mOnDataChangeListener;
 
     /**
      * Initialisiert Adapter. Cursor muss eine Spalte '_id' enthalten.
@@ -80,7 +89,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
                                           @NonNull String idColumn, int viewHolderLayout) {
         super(binder, viewHolderLayout);
         mBinder = binder;
-        mDataObserver = new AdapterDataObserver();
+        mDataObserver = new CursorDataObserver();
         mRowIDColumn = idColumn;
         this.viewHolderLayout = viewHolderLayout;
         setHasStableIds(true);
@@ -99,8 +108,21 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
      */
     @Override
     protected void bindTheViewHolder(AWLibViewHolder viewHolder, int position) {
-        moveCursor(position);
+        moveCursor(convertItemPosition(position));
         mBinder.onBindViewHolder(viewHolder, mCursor);
+    }
+
+    /**
+     * Convertiert die Position in der RecyclerView in die Psoition im Adapter unter
+     * Beruecksichtigung verschobener und geloeschter Items
+     *
+     * @param position
+     *         Position in der RecyclerView
+     * @return Position im Adapter
+     */
+    private int convertItemPosition(int position) {
+        int mPosition = getAdapterPosition(position);
+        return mItemPositions.get(mPosition, mPosition);
     }
 
     private void doLog() {
@@ -113,29 +135,59 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     }
 
     /**
-     * @return Anzahl der Element im Cursor. Ist der Cursor ungueltig, wird 0 zurueckgeliefert.
-     */
-    @Override
-    public int getAdapterCount() {
-        if (mDataValid && mCursor != null) {
-            return mCursor.getCount();
-        }
-        return 0;
-    }
-
-    /**
      * @return die ID der Position, wenn der Cursor gueltig ist. Ansonsten NO_ID
      */
-    @Override
-    protected long getAdapterItemID(int position) {
+    private long getAdapterItemID(int position) {
         if (mDataValid && mCursor != null) {
             mCursor.moveToPosition(position);
             return mCursor.getLong(mRowIdColumnIndex);
         }
-        return super.getAdapterItemID(position);
+        return NO_ID;
     }
 
-    protected final Cursor moveCursor(int position) {
+    /**
+     * @param position
+     *         Position in der RecyclerView
+     * @return zur Position der RecyclerView die Position im Adapter unter Beruecksichtigung der
+     * geloeschten Items
+     */
+    private int getAdapterPosition(int position) {
+        int mPosition = position;
+        for (int index = 0; index < mItemPositions.size(); index++) {
+            int key = mItemPositions.keyAt(index);
+            if (key <= mPosition) {
+                int value = mItemPositions.get(key);
+                if (value == NO_POSITION) {
+                    mPosition++;
+                }
+            }
+        }
+        return mPosition;
+    }
+
+    /**
+     * @return Anzahl der im Adapter vorhandenen Items abzueglich der bereits entfernten Items
+     */
+    @Override
+    public int getItemCount() {
+        int count = 0;
+        if (mDataValid && mCursor != null) {
+            count = mCursor.getCount() - removed;
+        }
+        return count < 0 ? 0 : count;
+    }
+
+    /**
+     * @param position
+     *         Position in der RecyclerView
+     * @return Position im Adapter unter Beruecksichtigung geloeschter und verschobener Items
+     */
+    @Override
+    public final long getItemId(int position) {
+        return getAdapterItemID(convertItemPosition(position));
+    }
+
+    private Cursor moveCursor(int position) {
         if (!mDataValid) {
             throw new IllegalStateException("this should only be called when the cursor is valid");
         }
@@ -146,9 +198,34 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     }
 
     @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        mOnDataChangeListener = new AWAdapterDataObserver();
+        registerAdapterDataObserver(mOnDataChangeListener);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        if (getPendingDeleteItemPosition() != NO_POSITION) {
+            mItemPositions.put(getAdapterPosition(getPendingDeleteItemPosition()), NO_POSITION);
+        }
+        unregisterAdapterDataObserver(mOnDataChangeListener);
+    }
+
+    @CallSuper
+    @Override
     public void onItemDismiss(int position) {
-        super.onItemDismiss(position);
-        //        doLog();
+        if (position != NO_POSITION) {
+            notifyItemRemoved(position);
+        }
+    }
+
+    @CallSuper
+    @Override
+    protected void onItemMove(int fromPosition, int toPosition) {
+        notifyItemMoved(fromPosition, toPosition);
+        AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
     }
 
     /**
@@ -179,11 +256,65 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
      * Observer fuer einen Cursor. Wird der Cursor invalide (z.B. durch close()), werden die Daten
      * als ungueltig erklaert.
      */
-    private class AdapterDataObserver extends DataSetObserver {
+    private class CursorDataObserver extends DataSetObserver {
         @Override
         public void onInvalidated() {
             mDataValid = false;
             notifyDataSetChanged();
+        }
+    }
+
+    private class AWAdapterDataObserver extends RecyclerView.AdapterDataObserver {
+        @Override
+        public void onChanged() {
+            removed = 0;
+            mItemPositions.clear();
+            super.onChanged();
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount) {
+            super.onItemRangeChanged(positionStart, itemCount);
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+            super.onItemRangeChanged(positionStart, itemCount, payload);
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            super.onItemRangeInserted(positionStart, itemCount);
+        }
+
+        @Override
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            for (int i = 0; i < itemCount; i++) {
+                int mFromPosition = getAdapterPosition(fromPosition + i);
+                int mToPosition = getAdapterPosition(toPosition + i);
+                int mFromItem = mItemPositions.get(mFromPosition, mFromPosition);
+                int mToItem = mItemPositions.get(mToPosition, mToPosition);
+                if (mToPosition == mFromItem) {
+                    mItemPositions.delete(mToPosition);
+                } else {
+                    mItemPositions.put(mToPosition, mFromItem);
+                }
+                if (mFromPosition == mToItem) {
+                    mItemPositions.delete(mFromPosition);
+                } else {
+                    mItemPositions.put(mFromPosition, mToItem);
+                }
+            }
+            super.onItemRangeMoved(fromPosition, toPosition, itemCount);
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            for (int i = 0; i < itemCount; i++) {
+                mItemPositions.put(getAdapterPosition(positionStart + i), NO_POSITION);
+                removed++;
+            }
+            super.onItemRangeRemoved(positionStart, itemCount);
         }
     }
 }

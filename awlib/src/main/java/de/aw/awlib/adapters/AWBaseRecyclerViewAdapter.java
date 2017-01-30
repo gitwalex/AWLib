@@ -24,7 +24,6 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,12 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.aw.awlib.R;
-import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
 
-import static android.support.v7.widget.RecyclerView.NO_ID;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.OnScrollListener;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
@@ -58,8 +55,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     private int mTextResID = R.string.tvGeloescht;
     private AWOnScrollListener mOnScrollListener;
     private AdapterDataObserver mOnDataChangeListener;
-    private int removed;
-    private SparseIntArray mItemPositions = new SparseIntArray();
     private AWSimpleItemTouchHelperCallback callbackTouchHelper;
     private ItemTouchHelper mTouchHelper;
     private int onTouchStartDragResID = -1;
@@ -91,7 +86,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         mBinder.onBindViewHolder(viewHolder, position);
     }
 
-
     private void configure() {
         if (callbackTouchHelper == null) {
             callbackTouchHelper = new AWSimpleItemTouchHelperCallback(this);
@@ -99,64 +93,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         callbackTouchHelper.setIsSwipeable(mOnSwipeListener != null);
         callbackTouchHelper.setIsDragable(mOnDragListener != null);
         mTouchHelper = new ItemTouchHelper(callbackTouchHelper);
-    }
-
-    /**
-     * Convertiert die Position in der RecyclerView in die Psoition im Adapter unter
-     * Beruecksichtigung verschobener und geloeschter Items
-     *
-     * @param position
-     *         Position in der RecyclerView
-     * @return Position im Adapter
-     */
-    private int convertItemPosition(int position) {
-        int mPosition = getAdapterPosition(position);
-        return mItemPositions.get(mPosition, mPosition);
-    }
-
-    /**
-     * @return Liefert die Anzahl der im Adapter vorhandenen Items
-     */
-    protected abstract int getAdapterCount();
-
-    /**
-     * Liefert die ID des Items im Adapter
-     *
-     * @param position
-     *         Position im Adapter
-     * @return {@link RecyclerView#NO_ID}
-     */
-    protected long getAdapterItemID(int position) {
-        return NO_ID;
-    }
-
-    /**
-     * @param position
-     *         Position in der RecyclerView
-     * @return zur Position der RecyclerView die Position im Adapter unter Beruecksichtigung der
-     * geloeschten Items
-     */
-    private int getAdapterPosition(int position) {
-        int mPosition = position;
-        for (int index = 0; index < mItemPositions.size(); index++) {
-            int key = mItemPositions.keyAt(index);
-            if (key <= mPosition) {
-                int value = mItemPositions.get(key);
-                if (value == NO_POSITION) {
-                    mPosition++;
-                }
-            }
-        }
-        return mPosition;
-    }
-
-    /**
-     * @return Anzahl der im Adapter vorhandenen Items abzueglich der bereits entfernten Items
-     */
-    @Override
-    public final int getItemCount() {
-        int count = getAdapterCount() - removed;
-        return count < 0 ? 0 : count;
     }
 
     /**
@@ -171,16 +107,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         return mItemIDList;
     }
 
-    /**
-     * @param position
-     *         Position in der RecyclerView
-     * @return Position im Adapter unter Beruecksichtigung geloeschter und verschobener Items
-     */
-    @Override
-    public final long getItemId(int position) {
-        return getAdapterItemID(convertItemPosition(position));
-    }
-
     @Override
     public final int getItemViewType(int position) {
         if (mPendingDeleteItemPosition == position) {
@@ -189,7 +115,11 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         return getViewType(position);
     }
 
-    public RecyclerView getRecyclerView() {
+    protected final int getPendingDeleteItemPosition() {
+        return mPendingDeleteItemPosition;
+    }
+
+    public final RecyclerView getRecyclerView() {
         return mRecyclerView;
     }
 
@@ -218,19 +148,11 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         }
         mOnScrollListener = new AWOnScrollListener();
         mRecyclerView.addOnScrollListener(mOnScrollListener);
-        mOnDataChangeListener = new AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                removed = 0;
-                mItemPositions.clear();
-                super.onChanged();
-            }
-        };
-        registerAdapterDataObserver(mOnDataChangeListener);
     }
 
+    @CallSuper
     @Override
-    public final void onBindViewHolder(final AWLibViewHolder holder, int position) {
+    public void onBindViewHolder(final AWLibViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
             case UNDODELETEVIEW:
                 View view = holder.itemView.findViewById(R.id.llUndo);
@@ -249,6 +171,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                     @Override
                     public void onClick(View v) {
                         onItemDismiss(mPendingDeleteItemPosition);
+                        mPendingDeleteItemPosition = NO_POSITION;
                     }
                 });
                 break;
@@ -270,7 +193,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                         }
                     });
                 }
-                bindTheViewHolder(holder, convertItemPosition(position));
+                bindTheViewHolder(holder, position);
         }
     }
 
@@ -307,12 +230,8 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        if (mPendingDeleteItemPosition != NO_POSITION) {
-            mItemPositions.put(getAdapterPosition(mPendingDeleteItemPosition), NO_POSITION);
-        }
         mRecyclerView.removeOnScrollListener(mOnScrollListener);
         mRecyclerView = null;
-        unregisterAdapterDataObserver(mOnDataChangeListener);
     }
 
     public void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from,
@@ -327,47 +246,11 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
      * gerufen wurde.
      *
      * @param position
-     *         Position des items im Adapter, das entfernt werden soll. Diese kann durch {@link
-     *         AWBaseRecyclerViewAdapter#getAdapterPosition(int)} ermittelt werden.
+     *         Position des items im Adapter, das entfernt werden soll.
      */
-    @CallSuper
-    public void onItemDismiss(int position) {
-        if (position != NO_POSITION) {
-            mPendingDeleteItemPosition = NO_POSITION;
-            mItemPositions.put(getAdapterPosition(position), NO_POSITION);
-            notifyItemRemoved(position);
-            removed++;
-        }
-    }
+    public abstract void onItemDismiss(int position);
 
-    /**
-     * Vertauscht zwei Items. Funktioniert nur, wenn {@link AWBaseRecyclerViewAdapter#setOnDragListener(OnDragListener)}
-     * } mit einem OnDragListener gerufen wurde. Beruecksichtigt verschobene und geloeschte Items.
-     *
-     * @param fromPosition
-     *         urspruengliche Position in der RecyclerView
-     * @param toPosition
-     *         Neue Position in der RecyclerView
-     */
-    @CallSuper
-    public void onItemMove(int fromPosition, int toPosition) {
-        int mFromPosition = getAdapterPosition(fromPosition);
-        int mToPosition = getAdapterPosition(toPosition);
-        int mFromItem = mItemPositions.get(mFromPosition, mFromPosition);
-        int mToItem = mItemPositions.get(mToPosition, mToPosition);
-        if (mToPosition == mFromItem) {
-            mItemPositions.delete(mToPosition);
-        } else {
-            mItemPositions.put(mToPosition, mFromItem);
-        }
-        if (mFromPosition == mToItem) {
-            mItemPositions.delete(mFromPosition);
-        } else {
-            mItemPositions.put(mFromPosition, mToItem);
-        }
-        notifyItemMoved(fromPosition, toPosition);
-        AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
-    }
+    protected abstract void onItemMove(int fromPosition, int toPosition);
 
     @Override
     public boolean onLongClick(AWLibViewHolder holder) {
@@ -396,7 +279,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
      * @param listener
      *         OnDragListener
      */
-    public void setOnDragListener(OnDragListener listener) {
+    public final void setOnDragListener(OnDragListener listener) {
         mOnDragListener = listener;
         configure();
     }
@@ -407,7 +290,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
      * @param listener
      *         OnSwipeListener
      */
-    public void setOnSwipeListener(OnSwipeListener listener) {
+    public final void setOnSwipeListener(OnSwipeListener listener) {
         mOnSwipeListener = listener;
         configure();
     }
@@ -420,14 +303,15 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
      * @param resID
      *         resID der View, bei deren Beruehrung der Drag/Drop Vorgand starten soll
      */
-    public void setOnTouchStartDragResID(@IdRes int resID) {
+    public final void setOnTouchStartDragResID(@IdRes int resID) {
         this.onTouchStartDragResID = resID;
     }
 
-    public void setPendingDeleteItem(int position) {
+    public final void setPendingDeleteItem(int position) {
         int mPending = mPendingDeleteItemPosition;
-        if (mPending != NO_POSITION) {
+        if (mPendingDeleteItemPosition != NO_POSITION) {
             onItemDismiss(mPending);
+            mPendingDeleteItemPosition = NO_POSITION;
         }
         if (mPending != position) {
             mPendingDeleteItemPosition = position;
@@ -435,7 +319,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         }
     }
 
-    public void setTextResID(@StringRes int textresID) {
+    public final void setTextResID(@StringRes int textresID) {
         mTextResID = textresID;
     }
 
@@ -449,13 +333,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                        RecyclerView.ViewHolder to);
     }
 
-    private class AWAdapterDataObserver extends AdapterDataObserver {
-        @Override
-        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-            super.onItemRangeMoved(fromPosition, toPosition, itemCount);
-        }
-    }
-
     private class AWOnScrollListener extends OnScrollListener {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -463,6 +340,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                 case SCROLL_STATE_DRAGGING:
                     if (mPendingDeleteItemPosition != NO_POSITION) {
                         onItemDismiss(mPendingDeleteItemPosition);
+                        mPendingDeleteItemPosition = NO_POSITION;
                     }
                     break;
             }

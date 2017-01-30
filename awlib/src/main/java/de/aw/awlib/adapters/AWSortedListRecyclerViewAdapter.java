@@ -18,6 +18,7 @@ package de.aw.awlib.adapters;
  */
 
 import android.database.Cursor;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 
@@ -32,8 +33,9 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  */
 public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecyclerViewAdapter.Item>
         extends AWBaseRecyclerViewAdapter {
-    final SortedItemList sortedItemList;
+    private final SortedItemList sortedItemList;
     private ItemGenerator<T> mItemgenerator;
+    private int mCount;
 
     public AWSortedListRecyclerViewAdapter(@NonNull Class<T> clazz,
                                            @NonNull AWBaseRecyclerViewFragment binder,
@@ -42,19 +44,20 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecy
         sortedItemList = new SortedItemList(clazz);
     }
 
-    public int add(T item) {
+    public final int add(T item) {
         return sortedItemList.add(item);
     }
 
-    public void addAll(Cursor cursor, ItemGenerator<T> generator) {
+    public final void addAll(Cursor cursor, ItemGenerator<T> generator) {
         mItemgenerator = generator;
-        int newSize = getAdapterCount() > 20 ? 20 : getAdapterCount();
+        mCount = cursor.getCount();
+        int newSize = mCount > 20 ? 20 : mCount;
         for (int i = sortedItemList.size(); i < newSize; i++) {
             sortedItemList.add(generator.createItem(i));
         }
     }
 
-    public void addAll(List<T> items) {
+    public final void addAll(List<T> items) {
         sortedItemList.beginBatchedUpdates();
         for (T item : items) {
             sortedItemList.add(item);
@@ -62,11 +65,11 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecy
         sortedItemList.endBatchedUpdates();
     }
 
-    public void addAll(T[] items) {
+    public final void addAll(T[] items) {
         addAll(Arrays.asList(items));
     }
 
-    protected void addItem(T item) {
+    public final void addItem(T item) {
         sortedItemList.add(item);
     }
 
@@ -74,46 +77,63 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecy
 
     public abstract boolean areItemsTheSame(T item1, T item2);
 
-    @Override
-    protected void bindTheViewHolder(AWLibViewHolder viewHolder, int position) {
-        if (sortedItemList.size() < position + 1) {
-            int newSize = position + 20 > getAdapterCount() ? position + 20 : getAdapterCount();
-            for (int i = sortedItemList.size(); i < newSize; i++) {
-                sortedItemList.add(mItemgenerator.createItem(i));
-            }
-        }
-        super.bindTheViewHolder(viewHolder, position);
-    }
-
     public void clear() {
         sortedItemList.clear();
     }
 
     public abstract int compare(T o1, T o2);
 
-    public T get(int position) {
+    public final T get(int position) {
         return sortedItemList.get(position);
     }
 
+    @Override
+    public final int getItemCount() {
+        if (mItemgenerator != null) {
+            return mCount;
+        }
+        return sortedItemList.size();
+    }
 
     @Override
-    protected long getAdapterItemID(int position) {
+    public final long getItemId(int position) {
         return sortedItemList.get(position).getID();
     }
 
-    public int indexOf(T item) {
+    public final int indexOf(T item) {
         return sortedItemList.indexOf(item);
     }
 
-    public boolean remove(T item) {
+    @Override
+    public void onBindViewHolder(AWLibViewHolder holder, int position) {
+        if (sortedItemList.size() < position + 1) {
+            int newSize = position + 20 > mCount ? position + 20 : mCount;
+            for (int i = sortedItemList.size(); i < newSize; i++) {
+                sortedItemList.add(mItemgenerator.createItem(i));
+            }
+        }
+        super.onBindViewHolder(holder, position);
+    }
+
+    @CallSuper
+    @Override
+    public void onItemDismiss(int position) {
+        sortedItemList.removeItemAt(position);
+    }
+
+    @Override
+    protected void onItemMove(int fromPosition, int toPosition) {
+    }
+
+    public final boolean remove(T item) {
         return sortedItemList.remove(item);
     }
 
-    public T removeItemAt(int index) {
+    public final T removeItemAt(int index) {
         return sortedItemList.removeItemAt(index);
     }
 
-    public void updateItemAt(int index, T item) {
+    public final void updateItemAt(int index, T item) {
         sortedItemList.updateItemAt(index, item);
     }
 
@@ -135,7 +155,7 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecy
         }
     }
 
-    public class MCallback extends SortedList.Callback<T> {
+    private class MCallback extends SortedList.Callback<T> {
         @Override
         public boolean areContentsTheSame(T oldItem, T newItem) {
             return AWSortedListRecyclerViewAdapter.this.areContentsTheSame(oldItem, newItem);
@@ -168,7 +188,6 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecy
 
         @Override
         public void onRemoved(int position, int count) {
-            onItemDismiss(position);
             notifyItemRangeRemoved(position, count);
         }
     }
