@@ -57,10 +57,10 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
     protected int layout = R.layout.awlib_default_recycler_view;
-    private AWBaseRecyclerViewListener mBaseRecyclerViewListener;
     private int onTouchStartDragResID = -1;
     private AWBaseRecyclerViewAdapter.OnDragListener mOnDragListener;
     private AWBaseRecyclerViewAdapter.OnSwipeListener mOnSwipeListener;
+    private AWCursorRecyclerViewListener mBaseRecyclerViewListener;
 
     /**
      * @return einen BaseAdapter
@@ -133,18 +133,16 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     /**
-     * Activity kann (muss aber nicht) AWBaseRecyclerViewListener implementieren. In diesem Fall
+     * Activity kann (muss aber nicht) AWCursorRecyclerViewListener implementieren. In diesem Fall
      * wird die entsprechende Methode bei Bedarf aufgerufen.
      *
-     * @see AWBaseRecyclerViewListener
+     * @see AWCursorRecyclerViewListener
      */
     @Override
     public void onAttach(Context activity) {
         super.onAttach(activity);
-        try {
-            mBaseRecyclerViewListener = (AWBaseRecyclerViewListener) activity;
-        } catch (ClassCastException e) {
-            // Nix tun. Activity muss keinen RecyclerListerer implementieren.
+        if (activity instanceof AWCursorRecyclerViewListener) {
+            mBaseRecyclerViewListener = (AWCursorRecyclerViewListener) activity;
         }
     }
 
@@ -182,19 +180,14 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     /**
-     * Ist mittels {@link AWBaseRecyclerViewFragment#setOnTouchStartDragResID(int)} eine resID einer
-     * View der Detailview gesetzt worden, wird diese als startDrag-Event konfiguriert.
-     *
-     * @throws NullPointerException
-     *         wenn es keine View mit dieer resID gibt
+     * Wird aus {@link AWBaseRecyclerViewFragment#onBindViewHolder(AWLibViewHolder, int)} gerufen
      */
-    @CallSuper
     protected void onPreBindViewHolder(final AWLibViewHolder holder) {
     }
 
     /**
      * Wird vom Adapter gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs. die
-     * Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
+     * Activity gerufen, die einen {@link AWCursorRecyclerViewListener} implementiert hat.
      */
     @CallSuper
     public void onRecyclerItemClick(View view, int position, long id) {

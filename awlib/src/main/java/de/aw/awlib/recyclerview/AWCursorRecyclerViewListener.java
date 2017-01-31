@@ -25,7 +25,7 @@ import android.view.View;
  * Convenience- Methoden fuer onClick(View view), OnLongClick (View view). Liefert zu der View
  * weitere Parameter mit
  */
-public interface AWBaseRecyclerViewListener {
+public interface AWCursorRecyclerViewListener {
     /**
      * Convenience- Methode fuer onClick(View v). Liefert zu der View weitere Parameter mit
      *

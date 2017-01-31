@@ -45,7 +45,7 @@ import de.aw.awlib.fragments.AWRemoteServerConnectionData;
 import de.aw.awlib.fragments.AWShowPicture;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 import de.aw.awlib.gv.AWRemoteFileServer;
-import de.aw.awlib.recyclerview.AWBaseRecyclerViewListener;
+import de.aw.awlib.recyclerview.AWCursorRecyclerViewListener;
 import de.aw.awlib.recyclerview.AWOnArrayRecyclerViewListener;
 
 /**
@@ -54,7 +54,7 @@ import de.aw.awlib.recyclerview.AWOnArrayRecyclerViewListener;
 public class AWActivityActions extends AWMainActivity
         implements AWOnArrayRecyclerViewListener, AWFragmentActionBar.OnActionFinishListener,
         AWFragment.OnAWFragmentDismissListener, AWFragment.OnAWFragmentCancelListener,
-        AWBaseRecyclerViewListener {
+        AWCursorRecyclerViewListener {
     private AWEvent event;
     private AWRemoteFileServer mRemoteServer;
 

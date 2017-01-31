@@ -100,10 +100,10 @@
     </style>
 
     <style name="UndoCardView" parent="@style/AWLibCardView">
-        <item name="android:background">@color/cardViewUndo</item>
+        <item name="android:colorBackground">@color/cardViewUndo</item>
     </style>
 
-    <style name="AWLibCardView" parent="@style/CardView">
+    <style name="AWLibCardView" parent="@style/Base.CardView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">1dp</item>

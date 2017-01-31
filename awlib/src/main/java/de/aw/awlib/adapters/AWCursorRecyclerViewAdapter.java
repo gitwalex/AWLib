@@ -40,6 +40,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseIntArray;
+import android.view.View;
 
 import java.util.List;
 
@@ -226,6 +227,22 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     protected void onItemMove(int fromPosition, int toPosition) {
         notifyItemMoved(fromPosition, toPosition);
         AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
+    }
+
+    @Override
+    protected void onViewHolderClicked(AWLibViewHolder holder) {
+        View v = holder.getView();
+        int position = getRecyclerView().getChildAdapterPosition(holder.itemView);
+        long id = getItemId(position);
+        mBinder.onRecyclerItemClick(v, position, id);
+    }
+
+    @Override
+    protected boolean onViewHolderLongClicked(AWLibViewHolder holder) {
+        View v = holder.itemView;
+        int position = getRecyclerView().getChildAdapterPosition(v);
+        long id = getItemId(position);
+        return mBinder.onRecyclerItemLongClick(v, position, id);
     }
 
     /**

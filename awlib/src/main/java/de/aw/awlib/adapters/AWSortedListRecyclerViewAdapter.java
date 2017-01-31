@@ -21,12 +21,13 @@ import android.database.Cursor;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
+import android.view.View;
 
 import java.util.Arrays;
 import java.util.List;
 
-import de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
+import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 
 /**
  * Created by alex on 29.01.2017.
@@ -34,13 +35,15 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
 public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecyclerViewAdapter.Item>
         extends AWBaseRecyclerViewAdapter {
     private final SortedItemList sortedItemList;
+    private final AWSortedListRecyclerViewFragment mBinder;
     private ItemGenerator<T> mItemgenerator;
     private int mCount;
 
     public AWSortedListRecyclerViewAdapter(@NonNull Class<T> clazz,
-                                           @NonNull AWBaseRecyclerViewFragment binder,
+                                           @NonNull AWSortedListRecyclerViewFragment binder,
                                            int viewHolderLayout) {
         super(binder, viewHolderLayout);
+        mBinder = binder;
         sortedItemList = new SortedItemList(clazz);
     }
 
@@ -123,6 +126,22 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecy
 
     @Override
     protected void onItemMove(int fromPosition, int toPosition) {
+    }
+
+    @Override
+    protected void onViewHolderClicked(AWLibViewHolder holder) {
+        View v = holder.getView();
+        int position = getRecyclerView().getChildAdapterPosition(holder.itemView);
+        T item = sortedItemList.get(position);
+        mBinder.onRecyclerItemClick(getRecyclerView(), v, position, item);
+    }
+
+    @Override
+    protected boolean onViewHolderLongClicked(AWLibViewHolder holder) {
+        View v = holder.itemView;
+        int position = getRecyclerView().getChildAdapterPosition(v);
+        T item = sortedItemList.get(position);
+        return mBinder.onRecyclerItemLongClick(getRecyclerView(), v, position, item);
     }
 
     public final boolean remove(T item) {

@@ -22,7 +22,6 @@ import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -54,7 +53,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     private int mPendingDeleteItemPosition = NO_POSITION;
     private int mTextResID = R.string.tvGeloescht;
     private AWOnScrollListener mOnScrollListener;
-    private AdapterDataObserver mOnDataChangeListener;
     private AWSimpleItemTouchHelperCallback callbackTouchHelper;
     private ItemTouchHelper mTouchHelper;
     private int onTouchStartDragResID = -1;
@@ -198,15 +196,12 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     @Override
-    public void onClick(AWLibViewHolder holder) {
+    public final void onClick(AWLibViewHolder holder) {
         switch (holder.getItemViewType()) {
             case UNDODELETEVIEW:
                 break;
             default:
-                View v = holder.getView();
-                long id = mRecyclerView.getChildItemId(v);
-                int position = mRecyclerView.getChildAdapterPosition(holder.itemView);
-                mBinder.onRecyclerItemClick(v, position, id);
+                onViewHolderClicked(holder);
         }
     }
 
@@ -253,11 +248,8 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     protected abstract void onItemMove(int fromPosition, int toPosition);
 
     @Override
-    public boolean onLongClick(AWLibViewHolder holder) {
-        View v = holder.itemView;
-        int position = mRecyclerView.getChildAdapterPosition(v);
-        long id = mRecyclerView.getChildItemId(v);
-        return mBinder.onRecyclerItemLongClick(v, position, id);
+    public final boolean onLongClick(AWLibViewHolder holder) {
+        return onViewHolderLongClicked(holder);
     }
 
     private void onStartDrag(RecyclerView.ViewHolder holder) {
@@ -272,6 +264,10 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position, long id) {
         mOnSwipeListener.onSwiped(viewHolder, direction, position, id);
     }
+
+    protected abstract void onViewHolderClicked(AWLibViewHolder holder);
+
+    protected abstract boolean onViewHolderLongClicked(AWLibViewHolder holder);
 
     /**
      * Setzt den OnDragListener. In diesem Fall wird die RecyclerView Dragable     *
