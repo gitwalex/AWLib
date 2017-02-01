@@ -236,7 +236,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     /**
-     * Entfernt ein Item an der Position. Funktioniert nur, wenn {@link
+     * Entfernt ein Model an der Position. Funktioniert nur, wenn {@link
      * AWBaseRecyclerViewAdapter#setOnSwipeListener(OnSwipeListener)} mit einem SwipeListener
      * gerufen wurde.
      *
@@ -292,7 +292,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     /**
-     * Durch setzen der resID der DetailView wird dieses Item als OneToch-Draghandler benutzt, d.h.
+     * Durch setzen der resID der DetailView wird dieses Model als OneToch-Draghandler benutzt, d.h.
      * dass bei einmaligen beruehren dieses Items der Drag/Drop-Vorgang startet. Die resID muss in
      * onCreate() gesetzt werden.
      *

@@ -26,7 +26,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.adapters.AWBaseRecyclerViewAdapter;
 import de.aw.awlib.adapters.AWCursorRecyclerViewAdapter;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
@@ -51,7 +50,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
      * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
-    protected AWBaseRecyclerViewAdapter createBaseAdapter() {
+    protected AWCursorRecyclerViewAdapter createBaseAdapter() {
         return new AWCursorRecyclerViewAdapter(this, viewHolderLayout);
     }
 

@@ -219,6 +219,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     public void onItemDismiss(int position) {
         if (position != NO_POSITION) {
             notifyItemRemoved(position);
+            mBinder.onItemDismiss(getItemId(position));
         }
     }
 
@@ -226,7 +227,8 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     @Override
     protected void onItemMove(int fromPosition, int toPosition) {
         notifyItemMoved(fromPosition, toPosition);
-        AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
+        mBinder.onItemMoved(getItemId(fromPosition), getItemId(toPosition));
+        AWApplication.Log("Model Moved. From: " + fromPosition + " To: " + toPosition);
     }
 
     @Override

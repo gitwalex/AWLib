@@ -26,13 +26,14 @@ import android.view.View;
 import java.util.Arrays;
 import java.util.List;
 
+import de.aw.awlib.databindingmodels.Model;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 
 /**
  * Created by alex on 29.01.2017.
  */
-public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecyclerViewAdapter.Item>
+public abstract class AWSortedListRecyclerViewAdapter<T extends Model>
         extends AWBaseRecyclerViewAdapter {
     private final SortedItemList sortedItemList;
     private final AWSortedListRecyclerViewFragment mBinder;
@@ -158,10 +159,6 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends AWSortedListRecy
 
     public interface ItemGenerator<T> {
         T createItem(int position);
-    }
-
-    public static abstract class Item {
-        public abstract long getID();
     }
 
     public class SortedItemList extends SortedList<T> {

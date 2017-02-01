@@ -95,7 +95,7 @@ public class AWBottomSheetDialog extends ExpandedBottomSheetDialog {
      * @param id
      *         ID des StringArray der MenuItems.
      * @param position
-     *         Position des Item, welches geklickt wurde
+     *         Position des Model, welches geklickt wurde
      * @param extras
      *         Bundle, welches durch {@link AWBottomSheetDialog#setExtras(Bundle)} gesetzt wurde.
      * @param view
@@ -168,11 +168,11 @@ public class AWBottomSheetDialog extends ExpandedBottomSheetDialog {
     }
 
     /**
-     * Interface fuer Click auf Item der Recyclerview
+     * Interface fuer Click auf Model der Recyclerview
      */
     public interface BottomSheetListener {
         /**
-         * Wird bei Click auf Item der Recyclerview gerufen
+         * Wird bei Click auf Model der Recyclerview gerufen
          *
          * @param arrayID
          *         ID des arrays, dem die String entnommen wurden (gem. Konstruktor)

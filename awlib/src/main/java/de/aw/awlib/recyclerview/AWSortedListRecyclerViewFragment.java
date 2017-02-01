@@ -23,11 +23,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import de.aw.awlib.adapters.AWSortedListRecyclerViewAdapter;
+import de.aw.awlib.databindingmodels.Model;
 
 /**
  * Created by alex on 31.01.2017.
  */
-public abstract class AWSortedListRecyclerViewFragment<T extends AWSortedListRecyclerViewAdapter.Item>
+public abstract class AWSortedListRecyclerViewFragment<T extends Model>
         extends AWBaseRecyclerViewFragment {
     private AWOnArrayRecyclerViewListener<T> mSortedListRecyclerViewListener;
 

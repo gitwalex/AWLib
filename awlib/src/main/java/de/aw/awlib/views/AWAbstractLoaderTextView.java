@@ -71,7 +71,7 @@ public abstract class AWAbstractLoaderTextView extends TextView
      *         des Items, welches geladen wird. Wird fuer Anzeige der Daten im korrekten Format
      *         benoetigt.
      * @param projection
-     *         Item, welches geladen werden soll.
+     *         Model, welches geladen werden soll.
      * @param selection
      *         Selection. Kann null sein
      * @param selectionArgs

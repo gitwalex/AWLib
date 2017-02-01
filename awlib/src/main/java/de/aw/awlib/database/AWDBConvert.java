@@ -37,7 +37,6 @@ public class AWDBConvert {
     public static final DateFormat DATEFORMAT = DateFormat.getDateInstance();
     public static final DateFormat mSqliteDateFormat = new SimpleDateFormat("yyyy-MM-dd", mLocale);
     public static final DateFormat mDateFormat = new SimpleDateFormat("dd.MM.yyyy", mLocale);
-    public static final DateFormat mHBCIFormat = new SimpleDateFormat("yyyy-MM-dd", mLocale);
     public static final DecimalFormat CURRENCYFORMAT =
             (DecimalFormat) NumberFormat.getCurrencyInstance(mLocale);
     public static final DecimalFormat DECIMALFORMAT =
@@ -46,7 +45,6 @@ public class AWDBConvert {
             (DecimalFormat) NumberFormat.getPercentInstance(mLocale);
     public static double mCurrencyDigits;
     public static double mNumberDigits;
-    public static SimpleDateFormat mTimeFormat = new SimpleDateFormat("HH:mm", mLocale);
 
     static {
         mSqliteDateFormat.setTimeZone(TimeZone.getDefault());

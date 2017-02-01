@@ -180,7 +180,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         return currentContent.get(key) != null;
     }
 
-    private String convertValue(int resID, Object value) {
+    protected String convertValue(int resID, Object value) {
         String newValue = null;
         if (value != null) {
             newValue = value.toString();
@@ -402,7 +402,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *         Datum im SQLite-Format
      * @return Date-Objekt oder null
      */
-    public final Date getAsDate(String datum) {
+    public Date getAsDate(String datum) {
         try {
             return new java.sql.Date(AWDBConvert.mSqliteDateFormat.parse(datum).getTime());
         } catch (ParseException e) {
@@ -414,7 +414,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * Liest das Datum aus dem Geschaeftsobjekt und liefert es als Date zurueck. Siehe {@link
      * AWApplicationGeschaeftsObjekt#getAsDate(String)}
      */
-    public final Date getAsDate(int resID) {
+    public Date getAsDate(int resID) {
         return getAsDate(getAsString(resID));
     }
 

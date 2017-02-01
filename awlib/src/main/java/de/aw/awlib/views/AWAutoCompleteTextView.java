@@ -101,16 +101,6 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     }
 
     /**
-     * Dann kann diese View mehrmals in einem Layout verwendet werden.
-     *
-     * @param index
-     *         index
-     */
-    public void setBroadcastIndex(int index) {
-        mBroadcastIndex = index;
-    }
-
-    /**
      * Liefert den gueltigen Text zurueck. Entweder den im Textfeld, ist ein Validator gesetzt, der
      * entsprechende Text aus dem Cursor.
      *
@@ -122,10 +112,6 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
         } else {
             return getText().toString();
         }
-    }
-
-    public void setSelectedText(String text) {
-        selectedText = text;
     }
 
     /**
@@ -226,7 +212,7 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     }
 
     /**
-     * Wenn ein List-Item ausgewaehlt wird, wird eine Message mit dem ausgewaehlten Text gesendet.
+     * Wenn ein List-Model ausgewaehlt wird, wird eine Message mit dem ausgewaehlten Text gesendet.
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -290,7 +276,7 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     /**
      * Wird bei Textaenderungen gerufen:
      * <p/>
-     * 1. Es wird ein Item aus der Liste gewaehlt. Dann findet man unter {@link
+     * 1. Es wird ein Model aus der Liste gewaehlt. Dann findet man unter {@link
      * AWAutoCompleteTextView#getSelectionID()} die ID, unter {@link AWAutoCompleteTextView#getSelectedText()}
      * den entsprechenden Text der Liste.
      * <p/>
@@ -328,6 +314,20 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
     }
 
     /**
+     * Dann kann diese View mehrmals in einem Layout verwendet werden.
+     *
+     * @param index
+     *         index
+     */
+    public void setBroadcastIndex(int index) {
+        mBroadcastIndex = index;
+    }
+
+    public void setSelectedText(String text) {
+        selectedText = text;
+    }
+
+    /**
      * Interface fuer Listener auf Textaenderungen
      */
     public interface OnTextChangedListener {
@@ -339,7 +339,7 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
          * @param newText
          *         Neuer Text.
          * @param newID
-         *         ID aus der DB, wenn Nutzer ein Item aus dem Pulldown selektiert hat oder wenn der
+         *         ID aus der DB, wenn Nutzer ein Model aus dem Pulldown selektiert hat oder wenn der
          *         LoaderManager nur eine Zeile gefunden hat UND ein validator gesetzt ist.
          */
         void onTextChanged(View view, String newText, long newID);
