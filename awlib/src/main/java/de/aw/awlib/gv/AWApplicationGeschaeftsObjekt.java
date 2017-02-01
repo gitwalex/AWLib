@@ -28,7 +28,6 @@ import android.support.annotation.CallSuper;
 import java.text.ParseException;
 import java.util.Date;
 
-import de.aw.awlib.AWException;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
@@ -676,7 +675,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         dest.writeByte(this.isDirty ? (byte) 1 : (byte) 0);
     }
 
-    public static class LineNotFoundException extends AWException {
+    public static class LineNotFoundException extends RuntimeException {
         /**
          *
          */

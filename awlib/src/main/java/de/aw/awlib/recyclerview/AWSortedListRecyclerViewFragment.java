@@ -38,7 +38,7 @@ public abstract class AWSortedListRecyclerViewFragment<T extends AWSortedListRec
      * Activity kann (muss aber nicht) AWSortedListRecyclerViewListener implementieren. In diesem
      * Fall wird die entsprechende Methode bei Bedarf aufgerufen.
      *
-     * @see AWCursorRecyclerViewListener
+     * @see AWBaseRecyclerViewListener
      */
     @Override
     public void onAttach(Context activity) {

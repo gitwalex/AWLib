@@ -78,18 +78,16 @@ public class AWTextCurrency extends TextView {
         this.colorMode = colorMode;
     }
 
-    public void setValue(String value) {
-        setValue(Long.parseLong(value));
+    public void setValue(float value) {
+        setValue((long) (value * AWDBConvert.mCurrencyDigits));
     }
 
     private void setValue(AttributeSet attrs) {
         TypedArray a = getContext().getTheme()
                                    .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
         try {
-            String val = a.getString(R.styleable.AWTextCurrency_value);
-            if (val != null) {
-                setValue(val);
-            }
+            float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
+            setValue(val);
         } finally {
             a.recycle();
         }

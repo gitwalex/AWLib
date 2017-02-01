@@ -121,7 +121,7 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
 
     /**
      * Wird aus onClick(...) gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs.
-     * die Activity gerufen, die einen {@link AWCursorRecyclerViewListener} implementiert hat.
+     * die Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
      */
     @Override
     public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, T object) {
@@ -140,10 +140,10 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     }
 
     /**
-     * Activity kann (muss aber nicht) AWCursorRecyclerViewListener implementieren. In diesem Fall
+     * Activity kann (muss aber nicht) AWBaseRecyclerViewListener implementieren. In diesem Fall
      * wird die entsprechende Methode bei Bedarf aufgerufen.
      *
-     * @see AWCursorRecyclerViewListener
+     * @see AWBaseRecyclerViewListener
      */
     @Override
     public void onAttach(Context activity) {

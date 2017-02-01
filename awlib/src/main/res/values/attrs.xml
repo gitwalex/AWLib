@@ -15,9 +15,10 @@
   ~ You should have received a copy of the GNU General Public License along with this program; if
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
-
 <resources>
+    <!-- Custpom-Attribute fuer AWTextCurrency. Durch "custom:value='float'" kann jetzt
+     der Wert im xml festgelegt werden.-->
     <declare-styleable name="AWTextCurrency">
-        <attr name="value" format="string"/>
+        <attr name="value" format="float"/>
     </declare-styleable>
 </resources>

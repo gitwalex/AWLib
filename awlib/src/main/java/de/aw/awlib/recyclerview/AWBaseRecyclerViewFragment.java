@@ -60,7 +60,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     private int onTouchStartDragResID = -1;
     private AWBaseRecyclerViewAdapter.OnDragListener mOnDragListener;
     private AWBaseRecyclerViewAdapter.OnSwipeListener mOnSwipeListener;
-    private AWCursorRecyclerViewListener mBaseRecyclerViewListener;
+    private AWBaseRecyclerViewListener mBaseRecyclerViewListener;
 
     /**
      * @return einen BaseAdapter
@@ -133,16 +133,16 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     /**
-     * Activity kann (muss aber nicht) AWCursorRecyclerViewListener implementieren. In diesem Fall
+     * Activity kann (muss aber nicht) AWBaseRecyclerViewListener implementieren. In diesem Fall
      * wird die entsprechende Methode bei Bedarf aufgerufen.
      *
-     * @see AWCursorRecyclerViewListener
+     * @see AWBaseRecyclerViewListener
      */
     @Override
     public void onAttach(Context activity) {
         super.onAttach(activity);
-        if (activity instanceof AWCursorRecyclerViewListener) {
-            mBaseRecyclerViewListener = (AWCursorRecyclerViewListener) activity;
+        if (activity instanceof AWBaseRecyclerViewListener) {
+            mBaseRecyclerViewListener = (AWBaseRecyclerViewListener) activity;
         }
     }
 
@@ -187,7 +187,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
 
     /**
      * Wird vom Adapter gerufen, wenn ein Item der RecyclerView geclickt wurde. Es wird ggfs. die
-     * Activity gerufen, die einen {@link AWCursorRecyclerViewListener} implementiert hat.
+     * Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
      */
     @CallSuper
     public void onRecyclerItemClick(View view, int position, long id) {
