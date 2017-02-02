@@ -29,8 +29,8 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
         implements View.OnClickListener, View.OnLongClickListener {
     private boolean isSelectable;
     private boolean isSelected;
-    private OnClickListener mOnClickListener;
-    private OnLongClickListener mOnLonClickListener;
+    private OnHolderClickListener mOnHolderClickListener;
+    private OnHolderLongClickListener mOnLonClickListener;
     private ViewDataBinding viewDataBinding;
 
     /**
@@ -96,35 +96,35 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
 
     @Override
     public void onClick(View v) {
-        if (mOnClickListener != null) {
-            mOnClickListener.onClick(this);
+        if (mOnHolderClickListener != null) {
+            mOnHolderClickListener.onViewHolderClick(this);
         }
     }
 
     @Override
     public boolean onLongClick(View v) {
-        return mOnLonClickListener != null && mOnLonClickListener.onLongClick(this);
+        return mOnLonClickListener != null && mOnLonClickListener.onViewHolderLongClick(this);
     }
 
     /**
-     * Setzt einen OnClickListener auf die View
+     * Setzt einen OnHolderClickListener auf die View
      *
-     * @param onClickListener
-     *         OnClickListener
+     * @param onHolderClickListener
+     *         OnHolderClickListener
      */
-    public void setOnClickListener(OnClickListener onClickListener) {
-        mOnClickListener = onClickListener;
+    public void setOnClickListener(OnHolderClickListener onHolderClickListener) {
+        mOnHolderClickListener = onHolderClickListener;
         itemView.setOnClickListener(this);
     }
 
     /**
      * Setzt einen OnLongClickListenerauf die View
      *
-     * @param onLongClickListener
+     * @param onHolderLongClickListener
      *         OnLongClickListenerauf
      */
-    public void setOnLongClickListener(OnLongClickListener onLongClickListener) {
-        mOnLonClickListener = onLongClickListener;
+    public void setOnLongClickListener(OnHolderLongClickListener onHolderLongClickListener) {
+        mOnLonClickListener = onHolderLongClickListener;
         itemView.setOnLongClickListener(this);
     }
 
@@ -163,18 +163,18 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     }
 
     /**
-     * Wird bei Click auf View gerufen, wenn durch {@link AWLibViewHolder#setOnClickListener(OnClickListener)}
+     * Wird bei Click auf View gerufen, wenn durch {@link AWLibViewHolder#setOnClickListener(OnHolderClickListener)}
      * ein Listener gesetzt wurde.
      */
-    public interface OnClickListener {
-        void onClick(AWLibViewHolder holder);
+    public interface OnHolderClickListener {
+        void onViewHolderClick(AWLibViewHolder holder);
     }
 
     /**
-     * Wird bei LongClick auf View gerufen, wenn durch {@link AWLibViewHolder#setOnLongClickListener(OnLongClickListener)}
+     * Wird bei LongClick auf View gerufen, wenn durch {@link AWLibViewHolder#setOnLongClickListener(OnHolderLongClickListener)}
      * ein Listener gesetzt wurde.
      */
-    public interface OnLongClickListener {
-        boolean onLongClick(AWLibViewHolder holder);
+    public interface OnHolderLongClickListener {
+        boolean onViewHolderLongClick(AWLibViewHolder holder);
     }
 }

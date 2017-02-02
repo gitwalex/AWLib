@@ -49,7 +49,8 @@ import de.aw.awlib.recyclerview.AWOnArrayRecyclerViewListener;
  * Adapter fuer RecyclerView mit List oder Array.
  */
 public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibViewHolder>
-        implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
+        implements AWLibViewHolder.OnHolderClickListener,
+        AWLibViewHolder.OnHolderLongClickListener {
     private final ArrayViewHolderBinder<T> arrayViewHolderBinder;
     private RecyclerView mRecyclerView;
     private List<T> mValues;
@@ -100,16 +101,6 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
         arrayViewHolderBinder.onBindViewHolder(viewHolder, mValues.get(position));
     }
 
-    @Override
-    public void onClick(AWLibViewHolder holder) {
-        if (onRecyclerItemClickListener != null) {
-            View v = holder.itemView;
-            int position = mRecyclerView.getChildAdapterPosition(v);
-            T object = mValues.get(position);
-            onRecyclerItemClickListener.onArrayRecyclerItemClick(mRecyclerView, v, object);
-        }
-    }
-
     /**
      * Ist der Cursor gueltig, wird der {@link ArrayViewHolderBinder#onCreateViewHolder(ViewGroup,
      * int)} aus dem Konstructor aufgerufen
@@ -129,7 +120,17 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
     }
 
     @Override
-    public boolean onLongClick(AWLibViewHolder holder) {
+    public void onViewHolderClick(AWLibViewHolder holder) {
+        if (onRecyclerItemClickListener != null) {
+            View v = holder.itemView;
+            int position = mRecyclerView.getChildAdapterPosition(v);
+            T object = mValues.get(position);
+            onRecyclerItemClickListener.onArrayRecyclerItemClick(mRecyclerView, v, object);
+        }
+    }
+
+    @Override
+    public boolean onViewHolderLongClick(AWLibViewHolder holder) {
         if (onRecyclerItemLongClickListener != null) {
             View v = holder.itemView;
             int position = mRecyclerView.getChildAdapterPosition(v);

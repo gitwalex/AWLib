@@ -124,6 +124,8 @@ public interface AWInterface {
              */
             , FILENAMEFILTER = "FILENAMEFILTER"//
             , REMOTEFILESERVER = "REMOTEFILESERVER"//
+            , COLUMS = "COLUMS"//
+            , FORMATE = "FORMATE"//
             ;
     int
             /**

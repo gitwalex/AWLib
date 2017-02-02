@@ -120,7 +120,7 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     }
 
     /**
-     * Wird aus onClick(...) gerufen, wenn ein Model der RecyclerView geclickt wurde. Es wird ggfs.
+     * Wird aus onViewHolderClick(...) gerufen, wenn ein Model der RecyclerView geclickt wurde. Es wird ggfs.
      * die Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
      */
     @Override
@@ -131,7 +131,7 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     }
 
     /**
-     * Wird aus onLongClick(...) gerufen, wenn ein Model der RecyclerView long-geclickt wurde.
+     * Wird aus onViewHolderLongClick(...) gerufen, wenn ein Model der RecyclerView long-geclickt wurde.
      */
     @Override
     public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view, T object) {

@@ -36,12 +36,12 @@ import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 public abstract class AWSortedListRecyclerViewAdapter<T extends Model>
         extends AWBaseRecyclerViewAdapter {
     private final SortedItemList sortedItemList;
-    private final AWSortedListRecyclerViewFragment mBinder;
+    private final AWSortedListRecyclerViewFragment<T> mBinder;
     private ItemGenerator<T> mItemgenerator;
     private int mCount;
 
     public AWSortedListRecyclerViewAdapter(@NonNull Class<T> clazz,
-                                           @NonNull AWSortedListRecyclerViewFragment binder,
+                                           @NonNull AWSortedListRecyclerViewFragment<T> binder,
                                            int viewHolderLayout) {
         super(binder, viewHolderLayout);
         mBinder = binder;
@@ -109,7 +109,7 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends Model>
     }
 
     @Override
-    public void onBindViewHolder(AWLibViewHolder holder, int position) {
+    public final void onBindViewHolder(AWLibViewHolder holder, int position) {
         if (sortedItemList.size() < position + 1) {
             int newSize = position + 20 > mCount ? position + 20 : mCount;
             for (int i = sortedItemList.size(); i < newSize; i++) {
@@ -161,8 +161,8 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends Model>
         T createItem(int position);
     }
 
-    public class SortedItemList extends SortedList<T> {
-        public SortedItemList(Class<T> klass) {
+    private class SortedItemList extends SortedList<T> {
+        SortedItemList(Class<T> klass) {
             super(klass, new MCallback());
         }
 

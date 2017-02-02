@@ -64,19 +64,6 @@ public class AWDateTextView extends TextView
     }
 
     /**
-     * Setzt das uebergebene Datum.
-     *
-     * @param date
-     *         Datum im SQLiteFormat
-     * @throws ParseException,
-     *         wenn das Datum nicht geparst werden kann
-     */
-    public void setDate(String date) throws ParseException {
-        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
-        setDate(d);
-    }
-
-    /**
      * Startet den DatumsDialog
      */
     @Override
@@ -104,6 +91,19 @@ public class AWDateTextView extends TextView
         super.setOnClickListener(this);
         setFocusable(true);
         setInputType(InputType.TYPE_CLASS_DATETIME | InputType.TYPE_DATETIME_VARIATION_DATE);
+    }
+
+    /**
+     * Setzt das uebergebene Datum.
+     *
+     * @param date
+     *         Datum im SQLiteFormat
+     * @throws ParseException,
+     *         wenn das Datum nicht geparst werden kann
+     */
+    public void setDate(String date) throws ParseException {
+        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
+        setDate(d);
     }
 
     /**
@@ -142,7 +142,7 @@ public class AWDateTextView extends TextView
     }
 
     /**
-     * OnClickListener wird nicht beachtet. Stattdessen {@link OnDateTextViewListener}
+     * OnHolderClickListener wird nicht beachtet. Stattdessen {@link OnDateTextViewListener}
      * implementieren
      *
      * @throws IllegalArgumentException

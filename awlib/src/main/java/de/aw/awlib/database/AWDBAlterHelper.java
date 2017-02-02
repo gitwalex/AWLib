@@ -282,14 +282,22 @@ public final class AWDBAlterHelper {
      * @param tablename
      *         Tabellenname
      * @param colums
-     *         Spalten
+     *         Spaltennamen
+     * @param formate
+     *         Formate der Spalte
      */
-    public void createTable(String tablename, String[] colums) {
+    public void createTable(String tablename, String[] colums, char[] formate) {
+        String[] format = new String[formate.length];
+        for (int i = 0; i < formate.length; i++) {
+            format[i] = dbhelper.getSQLiteFormat(formate[i]);
+        }
         dropTable(tablename);
         StringBuilder sql = new StringBuilder(" ( ");
-        sql.append("tempID INTEGER PRIMARY KEY ");
-        for (String colName : colums) {
-            sql.append(", ").append(colName).append(" TEXT");
+        sql.append("_id INTEGER PRIMARY KEY ");
+        for (int i = 0; i < formate.length; i++) {
+            String colName = colums[i];
+            String f = format[i];
+            sql.append(", ").append(colName).append(" ").append(f);
         }
         sql.append(")");
         String createSQL = "CREATE TABLE IF NOT EXISTS " + tablename + sql.toString();

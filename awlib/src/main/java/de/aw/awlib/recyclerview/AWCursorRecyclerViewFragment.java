@@ -105,23 +105,25 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
      *         zurueckgegeben.
      */
     public final void onBindViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
-        ifBindingViewHolder(holder, cursor, position);
-        for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
-            int resID = viewResIDs[viewPosition];
-            View view = holder.findViewById(resID);
-            if (!onBindView(holder, view, resID, cursor, viewPosition) && fromResIDs != null &&
-                    viewPosition < fromResIDs.length) {
-                try {
-                    AbstractDBHelper mDBHelper =
-                            ((AWApplication) getContext().getApplicationContext()).getDBHelper();
-                    TextView tv = (TextView) view;
-                    String text = AWDBConvert.convert(mDBHelper, fromResIDs[viewPosition],
-                            cursor.getString(viewPosition));
-                    tv.setText(text);
-                } catch (ClassCastException e) {
-                    throw new IllegalStateException(
-                            "View mit ResID " + resID + " [" + getString(resID) +
-                                    "] ist keine TextView und muss in onBindView belegt werden.");
+        if (!ifBindingViewHolder(holder, cursor, position)) {
+            for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
+                int resID = viewResIDs[viewPosition];
+                View view = holder.findViewById(resID);
+                if (!onBindView(holder, view, resID, cursor, viewPosition) && fromResIDs != null &&
+                        viewPosition < fromResIDs.length) {
+                    try {
+                        AbstractDBHelper mDBHelper =
+                                ((AWApplication) getContext().getApplicationContext())
+                                        .getDBHelper();
+                        TextView tv = (TextView) view;
+                        String text = AWDBConvert.convert(mDBHelper, fromResIDs[viewPosition],
+                                cursor.getString(viewPosition));
+                        tv.setText(text);
+                    } catch (ClassCastException e) {
+                        throw new IllegalStateException(
+                                "View mit ResID " + resID + " [" + getString(resID) +
+                                        "] ist keine TextView und muss in onBindView belegt werden.");
+                    }
                 }
             }
         }

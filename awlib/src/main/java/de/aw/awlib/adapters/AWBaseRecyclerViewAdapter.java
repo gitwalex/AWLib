@@ -45,7 +45,8 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
  * Basis-Adapter fuer RecyclerView. Unterstuetzt Swipe und Drag.
  */
 public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWLibViewHolder>
-        implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
+        implements AWLibViewHolder.OnHolderClickListener,
+        AWLibViewHolder.OnHolderLongClickListener {
     public static final int UNDODELETEVIEW = -1;
     protected final int viewHolderLayout;
     private final AWBaseRecyclerViewFragment mBinder;
@@ -196,16 +197,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     @Override
-    public final void onClick(AWLibViewHolder holder) {
-        switch (holder.getItemViewType()) {
-            case UNDODELETEVIEW:
-                break;
-            default:
-                onViewHolderClicked(holder);
-        }
-    }
-
-    @Override
     public AWLibViewHolder onCreateViewHolder(ViewGroup viewGroup, int itemType) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         View rowView;
@@ -247,11 +238,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
 
     protected abstract void onItemMove(int fromPosition, int toPosition);
 
-    @Override
-    public final boolean onLongClick(AWLibViewHolder holder) {
-        return onViewHolderLongClicked(holder);
-    }
-
     private void onStartDrag(RecyclerView.ViewHolder holder) {
         holder.itemView.setPressed(true);
         mTouchHelper.startDrag(holder);
@@ -265,7 +251,22 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         mOnSwipeListener.onSwiped(viewHolder, direction, position, id);
     }
 
+    @Override
+    public final void onViewHolderClick(AWLibViewHolder holder) {
+        switch (holder.getItemViewType()) {
+            case UNDODELETEVIEW:
+                break;
+            default:
+                onViewHolderClicked(holder);
+        }
+    }
+
     protected abstract void onViewHolderClicked(AWLibViewHolder holder);
+
+    @Override
+    public boolean onViewHolderLongClick(AWLibViewHolder holder) {
+        return onViewHolderLongClicked(holder);
+    }
 
     protected abstract boolean onViewHolderLongClicked(AWLibViewHolder holder);
 

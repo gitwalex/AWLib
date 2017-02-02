@@ -581,6 +581,17 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     public final String getSQLiteFormat(Integer resId) {
         Character c = mapResID2Formate.get(resId);
+        return getSQLiteFormat(c);
+    }
+
+    /**
+     * Liefert das Format der Column im Klartext fuer SQLite
+     *
+     * @param c
+     *         Character der Colimn
+     * @return Format der Column fuer SQLite im Klartext
+     */
+    public final String getSQLiteFormat(Character c) {
         if (c == null) {
             c = 'T';
         }
@@ -917,7 +928,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 this.dbHelper = dbHelper;
             }
 
-
             /**
              * Name einer Columns als String
              *
@@ -965,7 +975,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 return 0;
             }
 
-
             /**
              * @return den String fuer den Aubau einer View (ohne CREATE View AS name). Muss bei Views
              * ueberscheiben werden. Standard: null
@@ -973,7 +982,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             public String getCreateViewSQL() {
                 return null;
             }
-
 
             /**
              * Liste der fuer eine sinnvolle Sortierung notwendigen Spalten.
@@ -1007,7 +1015,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 }
                 return order.toString();
             }
-
 
             @Override
             public Uri getUri() {

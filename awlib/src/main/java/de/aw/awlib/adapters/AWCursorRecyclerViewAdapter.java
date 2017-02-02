@@ -55,7 +55,8 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  * Adapter fuer RecyclerView mit Cursor.
  */
 public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
-        implements AWLibViewHolder.OnClickListener, AWLibViewHolder.OnLongClickListener {
+        implements AWLibViewHolder.OnHolderClickListener,
+        AWLibViewHolder.OnHolderLongClickListener {
     protected final int viewHolderLayout;
     private final CursorDataObserver mDataObserver;
     private final String mRowIDColumn;

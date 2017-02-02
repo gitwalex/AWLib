@@ -21,12 +21,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 /**
- * Convenience- Methoden fuer onClick(View view), OnLongClick (View view). Liefert zu der View
+ * Convenience- Methoden fuer onViewHolderClick(View view), OnLongClick (View view). Liefert zu der View
  * weitere Parameter mit
  */
 public interface AWOnArrayRecyclerViewListener<T> {
     /**
-     * Convenience- Methode fuer onClick(View v). Liefert zu der View weitere Parameter mit
+     * Convenience- Methode fuer onViewHolderClick(View v). Liefert zu der View weitere Parameter mit
      *
      * @param parent
      *         RecyclerView, die parent der View ist
@@ -38,7 +38,7 @@ public interface AWOnArrayRecyclerViewListener<T> {
     void onArrayRecyclerItemClick(RecyclerView parent, View view, T object);
 
     /**
-     * Convenience- Methode fuer onLongClick(View v). Liefert zu der View weitere Parameter mit
+     * Convenience- Methode fuer onViewHolderLongClick(View v). Liefert zu der View weitere Parameter mit
      *
      * @param recyclerView
      *         RecyclerView, die parent der View ist

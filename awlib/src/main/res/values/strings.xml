@@ -14,7 +14,6 @@
   ~ You should have received a copy of the GNU General Public License along with this program; if
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
-
 <resources>
     <string name="app_name">AWLib</string>
     <!-- String n/a als Platzhalter -->
@@ -36,7 +35,6 @@
     <string name="fileChooserSubtitel">Bitte auswählen </string>
     <!-- ActionBar Subtitle fuer DialogFragmentQIFImport -->
     <!-- Ende ActionBar Texte -->
-
     <string name="folder">Folder</string>
     <string name="awlib_eventservice">AWLibEventService</string>
     <string name="awlib_nav_Settings">Einstellungen</string>
@@ -52,6 +50,7 @@
     <string name="titleFileServerKonfigurieren">Serverdaten</string>
     <string name="awlib_menu_item_save">Speichern</string>
     <string name="exportErfolgreich">Export erfolgreich</string>
+    <string name="importErfolgreich">Import erfolgreich</string>
     <string name="dbVersion">Neue DB-Version</string>
     <string name="awlib_menu_item_camera">Kamera</string>
     <string name="selectCalendar">Kalender auswählen</string>
@@ -62,6 +61,4 @@
     <string name="titleInsertCalendar">In den Kalender einfügen</string>
     <string name="tvGeloescht">Gelöscht</string>
     <string name="tvRueckgaengig">Rückgängig</string>
-
-
 </resources>
