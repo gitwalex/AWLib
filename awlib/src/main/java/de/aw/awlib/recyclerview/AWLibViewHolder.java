@@ -17,13 +17,10 @@ package de.aw.awlib.recyclerview;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-
-import de.aw.awlib.R;
 
 /**
  * AWLibViewHolder fuer RecyclerView
@@ -32,7 +29,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
         implements View.OnClickListener, View.OnLongClickListener {
     private boolean isSelectable;
     private boolean isSelected;
-    private Long mID;
     private OnClickListener mOnClickListener;
     private OnLongClickListener mOnLonClickListener;
     private ViewDataBinding viewDataBinding;
@@ -45,7 +41,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
      */
     public AWLibViewHolder(View view) {
         super(view);
-        view.setTag(R.string.viewholder, this);
     }
 
     /**
@@ -56,19 +51,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
      */
     public View findViewById(int id) {
         return itemView.findViewById(id);
-    }
-
-    /**
-     * Wenn Die Tabelle eine Spalte '_id' hat, wird in {@link AWCursorRecyclerViewFragment#onPreBindViewHolder(Cursor,
-     * AWLibViewHolder)} die ID gesetzt.
-     *
-     * @return die ID, wenn vorhanden
-     *
-     * @throws NullPointerException,
-     *         wenn keine Spalte _id vorhanden ist
-     */
-    public long getID() {
-        return mID;
     }
 
     /**
@@ -89,12 +71,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
         return obj;
     }
 
-    /**
-     * @return View des Holders
-     */
-    public View getView() {
-        return itemView;
-    }
 
     public ViewDataBinding getViewDataBinding() {
         if (viewDataBinding == null) {
@@ -128,17 +104,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     @Override
     public boolean onLongClick(View v) {
         return mOnLonClickListener != null && mOnLonClickListener.onLongClick(this);
-    }
-
-    /**
-     * Wenn Die Tabelle eine Spalte '_id' hat, wird in {@link AWCursorRecyclerViewFragment#onPreBindViewHolder(Cursor,
-     * AWLibViewHolder)} die ID gesetzt.
-     *
-     * @param id
-     *         id
-     */
-    public void setID(long id) {
-        this.mID = id;
     }
 
     /**

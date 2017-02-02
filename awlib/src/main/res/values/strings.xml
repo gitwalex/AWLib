@@ -52,7 +52,6 @@
     <string name="titleFileServerKonfigurieren">Serverdaten</string>
     <string name="awlib_menu_item_save">Speichern</string>
     <string name="exportErfolgreich">Export erfolgreich</string>
-    <string name="viewholder">viewholdertag</string>
     <string name="dbVersion">Neue DB-Version</string>
     <string name="awlib_menu_item_camera">Kamera</string>
     <string name="selectCalendar">Kalender auswählen</string>

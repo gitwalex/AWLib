@@ -43,6 +43,7 @@ public class AWDBConvert {
             (DecimalFormat) NumberFormat.getNumberInstance(mLocale);
     public static final DecimalFormat PERCENTFORMAT =
             (DecimalFormat) NumberFormat.getPercentInstance(mLocale);
+    public static SimpleDateFormat mTimeFormat = new SimpleDateFormat("HH:mm", mLocale);
     public static double mCurrencyDigits;
     public static double mNumberDigits;
 

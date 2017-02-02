@@ -103,7 +103,7 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
     @Override
     public void onClick(AWLibViewHolder holder) {
         if (onRecyclerItemClickListener != null) {
-            View v = holder.getView();
+            View v = holder.itemView;
             int position = mRecyclerView.getChildAdapterPosition(v);
             T object = mValues.get(position);
             onRecyclerItemClickListener.onArrayRecyclerItemClick(mRecyclerView, v, object);
@@ -131,7 +131,7 @@ public class AWArrayRecyclerViewAdapter<T> extends RecyclerView.Adapter<AWLibVie
     @Override
     public boolean onLongClick(AWLibViewHolder holder) {
         if (onRecyclerItemLongClickListener != null) {
-            View v = holder.getView();
+            View v = holder.itemView;
             int position = mRecyclerView.getChildAdapterPosition(v);
             T object = mValues.get(position);
             return onRecyclerItemLongClickListener

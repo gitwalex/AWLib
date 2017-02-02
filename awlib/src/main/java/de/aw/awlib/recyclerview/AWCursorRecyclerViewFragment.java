@@ -54,6 +54,22 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         return new AWCursorRecyclerViewAdapter(this, viewHolderLayout);
     }
 
+    /**
+     * Wird in onBindViewHolder() gerufen. Hier koennen Vorarbeiten fuer die Ermittlung der Daten
+     * durchgefuehrt werden, z.B. je Holder Daten aus dem Cursor lesen. Hier wird im Holder die ID
+     * aus dem Cursor gespeichert. Aussederm wird geprueft, ob der Holder zu der id als Selected
+     * markiert wurde. Ist dies so, wird der Holder selected.
+     *
+     * @param holder
+     *         AWLibViewHolder
+     * @param cursor
+     *         aktueller Cursor.
+     * @param position
+     */
+    protected boolean ifBindingViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
+        return ifBindingViewHolder(holder, position);
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -88,8 +104,8 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
      *         Wenn eine View bearbeitet wird, die TextView ist und fillView(...) hat false
      *         zurueckgegeben.
      */
-    public final void onBindViewHolder(AWLibViewHolder holder, Cursor cursor) {
-        onPreBindViewHolder(cursor, holder);
+    public final void onBindViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
+        ifBindingViewHolder(holder, cursor, position);
         for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
             int resID = viewResIDs[viewPosition];
             View view = holder.findViewById(resID);
@@ -143,27 +159,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
     public void onLoaderReset(Loader<Cursor> p1) {
         if (mAdapter != null) {
             ((AWCursorRecyclerViewAdapter) mAdapter).swapCursor(null);
-        }
-    }
-
-    /**
-     * Wird in onBindViewHolder() gerufen. Hier koennen Vorarbeiten fuer die Ermittlung der Daten
-     * durchgefuehrt werden, z.B. je Holder Daten aus dem Cursor lesen. Hier wird im Holder die ID
-     * aus dem Cursor gespeichert. Aussederm wird geprueft, ob der Holder zu der id als Selected
-     * markiert wurde. Ist dies so, wird der Holder selected.
-     *
-     * @param cursor
-     *         aktueller Cursor.
-     * @param holder
-     *         AWLibViewHolder
-     */
-    @CallSuper
-    protected void onPreBindViewHolder(Cursor cursor, AWLibViewHolder holder) {
-        onPreBindViewHolder(holder);
-        int indexID = cursor.getColumnIndex(getString(R.string._id));
-        if (indexID != -1) {
-            long id = cursor.getLong(indexID);
-            holder.setID(id);
         }
     }
 

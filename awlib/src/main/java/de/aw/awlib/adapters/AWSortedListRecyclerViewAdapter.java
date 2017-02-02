@@ -26,7 +26,7 @@ import android.view.View;
 import java.util.Arrays;
 import java.util.List;
 
-import de.aw.awlib.databindingmodels.Model;
+import de.aw.awlib.databinding.Model;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 
@@ -131,7 +131,7 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends Model>
 
     @Override
     protected void onViewHolderClicked(AWLibViewHolder holder) {
-        View v = holder.getView();
+        View v = holder.itemView;
         int position = getRecyclerView().getChildAdapterPosition(holder.itemView);
         T item = sortedItemList.get(position);
         mBinder.onRecyclerItemClick(getRecyclerView(), v, position, item);

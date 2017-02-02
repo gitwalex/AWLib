@@ -106,6 +106,13 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     /**
+     * Wird aus {@link AWBaseRecyclerViewFragment#onBindViewHolder(AWLibViewHolder, int)} gerufen
+     */
+    protected boolean ifBindingViewHolder(final AWLibViewHolder holder, int position) {
+        return false;
+    }
+
+    /**
      * Berechnet die Anzahl der Columns anhand der Displaybreite. Dabei wird von einer Cardbreite
      * von minCardWidth ausgegangen.
      *
@@ -158,7 +165,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      */
     @CallSuper
     public void onBindViewHolder(AWLibViewHolder holder, int position) {
-        onPreBindViewHolder(holder);
+        ifBindingViewHolder(holder, position);
     }
 
     /**
@@ -183,12 +190,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     public void onPause() {
         super.onPause();
         args.putInt(LASTSELECTEDPOSITION, getRecyclerViewPosition());
-    }
-
-    /**
-     * Wird aus {@link AWBaseRecyclerViewFragment#onBindViewHolder(AWLibViewHolder, int)} gerufen
-     */
-    protected void onPreBindViewHolder(final AWLibViewHolder holder) {
     }
 
     /**

@@ -110,7 +110,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
     @Override
     protected void bindTheViewHolder(AWLibViewHolder viewHolder, int position) {
         moveCursor(convertItemPosition(position));
-        mBinder.onBindViewHolder(viewHolder, mCursor);
+        mBinder.onBindViewHolder(viewHolder, mCursor, position);
     }
 
     /**
@@ -188,7 +188,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
         return getAdapterItemID(convertItemPosition(position));
     }
 
-    private Cursor moveCursor(int position) {
+    protected Cursor moveCursor(int position) {
         if (!mDataValid) {
             throw new IllegalStateException("this should only be called when the cursor is valid");
         }
@@ -233,7 +233,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
 
     @Override
     protected void onViewHolderClicked(AWLibViewHolder holder) {
-        View v = holder.getView();
+        View v = holder.itemView;
         int position = getRecyclerView().getChildAdapterPosition(holder.itemView);
         long id = getItemId(position);
         mBinder.onRecyclerItemClick(v, position, id);
