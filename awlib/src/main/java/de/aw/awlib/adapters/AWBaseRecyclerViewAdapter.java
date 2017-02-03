@@ -40,6 +40,7 @@ import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.OnScrollListener;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
+import static de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment.SWIPEDVIEW;
 
 /**
  * Basis-Adapter fuer RecyclerView. Unterstuetzt Swipe und Drag.
@@ -48,7 +49,6 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         implements AWLibViewHolder.OnHolderClickListener,
         AWLibViewHolder.OnHolderLongClickListener {
     public static final int UNDODELETEVIEW = -1;
-    protected final int viewHolderLayout;
     private final AWBaseRecyclerViewFragment mBinder;
     private RecyclerView mRecyclerView;
     private int mPendingDeleteItemPosition = NO_POSITION;
@@ -59,17 +59,15 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     private int onTouchStartDragResID = -1;
     private OnDragListener mOnDragListener;
     private OnSwipeListener mOnSwipeListener;
+    private int mPendingSwipeItem = NO_POSITION;
 
     /**
      * Initialisiert Adapter.
      *
      * @param binder
      *         Binder fuer onBindView
-     * @param viewHolderLayout
-     *         Layout der ItemView
      */
-    public AWBaseRecyclerViewAdapter(AWBaseRecyclerViewFragment binder, int viewHolderLayout) {
-        this.viewHolderLayout = viewHolderLayout;
+    public AWBaseRecyclerViewAdapter(AWBaseRecyclerViewFragment binder) {
         mBinder = binder;
     }
 
@@ -111,11 +109,18 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         if (mPendingDeleteItemPosition == position) {
             return UNDODELETEVIEW;
         }
+        if (mPendingSwipeItem == position) {
+            return SWIPEDVIEW;
+        }
         return getViewType(position);
     }
 
     protected final int getPendingDeleteItemPosition() {
         return mPendingDeleteItemPosition;
+    }
+
+    public int getPendingSwipeItem() {
+        return mPendingSwipeItem;
     }
 
     public final RecyclerView getRecyclerView() {
@@ -205,7 +210,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                 rowView = inflater.inflate(R.layout.can_undo_view, viewGroup, false);
                 break;
             default:
-                rowView = inflater.inflate(viewHolderLayout, viewGroup, false);
+                rowView = mBinder.onCreateViewHolder(inflater, viewGroup, itemType);
         }
         AWLibViewHolder holder = new AWLibViewHolder(rowView);
         holder.setOnClickListener(this);
@@ -247,7 +252,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         holder.itemView.setPressed(false);
     }
 
-    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position, long id) {
+    public void onSwiped(AWLibViewHolder viewHolder, int direction, int position, long id) {
         mOnSwipeListener.onSwiped(viewHolder, direction, position, id);
     }
 
@@ -269,6 +274,12 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
     }
 
     protected abstract boolean onViewHolderLongClicked(AWLibViewHolder holder);
+
+    public void removePendingSwipeItem() {
+        int position = mPendingSwipeItem;
+        mPendingSwipeItem = NO_POSITION;
+        notifyItemChanged(position);
+    }
 
     /**
      * Setzt den OnDragListener. In diesem Fall wird die RecyclerView Dragable     *
@@ -316,13 +327,20 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
         }
     }
 
+    public void setPendingSwipeItem(int position) {
+        if (mPendingSwipeItem != NO_POSITION) {
+            removePendingSwipeItem();
+        }
+        this.mPendingSwipeItem = position;
+        notifyItemChanged(position);
+    }
+
     public final void setTextResID(@StringRes int textresID) {
         mTextResID = textresID;
     }
 
     public interface OnSwipeListener {
-        void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, final int position,
-                      final long id);
+        void onSwiped(AWLibViewHolder viewHolder, int direction, final int position, final long id);
     }
 
     public interface OnDragListener {
@@ -338,6 +356,7 @@ public abstract class AWBaseRecyclerViewAdapter extends RecyclerView.Adapter<AWL
                     if (mPendingDeleteItemPosition != NO_POSITION) {
                         onItemDismiss(mPendingDeleteItemPosition);
                         mPendingDeleteItemPosition = NO_POSITION;
+                        removePendingSwipeItem();
                     }
                     break;
             }

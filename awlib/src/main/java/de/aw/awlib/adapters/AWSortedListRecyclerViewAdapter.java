@@ -43,7 +43,7 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends Model>
     public AWSortedListRecyclerViewAdapter(@NonNull Class<T> clazz,
                                            @NonNull AWSortedListRecyclerViewFragment<T> binder,
                                            int viewHolderLayout) {
-        super(binder, viewHolderLayout);
+        super(binder);
         mBinder = binder;
         sortedItemList = new SortedItemList(clazz);
     }

@@ -54,22 +54,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         return new AWCursorRecyclerViewAdapter(this, viewHolderLayout);
     }
 
-    /**
-     * Wird in onBindViewHolder() gerufen. Hier koennen Vorarbeiten fuer die Ermittlung der Daten
-     * durchgefuehrt werden, z.B. je Holder Daten aus dem Cursor lesen. Hier wird im Holder die ID
-     * aus dem Cursor gespeichert. Aussederm wird geprueft, ob der Holder zu der id als Selected
-     * markiert wurde. Ist dies so, wird der Holder selected.
-     *
-     * @param holder
-     *         AWLibViewHolder
-     * @param cursor
-     *         aktueller Cursor.
-     * @param position
-     */
-    protected boolean ifBindingViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
-        return ifBindingViewHolder(holder, position);
-    }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -105,7 +89,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
      *         zurueckgegeben.
      */
     public final void onBindViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
-        if (!ifBindingViewHolder(holder, cursor, position)) {
+        if (!onBindingViewHolder(holder, cursor, position)) {
             for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
                 int resID = viewResIDs[viewPosition];
                 View view = holder.findViewById(resID);
@@ -127,6 +111,32 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
                 }
             }
         }
+    }
+
+    @Override
+    public final void onBindViewHolder(AWLibViewHolder holder, int position) {
+    }
+
+    /**
+     * Wird in onBindViewHolder() gerufen. Hier koennen Vorarbeiten fuer die Ermittlung der Daten
+     * durchgefuehrt werden, z.B. je Holder Daten aus dem Cursor lesen. Hier wird im Holder die ID
+     * aus dem Cursor gespeichert. Aussederm wird geprueft, ob der Holder zu der id als Selected
+     * markiert wurde. Ist dies so, wird der Holder selected.
+     *
+     * @param holder
+     *         AWLibViewHolder
+     * @param cursor
+     *         aktueller Cursor.
+     * @param position
+     *         Position
+     */
+    protected boolean onBindingViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
+        return false;
+    }
+
+    @Override
+    protected final boolean onBindingViewHolder(AWLibViewHolder holder, int position) {
+        return false;
     }
 
     @Override

@@ -36,10 +36,10 @@ import de.aw.awlib.adapters.AWBaseRecyclerViewAdapter;
  * Helper fuer Drag- und/oder Swipe-RecyclerView
  */
 public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
-    protected final Paint mPaint = new Paint();
+    private final Paint mPaint = new Paint();
     private final AWBaseRecyclerViewAdapter mAdapter;
     private final float ALPHA_FULL = 1.0f;
-    protected Bitmap mIcon;
+    private Bitmap mIcon;
     private boolean isDragable;
     private boolean isSwipeable;
     private int mIconRessource = R.drawable.ic_action_discard;
@@ -50,7 +50,7 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
      */
     public AWSimpleItemTouchHelperCallback(@NonNull AWBaseRecyclerViewAdapter adapter) {
         mAdapter = adapter;
-        mPaint.setColor(Color.RED);
+        mPaint.setColor(Color.LTGRAY);
     }
 
     @NonNull
@@ -144,27 +144,12 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         return true;
     }
 
-    /**
-     * Wird bei swipe gerufen.
-     *
-     * @param viewHolder
-     *         ViewHolder
-     * @param direction
-     *         Richtung des Swipe
-     * @param position
-     *         Position des Items in der RecyclerView
-     * @param id
-     *         ID des Items
-     */
-    protected void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position,
-                            long id) {
-    }
 
     @Override
     public final void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         int position = viewHolder.getAdapterPosition();
         long id = viewHolder.getItemId();
-        getAdapter().onSwiped(viewHolder, direction, position, id);
+        getAdapter().onSwiped((AWLibViewHolder) viewHolder, direction, position, id);
     }
 
     /**

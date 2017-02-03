@@ -111,11 +111,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
 
     public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd, Cursor c) {
         this(context, tbd);
-        for (int index = 0; index < c.getColumnCount(); index++) {
-            String column = c.getColumnName(index);
-            currentContent.put(column, c.getString(index));
-            isUpdatable = false;
-        }
+        fillContent(c);
     }
 
     /**
@@ -128,15 +124,6 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         this.tbd = tbd;
         mContext = (AWApplication) context.getApplicationContext();
         selection = mContext.getString(R.string._id) + " = ?";
-        for (int resID : tbd.getTableItems()) {
-            char format = mContext.getDBHelper().getFormat(resID);
-            switch (format) {
-                case 'B':
-                    // Vorbelegung mit Wert 'false'
-                    put(resID, false);
-                    break;
-            }
-        }
     }
 
     /**
@@ -382,7 +369,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *
      * @param resID
      *         resID der Spalte
-     * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
+     * @return Den aktuellen Wert der Spalte (true ooder false)
      */
     public final Boolean getAsBoolean(int resID) {
         String key = mContext.getDBHelper().columnName(resID);
@@ -496,7 +483,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     /**
      * @return ID des Geschaeftsvorfalls
      */
-    public final Long getID() {
+    public final long getID() {
         if (id == null) {
             throw new IllegalStateException("ID ist Null. Vorher insert() " + "ausfuehren");
         }
@@ -517,6 +504,17 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         if (isInserted()) {
             throw new IllegalStateException(
                     "AWApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
+        }
+        for (int resID : tbd.getTableItems()) {
+            char format = mContext.getDBHelper().getFormat(resID);
+            switch (format) {
+                case 'B':
+                    // Vorbelegung mit Wert 'false'
+                    if (!getAsBoolean(resID)) {
+                        put(resID, false);
+                    }
+                    break;
+            }
         }
         id = db.insert(tbd, null, currentContent);
         if (id != -1) {

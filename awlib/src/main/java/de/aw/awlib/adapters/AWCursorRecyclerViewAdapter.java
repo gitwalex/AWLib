@@ -89,7 +89,7 @@ public class AWCursorRecyclerViewAdapter extends AWBaseRecyclerViewAdapter
      */
     protected AWCursorRecyclerViewAdapter(@NonNull AWCursorRecyclerViewFragment binder,
                                           @NonNull String idColumn, int viewHolderLayout) {
-        super(binder, viewHolderLayout);
+        super(binder);
         mBinder = binder;
         mDataObserver = new CursorDataObserver();
         mRowIDColumn = idColumn;

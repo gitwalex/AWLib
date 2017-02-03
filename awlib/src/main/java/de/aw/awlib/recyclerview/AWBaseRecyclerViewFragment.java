@@ -25,12 +25,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import de.aw.awlib.R;
 import de.aw.awlib.adapters.AWBaseRecyclerViewAdapter;
 import de.aw.awlib.fragments.AWFragment;
+
+import static de.aw.awlib.adapters.AWBaseRecyclerViewAdapter.UNDODELETEVIEW;
 
 /**
  * Erstellt eine Liste ueber Daten einer Tabelle.
@@ -43,6 +47,7 @@ import de.aw.awlib.fragments.AWFragment;
  */
 public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     public final static int minCardWidth = 800;
+    public static final int SWIPEDVIEW = UNDODELETEVIEW - 1;
     protected AWBaseRecyclerViewAdapter mAdapter;
     protected LayoutManager mLayoutManager;
     protected RecyclerView mRecyclerView;
@@ -106,13 +111,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     /**
-     * Wird aus {@link AWBaseRecyclerViewFragment#onBindViewHolder(AWLibViewHolder, int)} gerufen
-     */
-    protected boolean ifBindingViewHolder(final AWLibViewHolder holder, int position) {
-        return false;
-    }
-
-    /**
      * Berechnet die Anzahl der Columns anhand der Displaybreite. Dabei wird von einer Cardbreite
      * von minCardWidth ausgegangen.
      *
@@ -159,13 +157,17 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     /**
-     * @throws IllegalStateException
-     *         Wenn eine View bearbeitet wird, die TextView ist und fillView(...) hat false
-     *         zurueckgegeben.
+     * Wird aus {@link AWBaseRecyclerViewFragment#onBindViewHolder(AWLibViewHolder, int)} gerufen
      */
-    @CallSuper
     public void onBindViewHolder(AWLibViewHolder holder, int position) {
-        ifBindingViewHolder(holder, position);
+        onBindingViewHolder(holder, position);
+    }
+
+    /**
+     * Wird aus {@link AWBaseRecyclerViewFragment#onBindViewHolder(AWLibViewHolder, int)} gerufen
+     */
+    protected boolean onBindingViewHolder(final AWLibViewHolder holder, int position) {
+        return false;
     }
 
     /**
@@ -178,6 +180,10 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
         super.onCreate(savedInstanceState);
         layout = args.getInt(LAYOUT);
         viewHolderLayout = args.getInt(VIEWHOLDERLAYOUT);
+    }
+
+    public View onCreateViewHolder(LayoutInflater inflater, ViewGroup viewGroup, int itemType) {
+        return inflater.inflate(viewHolderLayout, viewGroup, false);
     }
 
     public void onItemDismiss(long id) {
