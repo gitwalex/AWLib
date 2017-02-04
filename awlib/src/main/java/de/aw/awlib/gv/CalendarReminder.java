@@ -61,7 +61,9 @@ public class CalendarReminder {
      */
     public long createDailyEvent(long calendarID, String title, String body) {
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(System.currentTimeMillis());
+        if (cal.get(Calendar.HOUR_OF_DAY) > 18) {
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+        }
         cal.set(Calendar.HOUR_OF_DAY, 18);
         cal.set(Calendar.MINUTE, 0);
         return createEvent(calendarID, cal.getTime(), cal.getTime(), title, body);
@@ -88,6 +90,12 @@ public class CalendarReminder {
         if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_CALENDAR) ==
                 PackageManager.PERMISSION_GRANTED) {
             ContentResolver cr = mContext.getContentResolver();
+            if (end == null) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(start);
+                cal.add(Calendar.MINUTE, 30);
+                end = cal.getTime();
+            }
             ContentValues values = createEventValues(calendarID, start, end, title, body);
             Uri uri = cr.insert(Events.CONTENT_URI, values);
             if (uri != null) {
@@ -196,18 +204,18 @@ public class CalendarReminder {
      *
      * @param eventID
      *         ID des items des Kalenders
-     * @param date
+     * @param start
      *         Neues Datum
      * @return true, wenn erfolgreich
      */
-    public boolean updateEventDate(long eventID, Date date) {
+    public boolean updateEventDate(long eventID, Date start, Date end) {
         if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_CALENDAR) ==
                 PackageManager.PERMISSION_GRANTED) {
             ContentResolver cr = mContext.getContentResolver();
             ContentValues values = new ContentValues();
             // The new title for the event
-            values.put(CalendarContract.Events.DTSTART, date.getTime());
-            values.put(CalendarContract.Events.DTEND, date.getTime());
+            values.put(CalendarContract.Events.DTSTART, start.getTime());
+            values.put(CalendarContract.Events.DTEND, end.getTime());
             Uri updateUri = ContentUris.withAppendedId(Events.CONTENT_URI, eventID);
             return (cr.update(updateUri, values, null, null) != 0);
         }
