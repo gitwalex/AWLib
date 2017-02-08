@@ -77,15 +77,21 @@ public abstract class AWSortedListRecyclerViewAdapter<T extends Model>
         sortedItemList.add(item);
     }
 
-    public abstract boolean areContentsTheSame(T oldItem, T newItem);
+    private boolean areContentsTheSame(T oldItem, T newItem) {
+        return oldItem.areContentsTheSame(newItem);
+    }
 
-    public abstract boolean areItemsTheSame(T item1, T item2);
+    private boolean areItemsTheSame(T item1, T item2) {
+        return item1.areItemsTheSame(item2);
+    }
 
     public void clear() {
         sortedItemList.clear();
     }
 
-    public abstract int compare(T o1, T o2);
+    private int compare(T o1, T o2) {
+        return o1.compare(o2);
+    }
 
     public final T get(int position) {
         return sortedItemList.get(position);

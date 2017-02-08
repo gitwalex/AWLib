@@ -156,6 +156,18 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     }
 
     /**
+     * Prueft, ob ein Wert zur ResID vorhanden ist.
+     *
+     * @param resID
+     *         resID des keys
+     * @return true, wenn vorhanden. Sonst false
+     */
+    public boolean IsNull(int resID) {
+        String key = mContext.getDBHelper().columnName(resID);
+        return currentContent.containsKey(key);
+    }
+
+    /**
      * Prueft, ob ein Wert geaendert wurde oder bereits in der DB vorhanden ist.
      *
      * @param resID
