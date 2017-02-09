@@ -33,7 +33,7 @@ import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 /**
  * Created by alex on 29.01.2017.
  */
-public abstract class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAdapter {
+public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAdapter {
     private final SortedItemList sortedItemList;
     private final AWSortedListRecyclerViewFragment<T> mBinder;
     private ItemGenerator<T> mItemgenerator;

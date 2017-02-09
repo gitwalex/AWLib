@@ -98,6 +98,10 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
         return mAdapter;
     }
 
+    public int getItemViewType(int position) {
+        return 0;
+    }
+
     /**
      * In der DefaultImplementierung wird hier ein neuer LinearLayoutManager zurueckgegeben.
      *

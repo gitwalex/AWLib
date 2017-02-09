@@ -135,7 +135,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * @return Typ der View. Siehe {@link RecyclerView.Adapter#getItemViewType}
      */
     public int getViewType(int position) {
-        return super.getItemViewType(position);
+        return mBinder.getItemViewType(position);
     }
 
     public boolean isViewEnabled(RecyclerView.ViewHolder viewHolder) {
@@ -268,7 +268,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     protected abstract void onViewHolderClicked(AWLibViewHolder holder);
 
     @Override
-    public boolean onViewHolderLongClick(AWLibViewHolder holder) {
+    public final boolean onViewHolderLongClick(AWLibViewHolder holder) {
         return onViewHolderLongClicked(holder);
     }
 

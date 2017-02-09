@@ -72,6 +72,7 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
     private final LoaderManager.LoaderCallbacks<Cursor> mCallback;
     private final Context mContext;
     private final LoaderManager mLoaderManager;
+    private Cursor mCursor;
 
     public AWLoaderManagerEngine(AWBasicActivity activity) {
         mContext = activity;
@@ -95,6 +96,10 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
             Log("Fragment must implement LoaderManager.LoaderCallbacks<Cursor>)");
             throw e;
         }
+    }
+
+    public Cursor getCursor() {
+        return mCursor;
     }
 
     /**
@@ -165,6 +170,7 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        mCursor = cursor;
         mCallback.onLoadFinished(loader, cursor);
     }
 
