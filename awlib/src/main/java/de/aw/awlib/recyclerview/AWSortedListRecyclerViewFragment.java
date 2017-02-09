@@ -35,6 +35,11 @@ public abstract class AWSortedListRecyclerViewFragment<T extends Model>
     @Override
     protected abstract AWSortedListAdapter createBaseAdapter();
 
+    @Override
+    public AWSortedListAdapter getAdapter() {
+        return (AWSortedListAdapter) super.getAdapter();
+    }
+
     /**
      * Activity kann (muss aber nicht) AWSortedListRecyclerViewListener implementieren. In diesem
      * Fall wird die entsprechende Methode bei Bedarf aufgerufen.

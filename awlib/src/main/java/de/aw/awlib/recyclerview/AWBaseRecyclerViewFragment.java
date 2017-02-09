@@ -48,7 +48,6 @@ import static de.aw.awlib.adapters.AWBaseAdapter.UNDODELETEVIEW;
 public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     public final static int minCardWidth = 800;
     public static final int SWIPEDVIEW = UNDODELETEVIEW - 1;
-    protected AWBaseAdapter mAdapter;
     protected LayoutManager mLayoutManager;
     protected RecyclerView mRecyclerView;
     protected int viewHolderLayout;
@@ -62,6 +61,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
     protected int layout = R.layout.awlib_default_recycler_view;
+    private AWBaseAdapter mAdapter;
     private int onTouchStartDragResID = -1;
     private AWBaseAdapter.OnDragListener mOnDragListener;
     private AWBaseAdapter.OnSwipeListener mOnSwipeListener;
@@ -71,6 +71,13 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      * @return einen BaseAdapter
      */
     protected abstract AWBaseAdapter createBaseAdapter();
+
+    /**
+     * @return Liefert den Adapter zurueck
+     */
+    public AWBaseAdapter getAdapter() {
+        return mAdapter;
+    }
 
     /**
      * Initialisiert den Adapter, dieser Adapter wird ggfs. neu erstellt
@@ -276,6 +283,13 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                      .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    }
+
+    protected void setAdapter(AWBaseAdapter adapter) {
+        mAdapter = adapter;
+        if (mRecyclerView != null) {
+            mRecyclerView.setAdapter(mAdapter);
+        }
     }
 
     @Override

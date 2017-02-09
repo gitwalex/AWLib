@@ -55,6 +55,11 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
     }
 
     @Override
+    public AWCursorAdapter getAdapter() {
+        return (AWCursorAdapter) super.getAdapter();
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mLoaderEngine = new AWLoaderManagerEngine(this);
@@ -154,11 +159,11 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
                 noEntryView.setVisibility(View.GONE);
             }
         }
-        if (mAdapter == null) {
-            mAdapter = createBaseAdapter();
-            mRecyclerView.setAdapter(mAdapter);
+        if (getAdapter() == null) {
+            AWCursorAdapter adapter = createBaseAdapter();
+            setAdapter(adapter);
         }
-        ((AWCursorAdapter) mAdapter).swapCursor(cursor); // swap the new cursor in.
+        getAdapter().swapCursor(cursor); // swap the new cursor in.
     }
 
     /*
@@ -169,8 +174,8 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
          */
     @Override
     public void onLoaderReset(Loader<Cursor> p1) {
-        if (mAdapter != null) {
-            ((AWCursorAdapter) mAdapter).swapCursor(null);
+        if (getAdapter() != null) {
+            getAdapter().swapCursor(null);
         }
     }
 
