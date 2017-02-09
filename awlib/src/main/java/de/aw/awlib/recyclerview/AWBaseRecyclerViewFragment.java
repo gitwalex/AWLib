@@ -31,10 +31,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import de.aw.awlib.R;
-import de.aw.awlib.adapters.AWBaseRecyclerViewAdapter;
+import de.aw.awlib.adapters.AWBaseAdapter;
 import de.aw.awlib.fragments.AWFragment;
 
-import static de.aw.awlib.adapters.AWBaseRecyclerViewAdapter.UNDODELETEVIEW;
+import static de.aw.awlib.adapters.AWBaseAdapter.UNDODELETEVIEW;
 
 /**
  * Erstellt eine Liste ueber Daten einer Tabelle.
@@ -48,7 +48,7 @@ import static de.aw.awlib.adapters.AWBaseRecyclerViewAdapter.UNDODELETEVIEW;
 public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     public final static int minCardWidth = 800;
     public static final int SWIPEDVIEW = UNDODELETEVIEW - 1;
-    protected AWBaseRecyclerViewAdapter mAdapter;
+    protected AWBaseAdapter mAdapter;
     protected LayoutManager mLayoutManager;
     protected RecyclerView mRecyclerView;
     protected int viewHolderLayout;
@@ -63,21 +63,21 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      */
     protected int layout = R.layout.awlib_default_recycler_view;
     private int onTouchStartDragResID = -1;
-    private AWBaseRecyclerViewAdapter.OnDragListener mOnDragListener;
-    private AWBaseRecyclerViewAdapter.OnSwipeListener mOnSwipeListener;
+    private AWBaseAdapter.OnDragListener mOnDragListener;
+    private AWBaseAdapter.OnSwipeListener mOnSwipeListener;
     private AWBaseRecyclerViewListener mBaseRecyclerViewListener;
 
     /**
      * @return einen BaseAdapter
      */
-    protected abstract AWBaseRecyclerViewAdapter createBaseAdapter();
+    protected abstract AWBaseAdapter createBaseAdapter();
 
     /**
      * Initialisiert den Adapter, dieser Adapter wird ggfs. neu erstellt
      *
      * @return Adapter
      */
-    private AWBaseRecyclerViewAdapter getCustomAdapter() {
+    private AWBaseAdapter getCustomAdapter() {
         if (mAdapter == null) {
             mAdapter = createBaseAdapter();
         }
@@ -290,7 +290,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      * @param listener
      *         OnDragListener
      */
-    public void setOnDragListener(AWBaseRecyclerViewAdapter.OnDragListener listener) {
+    public void setOnDragListener(AWBaseAdapter.OnDragListener listener) {
         mOnDragListener = listener;
         if (mAdapter != null) {
             mAdapter.setOnDragListener(listener);
@@ -303,7 +303,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      * @param listener
      *         OnSwipeListener
      */
-    public void setOnSwipeListener(AWBaseRecyclerViewAdapter.OnSwipeListener listener) {
+    public void setOnSwipeListener(AWBaseAdapter.OnSwipeListener listener) {
         mOnSwipeListener = listener;
         if (mAdapter != null) {
             mAdapter.setOnSwipeListener(listener);

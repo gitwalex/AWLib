@@ -20,6 +20,12 @@ package de.aw.awlib.databinding;
 /**
  * Created by alex on 01.02.2017.
  */
-public interface Model<T> {
+public interface SortedListModel<T> extends Model<T> {
+    boolean areContentsTheSame(T other);
+
+    boolean areItemsTheSame(T other);
+
+    int compare(T other);
+
     long getID();
 }

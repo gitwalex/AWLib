@@ -22,7 +22,7 @@ import android.support.annotation.CallSuper;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import de.aw.awlib.adapters.AWSortedListRecyclerViewAdapter;
+import de.aw.awlib.adapters.AWSortedListAdapter;
 import de.aw.awlib.databinding.Model;
 
 /**
@@ -33,7 +33,7 @@ public abstract class AWSortedListRecyclerViewFragment<T extends Model>
     private AWOnArrayRecyclerViewListener<T> mSortedListRecyclerViewListener;
 
     @Override
-    protected abstract AWSortedListRecyclerViewAdapter createBaseAdapter();
+    protected abstract AWSortedListAdapter createBaseAdapter();
 
     /**
      * Activity kann (muss aber nicht) AWSortedListRecyclerViewListener implementieren. In diesem

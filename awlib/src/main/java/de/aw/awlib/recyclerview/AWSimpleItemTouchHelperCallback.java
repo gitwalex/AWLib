@@ -30,14 +30,14 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import de.aw.awlib.R;
-import de.aw.awlib.adapters.AWBaseRecyclerViewAdapter;
+import de.aw.awlib.adapters.AWBaseAdapter;
 
 /**
  * Helper fuer Drag- und/oder Swipe-RecyclerView
  */
 public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private final Paint mPaint = new Paint();
-    private final AWBaseRecyclerViewAdapter mAdapter;
+    private final AWBaseAdapter mAdapter;
     private final float ALPHA_FULL = 1.0f;
     private Bitmap mIcon;
     private boolean isDragable;
@@ -46,15 +46,15 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     /**
      * @param adapter
-     *         AWBaseRecyclerViewAdapter
+     *         AWBaseAdapter
      */
-    public AWSimpleItemTouchHelperCallback(@NonNull AWBaseRecyclerViewAdapter adapter) {
+    public AWSimpleItemTouchHelperCallback(@NonNull AWBaseAdapter adapter) {
         mAdapter = adapter;
         mPaint.setColor(Color.LTGRAY);
     }
 
     @NonNull
-    public AWBaseRecyclerViewAdapter getAdapter() {
+    public AWBaseAdapter getAdapter() {
         return mAdapter;
     }
 

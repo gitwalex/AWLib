@@ -26,7 +26,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.adapters.AWCursorRecyclerViewAdapter;
+import de.aw.awlib.adapters.AWCursorAdapter;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
@@ -50,8 +50,8 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
      * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
      * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
      */
-    protected AWCursorRecyclerViewAdapter createBaseAdapter() {
-        return new AWCursorRecyclerViewAdapter(this, viewHolderLayout);
+    protected AWCursorAdapter createBaseAdapter() {
+        return new AWCursorAdapter(this, viewHolderLayout);
     }
 
     @Override
@@ -158,7 +158,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
             mAdapter = createBaseAdapter();
             mRecyclerView.setAdapter(mAdapter);
         }
-        ((AWCursorRecyclerViewAdapter) mAdapter).swapCursor(cursor); // swap the new cursor in.
+        ((AWCursorAdapter) mAdapter).swapCursor(cursor); // swap the new cursor in.
     }
 
     /*
@@ -170,7 +170,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
     @Override
     public void onLoaderReset(Loader<Cursor> p1) {
         if (mAdapter != null) {
-            ((AWCursorRecyclerViewAdapter) mAdapter).swapCursor(null);
+            ((AWCursorAdapter) mAdapter).swapCursor(null);
         }
     }
 

@@ -28,7 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import de.aw.awlib.R;
-import de.aw.awlib.adapters.AWArrayRecyclerViewAdapter;
+import de.aw.awlib.adapters.AWArrayAdapter;
 import de.aw.awlib.fragments.AWFragment;
 
 /**
@@ -38,12 +38,12 @@ import de.aw.awlib.fragments.AWFragment;
  * werden.
  */
 public class AWArrayRecyclerViewFragment<T> extends AWFragment
-        implements AWArrayRecyclerViewAdapter.ArrayViewHolderBinder<T>, View.OnClickListener,
+        implements AWArrayAdapter.ArrayViewHolderBinder<T>, View.OnClickListener,
         View.OnLongClickListener, AWOnArrayRecyclerViewListener<T> {
     public final static int minCardWidth = 800;
     public final int DEFAULTVIEWTYPE = 0;
     protected RecyclerView mRecyclerView;
-    protected AWArrayRecyclerViewAdapter<T> mAdapter;
+    protected AWArrayAdapter<T> mAdapter;
     protected LayoutManager mLayoutManager;
     /**
      * Die zuletzt ausgewaehlte ID, die selektiert wurde.
@@ -57,8 +57,8 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     private AWOnArrayRecyclerViewListener<T> onArrayRecyclerViewListener;
     private int viewHolderLayout;
 
-    public AWArrayRecyclerViewAdapter<T> getArrayAdapter() {
-        return new AWArrayRecyclerViewAdapter<>(this);
+    public AWArrayAdapter<T> getArrayAdapter() {
+        return new AWArrayAdapter<>(this);
     }
 
     /**
