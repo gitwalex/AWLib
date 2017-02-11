@@ -19,7 +19,6 @@ package de.aw.awlib.recyclerview;
 
 import android.content.Context;
 import android.support.annotation.CallSuper;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import de.aw.awlib.adapters.AWSortedListAdapter;
@@ -28,7 +27,7 @@ import de.aw.awlib.databinding.Model;
 /**
  * Created by alex on 31.01.2017.
  */
-public abstract class AWSortedListRecyclerViewFragment<T extends Model>
+public abstract class AWSortedListRecyclerViewFragment<T extends Model<T>>
         extends AWBaseRecyclerViewFragment {
     private AWOnArrayRecyclerViewListener<T> mSortedListRecyclerViewListener;
 
@@ -57,18 +56,29 @@ public abstract class AWSortedListRecyclerViewFragment<T extends Model>
     }
 
     @CallSuper
-    public void onRecyclerItemClick(RecyclerView rc, View v, int position, T item) {
+    public void onRecyclerItemClick(View v, int position, T item) {
         if (mSortedListRecyclerViewListener != null) {
-            mSortedListRecyclerViewListener.onArrayRecyclerItemClick(rc, v, item);
+            mSortedListRecyclerViewListener.onArrayRecyclerItemClick(mRecyclerView, v, item);
         }
         super.onRecyclerItemClick(v, position, item.getID());
     }
 
+    @Override
+    public final void onRecyclerItemClick(View view, int position, long id) {
+        super.onRecyclerItemClick(view, position, id);
+    }
+
+    @Override
+    public final boolean onRecyclerItemLongClick(View view, int position, long id) {
+        return super.onRecyclerItemLongClick(view, position, id);
+    }
+
     @CallSuper
-    public boolean onRecyclerItemLongClick(RecyclerView rc, View v, int position, T item) {
+    public boolean onRecyclerItemLongClick(View v, int position, T item) {
         boolean consumed = super.onRecyclerItemLongClick(v, position, item.getID());
         if (mSortedListRecyclerViewListener != null) {
-            consumed = mSortedListRecyclerViewListener.onArrayRecyclerItemLongClick(rc, v, item);
+            consumed = mSortedListRecyclerViewListener
+                    .onArrayRecyclerItemLongClick(mRecyclerView, v, item);
         }
         return consumed;
     }

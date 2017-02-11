@@ -138,7 +138,7 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         View v = holder.itemView;
         int position = getRecyclerView().getChildAdapterPosition(holder.itemView);
         T item = sortedItemList.get(position);
-        mBinder.onRecyclerItemClick(getRecyclerView(), v, position, item);
+        mBinder.onRecyclerItemClick(v, position, item);
     }
 
     @Override
@@ -146,7 +146,7 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         View v = holder.itemView;
         int position = getRecyclerView().getChildAdapterPosition(v);
         T item = sortedItemList.get(position);
-        return mBinder.onRecyclerItemLongClick(getRecyclerView(), v, position, item);
+        return mBinder.onRecyclerItemLongClick(v, position, item);
     }
 
     public final boolean remove(T item) {
