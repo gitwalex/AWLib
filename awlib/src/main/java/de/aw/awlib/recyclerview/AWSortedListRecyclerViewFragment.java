@@ -28,7 +28,8 @@ import de.aw.awlib.databinding.Model;
  * Created by alex on 31.01.2017.
  */
 public abstract class AWSortedListRecyclerViewFragment<T extends Model<T>>
-        extends AWBaseRecyclerViewFragment {
+        extends AWBaseRecyclerViewFragment
+        implements AWSortedListAdapter.AWSortedListRecyclerViewBinder<T> {
     private AWOnArrayRecyclerViewListener<T> mSortedListRecyclerViewListener;
 
     @Override

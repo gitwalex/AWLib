@@ -45,7 +45,6 @@ import android.view.View;
 import java.util.List;
 
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 import static android.support.v7.widget.RecyclerView.NO_ID;
@@ -59,7 +58,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
     protected final int viewHolderLayout;
     private final CursorDataObserver mDataObserver;
     private final String mRowIDColumn;
-    private final AWCursorRecyclerViewFragment mBinder;
+    private final AWCursorRecyclerViewBinder mBinder;
     private Cursor mCursor;
     private boolean mDataValid;
     private int mRowIdColumnIndex;
@@ -73,7 +72,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      * @param binder
      *         CursorViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      */
-    public AWCursorAdapter(@NonNull AWCursorRecyclerViewFragment binder, int viewHolderLayout) {
+    public AWCursorAdapter(@NonNull AWCursorRecyclerViewBinder binder, int viewHolderLayout) {
         this(binder, "_id", viewHolderLayout);
     }
 
@@ -85,31 +84,14 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      * @param idColumn
      *         Spalte, die als ID verwendet werden soll
      */
-    protected AWCursorAdapter(@NonNull AWCursorRecyclerViewFragment binder,
-                              @NonNull String idColumn, int viewHolderLayout) {
+    protected AWCursorAdapter(@NonNull AWCursorRecyclerViewBinder binder, @NonNull String idColumn,
+                              int viewHolderLayout) {
         super(binder);
         mBinder = binder;
         mDataObserver = new CursorDataObserver();
         mRowIDColumn = idColumn;
         this.viewHolderLayout = viewHolderLayout;
         setHasStableIds(true);
-    }
-
-    /**
-     * Ist der Cursor gueltig, wird der CursorViewHolderBinder aus dem Konstructor aufgerufen
-     *
-     * @param viewHolder
-     *         aktueller viewHolder
-     * @param position
-     *         position des Holders
-     * @throws IllegalStateException
-     *         wenn der Cursor als invald erklaert wurde oder die Position vom Cursor nicht erreicht
-     *         werden kann
-     */
-    @Override
-    protected void bindTheViewHolder(AWLibViewHolder viewHolder, int position) {
-        moveCursor(convertItemPosition(position));
-        mBinder.onBindViewHolder(viewHolder, mCursor, position);
     }
 
     /**
@@ -230,6 +212,23 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         AWApplication.Log("Model Moved. From: " + fromPosition + " To: " + toPosition);
     }
 
+    /**
+     * Ist der Cursor gueltig, wird der CursorViewHolderBinder aus dem Konstructor aufgerufen
+     *
+     * @param viewHolder
+     *         aktueller viewHolder
+     * @param position
+     *         position des Holders
+     * @throws IllegalStateException
+     *         wenn der Cursor als invald erklaert wurde oder die Position vom Cursor nicht erreicht
+     *         werden kann
+     */
+    @Override
+    protected void onViewHolderBinding(AWLibViewHolder viewHolder, int position) {
+        moveCursor(convertItemPosition(position));
+        mBinder.onBindViewHolder(viewHolder, mCursor, position);
+    }
+
     @Override
     protected void onViewHolderClicked(AWLibViewHolder holder) {
         View v = holder.itemView;
@@ -268,6 +267,18 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         }
         notifyDataSetChanged();
         return oldCursor;
+    }
+
+    public interface AWCursorRecyclerViewBinder extends AWBaseRecyclerViewBinder {
+        void onBindViewHolder(AWLibViewHolder viewHolder, Cursor mCursor, int position);
+
+        void onItemDismiss(long itemId);
+
+        void onItemMoved(long fromID, long toID);
+
+        void onRecyclerItemClick(View v, int position, long id);
+
+        boolean onRecyclerItemLongClick(View v, int position, long id);
     }
 
     /**

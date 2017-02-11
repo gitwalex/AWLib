@@ -1,4 +1,4 @@
-package de.aw.awlib.fragments;
+package de.aw.awlib.database;
 
 /*
  * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
@@ -27,8 +27,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import de.aw.awlib.activities.AWBasicActivity;
-import de.aw.awlib.database.AWAbstractDBDefinition;
-import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.fragments.AWFragment;
 
 import static de.aw.awlib.activities.AWInterface.DBDEFINITION;
 import static de.aw.awlib.activities.AWInterface.FROMRESIDS;

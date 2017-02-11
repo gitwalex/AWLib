@@ -25,6 +25,7 @@ import android.support.v4.content.Loader;
 import android.view.View;
 
 import de.aw.awlib.R;
+import de.aw.awlib.database.AWLoaderManagerEngine;
 
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
@@ -62,8 +63,7 @@ public abstract class AWLoaderFragment extends AWFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mLoaderEngine = new AWLoaderManagerEngine(this);
-        mLoaderEngine.startOrRestartLoader(layout, args);
+        startOrRestartLoader(layout, args);
     }
 
     @Override
@@ -110,6 +110,9 @@ public abstract class AWLoaderFragment extends AWFragment
      *         Argumente fuer Cursor
      */
     protected void startOrRestartLoader(int loaderID, Bundle args) {
+        if (mLoaderEngine == null) {
+            mLoaderEngine = new AWLoaderManagerEngine(this);
+        }
         mLoaderEngine.startOrRestartLoader(loaderID, args);
     }
 }

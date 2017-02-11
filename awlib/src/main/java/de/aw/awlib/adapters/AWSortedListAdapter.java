@@ -28,24 +28,28 @@ import java.util.List;
 
 import de.aw.awlib.databinding.SortedListModel;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
-import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 
 /**
- * Created by alex on 29.01.2017.
+ * Adapter mit einer {@link SortedList}
  */
 public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAdapter {
-    private final SortedItemList sortedItemList;
-    private final AWSortedListRecyclerViewFragment<T> mBinder;
+    private final AWSortedListRecyclerViewBinder<T> mBinder;
+    private final Class<T> mClass;
+    private SortedItemList sortedItemList;
     private ItemGenerator<T> mItemgenerator;
     private int mCount;
 
     public AWSortedListAdapter(@NonNull Class<T> clazz,
-                               @NonNull AWSortedListRecyclerViewFragment<T> binder) {
+                               @NonNull AWSortedListRecyclerViewBinder<T> binder) {
         super(binder);
         mBinder = binder;
+        mClass = clazz;
         sortedItemList = new SortedItemList(clazz);
     }
 
+    /**
+     * @see SortedList#add(Object)
+     */
     public final int add(T item) {
         return sortedItemList.add(item);
     }
@@ -59,12 +63,16 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         }
     }
 
-    public final void addAll(List<T> items) {
+    private void addAll(List<T> items, SortedItemList sortedItemList) {
         sortedItemList.beginBatchedUpdates();
         for (T item : items) {
             sortedItemList.add(item);
         }
         sortedItemList.endBatchedUpdates();
+    }
+
+    public final void addAll(List<T> items) {
+        addAll(items, sortedItemList);
     }
 
     public final void addAll(T[] items) {
@@ -81,10 +89,6 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
 
     private boolean areItemsTheSame(T item1, T item2) {
         return item1.areItemsTheSame(item2);
-    }
-
-    public void clear() {
-        sortedItemList.clear();
     }
 
     private int compare(T o1, T o2) {
@@ -157,12 +161,30 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         return sortedItemList.removeItemAt(index);
     }
 
+    public void swap(List<T> items) {
+        SortedItemList list = new SortedItemList(mClass);
+        addAll(items, list);
+        sortedItemList = list;
+        notifyDataSetChanged();
+    }
+
+    public void swap(T[] items) {
+        swap(Arrays.asList(items));
+    }
+
     public final void updateItemAt(int index, T item) {
         sortedItemList.updateItemAt(index, item);
     }
 
     public interface ItemGenerator<T> {
         T createItem(int position);
+    }
+
+    public interface AWSortedListRecyclerViewBinder<T>
+            extends AWBaseAdapter.AWBaseRecyclerViewBinder {
+        void onRecyclerItemClick(View v, int position, T item);
+
+        boolean onRecyclerItemLongClick(View v, int position, T item);
     }
 
     private class SortedItemList extends SortedList<T> {

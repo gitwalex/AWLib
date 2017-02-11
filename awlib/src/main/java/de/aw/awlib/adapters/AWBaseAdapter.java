@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.aw.awlib.R;
-import de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
 
@@ -49,7 +48,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         implements AWLibViewHolder.OnHolderClickListener,
         AWLibViewHolder.OnHolderLongClickListener {
     public static final int UNDODELETEVIEW = -1;
-    private final AWBaseRecyclerViewFragment mBinder;
+    private final AWBaseRecyclerViewBinder mBinder;
     private RecyclerView mRecyclerView;
     private int mPendingDeleteItemPosition = NO_POSITION;
     private int mTextResID = R.string.tvGeloescht;
@@ -67,20 +66,8 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * @param binder
      *         Binder fuer onBindView
      */
-    public AWBaseAdapter(AWBaseRecyclerViewFragment binder) {
+    public AWBaseAdapter(AWBaseRecyclerViewBinder binder) {
         mBinder = binder;
-    }
-
-    /**
-     * Wird gerufen, wenn es sich beim erstellten ViewHolder nicht um eine DeleteView handelt.
-     *
-     * @param viewHolder
-     *         viewHolder
-     * @param position
-     *         Position
-     */
-    protected void bindTheViewHolder(final AWLibViewHolder viewHolder, int position) {
-        mBinder.onBindViewHolder(viewHolder, position);
     }
 
     private void configure() {
@@ -197,7 +184,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                         }
                     });
                 }
-                bindTheViewHolder(holder, position);
+                onViewHolderBinding(holder, position);
         }
     }
 
@@ -253,6 +240,18 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
 
     public void onSwiped(AWLibViewHolder viewHolder, int direction, int position, long id) {
         mOnSwipeListener.onSwiped(viewHolder, direction, position, id);
+    }
+
+    /**
+     * Wird gerufen, wenn es sich beim erstellten ViewHolder nicht um eine DeleteView handelt.
+     *
+     * @param viewHolder
+     *         viewHolder
+     * @param position
+     *         Position
+     */
+    protected void onViewHolderBinding(final AWLibViewHolder viewHolder, int position) {
+        mBinder.onBindViewHolder(viewHolder, position);
     }
 
     @Override
@@ -345,6 +344,15 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     public interface OnDragListener {
         void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from,
                        RecyclerView.ViewHolder to);
+    }
+
+    public interface AWBaseRecyclerViewBinder {
+        int getItemViewType(int position);
+
+        void onBindViewHolder(AWLibViewHolder viewHolder, int position);
+
+        View onCreateViewHolder(LayoutInflater inflater, ViewGroup viewGroup, int itemType);
+
     }
 
     private class AWOnScrollListener extends OnScrollListener {

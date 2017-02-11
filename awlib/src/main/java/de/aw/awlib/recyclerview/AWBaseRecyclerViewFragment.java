@@ -32,6 +32,7 @@ import android.view.WindowManager;
 
 import de.aw.awlib.R;
 import de.aw.awlib.adapters.AWBaseAdapter;
+import de.aw.awlib.database.AWLoaderManagerEngine;
 import de.aw.awlib.fragments.AWFragment;
 
 import static de.aw.awlib.adapters.AWBaseAdapter.UNDODELETEVIEW;
@@ -66,6 +67,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     private AWBaseAdapter.OnDragListener mOnDragListener;
     private AWBaseAdapter.OnSwipeListener mOnSwipeListener;
     private AWBaseRecyclerViewListener mBaseRecyclerViewListener;
+    private AWLoaderManagerEngine mLoaderEngine;
 
     /**
      * @return einen BaseAdapter
@@ -168,17 +170,9 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     /**
-     * Wird aus {@link AWBaseRecyclerViewFragment#onBindViewHolder(AWLibViewHolder, int)} gerufen
+     * Wird aus {@link AWBaseAdapter#onViewHolderBinding(AWLibViewHolder, int)}  gerufen
      */
     public void onBindViewHolder(AWLibViewHolder holder, int position) {
-        onBindingViewHolder(holder, position);
-    }
-
-    /**
-     * Wird aus {@link AWBaseRecyclerViewFragment#onBindViewHolder(AWLibViewHolder, int)} gerufen
-     */
-    protected boolean onBindingViewHolder(final AWLibViewHolder holder, int position) {
-        return false;
     }
 
     /**
@@ -341,5 +335,12 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
         if (mAdapter != null) {
             mAdapter.setOnTouchStartDragResID(resID);
         }
+    }
+
+    protected void startOrRestartLoader(int loaderID, Bundle args) {
+        if (mLoaderEngine == null) {
+            mLoaderEngine = new AWLoaderManagerEngine(this);
+        }
+        mLoaderEngine.startOrRestartLoader(loaderID, args);
     }
 }

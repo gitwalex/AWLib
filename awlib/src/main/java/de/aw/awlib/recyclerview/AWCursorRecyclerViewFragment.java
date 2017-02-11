@@ -30,7 +30,6 @@ import de.aw.awlib.adapters.AWCursorAdapter;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
-import de.aw.awlib.fragments.AWLoaderManagerEngine;
 
 /**
  * Erstellt eine Liste ueber Daten einer Tabelle.
@@ -42,9 +41,9 @@ import de.aw.awlib.fragments.AWLoaderManagerEngine;
  * value) erhaelt die RecyclerView eine andere ID.
  */
 public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFragment
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+        implements LoaderManager.LoaderCallbacks<Cursor>,
+        AWCursorAdapter.AWCursorRecyclerViewBinder {
     protected int indexColumn;
-    private AWLoaderManagerEngine mLoaderEngine;
 
     /**
      * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
@@ -62,8 +61,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mLoaderEngine = new AWLoaderManagerEngine(this);
-        mLoaderEngine.startOrRestartLoader(layout, args);
+        startOrRestartLoader(layout, args);
     }
 
     /**
@@ -140,11 +138,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
     }
 
     @Override
-    protected final boolean onBindingViewHolder(AWLibViewHolder holder, int position) {
-        return false;
-    }
-
-    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return null;
     }
@@ -177,9 +170,5 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         if (getAdapter() != null) {
             getAdapter().swapCursor(null);
         }
-    }
-
-    protected void startOrRestartLoader(int loaderID, Bundle args) {
-        mLoaderEngine.startOrRestartLoader(loaderID, args);
     }
 }
