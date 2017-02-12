@@ -134,7 +134,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         if (cursor != null) {
             indexColumn = cursor.getColumnIndexOrThrow(getString(R.string._id));
         }
-        setAdapter(getAdapter());
         getAdapter().swapCursor(cursor); // swap the new cursor in.
     }
 
@@ -149,10 +148,5 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         if (getAdapter() != null) {
             getAdapter().swapCursor(null);
         }
-    }
-
-    protected void setAdapter(AWCursorAdapter adapter) {
-        mAdapter = adapter;
-        super.setAdapter(adapter);
     }
 }

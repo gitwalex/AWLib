@@ -179,6 +179,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         super.onCreate(savedInstanceState);
         layout = args.getInt(LAYOUT);
         viewHolderLayout = args.getInt(VIEWHOLDERLAYOUT);
+        mAdapter = getCustomAdapter();
     }
 
     @Override
@@ -238,9 +239,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     public void onResume() {
         super.onResume();
         int position = args.getInt(LASTSELECTEDPOSITION);
-        if (mAdapter == null) {
-            mRecyclerView.setAdapter(getCustomAdapter());
-        }
         mRecyclerView.scrollToPosition(position);
     }
 
@@ -281,17 +279,10 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         // use a linear layout manager
         mLayoutManager = getLayoutManager();
         mRecyclerView.setLayoutManager(mLayoutManager);
-        setAdapter(getCustomAdapter());
+        mRecyclerView.setAdapter(mAdapter);
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                      .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-    }
-
-    protected void setAdapter(AWBaseAdapter adapter) {
-        mAdapter = adapter;
-        if (mRecyclerView != null) {
-            mRecyclerView.setAdapter(mAdapter);
-        }
     }
 
     @Override
