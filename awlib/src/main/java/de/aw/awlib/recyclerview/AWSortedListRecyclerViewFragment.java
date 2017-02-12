@@ -18,26 +18,39 @@ package de.aw.awlib.recyclerview;
  */
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.annotation.CallSuper;
+import android.support.v4.content.Loader;
 import android.view.View;
 
 import de.aw.awlib.adapters.AWSortedListAdapter;
-import de.aw.awlib.databinding.Model;
+import de.aw.awlib.databinding.SortedListModel;
 
 /**
- * Created by alex on 31.01.2017.
+ * Template fuer eine RecyclerView mit {@link AWSortedListAdapter<T>}
  */
-public abstract class AWSortedListRecyclerViewFragment<T extends Model<T>>
+public abstract class AWSortedListRecyclerViewFragment<T extends SortedListModel<T>>
         extends AWBaseRecyclerViewFragment
         implements AWSortedListAdapter.AWSortedListRecyclerViewBinder<T> {
     private AWOnArrayRecyclerViewListener<T> mSortedListRecyclerViewListener;
+    private AWSortedListAdapter<T> mAdapter;
 
     @Override
-    protected abstract AWSortedListAdapter createBaseAdapter();
+    protected final AWSortedListAdapter<T> createBaseAdapter() {
+        mAdapter = createSortedListAdapter();
+        return mAdapter;
+    }
 
-    @Override
+    protected abstract AWSortedListAdapter<T> createSortedListAdapter();
+
+    /**
+     * @return Liefert den Adapter zurueck
+     */
     public AWSortedListAdapter getAdapter() {
-        return (AWSortedListAdapter) super.getAdapter();
+        if (mAdapter == null) {
+            mAdapter = createBaseAdapter();
+        }
+        return mAdapter;
     }
 
     /**
@@ -50,10 +63,19 @@ public abstract class AWSortedListRecyclerViewFragment<T extends Model<T>>
     public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
-            mSortedListRecyclerViewListener = (AWOnArrayRecyclerViewListener) activity;
+            mSortedListRecyclerViewListener = (AWOnArrayRecyclerViewListener<T>) activity;
         } catch (ClassCastException e) {
             // nix tun...
         }
+    }
+
+    @Override
+    public void onBindViewHolder(AWLibViewHolder holder, T item, int position) {
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        getAdapter().reset();
     }
 
     @CallSuper
@@ -62,16 +84,6 @@ public abstract class AWSortedListRecyclerViewFragment<T extends Model<T>>
             mSortedListRecyclerViewListener.onArrayRecyclerItemClick(mRecyclerView, v, item);
         }
         super.onRecyclerItemClick(v, position, item.getID());
-    }
-
-    @Override
-    public final void onRecyclerItemClick(View view, int position, long id) {
-        super.onRecyclerItemClick(view, position, id);
-    }
-
-    @Override
-    public final boolean onRecyclerItemLongClick(View view, int position, long id) {
-        return super.onRecyclerItemLongClick(view, position, id);
     }
 
     @CallSuper

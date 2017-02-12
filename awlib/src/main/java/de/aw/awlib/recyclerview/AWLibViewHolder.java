@@ -46,36 +46,8 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
         super(view);
     }
 
-    /**
-     * @param id
-     *         Id der gesuchten View
-     * @return liefert die View zur id zurueck. Wird zur id keine View gefunden, wird null
-     * zuruckgegeben.
-     */
-    public View findViewById(int id) {
-        return itemView.findViewById(id);
-    }
-
     public Model getModel() {
         return mModel;
-    }
-
-    /**
-     * Liefert ein Tag aus der View zuruck. Es kann ein Defaultwert vorgegeben werden. dieser wird
-     * zurueckgeliefert, wenn kein entsprechendes Tag in der View gefunden wird.
-     *
-     * @param resID
-     *         resID des TAG
-     * @param defaultvalue
-     *         DefaultValue, der zurueckgeliefert wird, wenn kein Tag mit dieser resID gefunden
-     *         wird.
-     */
-    public Object getTag(int resID, Object defaultvalue) {
-        Object obj = itemView.getTag(resID);
-        if (obj == null) {
-            return defaultvalue;
-        }
-        return obj;
     }
 
     /**

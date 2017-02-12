@@ -213,7 +213,7 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
         switch (holder.getItemViewType()) {
             case HASPARENTFOLDER:
                 for (int resID : viewResIDs) {
-                    View view = holder.findViewById(resID);
+                    View view = holder.itemView.findViewById(resID);
                     if (resID == R.id.folderImage) {
                         ImageView img = (ImageView) view;
                         img.setImageResource(R.drawable.ic_open_folder);
@@ -228,7 +228,7 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
                 break;
             default:
                 for (int resID : viewResIDs) {
-                    View view = holder.findViewById(resID);
+                    View view = holder.itemView.findViewById(resID);
                     if (resID == R.id.folderImage) {
                         ImageView img = (ImageView) view;
                         if (file.isDirectory()) {

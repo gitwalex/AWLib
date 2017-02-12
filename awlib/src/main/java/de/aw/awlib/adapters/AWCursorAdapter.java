@@ -36,7 +36,6 @@ package de.aw.awlib.adapters;/*
 
 import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseIntArray;
@@ -55,7 +54,6 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
  */
 public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.OnHolderClickListener,
         AWLibViewHolder.OnHolderLongClickListener {
-    protected final int viewHolderLayout;
     private final CursorDataObserver mDataObserver;
     private final String mRowIDColumn;
     private final AWCursorRecyclerViewBinder mBinder;
@@ -72,8 +70,8 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      * @param binder
      *         CursorViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      */
-    public AWCursorAdapter(@NonNull AWCursorRecyclerViewBinder binder, int viewHolderLayout) {
-        this(binder, "_id", viewHolderLayout);
+    public AWCursorAdapter(@NonNull AWCursorRecyclerViewBinder binder) {
+        this(binder, "_id");
     }
 
     /**
@@ -82,15 +80,14 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      * @param binder
      *         CursorViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      * @param idColumn
-     *         Spalte, die als ID verwendet werden soll
+     *         Name der Spalte, die den Index enthaelt.
      */
-    protected AWCursorAdapter(@NonNull AWCursorRecyclerViewBinder binder, @NonNull String idColumn,
-                              int viewHolderLayout) {
+    protected AWCursorAdapter(@NonNull AWCursorRecyclerViewBinder binder,
+                              @NonNull String idColumn) {
         super(binder);
         mBinder = binder;
         mDataObserver = new CursorDataObserver();
         mRowIDColumn = idColumn;
-        this.viewHolderLayout = viewHolderLayout;
         setHasStableIds(true);
     }
 
@@ -169,14 +166,13 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         return getAdapterItemID(convertItemPosition(position));
     }
 
-    protected Cursor moveCursor(int position) {
+    private void moveCursor(int position) {
         if (!mDataValid) {
             throw new IllegalStateException("this should only be called when the cursor is valid");
         }
         if (!mCursor.moveToPosition(position)) {
             throw new IllegalStateException("couldn't move cursor to position " + position);
         }
-        return mCursor;
     }
 
     @Override
@@ -187,46 +183,21 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
     }
 
     @Override
+    public void onBindViewHolder(AWLibViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
+        if (!(holder.getItemViewType() < 0)) {
+            moveCursor(convertItemPosition(position));
+            mBinder.onBindViewHolder(holder, mCursor, position);
+        }
+    }
+
+    @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
         if (getPendingDeleteItemPosition() != NO_POSITION) {
             mItemPositions.put(getAdapterPosition(getPendingDeleteItemPosition()), NO_POSITION);
         }
         unregisterAdapterDataObserver(mOnDataChangeListener);
-    }
-
-    @CallSuper
-    @Override
-    public void onItemDismiss(int position) {
-        if (position != NO_POSITION) {
-            notifyItemRemoved(position);
-            mBinder.onItemDismiss(getItemId(position));
-        }
-    }
-
-    @CallSuper
-    @Override
-    protected void onItemMove(int fromPosition, int toPosition) {
-        notifyItemMoved(fromPosition, toPosition);
-        mBinder.onItemMoved(getItemId(fromPosition), getItemId(toPosition));
-        AWApplication.Log("Model Moved. From: " + fromPosition + " To: " + toPosition);
-    }
-
-    /**
-     * Ist der Cursor gueltig, wird der CursorViewHolderBinder aus dem Konstructor aufgerufen
-     *
-     * @param viewHolder
-     *         aktueller viewHolder
-     * @param position
-     *         position des Holders
-     * @throws IllegalStateException
-     *         wenn der Cursor als invald erklaert wurde oder die Position vom Cursor nicht erreicht
-     *         werden kann
-     */
-    @Override
-    protected void onViewHolderBinding(AWLibViewHolder viewHolder, int position) {
-        moveCursor(convertItemPosition(position));
-        mBinder.onBindViewHolder(viewHolder, mCursor, position);
     }
 
     @Override
@@ -271,10 +242,6 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
 
     public interface AWCursorRecyclerViewBinder extends AWBaseRecyclerViewBinder {
         void onBindViewHolder(AWLibViewHolder viewHolder, Cursor mCursor, int position);
-
-        void onItemDismiss(long itemId);
-
-        void onItemMoved(long fromID, long toID);
 
         void onRecyclerItemClick(View v, int position, long id);
 

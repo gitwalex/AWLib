@@ -120,8 +120,9 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     }
 
     /**
-     * Wird aus onViewHolderClick(...) gerufen, wenn ein Model der RecyclerView geclickt wurde. Es wird ggfs.
-     * die Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
+     * Wird aus onViewHolderClick(...) gerufen, wenn ein Model der RecyclerView geclickt wurde. Es
+     * wird ggfs. die Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert
+     * hat.
      */
     @Override
     public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, T object) {
@@ -131,7 +132,8 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
     }
 
     /**
-     * Wird aus onViewHolderLongClick(...) gerufen, wenn ein Model der RecyclerView long-geclickt wurde.
+     * Wird aus onViewHolderLongClick(...) gerufen, wenn ein Model der RecyclerView long-geclickt
+     * wurde.
      */
     @Override
     public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view, T object) {
@@ -241,8 +243,7 @@ public class AWArrayRecyclerViewFragment<T> extends AWFragment
         mRecyclerView.setTag(this.getClass().getSimpleName());
         // Setzen der RecyclerView-ID. Standard: layout-Value. Alternativ:
         // args(VIEWID).
-        int mRecyclerViewID = args.getInt(VIEWID, layout);
-        mRecyclerView.setId(mRecyclerViewID);
+        mRecyclerView.setId(layout);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);

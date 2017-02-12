@@ -381,7 +381,7 @@ public abstract class AWFragment extends DialogFragment
         if (awlib_gv != null && viewResIDs != null) {
             AWLibViewHolder holder = new AWLibViewHolder(view);
             for (int i = 0; i < viewResIDs.length; i++) {
-                View target = holder.findViewById(viewResIDs[i]);
+                View target = holder.itemView.findViewById(viewResIDs[i]);
                 if (!onBindView(target, viewResIDs[i])) {
                     int fromResID = fromResIDs[i];
                     if (target instanceof TextView) {

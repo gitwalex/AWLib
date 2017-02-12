@@ -183,7 +183,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
         switch (holder.getItemViewType()) {
             case BACKTOPARENT:
                 for (int resID : viewResIDs) {
-                    View view = holder.findViewById(resID);
+                    View view = holder.itemView.findViewById(resID);
                     if (resID == R.id.folderImage) {
                         ImageView img = (ImageView) view;
                         img.setImageResource(R.drawable.ic_open_folder);
@@ -201,7 +201,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
                 break;
             default:
                 for (int resID : viewResIDs) {
-                    View view = holder.findViewById(resID);
+                    View view = holder.itemView.findViewById(resID);
                     if (resID == R.id.folderImage) {
                         ImageView img = (ImageView) view;
                         if (file.isDirectory()) {

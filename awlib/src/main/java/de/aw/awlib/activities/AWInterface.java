@@ -90,10 +90,6 @@ public interface AWInterface {
             /**
              *
              */
-            , VIEWID = "VIEWID"
-            /**
-             *
-             */
             , SELECTEDVIEWHOLDERITEM = "SELECTEDVIEWHOLDERITEM"
             /**
              *

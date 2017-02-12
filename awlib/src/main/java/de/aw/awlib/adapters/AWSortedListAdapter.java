@@ -58,9 +58,11 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         mItemgenerator = generator;
         mCount = cursor.getCount();
         int newSize = mCount > 20 ? 20 : mCount;
+        sortedItemList.beginBatchedUpdates();
         for (int i = sortedItemList.size(); i < newSize; i++) {
             sortedItemList.add(generator.createItem(i));
         }
+        sortedItemList.endBatchedUpdates();
     }
 
     private void addAll(List<T> items, SortedItemList sortedItemList) {
@@ -118,13 +120,16 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
 
     @Override
     public final void onBindViewHolder(AWLibViewHolder holder, int position) {
-        if (sortedItemList.size() < position + 1) {
-            int newSize = position + 20 > mCount ? position + 20 : mCount;
-            for (int i = sortedItemList.size(); i < newSize; i++) {
-                sortedItemList.add(mItemgenerator.createItem(i));
-            }
-        }
         super.onBindViewHolder(holder, position);
+        if (!(holder.getItemViewType() < 0)) {
+            if (sortedItemList.size() < position + 1) {
+                int newSize = position + 20 > mCount ? position + 20 : mCount;
+                for (int i = sortedItemList.size(); i < newSize; i++) {
+                    sortedItemList.add(mItemgenerator.createItem(i));
+                }
+            }
+            mBinder.onBindViewHolder(holder, sortedItemList.get(position), position);
+        }
     }
 
     @CallSuper
@@ -134,7 +139,7 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
     }
 
     @Override
-    protected void onItemMove(int fromPosition, int toPosition) {
+    protected void onItemMoved(int fromPosition, int toPosition) {
     }
 
     @Override
@@ -161,6 +166,11 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         return sortedItemList.removeItemAt(index);
     }
 
+    public void reset() {
+        sortedItemList = new SortedItemList(mClass);
+        notifyDataSetChanged();
+    }
+
     public void swap(List<T> items) {
         SortedItemList list = new SortedItemList(mClass);
         addAll(items, list);
@@ -182,6 +192,8 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
 
     public interface AWSortedListRecyclerViewBinder<T>
             extends AWBaseAdapter.AWBaseRecyclerViewBinder {
+        void onBindViewHolder(AWLibViewHolder holder, T item, int position);
+
         void onRecyclerItemClick(View v, int position, T item);
 
         boolean onRecyclerItemLongClick(View v, int position, T item);
@@ -225,7 +237,7 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
 
         @Override
         public void onMoved(int fromPosition, int toPosition) {
-            onItemMove(fromPosition, toPosition);
+            onItemMoved(fromPosition, toPosition);
         }
 
         @Override

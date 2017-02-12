@@ -18,9 +18,12 @@ package de.aw.awlib.recyclerview;
  */
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
@@ -46,7 +49,8 @@ import static de.aw.awlib.adapters.AWBaseAdapter.UNDODELETEVIEW;
  * Als Standard erhaelt die RecyclerView als ID den Wert des Layout. Durch args.setInt(VIEWID,
  * value) erhaelt die RecyclerView eine andere ID.
  */
-public abstract class AWBaseRecyclerViewFragment extends AWFragment {
+public abstract class AWBaseRecyclerViewFragment extends AWFragment
+        implements LoaderManager.LoaderCallbacks<Cursor> {
     public final static int minCardWidth = 800;
     public static final int SWIPEDVIEW = UNDODELETEVIEW - 1;
     protected LayoutManager mLayoutManager;
@@ -73,13 +77,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
      * @return einen BaseAdapter
      */
     protected abstract AWBaseAdapter createBaseAdapter();
-
-    /**
-     * @return Liefert den Adapter zurueck
-     */
-    public AWBaseAdapter getAdapter() {
-        return mAdapter;
-    }
 
     /**
      * Initialisiert den Adapter, dieser Adapter wird ggfs. neu erstellt
@@ -164,15 +161,12 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
         }
     }
 
+    /**
+     * Wird hier nicht benoetigt.
+     */
     @Override
     protected final boolean onBindView(View view, int resID) {
         return super.onBindView(view, resID);
-    }
-
-    /**
-     * Wird aus {@link AWBaseAdapter#onViewHolderBinding(AWLibViewHolder, int)}  gerufen
-     */
-    public void onBindViewHolder(AWLibViewHolder holder, int position) {
     }
 
     /**
@@ -187,6 +181,11 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
         viewHolderLayout = args.getInt(VIEWHOLDERLAYOUT);
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
     public View onCreateViewHolder(LayoutInflater inflater, ViewGroup viewGroup, int itemType) {
         return inflater.inflate(viewHolderLayout, viewGroup, false);
     }
@@ -195,6 +194,15 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
     }
 
     public void onItemMoved(long fromID, long toID) {
+    }
+
+    @CallSuper
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        noEntryView.setVisibility(View.VISIBLE);
+        if (cursor != null && cursor.getCount() != 0) {
+            noEntryView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -267,17 +275,13 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment {
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.awlib_defaultRecyclerView);
         mRecyclerView.setTag(this.getClass().getSimpleName());
-        // Setzen der RecyclerView-ID. Standard: layout-Value. Alternativ:
-        // args(VIEWID).
-        int mRecyclerViewID = args.getInt(VIEWID, layout);
-        mRecyclerView.setId(mRecyclerViewID);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
         // use a linear layout manager
         mLayoutManager = getLayoutManager();
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(getCustomAdapter());
+        setAdapter(getCustomAdapter());
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                      .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);

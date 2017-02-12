@@ -20,12 +20,12 @@ package de.aw.awlib.recyclerview;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
+import de.aw.awlib.adapters.AWBaseAdapter;
 import de.aw.awlib.adapters.AWCursorAdapter;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
@@ -41,21 +41,27 @@ import de.aw.awlib.database.AbstractDBHelper;
  * value) erhaelt die RecyclerView eine andere ID.
  */
 public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFragment
-        implements LoaderManager.LoaderCallbacks<Cursor>,
-        AWCursorAdapter.AWCursorRecyclerViewBinder {
+        implements AWCursorAdapter.AWCursorRecyclerViewBinder {
     protected int indexColumn;
-
-    /**
-     * Minimale Breite fuer eine Karte mit WertpapierInformationen. Ist die Ausfloesung sehr klein,
-     * wird zumindest eine Karte angezeigt - auch wenns sch... aussieht :-(
-     */
-    protected AWCursorAdapter createBaseAdapter() {
-        return new AWCursorAdapter(this, viewHolderLayout);
-    }
+    private AWCursorAdapter mAdapter;
+    //    protected AWCursorAdapter createBaseAdapter() {
+    //    }
 
     @Override
+    protected final AWBaseAdapter createBaseAdapter() {
+        mAdapter = createCursorAdapter();
+        return mAdapter;
+    }
+
+    protected AWCursorAdapter createCursorAdapter() {
+        return new AWCursorAdapter(this);
+    }
+
     public AWCursorAdapter getAdapter() {
-        return (AWCursorAdapter) super.getAdapter();
+        if (mAdapter == null) {
+            mAdapter = createCursorAdapter();
+        }
+        return mAdapter;
     }
 
     @Override
@@ -87,75 +93,48 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
     }
 
     /**
+     * Belegt anhand der viewResIDs in Args die View. Das Format wird automatisch konvertiert.
+     * <p>
+     * Sollte nur gerufen werden, wenn die View nicht anderweitig belegt wird, sonden z.B. durch
+     * Databinding
+     *
+     * @throws NullPointerException
+     *         wenn viewResIDs oder fromResIDs null ist oder die in viewResIDs aufgefuehrte View
+     *         nicht gefunden wird
      * @throws IllegalStateException
      *         Wenn eine View bearbeitet wird, die TextView ist und fillView(...) hat false
      *         zurueckgegeben.
      */
-    public final void onBindViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
-        if (!onBindingViewHolder(holder, cursor, position)) {
-            for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
-                int resID = viewResIDs[viewPosition];
-                View view = holder.findViewById(resID);
-                if (!onBindView(holder, view, resID, cursor, viewPosition) && fromResIDs != null &&
-                        viewPosition < fromResIDs.length) {
-                    try {
-                        AbstractDBHelper mDBHelper =
-                                ((AWApplication) getContext().getApplicationContext())
-                                        .getDBHelper();
-                        TextView tv = (TextView) view;
-                        String text = AWDBConvert.convert(mDBHelper, fromResIDs[viewPosition],
-                                cursor.getString(viewPosition));
-                        tv.setText(text);
-                    } catch (ClassCastException e) {
-                        throw new IllegalStateException(
-                                "View mit ResID " + resID + " [" + getString(resID) +
-                                        "] ist keine TextView und muss in onBindView belegt werden.");
-                    }
+    public void onBindViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
+        for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
+            int resID = viewResIDs[viewPosition];
+            View view = holder.itemView.findViewById(resID);
+            if (!onBindView(holder, view, resID, cursor, viewPosition) && fromResIDs != null &&
+                    viewPosition < fromResIDs.length) {
+                try {
+                    AbstractDBHelper mDBHelper =
+                            ((AWApplication) getContext().getApplicationContext()).getDBHelper();
+                    TextView tv = (TextView) view;
+                    String text = AWDBConvert.convert(mDBHelper, fromResIDs[viewPosition],
+                            cursor.getString(viewPosition));
+                    tv.setText(text);
+                } catch (ClassCastException e) {
+                    throw new IllegalStateException(
+                            "View mit ResID " + resID + " [" + getString(resID) +
+                                    "] ist keine TextView und muss in onBindView belegt werden.");
                 }
             }
         }
     }
 
-    @Override
-    public final void onBindViewHolder(AWLibViewHolder holder, int position) {
-    }
-
-    /**
-     * Wird in onBindViewHolder() gerufen. Hier koennen Vorarbeiten fuer die Ermittlung der Daten
-     * durchgefuehrt werden, z.B. je Holder Daten aus dem Cursor lesen. Hier wird im Holder die ID
-     * aus dem Cursor gespeichert. Aussederm wird geprueft, ob der Holder zu der id als Selected
-     * markiert wurde. Ist dies so, wird der Holder selected.
-     *
-     * @param holder
-     *         AWLibViewHolder
-     * @param cursor
-     *         aktueller Cursor.
-     * @param position
-     *         Position
-     */
-    protected boolean onBindingViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
-        return false;
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
-    }
-
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        noEntryView.setVisibility(View.VISIBLE);
+        super.onLoadFinished(loader, cursor);
         if (cursor != null) {
             indexColumn = cursor.getColumnIndexOrThrow(getString(R.string._id));
-            if (cursor.getCount() != 0) {
-                noEntryView.setVisibility(View.GONE);
-            }
         }
-        if (getAdapter() == null) {
-            AWCursorAdapter adapter = createBaseAdapter();
-            setAdapter(adapter);
-        }
+        setAdapter(getAdapter());
         getAdapter().swapCursor(cursor); // swap the new cursor in.
     }
 
@@ -170,5 +149,10 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         if (getAdapter() != null) {
             getAdapter().swapCursor(null);
         }
+    }
+
+    protected void setAdapter(AWCursorAdapter adapter) {
+        mAdapter = adapter;
+        super.setAdapter(adapter);
     }
 }
