@@ -79,7 +79,9 @@ public class AWTextCurrency extends TextView {
     }
 
     public void setValue(float value) {
-        setValue((long) (value * AWDBConvert.mCurrencyDigits));
+        if (!isInEditMode()) {
+            setValue((long) (value * AWDBConvert.mCurrencyDigits));
+        }
     }
 
     private void setValue(AttributeSet attrs) {

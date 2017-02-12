@@ -46,7 +46,7 @@ public abstract class AWSortedListRecyclerViewFragment<T extends SortedListModel
     /**
      * @return Liefert den Adapter zurueck
      */
-    public AWSortedListAdapter getAdapter() {
+    public AWSortedListAdapter<T> getAdapter() {
         if (mAdapter == null) {
             mAdapter = createBaseAdapter();
         }
