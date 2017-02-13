@@ -78,25 +78,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
      */
     protected abstract AWBaseAdapter createBaseAdapter();
 
-    /**
-     * Initialisiert den Adapter, dieser Adapter wird ggfs. neu erstellt
-     *
-     * @return Adapter
-     */
-    private AWBaseAdapter getCustomAdapter() {
-        if (mAdapter == null) {
-            mAdapter = createBaseAdapter();
-        }
-        if (mOnDragListener != null) {
-            mAdapter.setOnDragListener(mOnDragListener);
-        }
-        if (mOnSwipeListener != null) {
-            mAdapter.setOnSwipeListener(mOnSwipeListener);
-        }
-        mAdapter.setOnTouchStartDragResID(onTouchStartDragResID);
-        return mAdapter;
-    }
-
     public int getItemViewType(int position) {
         return 0;
     }
@@ -179,7 +160,14 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         super.onCreate(savedInstanceState);
         layout = args.getInt(LAYOUT);
         viewHolderLayout = args.getInt(VIEWHOLDERLAYOUT);
-        mAdapter = getCustomAdapter();
+        mAdapter = createBaseAdapter();
+        if (mOnDragListener != null) {
+            mAdapter.setOnDragListener(mOnDragListener);
+        }
+        if (mOnSwipeListener != null) {
+            mAdapter.setOnSwipeListener(mOnSwipeListener);
+        }
+        mAdapter.setOnTouchStartDragResID(onTouchStartDragResID);
     }
 
     @Override

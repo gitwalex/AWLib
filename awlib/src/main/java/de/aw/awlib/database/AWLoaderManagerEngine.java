@@ -142,9 +142,7 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
                     projection = tbd.columnNames(fromResIDs);
                 }
                 if (projection == null) {
-                    // IMMER noch Null - Fehler!
-                    throw new NullPointerException(
-                            "Weder PROJECTION noch FROMRESIDS belegt. Weiss nicht, was tun");
+                    projection = tbd.columnNames(tbd.getTableItems());
                 }
                 String selection = args.getString(SELECTION);
                 String[] selectionArgs = args.getStringArray(SELECTIONARGS);
