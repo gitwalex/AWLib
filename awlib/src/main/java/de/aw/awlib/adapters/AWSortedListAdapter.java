@@ -34,8 +34,7 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  */
 public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAdapter {
     private final AWSortedListRecyclerViewBinder<T> mBinder;
-    private final Class<T> mClass;
-    private SortedItemList sortedItemList;
+    private SortedList<T> sortedItemList;
     private ItemGenerator<T> mItemgenerator;
     private int mCount;
 
@@ -43,8 +42,7 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
                                @NonNull AWSortedListRecyclerViewBinder<T> binder) {
         super(binder);
         mBinder = binder;
-        mClass = clazz;
-        sortedItemList = new SortedItemList(clazz);
+        sortedItemList = new SortedList<T>(clazz, new MCallback());
     }
 
     /**
@@ -65,7 +63,7 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         sortedItemList.endBatchedUpdates();
     }
 
-    private void addAll(List<T> items, SortedItemList sortedItemList) {
+    private void addAll(List<T> items, SortedList<T> sortedItemList) {
         sortedItemList.beginBatchedUpdates();
         for (T item : items) {
             sortedItemList.add(item);
@@ -83,18 +81,6 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
 
     public final void addItem(T item) {
         sortedItemList.add(item);
-    }
-
-    private boolean areContentsTheSame(T oldItem, T newItem) {
-        return oldItem.areContentsTheSame(newItem);
-    }
-
-    private boolean areItemsTheSame(T item1, T item2) {
-        return item1.areItemsTheSame(item2);
-    }
-
-    private int compare(T o1, T o2) {
-        return o1.compare(o2);
     }
 
     public final T get(int position) {
@@ -143,7 +129,7 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
     }
 
     @Override
-    protected void onViewHolderClicked(AWLibViewHolder holder) {
+    protected final void onViewHolderClicked(AWLibViewHolder holder) {
         View v = holder.itemView;
         int position = getRecyclerView().getChildAdapterPosition(holder.itemView);
         T item = sortedItemList.get(position);
@@ -151,7 +137,7 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
     }
 
     @Override
-    protected boolean onViewHolderLongClicked(AWLibViewHolder holder) {
+    protected final boolean onViewHolderLongClicked(AWLibViewHolder holder) {
         View v = holder.itemView;
         int position = getRecyclerView().getChildAdapterPosition(v);
         T item = sortedItemList.get(position);
@@ -166,20 +152,9 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         return sortedItemList.removeItemAt(index);
     }
 
-    public void reset() {
-        sortedItemList = new SortedItemList(mClass);
+    public final void reset() {
+        sortedItemList.clear();
         notifyDataSetChanged();
-    }
-
-    public void swap(List<T> items) {
-        SortedItemList list = new SortedItemList(mClass);
-        addAll(items, list);
-        sortedItemList = list;
-        notifyDataSetChanged();
-    }
-
-    public void swap(T[] items) {
-        swap(Arrays.asList(items));
     }
 
     public final void updateItemAt(int index, T item) {
@@ -199,30 +174,20 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         boolean onRecyclerItemLongClick(View v, int position, T item);
     }
 
-    private class SortedItemList extends SortedList<T> {
-        SortedItemList(Class<T> klass) {
-            super(klass, new MCallback());
-        }
-
-        public SortedItemList(Class<T> klass, int initialCapacity) {
-            super(klass, new MCallback(), initialCapacity);
-        }
-    }
-
     private class MCallback extends SortedList.Callback<T> {
         @Override
         public boolean areContentsTheSame(T oldItem, T newItem) {
-            return AWSortedListAdapter.this.areContentsTheSame(oldItem, newItem);
+            return oldItem.areContentsTheSame(newItem);
         }
 
         @Override
         public boolean areItemsTheSame(T item1, T item2) {
-            return AWSortedListAdapter.this.areItemsTheSame(item1, item2);
+            return item1.areItemsTheSame(item2);
         }
 
         @Override
         public int compare(T o1, T o2) {
-            return AWSortedListAdapter.this.compare(o1, o2);
+            return o1.compare(o2);
         }
 
         @Override

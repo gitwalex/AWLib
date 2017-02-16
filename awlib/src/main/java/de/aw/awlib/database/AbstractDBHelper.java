@@ -823,8 +823,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         AWDBAlterHelper dbhelper = new AWDBAlterHelper(this, database);
         database.beginTransaction();
         try {
-            AWDBDefinition tbd = AWDBDefinition.RemoteServer;
-            dbhelper.alterTableOnlyDeletedColumns(tbd);
             doUpgrade(database, dbhelper, oldVersion, newVersion);
             // Bei jeder Aenderung der DB werden alle Views geloescht und neu angelegt.
             List<String> views = getViewNames(database);

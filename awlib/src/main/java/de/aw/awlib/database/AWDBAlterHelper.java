@@ -17,6 +17,7 @@ package de.aw.awlib.database;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
@@ -250,7 +251,31 @@ public final class AWDBAlterHelper {
             String sql = ("CREATE VIEW " + tbd.name() + " AS " + viewSQL);
             database.execSQL(sql);
             tbd.createDatabase(this);
+            checkView(tbd);
         }
+    }
+
+    private boolean checkView(AWAbstractDBDefinition tbd) {
+        ContentValues cv = new ContentValues();
+        List<String> fehler = new ArrayList<>();
+        String[] projection = tbd.columnNames(tbd.getTableItems());
+        Cursor c = database.query(tbd.name(), projection, null, null, null, null, null);
+        try {
+            for (String column : c.getColumnNames()) {
+                cv.put(column, "test");
+            }
+        } finally {
+            c.close();
+        }
+        for (String column : projection) {
+            if (cv.get(column) == null) {
+                fehler.add("In " + tbd.name() + " column nicht gefunden: " + column);
+            }
+        }
+        for (String value : fehler) {
+            AWApplication.Log(value);
+        }
+        return fehler.size() == 0;
     }
 
     public void copyValues(AWAbstractDBDefinition from, int[] columns, AWAbstractDBDefinition to) {
