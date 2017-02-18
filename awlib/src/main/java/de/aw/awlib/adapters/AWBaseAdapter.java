@@ -49,7 +49,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         implements AWLibViewHolder.OnHolderClickListener,
         AWLibViewHolder.OnHolderLongClickListener {
     public static final int UNDODELETEVIEW = -1;
-    private final AWBaseRecyclerViewBinder mBinder;
+    private final AWBaseAdapterBinder mBinder;
     private RecyclerView mRecyclerView;
     private int mPendingDeleteItemPosition = NO_POSITION;
     private int mTextResID = R.string.tvGeloescht;
@@ -67,7 +67,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * @param binder
      *         Binder fuer onBindView
      */
-    public AWBaseAdapter(AWBaseRecyclerViewBinder binder) {
+    public AWBaseAdapter(AWBaseAdapterBinder binder) {
         mBinder = binder;
     }
 
@@ -345,7 +345,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                        RecyclerView.ViewHolder to);
     }
 
-    public interface AWBaseRecyclerViewBinder {
+    public interface AWBaseAdapterBinder {
         int getItemViewType(int position);
 
         View onCreateViewHolder(LayoutInflater inflater, ViewGroup viewGroup, int itemType);

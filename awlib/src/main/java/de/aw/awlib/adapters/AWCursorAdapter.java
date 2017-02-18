@@ -56,7 +56,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         AWLibViewHolder.OnHolderLongClickListener {
     private final CursorDataObserver mDataObserver;
     private final String mRowIDColumn;
-    private final AWCursorRecyclerViewBinder mBinder;
+    private final AWCursorAdapterBinder mBinder;
     private Cursor mCursor;
     private boolean mDataValid;
     private int mRowIdColumnIndex;
@@ -70,7 +70,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      * @param binder
      *         CursorViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      */
-    public AWCursorAdapter(@NonNull AWCursorRecyclerViewBinder binder) {
+    public AWCursorAdapter(@NonNull AWCursorAdapterBinder binder) {
         this(binder, "_id");
     }
 
@@ -82,7 +82,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      * @param idColumn
      *         Name der Spalte, die den Index enthaelt.
      */
-    protected AWCursorAdapter(@NonNull AWCursorRecyclerViewBinder binder,
+    protected AWCursorAdapter(@NonNull AWCursorAdapterBinder binder,
                               @NonNull String idColumn) {
         super(binder);
         mBinder = binder;
@@ -240,7 +240,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         return oldCursor;
     }
 
-    public interface AWCursorRecyclerViewBinder extends AWBaseRecyclerViewBinder {
+    public interface AWCursorAdapterBinder extends AWBaseAdapterBinder {
         void onBindViewHolder(AWLibViewHolder viewHolder, Cursor mCursor, int position);
 
         void onRecyclerItemClick(View v, int position, long id);

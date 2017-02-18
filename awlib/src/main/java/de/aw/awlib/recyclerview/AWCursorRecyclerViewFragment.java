@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.adapters.AWBaseAdapter;
 import de.aw.awlib.adapters.AWCursorAdapter;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
@@ -41,14 +40,12 @@ import de.aw.awlib.database.AbstractDBHelper;
  * value) erhaelt die RecyclerView eine andere ID.
  */
 public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFragment
-        implements AWCursorAdapter.AWCursorRecyclerViewBinder {
+        implements AWCursorAdapter.AWCursorAdapterBinder {
     protected int indexColumn;
     private AWCursorAdapter mAdapter;
-    //    protected AWCursorAdapter createBaseAdapter() {
-    //    }
 
     @Override
-    protected final AWBaseAdapter createBaseAdapter() {
+    protected final AWCursorAdapter createBaseAdapter() {
         mAdapter = createCursorAdapter();
         return mAdapter;
     }

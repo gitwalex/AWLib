@@ -29,7 +29,7 @@ import de.aw.awlib.adapters.AWSortedListAdapter;
  * Template fuer eine RecyclerView mit {@link AWSortedListAdapter<T>}
  */
 public abstract class AWSortedListRecyclerViewFragment<T> extends AWBaseRecyclerViewFragment
-        implements AWSortedListAdapter.AWSortedListRecyclerViewBinder<T> {
+        implements AWSortedListAdapter.AWSortedListAdapterBinder<T> {
     private AWOnArrayRecyclerViewListener<T> mSortedListRecyclerViewListener;
     private AWSortedListAdapter<T> mAdapter;
 

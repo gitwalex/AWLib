@@ -32,13 +32,13 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  * Adapter mit einer {@link SortedList}
  */
 public abstract class AWSortedListAdapter<T> extends AWBaseAdapter {
-    private final AWSortedListRecyclerViewBinder<T> mBinder;
+    private final AWSortedListAdapterBinder<T> mBinder;
     private SortedList<T> sortedItemList;
     private ItemGenerator<T> mItemgenerator;
     private int mCount;
 
     public AWSortedListAdapter(@NonNull Class<T> clazz,
-                               @NonNull AWSortedListRecyclerViewBinder<T> binder) {
+                               @NonNull AWSortedListAdapterBinder<T> binder) {
         super(binder);
         mBinder = binder;
         sortedItemList = new SortedList<T>(clazz, new MCallback());
@@ -203,8 +203,7 @@ public abstract class AWSortedListAdapter<T> extends AWBaseAdapter {
         T createItem(int position);
     }
 
-    public interface AWSortedListRecyclerViewBinder<T>
-            extends AWBaseAdapter.AWBaseRecyclerViewBinder {
+    public interface AWSortedListAdapterBinder<T> extends AWBaseAdapterBinder {
         void onBindViewHolder(AWLibViewHolder holder, T item, int position);
 
         void onRecyclerItemClick(View v, int position, T item);
