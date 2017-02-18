@@ -201,7 +201,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     }
 
     /**
-     * Wird vom Adapter gerufen, wenn ein Model der RecyclerView geclickt wurde. Es wird ggfs. die
+     * Wird vom Adapter gerufen, wenn ein  Item  der RecyclerView geclickt wurde. Es wird ggfs. die
      * Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
      */
     @CallSuper
@@ -214,7 +214,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     }
 
     /**
-     * Wird vom Adapter gerufen, wenn ein Model der RecyclerView long-geclickt wurde.
+     * Wird vom Adapter gerufen, wenn ein  Item  der RecyclerView long-geclickt wurde.
      */
     @CallSuper
     public boolean onRecyclerItemLongClick(View view, int position, long id) {
@@ -306,7 +306,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     }
 
     /**
-     * Durch setzen der resID der DetailView wird dieses Model als OneToch-Draghandler benutzt, d.h.
+     * Durch setzen der resID der DetailView wird dieses  Item  als OneToch-Draghandler benutzt, d.h.
      * dass bei einmaligen beruehren dieses Items der Drag/Drop-Vorgang startet. Die resID muss in
      * onCreate() gesetzt werden.
      *

@@ -22,8 +22,6 @@ import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import de.aw.awlib.databinding.Model;
-
 /**
  * AWLibViewHolder fuer RecyclerView
  */
@@ -34,7 +32,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     private OnHolderClickListener mOnHolderClickListener;
     private OnHolderLongClickListener mOnLonClickListener;
     private ViewDataBinding viewDataBinding;
-    private Model mModel;
 
     /**
      * Erstellt AWLibViewHolder.
@@ -44,29 +41,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
      */
     public AWLibViewHolder(View view) {
         super(view);
-    }
-
-    public Model getModel() {
-        return mModel;
-    }
-
-    /**
-     * Vereinfachungsmethode fuer holen des ViewDataBinding fur die View und gleichzeitig setzen des
-     * Models im Holder.
-     * <p>
-     * Ersetzt <code>
-     * <p>
-     * getViewDataBinding(); setModel(Model model);
-     * <p>
-     * </code>
-     *
-     * @param model
-     *         Model fuer die View
-     * @return ViewDataBinding der View
-     */
-    public ViewDataBinding getViewDataBinding(Model model) {
-        mModel = model;
-        return getViewDataBinding();
     }
 
     public ViewDataBinding getViewDataBinding() {
@@ -101,10 +75,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     @Override
     public boolean onLongClick(View v) {
         return mOnLonClickListener != null && mOnLonClickListener.onViewHolderLongClick(this);
-    }
-
-    public void setModel(Model mModel) {
-        this.mModel = mModel;
     }
 
     /**

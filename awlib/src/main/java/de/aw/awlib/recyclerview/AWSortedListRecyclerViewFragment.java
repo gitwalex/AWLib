@@ -24,13 +24,11 @@ import android.support.v4.content.Loader;
 import android.view.View;
 
 import de.aw.awlib.adapters.AWSortedListAdapter;
-import de.aw.awlib.databinding.SortedListModel;
 
 /**
  * Template fuer eine RecyclerView mit {@link AWSortedListAdapter<T>}
  */
-public abstract class AWSortedListRecyclerViewFragment<T extends SortedListModel<T>>
-        extends AWBaseRecyclerViewFragment
+public abstract class AWSortedListRecyclerViewFragment<T> extends AWBaseRecyclerViewFragment
         implements AWSortedListAdapter.AWSortedListRecyclerViewBinder<T> {
     private AWOnArrayRecyclerViewListener<T> mSortedListRecyclerViewListener;
     private AWSortedListAdapter<T> mAdapter;
@@ -83,12 +81,13 @@ public abstract class AWSortedListRecyclerViewFragment<T extends SortedListModel
         if (mSortedListRecyclerViewListener != null) {
             mSortedListRecyclerViewListener.onArrayRecyclerItemClick(mRecyclerView, v, item);
         }
-        super.onRecyclerItemClick(v, position, item.getID());
+        super.onRecyclerItemClick(v, position, getAdapter().getItemId(position));
     }
 
     @CallSuper
     public boolean onRecyclerItemLongClick(View v, int position, T item) {
-        boolean consumed = super.onRecyclerItemLongClick(v, position, item.getID());
+        boolean consumed =
+                super.onRecyclerItemLongClick(v, position, getAdapter().getItemId(position));
         if (mSortedListRecyclerViewListener != null) {
             consumed = mSortedListRecyclerViewListener
                     .onArrayRecyclerItemLongClick(mRecyclerView, v, item);

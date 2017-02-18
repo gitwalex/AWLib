@@ -26,13 +26,12 @@ import android.view.View;
 import java.util.Arrays;
 import java.util.List;
 
-import de.aw.awlib.databinding.SortedListModel;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
  * Adapter mit einer {@link SortedList}
  */
-public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAdapter {
+public abstract class AWSortedListAdapter<T> extends AWBaseAdapter {
     private final AWSortedListRecyclerViewBinder<T> mBinder;
     private SortedList<T> sortedItemList;
     private ItemGenerator<T> mItemgenerator;
@@ -83,9 +82,48 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
         sortedItemList.add(item);
     }
 
+    /**
+     * Wird aus dem Adapter gerufen, wenn {@link AWSortedListAdapter#areItemsTheSame(Object,
+     * Object)} true zuruckgegeben hat. Dann kann hier angegeben werden, ob nicht nur die
+     * Suchkritieren identisch sind, sindern auch der Inhalt.
+     *
+     * @param other
+     *         das zu vergleichende Item
+     * @return true, wenn die Inhalte gleich sind.
+     */
+    protected abstract boolean areContentsTheSame(T item, T other);
+
+    /**
+     * Wird aus dem Adapter gerufen, wenn {@link AWSortedListAdapter#compare(Object, Object)}  '0'
+     * zuruckgegeben hat. Dann kann hier angegeben werden, ob die Suchkritieren identisch sind.
+     *
+     * @param other
+     *         das zu vergleichende Item
+     * @return true, wenn die Suchkriterien gleich sind.
+     */
+    protected abstract boolean areItemsTheSame(T item, T other);
+
+    /**
+     * Wird aus dem Adapter gerufen, um die Reihenfolge festzulegen.
+     *
+     * @param other
+     *         das zu vergleichende Item
+     * @return -1, wenn dieses Item vor other liegen soll
+     * <p>
+     * 1, wenn dieses Item hinter other liegen soll
+     * <p>
+     * sonst 0. Dann wird {@link AWSortedListAdapter#areItemsTheSame(Object, Object)} gerufen
+     */
+    protected abstract int compare(T item, T other);
+
     public final T get(int position) {
         return sortedItemList.get(position);
     }
+
+    /**
+     * @return Liefert die ID zuruck.
+     */
+    protected abstract long getID(T item);
 
     @Override
     public final int getItemCount() {
@@ -97,7 +135,7 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
 
     @Override
     public final long getItemId(int position) {
-        return sortedItemList.get(position).getID();
+        return getID(sortedItemList.get(position));
     }
 
     public final int indexOf(T item) {
@@ -177,17 +215,17 @@ public class AWSortedListAdapter<T extends SortedListModel<T>> extends AWBaseAda
     private class MCallback extends SortedList.Callback<T> {
         @Override
         public boolean areContentsTheSame(T oldItem, T newItem) {
-            return oldItem.areContentsTheSame(newItem);
+            return AWSortedListAdapter.this.areContentsTheSame(oldItem, newItem);
         }
 
         @Override
         public boolean areItemsTheSame(T item1, T item2) {
-            return item1.areItemsTheSame(item2);
+            return AWSortedListAdapter.this.areItemsTheSame(item1, item2);
         }
 
         @Override
         public int compare(T o1, T o2) {
-            return o1.compare(o2);
+            return AWSortedListAdapter.this.compare(o1, o2);
         }
 
         @Override

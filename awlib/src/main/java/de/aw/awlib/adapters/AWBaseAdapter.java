@@ -126,7 +126,6 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         return mBinder.getItemViewType(position);
     }
 
-
     @CallSuper
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -223,7 +222,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
-     * Entfernt ein Model an der Position. Funktioniert nur, wenn {@link
+     * Entfernt ein Item an der Position. Funktioniert nur, wenn {@link
      * AWBaseAdapter#setOnSwipeListener(OnSwipeListener)} mit einem SwipeListener gerufen wurde.
      *
      * @param position
@@ -238,7 +237,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
 
     protected void onItemMoved(int fromPosition, int toPosition) {
         mBinder.onItemMoved(getItemId(fromPosition), getItemId(toPosition));
-        AWApplication.Log("Model Moved. From: " + fromPosition + " To: " + toPosition);
+        AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
     }
 
     private void onStartDrag(RecyclerView.ViewHolder holder) {
@@ -302,7 +301,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
-     * Durch setzen der resID der DetailView wird dieses Model als OneToch-Draghandler benutzt, d.h.
+     * Durch setzen der resID der DetailView wird diese View als OneToch-Draghandler benutzt, d.h.
      * dass bei einmaligen beruehren dieses Items der Drag/Drop-Vorgang startet. Die resID muss in
      * onCreate() gesetzt werden.
      *
