@@ -76,12 +76,22 @@ public abstract class AWSortedListRecyclerViewFragment<T> extends AWBaseRecycler
         getAdapter().reset();
     }
 
+    @Override
+    public final void onRecyclerItemClick(View view, int position, long id) {
+        super.onRecyclerItemClick(view, position, id);
+    }
+
     @CallSuper
     public void onRecyclerItemClick(View v, int position, T item) {
         if (mSortedListRecyclerViewListener != null) {
             mSortedListRecyclerViewListener.onArrayRecyclerItemClick(mRecyclerView, v, item);
         }
         super.onRecyclerItemClick(v, position, getAdapter().getItemId(position));
+    }
+
+    @Override
+    public final boolean onRecyclerItemLongClick(View view, int position, long id) {
+        return super.onRecyclerItemLongClick(view, position, id);
     }
 
     @CallSuper

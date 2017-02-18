@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,17 +30,14 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileFilter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
+import de.aw.awlib.adapters.AWSortedListAdapter;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.gv.AWRemoteFileServer;
-import de.aw.awlib.recyclerview.AWArrayRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
+import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 import de.aw.awlib.utils.AWRemoteFileServerHandler;
 import de.aw.awlib.utils.AWRemoteFileServerHandler.ExecutionListener;
 
@@ -50,7 +46,7 @@ import static android.net.Uri.withAppendedPath;
 /**
  * Dialog zur Abfrage von Zugangsdaten fuer externe Sicherung der DB.
  */
-public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
+public class AWRemoteFileChooser extends AWSortedListRecyclerViewFragment<FTPFile>
         implements ExecutionListener, AWFragment.OnAWFragmentDismissListener,
         AWFragment.OnAWFragmentCancelListener, AWInterface {
     protected static final String DIRECTORYNAME = "DIRECTORYNAME";
@@ -100,6 +96,40 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
         return fragment;
     }
 
+    @Override
+    protected AWSortedListAdapter<FTPFile> createSortedListAdapter() {
+        return new AWSortedListAdapter<FTPFile>(FTPFile.class, this) {
+            @Override
+            protected boolean areContentsTheSame(FTPFile item, FTPFile other) {
+                return false;
+            }
+
+            @Override
+            protected boolean areItemsTheSame(FTPFile item, FTPFile other) {
+                return item.getName().equals(other.getName());
+            }
+
+            @Override
+            protected int compare(FTPFile item, FTPFile other) {
+                if (item.isDirectory() && !other.isDirectory()) {
+                    // Directory before File
+                    return -1;
+                } else if (!item.isDirectory() && other.isDirectory()) {
+                    // File after directory
+                    return 1;
+                } else {
+                    // Otherwise in Alphabetic order...
+                    return item.getName().compareTo(other.getName());
+                }
+            }
+
+            @Override
+            protected long getID(FTPFile item) {
+                return 0;
+            }
+        };
+    }
+
     private AWRemoteFileServerHandler getExecuter() {
         if (mRemoteFileServerHandler == null) {
             mRemoteFileServerHandler = new AWRemoteFileServerHandler(mRemoteFileServer, this);
@@ -108,58 +138,12 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
     }
 
     @Override
-    public int getItemViewType(int position, FTPFile object) {
+    public int getItemViewType(int position) {
+        FTPFile object = getAdapter().get(position);
         if (position == 0 && object.getName().equals("..")) {
             return BACKTOPARENT;
         }
-        return super.getItemViewType(position, object);
-    }
-
-    /**
-     * Wird ein Directory ausgwaehlt, wird in dieses Directory gewechselt.
-     */
-    @Override
-    public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, FTPFile file) {
-        if (file.isDirectory()) {
-            String filename = file.getName();
-            if (filename.equals("..")) {
-                if (mDirectoyList.size() != 0) {
-                    mDirectoyList.remove(mDirectoyList.size() - 1);
-                }
-                mUri = Uri.parse("/");
-                for (int i = 0; i < mDirectoyList.size(); i++) {
-                    String dir = mDirectoyList.get(i);
-                    mUri = withAppendedPath(mUri, dir);
-                }
-            } else {
-                mDirectoyList.add(filename);
-                mUri = withAppendedPath(mUri, filename);
-            }
-            getExecuter().listFilesInDirectory(mUri.getEncodedPath(), mFileFilter);
-        } else {
-            super.onArrayRecyclerItemClick(recyclerView, view, file);
-        }
-    }
-
-    /**
-     * Wird ein Dateieintrag lang ausgewaehlt, wird ein Loeschen-Dialog angeboten.
-     */
-    @Override
-    public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view,
-                                                FTPFile file) {
-        if (file.isDirectory()) {
-            AWApplication mAppContext = ((AWApplication) getContext().getApplicationContext());
-            mUri = withAppendedPath(mUri, file.getName());
-            mRemoteFileServer.setMainDirectory(mAppContext, mUri.getEncodedPath());
-            if (mRemoteFileServer.isInserted()) {
-                mRemoteFileServer.update(getActivity(), mAppContext.getDBHelper());
-            } else {
-                mRemoteFileServer.insert(getActivity(), mAppContext.getDBHelper());
-            }
-            mOnActionFinishListener.onActionFinishClicked(layout);
-            return true;
-        }
-        return super.onArrayRecyclerItemLongClick(recyclerView, view, file);
+        return super.getItemViewType(position);
     }
 
     @Override
@@ -178,7 +162,7 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
     }
 
     @Override
-    public void onBindViewHolder(AWLibViewHolder holder, FTPFile file) {
+    public void onBindViewHolder(AWLibViewHolder holder, FTPFile file, int position) {
         TextView tv;
         switch (holder.getItemViewType()) {
             case BACKTOPARENT:
@@ -251,12 +235,59 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
     public void onEndFileServerTask(AWRemoteFileServerHandler.ConnectionFailsException result) {
         mProgressServerConnection.setVisibility(View.INVISIBLE);
         if (result == null) {
-            setFileList(mRemoteFileServerHandler.getFiles());
+            FTPFile[] mFiles = mRemoteFileServerHandler.getFiles();
+            getAdapter().addAll(mFiles);
             setTitle(mUri.getEncodedPath());
         } else {
             mServerErrorLayout.setVisibility(View.VISIBLE);
             mServerErrorTexte.setText(result.getStatusMessage());
         }
+    }
+
+    /**
+     * Wird ein Directory ausgwaehlt, wird in dieses Directory gewechselt.
+     */
+    @Override
+    public void onRecyclerItemClick(View v, int position, FTPFile file) {
+        if (file.isDirectory()) {
+            String filename = file.getName();
+            if (filename.equals("..")) {
+                if (mDirectoyList.size() != 0) {
+                    mDirectoyList.remove(mDirectoyList.size() - 1);
+                }
+                mUri = Uri.parse("/");
+                for (int i = 0; i < mDirectoyList.size(); i++) {
+                    String dir = mDirectoyList.get(i);
+                    mUri = withAppendedPath(mUri, dir);
+                }
+            } else {
+                mDirectoyList.add(filename);
+                mUri = withAppendedPath(mUri, filename);
+            }
+            getExecuter().listFilesInDirectory(mUri.getEncodedPath(), mFileFilter);
+        } else {
+            super.onRecyclerItemClick(v, position, file);
+        }
+    }
+
+    /**
+     * Wird ein Dateieintrag lang ausgewaehlt, wird ein Loeschen-Dialog angeboten.
+     */
+    @Override
+    public boolean onRecyclerItemLongClick(View v, int position, FTPFile file) {
+        if (file.isDirectory()) {
+            AWApplication mAppContext = ((AWApplication) getContext().getApplicationContext());
+            mUri = withAppendedPath(mUri, file.getName());
+            mRemoteFileServer.setMainDirectory(mAppContext, mUri.getEncodedPath());
+            if (mRemoteFileServer.isInserted()) {
+                mRemoteFileServer.update(getActivity(), mAppContext.getDBHelper());
+            } else {
+                mRemoteFileServer.insert(getActivity(), mAppContext.getDBHelper());
+            }
+            mOnActionFinishListener.onActionFinishClicked(layout);
+            return true;
+        }
+        return super.onRecyclerItemLongClick(v, position, file);
     }
 
     @Override
@@ -275,26 +306,6 @@ public class AWRemoteFileChooser extends AWArrayRecyclerViewFragment<FTPFile>
         mServerErrorLayout = view.findViewById(R.id.awlib_llServerError);
         mServerErrorTexte = (TextView) view.findViewById(R.id.awlib_tvServerError);
         mProgressServerConnection = view.findViewById(R.id.pbDlgServerConnection);
-    }
-
-    protected void setFileList(FTPFile[] files) {
-        List<FTPFile> mFiles = Arrays.asList(files);
-        Collections.sort(mFiles, new Comparator<FTPFile>() {
-            @Override
-            public int compare(FTPFile lhs, FTPFile rhs) {
-                if (lhs.isDirectory() && !rhs.isDirectory()) {
-                    // Directory before File
-                    return -1;
-                } else if (!lhs.isDirectory() && rhs.isDirectory()) {
-                    // File after directory
-                    return 1;
-                } else {
-                    // Otherwise in Alphabetic order...
-                    return lhs.getName().compareTo(rhs.getName());
-                }
-            }
-        });
-        mAdapter.swapValues(mFiles);
     }
 
     @Override
