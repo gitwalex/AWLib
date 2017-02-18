@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.aw.awlib.R;
-import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
 
@@ -78,6 +77,21 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         callbackTouchHelper.setIsSwipeable(mOnSwipeListener != null);
         callbackTouchHelper.setIsDragable(mOnDragListener != null);
         mTouchHelper = new ItemTouchHelper(callbackTouchHelper);
+    }
+
+    /**
+     * Entfernt ein Item an der Position. Funktioniert nur, wenn {@link
+     * AWBaseAdapter#setOnSwipeListener(OnSwipeListener)} mit einem SwipeListener gerufen wurde.
+     * Adapter wird mittels notify informiert.
+     *
+     * @param position
+     *         Position des items im Adapter, das entfernt werden soll.
+     */
+    private void dismissItem(int position) {
+        if (position != NO_POSITION) {
+            mPendingDeleteItemPosition = NO_POSITION;
+            notifyItemRemoved(position);
+        }
     }
 
     /**
@@ -164,8 +178,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        onItemDismiss(mPendingDeleteItemPosition);
-                        mPendingDeleteItemPosition = NO_POSITION;
+                        dismissItem(mPendingDeleteItemPosition);
                     }
                 });
                 break;
@@ -216,28 +229,8 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
 
     public void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from,
                           RecyclerView.ViewHolder to) {
-        onItemMoved(from.getAdapterPosition(), to.getAdapterPosition());
         notifyItemMoved(from.getAdapterPosition(), to.getAdapterPosition());
         mOnDragListener.onDragged(recyclerView, from, to);
-    }
-
-    /**
-     * Entfernt ein Item an der Position. Funktioniert nur, wenn {@link
-     * AWBaseAdapter#setOnSwipeListener(OnSwipeListener)} mit einem SwipeListener gerufen wurde.
-     *
-     * @param position
-     *         Position des items im Adapter, das entfernt werden soll.
-     */
-    public void onItemDismiss(int position) {
-        if (position != NO_POSITION) {
-            notifyItemRemoved(position);
-            mBinder.onItemDismiss(getItemId(position));
-        }
-    }
-
-    protected void onItemMoved(int fromPosition, int toPosition) {
-        mBinder.onItemMoved(getItemId(fromPosition), getItemId(toPosition));
-        AWApplication.Log("Item Moved. From: " + fromPosition + " To: " + toPosition);
     }
 
     private void onStartDrag(RecyclerView.ViewHolder holder) {
@@ -315,8 +308,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     public final void setPendingDeleteItem(int position) {
         int mPending = mPendingDeleteItemPosition;
         if (mPendingDeleteItemPosition != NO_POSITION) {
-            onItemDismiss(mPending);
-            mPendingDeleteItemPosition = NO_POSITION;
+            dismissItem(mPending);
         }
         if (mPending != position) {
             mPendingDeleteItemPosition = position;
@@ -349,10 +341,6 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         int getItemViewType(int position);
 
         View onCreateViewHolder(LayoutInflater inflater, ViewGroup viewGroup, int itemType);
-
-        void onItemDismiss(long itemId);
-
-        void onItemMoved(long fromID, long toID);
     }
 
     private class AWOnScrollListener extends OnScrollListener {
@@ -361,8 +349,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
             switch (newState) {
                 case SCROLL_STATE_DRAGGING:
                     if (mPendingDeleteItemPosition != NO_POSITION) {
-                        onItemDismiss(mPendingDeleteItemPosition);
-                        mPendingDeleteItemPosition = NO_POSITION;
+                        dismissItem(mPendingDeleteItemPosition);
                         removePendingSwipeItem();
                     }
                     break;

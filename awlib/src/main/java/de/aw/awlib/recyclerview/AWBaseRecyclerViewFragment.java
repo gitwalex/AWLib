@@ -179,12 +179,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         return inflater.inflate(viewHolderLayout, viewGroup, false);
     }
 
-    public void onItemDismiss(long id) {
-    }
-
-    public void onItemMoved(long fromID, long toID) {
-    }
-
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -306,9 +300,9 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     }
 
     /**
-     * Durch setzen der resID der DetailView wird dieses  Item  als OneToch-Draghandler benutzt, d.h.
-     * dass bei einmaligen beruehren dieses Items der Drag/Drop-Vorgang startet. Die resID muss in
-     * onCreate() gesetzt werden.
+     * Durch setzen der resID der DetailView wird dieses  Item  als OneToch-Draghandler benutzt,
+     * d.h. dass bei einmaligen beruehren dieses Items der Drag/Drop-Vorgang startet. Die resID muss
+     * in onCreate() gesetzt werden.
      *
      * @param resID
      *         resID der View, bei deren Beruehrung der Drag/Drop Vorgand starten soll

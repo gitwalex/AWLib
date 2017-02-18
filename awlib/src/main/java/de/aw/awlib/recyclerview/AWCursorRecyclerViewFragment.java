@@ -124,6 +124,14 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         }
     }
 
+    @Override
+    public void onItemDismiss(long itemID, int position) {
+    }
+
+    @Override
+    public void onItemMoved(long itemId, int fromPosition, int toPosition) {
+    }
+
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {

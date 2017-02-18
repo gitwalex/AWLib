@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
 import android.view.View;
 import android.widget.ImageView;
@@ -35,18 +34,17 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import de.aw.awlib.R;
-import de.aw.awlib.recyclerview.AWArrayRecyclerViewFragment;
+import de.aw.awlib.adapters.AWSortedListAdapter;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
+import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 
 /**
  * FileChooser fuer Dateien. Ermittelt vor Anzeige die Berechtigung, wenn erforderlich.
  */
-public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
+public class AWFileChooser extends AWSortedListRecyclerViewFragment<File> {
     protected static final String DIRECTORYNAME = "DIRECTORYNAME";
     private static final int[] viewResIDs =
             new int[]{R.id.awlib_fileName, R.id.awlib_fileData, R.id.folderImage};
@@ -117,21 +115,6 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
     private void createFileList(File file) {
         File[] files = file.listFiles(mFilenameFilter);
         List<File> mFiles = Arrays.asList(files);
-        Collections.sort(mFiles, new Comparator<File>() {
-            @Override
-            public int compare(File lhs, File rhs) {
-                if (lhs.isDirectory() && !rhs.isDirectory()) {
-                    // Directory before File
-                    return -1;
-                } else if (!lhs.isDirectory() && rhs.isDirectory()) {
-                    // File after directory
-                    return 1;
-                } else {
-                    // Otherwise in Alphabetic order...
-                    return lhs.getName().compareTo(rhs.getName());
-                }
-            }
-        });
         ArrayList<File> value = new ArrayList<>(mFiles);
         hasParent = !mDirectoy.toLowerCase().equals(file.getAbsolutePath().toLowerCase());
         if (hasParent) {
@@ -139,7 +122,41 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
         }
         mFile = file;
         setTitle(file.getAbsolutePath());
-        mAdapter.swapValues(value);
+        getAdapter().addAll(value);
+    }
+
+    @Override
+    protected AWSortedListAdapter<File> createSortedListAdapter() {
+        return new AWSortedListAdapter<File>(File.class, this) {
+            @Override
+            protected boolean areContentsTheSame(File item, File other) {
+                return false;
+            }
+
+            @Override
+            protected boolean areItemsTheSame(File item, File other) {
+                return item.getAbsolutePath().equals(other.getAbsolutePath());
+            }
+
+            @Override
+            protected int compare(File item, File other) {
+                if (item.isDirectory() && !other.isDirectory()) {
+                    // Directory before File
+                    return -1;
+                } else if (!item.isDirectory() && other.isDirectory()) {
+                    // File after directory
+                    return 1;
+                } else {
+                    // Otherwise in Alphabetic order...
+                    return item.getName().compareTo(other.getName());
+                }
+            }
+
+            @Override
+            protected long getID(File item) {
+                return 0;
+            }
+        };
     }
 
     /**
@@ -147,48 +164,11 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
      * Verzeichnis gewechselt werden kann. Ansonsten wird der Default zuruckgeliefert.
      */
     @Override
-    public int getItemViewType(int position, File object) {
+    public int getItemViewType(int position) {
         if (position == 0 && hasParent) {
             return HASPARENTFOLDER;
         }
-        return super.getItemViewType(position, object);
-    }
-
-    /**
-     * Wird ein Directory ausgewaehlt, wird in dieses Directory gewechselt.
-     */
-    @Override
-    public void onArrayRecyclerItemClick(RecyclerView recyclerView, View view, File file) {
-        if (file.isDirectory()) {
-            createFileList(file);
-        } else {
-            super.onArrayRecyclerItemClick(recyclerView, view, file);
-        }
-    }
-
-    /**
-     * Wird ein Dateieintrag lang ausgewaehlt, wird ein Loeschen-Dialog angeboten.
-     */
-    @Override
-    public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view,
-                                                final File file) {
-        if (!file.isDirectory()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setPositiveButton(R.string.awlib_btnAccept,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            File parent = file.getParentFile();
-                            file.delete();
-                            createFileList(parent);
-                        }
-                    });
-            builder.setTitle(R.string.awlib_deleteFile);
-            Dialog dlg = builder.create();
-            dlg.show();
-            return true;
-        }
-        return super.onArrayRecyclerItemLongClick(recyclerView, view, file);
+        return super.getItemViewType(position);
     }
 
     /**
@@ -208,7 +188,7 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
     }
 
     @Override
-    public void onBindViewHolder(AWLibViewHolder holder, File file) {
+    public void onBindViewHolder(AWLibViewHolder holder, File file, int position) {
         TextView tv;
         switch (holder.getItemViewType()) {
             case HASPARENTFOLDER:
@@ -259,6 +239,42 @@ public class AWFileChooser extends AWArrayRecyclerViewFragment<File> {
                         filename.toLowerCase().endsWith("." + filenameFilter);
             }
         };
+    }
+
+    /**
+     * Wird ein Directory ausgewaehlt, wird in dieses Directory gewechselt.
+     */
+    @Override
+    public void onRecyclerItemClick(View v, int position, File item) {
+        if (item.isDirectory()) {
+            createFileList(item);
+        } else {
+            super.onRecyclerItemClick(v, position, item);
+        }
+    }
+
+    /**
+     * Wird ein Dateieintrag lang ausgewaehlt, wird ein Loeschen-Dialog angeboten.
+     */
+    @Override
+    public boolean onRecyclerItemLongClick(View v, int position, final File file) {
+        if (!file.isDirectory()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setPositiveButton(R.string.awlib_btnAccept,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            File parent = file.getParentFile();
+                            file.delete();
+                            createFileList(parent);
+                        }
+                    });
+            builder.setTitle(R.string.awlib_deleteFile);
+            Dialog dlg = builder.create();
+            dlg.show();
+            return true;
+        }
+        return super.onRecyclerItemLongClick(v, position, file);
     }
 
     @Override

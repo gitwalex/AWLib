@@ -18,7 +18,6 @@ package de.aw.awlib.adapters;
  */
 
 import android.database.Cursor;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 import android.view.View;
@@ -145,26 +144,17 @@ public abstract class AWSortedListAdapter<T> extends AWBaseAdapter {
     @Override
     public final void onBindViewHolder(AWLibViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        if (!(holder.getItemViewType() < 0)) {
-            if (sortedItemList.size() < position + 1) {
-                int newSize = position + 20 > mCount ? position + 20 : mCount;
-                for (int i = sortedItemList.size(); i < newSize; i++) {
-                    sortedItemList.add(mItemgenerator.createItem(i));
-                }
+        if (sortedItemList.size() < position + 1) {
+            int newSize = position + 20 > mCount ? position + 20 : mCount;
+            for (int i = sortedItemList.size(); i < newSize; i++) {
+                sortedItemList.add(mItemgenerator.createItem(i));
             }
+        }
+        if (holder.getItemViewType() != UNDODELETEVIEW) {
             mBinder.onBindViewHolder(holder, sortedItemList.get(position), position);
         }
     }
 
-    @CallSuper
-    @Override
-    public void onItemDismiss(int position) {
-        sortedItemList.removeItemAt(position);
-    }
-
-    @Override
-    protected void onItemMoved(int fromPosition, int toPosition) {
-    }
 
     @Override
     protected final void onViewHolderClicked(AWLibViewHolder holder) {
@@ -206,6 +196,24 @@ public abstract class AWSortedListAdapter<T> extends AWBaseAdapter {
     public interface AWSortedListAdapterBinder<T> extends AWBaseAdapterBinder {
         void onBindViewHolder(AWLibViewHolder holder, T item, int position);
 
+        /**
+         * Wird vom Adapter gerufen, wenn ein Item entfernt wird.
+         *
+         * @param position
+         *         Position des Items
+         */
+        void onItemDismiss(int position);
+
+        /**
+         * Wird vom Adapter gerufen, wenn ein Item verschoben wird
+         *
+         * @param fromPosition
+         *         urspruengliche Position des Items
+         * @param toPosition
+         *         neue Position des Items
+         */
+        void onItemMoved(int fromPosition, int toPosition);
+
         void onRecyclerItemClick(View v, int position, T item);
 
         boolean onRecyclerItemLongClick(View v, int position, T item);
@@ -240,11 +248,13 @@ public abstract class AWSortedListAdapter<T> extends AWBaseAdapter {
         @Override
         public void onMoved(int fromPosition, int toPosition) {
             onItemMoved(fromPosition, toPosition);
+            mBinder.onItemMoved(fromPosition, toPosition);
         }
 
         @Override
         public void onRemoved(int position, int count) {
             notifyItemRangeRemoved(position, count);
+            mBinder.onItemDismiss(position);
         }
     }
 }

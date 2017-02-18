@@ -82,8 +82,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      * @param idColumn
      *         Name der Spalte, die den Index enthaelt.
      */
-    protected AWCursorAdapter(@NonNull AWCursorAdapterBinder binder,
-                              @NonNull String idColumn) {
+    protected AWCursorAdapter(@NonNull AWCursorAdapterBinder binder, @NonNull String idColumn) {
         super(binder);
         mBinder = binder;
         mDataObserver = new CursorDataObserver();
@@ -185,7 +184,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
     @Override
     public void onBindViewHolder(AWLibViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        if (!(holder.getItemViewType() < 0)) {
+        if (holder.getItemViewType() != UNDODELETEVIEW) {
             moveCursor(convertItemPosition(position));
             mBinder.onBindViewHolder(holder, mCursor, position);
         }
@@ -199,6 +198,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         }
         unregisterAdapterDataObserver(mOnDataChangeListener);
     }
+
 
     @Override
     protected void onViewHolderClicked(AWLibViewHolder holder) {
@@ -243,6 +243,28 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
     public interface AWCursorAdapterBinder extends AWBaseAdapterBinder {
         void onBindViewHolder(AWLibViewHolder viewHolder, Cursor mCursor, int position);
 
+        /**
+         * Wird vom Adapter gerufen, wenn ein Item entfernt wird.
+         *
+         * @param itemID
+         *         ID des Items
+         * @param position
+         *         Position des Items
+         */
+        void onItemDismiss(long itemID, int position);
+
+        /**
+         * Wird vom Adapter gerufen, wenn ein Item verschoben wird
+         *
+         * @param itemID
+         *         ID des Items
+         * @param fromPosition
+         *         urspruengliche Position des Items
+         * @param toPosition
+         *         neue Position des Items
+         */
+        void onItemMoved(long itemID, int fromPosition, int toPosition);
+
         void onRecyclerItemClick(View v, int position, long id);
 
         boolean onRecyclerItemLongClick(View v, int position, long id);
@@ -286,6 +308,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         @Override
         public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
             for (int i = 0; i < itemCount; i++) {
+                mBinder.onItemMoved(getItemId(fromPosition), fromPosition, toPosition);
                 int mFromPosition = getAdapterPosition(fromPosition + i);
                 int mToPosition = getAdapterPosition(toPosition + i);
                 int mFromItem = mItemPositions.get(mFromPosition, mFromPosition);
@@ -307,6 +330,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
             for (int i = 0; i < itemCount; i++) {
+                mBinder.onItemDismiss(getItemId(positionStart), positionStart);
                 mItemPositions.put(getAdapterPosition(positionStart + i), NO_POSITION);
                 removed++;
             }
