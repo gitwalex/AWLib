@@ -38,7 +38,6 @@ import de.aw.awlib.adapters.AWBaseAdapter;
 public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private final Paint mPaint = new Paint();
     private final AWBaseAdapter mAdapter;
-    private final float ALPHA_FULL = 1.0f;
     private Bitmap mIcon;
     private boolean isDragable;
     private boolean isSwipeable;
@@ -70,20 +69,17 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         // Set movement flags based on the layout manager
         int dragFlags = 0;
         int swipeFlags = 0;
-        if (getAdapter().isViewEnabled(viewHolder)) {
-            if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-                if (isDragable) {
-                    dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT |
-                            ItemTouchHelper.RIGHT;
-                }
-                swipeFlags = 0;
-            } else {
-                if (isDragable) {
-                    dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-                }
-                if (isSwipeable) {
-                    swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-                }
+        if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+            if (isDragable) {
+                dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT |
+                        ItemTouchHelper.RIGHT;
+            }
+        } else {
+            if (isDragable) {
+                dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+            }
+            if (isSwipeable) {
+                swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
             }
         }
         return makeMovementFlags(dragFlags, swipeFlags);
@@ -130,7 +126,7 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
                                 mIcon.getHeight()) / 2, mPaint);
             }
             // Fade out the view as it is swiped out of the parent's bounds
-            final float alpha = ALPHA_FULL - Math.abs(dX) / (float) viewHolder.itemView.getWidth();
+            final float alpha = 1.0f - Math.abs(dX) / (float) viewHolder.itemView.getWidth();
             viewHolder.itemView.setAlpha(alpha);
             viewHolder.itemView.setTranslationX(dX);
         }
@@ -143,7 +139,6 @@ public class AWSimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         getAdapter().onDragged(recyclerView, viewHolder, target);
         return true;
     }
-
 
     @Override
     public final void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {

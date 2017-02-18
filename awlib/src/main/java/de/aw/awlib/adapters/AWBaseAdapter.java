@@ -126,9 +126,6 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         return mBinder.getItemViewType(position);
     }
 
-    public boolean isViewEnabled(RecyclerView.ViewHolder viewHolder) {
-        return true;
-    }
 
     @CallSuper
     @Override
