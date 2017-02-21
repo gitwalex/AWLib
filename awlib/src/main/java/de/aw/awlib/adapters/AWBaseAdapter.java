@@ -90,8 +90,8 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     private void dismissItem(int position) {
         if (position != NO_POSITION) {
             mPendingDeleteItemPosition = NO_POSITION;
-            notifyItemRemoved(position);
         }
+        onItemDismissed(position);
     }
 
     /**
@@ -229,9 +229,13 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
 
     public void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from,
                           RecyclerView.ViewHolder to) {
-        notifyItemMoved(from.getAdapterPosition(), to.getAdapterPosition());
         mOnDragListener.onDragged(recyclerView, from, to);
+        onItemMoved(from.getAdapterPosition(), to.getAdapterPosition());
     }
+
+    public abstract void onItemDismissed(int position);
+
+    public abstract void onItemMoved(int fromPosition, int toPosition);
 
     private void onStartDrag(RecyclerView.ViewHolder holder) {
         holder.itemView.setPressed(true);

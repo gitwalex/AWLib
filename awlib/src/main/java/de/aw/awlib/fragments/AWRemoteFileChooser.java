@@ -33,11 +33,12 @@ import java.util.ArrayList;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
-import de.aw.awlib.adapters.AWSortedListAdapter;
+import de.aw.awlib.adapters.AWItemListAdapterTemplate;
+import de.aw.awlib.adapters.AWSortedItemListAdapter;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.gv.AWRemoteFileServer;
+import de.aw.awlib.recyclerview.AWItemListRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
-import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 import de.aw.awlib.utils.AWRemoteFileServerHandler;
 import de.aw.awlib.utils.AWRemoteFileServerHandler.ExecutionListener;
 
@@ -46,7 +47,7 @@ import static android.net.Uri.withAppendedPath;
 /**
  * Dialog zur Abfrage von Zugangsdaten fuer externe Sicherung der DB.
  */
-public class AWRemoteFileChooser extends AWSortedListRecyclerViewFragment<FTPFile>
+public class AWRemoteFileChooser extends AWItemListRecyclerViewFragment<FTPFile>
         implements ExecutionListener, AWFragment.OnAWFragmentDismissListener,
         AWFragment.OnAWFragmentCancelListener, AWInterface {
     protected static final String DIRECTORYNAME = "DIRECTORYNAME";
@@ -97,8 +98,8 @@ public class AWRemoteFileChooser extends AWSortedListRecyclerViewFragment<FTPFil
     }
 
     @Override
-    protected AWSortedListAdapter<FTPFile> createSortedListAdapter() {
-        return new AWSortedListAdapter<FTPFile>(FTPFile.class, this) {
+    protected AWItemListAdapterTemplate<FTPFile> createListAdapter() {
+        return new AWSortedItemListAdapter<FTPFile>(FTPFile.class, this) {
             @Override
             protected boolean areContentsTheSame(FTPFile item, FTPFile other) {
                 return false;

@@ -46,13 +46,13 @@ import de.aw.awlib.fragments.AWShowPicture;
 import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWBaseRecyclerViewListener;
-import de.aw.awlib.recyclerview.AWOnArrayRecyclerViewListener;
+import de.aw.awlib.recyclerview.AWItemListRecyclerViewListener;
 
 /**
  * Activity fuer verschiedene Aktionen
  */
 public class AWActivityActions extends AWMainActivity
-        implements AWOnArrayRecyclerViewListener, AWFragmentActionBar.OnActionFinishListener,
+        implements AWItemListRecyclerViewListener, AWFragmentActionBar.OnActionFinishListener,
         AWFragment.OnAWFragmentDismissListener, AWFragment.OnAWFragmentCancelListener,
         AWBaseRecyclerViewListener {
     private AWEvent event;
@@ -61,37 +61,6 @@ public class AWActivityActions extends AWMainActivity
     @Override
     public void onActionFinishClicked(int layoutID) {
         finish();
-    }
-
-    @Override
-    public void onArrayRecyclerItemClick(RecyclerView parent, View view, Object object) {
-        switch (event) {
-            case showBackupFiles:
-                final File file = (File) object;
-                if (!file.isDirectory()) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setPositiveButton(R.string.awlib_btnAccept,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    EventDBRestore dbRestore =
-                                            new EventDBRestore(AWActivityActions.this);
-                                    dbRestore.restore(file);
-                                }
-                            });
-                    builder.setTitle(R.string.dbTitleDatenbank);
-                    builder.setMessage(R.string.dlgDatenbankRestore);
-                    Dialog dlg = builder.create();
-                    dlg.show();
-                    break;
-                }
-        }
-    }
-
-    @Override
-    public boolean onArrayRecyclerItemLongClick(RecyclerView recyclerView, View view,
-                                                Object object) {
-        return false;
     }
 
     /**
@@ -191,6 +160,37 @@ public class AWActivityActions extends AWMainActivity
             getSupportFragmentManager().beginTransaction().replace(container, f, event.name())
                                        .addToBackStack(null).commit();
         }
+    }
+
+    @Override
+    public void onItemListRecyclerItemClick(RecyclerView parent, View view, Object object) {
+        switch (event) {
+            case showBackupFiles:
+                final File file = (File) object;
+                if (!file.isDirectory()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setPositiveButton(R.string.awlib_btnAccept,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    EventDBRestore dbRestore =
+                                            new EventDBRestore(AWActivityActions.this);
+                                    dbRestore.restore(file);
+                                }
+                            });
+                    builder.setTitle(R.string.dbTitleDatenbank);
+                    builder.setMessage(R.string.dlgDatenbankRestore);
+                    Dialog dlg = builder.create();
+                    dlg.show();
+                    break;
+                }
+        }
+    }
+
+    @Override
+    public boolean onItemListRecyclerItemLongClick(RecyclerView recyclerView, View view,
+                                                   Object object) {
+        return false;
     }
 
     @Override

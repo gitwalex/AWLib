@@ -23,28 +23,29 @@ import android.support.annotation.CallSuper;
 import android.support.v4.content.Loader;
 import android.view.View;
 
-import de.aw.awlib.adapters.AWSortedListAdapter;
+import de.aw.awlib.adapters.AWItemListAdapter;
+import de.aw.awlib.adapters.AWItemListAdapterTemplate;
 
 /**
- * Template fuer eine RecyclerView mit {@link AWSortedListAdapter<T>}
+ * Template fuer eine RecyclerView mit {@link AWItemListAdapterTemplate <T>}
  */
-public abstract class AWSortedListRecyclerViewFragment<T> extends AWBaseRecyclerViewFragment
-        implements AWSortedListAdapter.AWSortedListAdapterBinder<T> {
-    private AWOnArrayRecyclerViewListener<T> mSortedListRecyclerViewListener;
-    private AWSortedListAdapter<T> mAdapter;
+public abstract class AWItemListRecyclerViewFragment<T> extends AWBaseRecyclerViewFragment
+        implements AWItemListAdapter.AWListAdapterBinder<T> {
+    private AWItemListRecyclerViewListener<T> mSortedListRecyclerViewListener;
+    private AWItemListAdapterTemplate<T> mAdapter;
 
     @Override
-    protected final AWSortedListAdapter<T> createBaseAdapter() {
-        mAdapter = createSortedListAdapter();
+    protected final AWItemListAdapterTemplate<T> createBaseAdapter() {
+        mAdapter = createListAdapter();
         return mAdapter;
     }
 
-    protected abstract AWSortedListAdapter<T> createSortedListAdapter();
+    protected abstract AWItemListAdapterTemplate<T> createListAdapter();
 
     /**
      * @return Liefert den Adapter zurueck
      */
-    public AWSortedListAdapter<T> getAdapter() {
+    public AWItemListAdapterTemplate<T> getAdapter() {
         if (mAdapter == null) {
             mAdapter = createBaseAdapter();
         }
@@ -61,7 +62,7 @@ public abstract class AWSortedListRecyclerViewFragment<T> extends AWBaseRecycler
     public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
-            mSortedListRecyclerViewListener = (AWOnArrayRecyclerViewListener<T>) activity;
+            mSortedListRecyclerViewListener = (AWItemListRecyclerViewListener<T>) activity;
         } catch (ClassCastException e) {
             // nix tun...
         }
@@ -92,7 +93,7 @@ public abstract class AWSortedListRecyclerViewFragment<T> extends AWBaseRecycler
     @CallSuper
     public void onRecyclerItemClick(View v, int position, T item) {
         if (mSortedListRecyclerViewListener != null) {
-            mSortedListRecyclerViewListener.onArrayRecyclerItemClick(mRecyclerView, v, item);
+            mSortedListRecyclerViewListener.onItemListRecyclerItemClick(mRecyclerView, v, item);
         }
         super.onRecyclerItemClick(v, position, getAdapter().getItemId(position));
     }
@@ -108,7 +109,7 @@ public abstract class AWSortedListRecyclerViewFragment<T> extends AWBaseRecycler
                 super.onRecyclerItemLongClick(v, position, getAdapter().getItemId(position));
         if (mSortedListRecyclerViewListener != null) {
             consumed = mSortedListRecyclerViewListener
-                    .onArrayRecyclerItemLongClick(mRecyclerView, v, item);
+                    .onItemListRecyclerItemLongClick(mRecyclerView, v, item);
         }
         return consumed;
     }

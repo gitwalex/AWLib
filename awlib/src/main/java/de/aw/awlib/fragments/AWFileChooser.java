@@ -37,14 +37,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.aw.awlib.R;
-import de.aw.awlib.adapters.AWSortedListAdapter;
+import de.aw.awlib.adapters.AWItemListAdapterTemplate;
+import de.aw.awlib.adapters.AWSortedItemListAdapter;
+import de.aw.awlib.recyclerview.AWItemListRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
-import de.aw.awlib.recyclerview.AWSortedListRecyclerViewFragment;
 
 /**
  * FileChooser fuer Dateien. Ermittelt vor Anzeige die Berechtigung, wenn erforderlich.
  */
-public class AWFileChooser extends AWSortedListRecyclerViewFragment<File> {
+public class AWFileChooser extends AWItemListRecyclerViewFragment<File> {
     protected static final String DIRECTORYNAME = "DIRECTORYNAME";
     private static final int[] viewResIDs =
             new int[]{R.id.awlib_fileName, R.id.awlib_fileData, R.id.folderImage};
@@ -126,8 +127,8 @@ public class AWFileChooser extends AWSortedListRecyclerViewFragment<File> {
     }
 
     @Override
-    protected AWSortedListAdapter<File> createSortedListAdapter() {
-        return new AWSortedListAdapter<File>(File.class, this) {
+    protected AWItemListAdapterTemplate<File> createListAdapter() {
+        return new AWSortedItemListAdapter<File>(File.class, this) {
             @Override
             protected boolean areContentsTheSame(File item, File other) {
                 return false;

@@ -199,6 +199,15 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         unregisterAdapterDataObserver(mOnDataChangeListener);
     }
 
+    @Override
+    public void onItemDismissed(int position) {
+        notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onItemMoved(int fromPosition, int toPosition) {
+        notifyItemMoved(fromPosition, toPosition);
+    }
 
     @Override
     protected void onViewHolderClicked(AWLibViewHolder holder) {
