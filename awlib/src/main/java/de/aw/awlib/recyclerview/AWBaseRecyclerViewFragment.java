@@ -79,7 +79,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     protected abstract AWBaseAdapter createBaseAdapter();
 
     public int getItemViewType(int position) {
-        return 0;
+        return viewHolderLayout;
     }
 
     /**
@@ -176,7 +176,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     }
 
     public View onCreateViewHolder(LayoutInflater inflater, ViewGroup viewGroup, int itemType) {
-        return inflater.inflate(viewHolderLayout, viewGroup, false);
+        return inflater.inflate(itemType, viewGroup, false);
     }
 
     @CallSuper

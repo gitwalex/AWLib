@@ -436,7 +436,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      *         resID der Spalte
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
-    public final Integer getAsInt(int resID, int defaultValue) {
+    public final int getAsInt(int resID, int defaultValue) {
         String key = mContext.getDBHelper().columnName(resID);
         Integer value = currentContent.getAsInteger(key);
         if (value == null) {

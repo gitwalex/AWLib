@@ -30,6 +30,7 @@ import android.provider.CalendarContract.Events;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.text.format.DateUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -66,7 +67,7 @@ public class CalendarReminder {
         }
         cal.set(Calendar.HOUR_OF_DAY, 18);
         cal.set(Calendar.MINUTE, 0);
-        return createEvent(calendarID, cal.getTime(), cal.getTime(), title, body);
+        return createEvent(calendarID, cal.getTime(), DateUtils.MINUTE_IN_MILLIS * 30, title, body);
     }
 
     /**
@@ -76,27 +77,21 @@ public class CalendarReminder {
      *         ID des ausgewaehlten Kalenders
      * @param start
      *         Startdatum des Events
-     * @param end
-     *         Endedatum des Events (optional)
+     * @param dauer
+     *         Dauer des Events
      * @param title
      *         Title des Events
      * @param body
      *         Body des Events (optional)
      * @return die ID des eingefuegten Events. -1, wenn ein Fehler aufgetreten ist.
      */
-    public long createEvent(long calendarID, @NonNull Date start, @Nullable Date end,
-                            @NonNull String title, @Nullable String body) {
+    public long createEvent(long calendarID, @NonNull Date start, long dauer, @NonNull String title,
+                            @Nullable String body) {
         long id = -1;
         if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_CALENDAR) ==
                 PackageManager.PERMISSION_GRANTED) {
             ContentResolver cr = mContext.getContentResolver();
-            if (end == null) {
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(start);
-                cal.add(Calendar.MINUTE, 30);
-                end = cal.getTime();
-            }
-            ContentValues values = createEventValues(calendarID, start, end, title, body);
+            ContentValues values = createEventValues(calendarID, start, dauer, title, body);
             Uri uri = cr.insert(Events.CONTENT_URI, values);
             if (uri != null) {
                 id = Long.parseLong(uri.getLastPathSegment());
@@ -112,22 +107,19 @@ public class CalendarReminder {
      *         ID des ausgewaehlten Kalenders
      * @param start
      *         Startdatum des Events
-     * @param end
-     *         Endedatum des Events (optional)
+     * @param dauer
+     *         Dauer des Events
      * @param title
      *         Title des Events
      * @param body
      *         Body des Events (optional)
      * @return die ID des eingefuegten Events. -1, wenn ein Fehler aufgetreten ist.
      */
-    private ContentValues createEventValues(long calendarID, @NonNull Date start,
-                                            @Nullable Date end, @NonNull String title,
-                                            @Nullable String body) {
+    private ContentValues createEventValues(long calendarID, @NonNull Date start, long dauer,
+                                            @NonNull String title, @Nullable String body) {
         ContentValues values = new ContentValues();
         values.put(Events.DTSTART, start.getTime());
-        if (end != null) {
-            values.put(Events.DTEND, end.getTime());
-        }
+        values.put(Events.DTEND, start.getTime() + dauer);
         values.put(Events.TITLE, title);
         if (body != null) {
             values.put(Events.DESCRIPTION, body);

@@ -217,7 +217,11 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *         Position des Items
      * @return true, wenn erfolgreich.
      */
-    public abstract T removeItemAt(int position);
+    public T removeItemAt(int position) {
+        T item = get(position);
+        remove(item);
+        return item;
+    }
 
     /**
      * Setzt die Liste zurueck.
@@ -249,7 +253,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * Hier kann ein Item gesetzt werden, dass eine separate View anzeigt. Diese View ist vom Binder
      * entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn dann die RecyclerView
      * bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder zureuckgesetzt
-     * <p>
      *
      * @param item
      *         Item
