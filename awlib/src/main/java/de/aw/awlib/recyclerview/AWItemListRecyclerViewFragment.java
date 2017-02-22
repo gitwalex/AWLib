@@ -52,6 +52,16 @@ public abstract class AWItemListRecyclerViewFragment<T> extends AWBaseRecyclerVi
         return mAdapter;
     }
 
+    @Override
+    public int getItemViewType(T item, int position) {
+        return getItemViewType(position);
+    }
+
+    @Override
+    public final int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
+
     /**
      * Activity kann (muss aber nicht) AWSortedListRecyclerViewListener implementieren. In diesem
      * Fall wird die entsprechende Methode bei Bedarf aufgerufen.
@@ -73,7 +83,7 @@ public abstract class AWItemListRecyclerViewFragment<T> extends AWBaseRecyclerVi
     }
 
     @Override
-    public void onItemDismiss(int position) {
+    public void onItemDismiss(T item, int position) {
     }
 
     @Override

@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import java.util.Arrays;
 import java.util.List;
 
 import de.aw.awlib.recyclerview.AWLibViewHolder;
@@ -30,6 +31,8 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  */
 public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     protected final AWListAdapterBinder<T> mBinder;
+    private T mPendingSwipeItem;
+    private T mPendingDeleteItem;
 
     public AWItemListAdapterTemplate(@NonNull AWListAdapterBinder<T> binder) {
         super(binder);
@@ -67,6 +70,18 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      */
     public abstract void addAll(T[] items);
 
+    @Override
+    public final void cancelPendingDelete() {
+        mPendingDeleteItem = null;
+        super.cancelPendingDelete();
+    }
+
+    @Override
+    public final void cancelPendingSwipe() {
+        mPendingSwipeItem = null;
+        super.cancelPendingSwipe();
+    }
+
     /**
      * @param position
      *         Position des Items
@@ -97,6 +112,27 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public abstract long getItemId(int position);
 
     /**
+     * @return Das aktuelle PendingDeleteItem. Ist keins gesetzt, dann null.
+     */
+    public final T getPendingDeleteItem() {
+        return mPendingDeleteItem;
+    }
+
+    /**
+     * @return Das aktuelle PendingSwipeItem. Ist keins gesetzt, dann null.
+     */
+    public final T getPendingSwipeItem() {
+        return mPendingSwipeItem;
+    }
+
+    /**
+     * @param item
+     *         Item
+     * @return Liefert die Position des Items
+     */
+    public abstract int getPosition(T item);
+
+    /**
      * @param item
      *         Item
      * @return Liefert den Index eines Items zuruck
@@ -110,7 +146,19 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *         Position
      */
     @Override
-    public abstract void onItemDismissed(int position);
+    protected final void onItemDismissed(int position) {
+        onItemDismissed(mPendingDeleteItem, position);
+    }
+
+    /**
+     * Wird gerufen, wenn ein Item geloscht wird
+     *
+     * @param mPendingDeleteItem
+     *         Item
+     * @param position
+     *         Position des Items
+     */
+    protected abstract void onItemDismissed(T mPendingDeleteItem, int position);
 
     /**
      * Wird gerufen, wenn ein Item die Position aendert
@@ -177,6 +225,64 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public abstract void reset();
 
     /**
+     * Hier kann eine Item zu loeschen vorgemerkt werden. In diesem Fall wird eine View mit
+     * 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView bewegt wird oder ein
+     * anderes Item zu Loeschung vorgemerjt wird, wird das Item tatsaechlich aus dem Adapter
+     * entfernt.
+     * <p>
+     * Der Binder wird durch {@link AWBaseAdapterBinder#onItemDismissed(int)} informiert.
+     *
+     * @param item
+     *         Item
+     */
+    public final void setPendingDeleteItem(T item) {
+        mPendingDeleteItem = item;
+        super.setPendingDeleteItemPosition(getPosition(item));
+    }
+
+    @Override
+    public final void setPendingDeleteItemPosition(int position) {
+        setPendingDeleteItem(get(position));
+    }
+
+    /**
+     * Hier kann ein Item gesetzt werden, dass eine separate View anzeigt. Diese View ist vom Binder
+     * entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn dann die RecyclerView
+     * bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder zureuckgesetzt
+     * <p>
+     *
+     * @param item
+     *         Item
+     */
+    public final void setPendingSwipeItem(T item) {
+        mPendingSwipeItem = item;
+        super.setPendingSwipeItemPosition(getPosition(item));
+    }
+
+    @Override
+    public final void setPendingSwipeItemPosition(int position) {
+        setPendingSwipeItem(get(position));
+    }
+
+    /**
+     * Tauscht die ItemListe aus.
+     *
+     * @param items
+     *         Array von Items
+     */
+    public void swap(T[] items) {
+        swap(Arrays.asList(items));
+    }
+
+    /**
+     * Tauscht die ItemListe aus.
+     *
+     * @param items
+     *         Liste der Items
+     */
+    public abstract void swap(List<T> items);
+
+    /**
      * Tauscht das Item an der Stelle position aus.
      *
      * @param position
@@ -205,6 +311,8 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * Binder fuer Adapter-Aktionen
      */
     public interface AWListAdapterBinder<T> extends AWBaseAdapterBinder {
+        int getItemViewType(T item, int position);
+
         /**
          * Wird zum Binden des ViewHolders gerufen
          *
@@ -220,10 +328,12 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
         /**
          * Wird vom Adapter gerufen, wenn ein Item entfernt wird.
          *
+         * @param item
+         *         Item
          * @param position
          *         Position des Items
          */
-        void onItemDismiss(int position);
+        void onItemDismiss(T item, int position);
 
         /**
          * Wird vom Adapter gerufen, wenn ein Item verschoben wird

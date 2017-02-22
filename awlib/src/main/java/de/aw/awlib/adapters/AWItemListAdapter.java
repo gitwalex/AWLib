@@ -135,6 +135,11 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
         return itemList;
     }
 
+    @Override
+    public int getPosition(T item) {
+        return itemList.indexOf(item);
+    }
+
     /**
      * @return Liefert die Liste der entfernten Items zurueck
      */
@@ -189,10 +194,10 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      *         wenn size < position oder position < 0
      */
     @Override
-    public final void onItemDismissed(int position) {
-        removeItemAt(position);
+    public final void onItemDismissed(T item, int position) {
+        remove(item);
         notifyItemRemoved(position);
-        mBinder.onItemDismiss(position);
+        mBinder.onItemDismiss(item, position);
     }
 
     /**

@@ -139,9 +139,8 @@ public class AWRemoteFileChooser extends AWItemListRecyclerViewFragment<FTPFile>
     }
 
     @Override
-    public int getItemViewType(int position) {
-        FTPFile object = getAdapter().get(position);
-        if (position == 0 && object.getName().equals("..")) {
+    public int getItemViewType(FTPFile file, int position) {
+        if (position == 0 && file.getName().equals("..")) {
             return BACKTOPARENT;
         }
         return super.getItemViewType(position);

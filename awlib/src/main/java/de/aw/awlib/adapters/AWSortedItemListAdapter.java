@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  */
 public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTemplate<T> {
     private final SortedList<T> sortedItemList;
-    private final SortedList<T> removedSortedItemList;
+    private final List<T> removedSortedItemList;
     private ItemGenerator<T> mItemgenerator;
     private int mCount;
 
@@ -39,7 +40,7 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
                                    @NonNull AWListAdapterBinder<T> binder) {
         super(binder);
         sortedItemList = new SortedList<>(clazz, new MCallback());
-        removedSortedItemList = new SortedList<>(clazz, null);
+        removedSortedItemList = new ArrayList<>();
     }
 
     /**
@@ -127,8 +128,18 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
         return getID(sortedItemList.get(position));
     }
 
-    public final SortedList<T> getRemovedItems() {
+    @Override
+    public int getPosition(T item) {
+        return sortedItemList.indexOf(item);
+    }
+
+    public final List<T> getRemovedItems() {
         return removedSortedItemList;
+    }
+
+    @Override
+    public int getViewType(int position) {
+        return mBinder.getItemViewType(get(position), position);
     }
 
     @Override
@@ -151,9 +162,9 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     @Override
-    public final void onItemDismissed(int position) {
-        removedSortedItemList.add(sortedItemList.get(position));
-        removeItemAt(position);
+    public final void onItemDismissed(T item, int position) {
+        remove(item);
+        mBinder.onItemDismiss(item, position);
     }
 
     @Override
@@ -170,9 +181,10 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     @Override
     public final T removeItemAt(int position) {
         T item = sortedItemList.get(position);
-        removedSortedItemList.add(item);
-        sortedItemList.remove(item);
-        return item;
+        if (remove(item)) {
+            return item;
+        }
+        return null;
     }
 
     @Override
@@ -180,6 +192,13 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
         sortedItemList.clear();
         removedSortedItemList.clear();
         notifyDataSetChanged();
+    }
+
+    public final void swap(List<T> items) {
+        sortedItemList.beginBatchedUpdates();
+        reset();
+        addAll(items);
+        sortedItemList.endBatchedUpdates();
     }
 
     @Override
@@ -215,14 +234,12 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
 
         @Override
         public void onMoved(int fromPosition, int toPosition) {
-            onItemMoved(fromPosition, toPosition);
-            mBinder.onItemMoved(fromPosition, toPosition);
+            notifyItemMoved(fromPosition, toPosition);
         }
 
         @Override
         public void onRemoved(int position, int count) {
             notifyItemRangeRemoved(position, count);
-            mBinder.onItemDismiss(position);
         }
     }
 }

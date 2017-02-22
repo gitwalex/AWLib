@@ -200,7 +200,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
     }
 
     @Override
-    public void onItemDismissed(int position) {
+    protected void onItemDismissed(int position) {
         notifyItemRemoved(position);
     }
 

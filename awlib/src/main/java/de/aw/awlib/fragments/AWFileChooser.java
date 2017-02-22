@@ -165,7 +165,7 @@ public class AWFileChooser extends AWItemListRecyclerViewFragment<File> {
      * Verzeichnis gewechselt werden kann. Ansonsten wird der Default zuruckgeliefert.
      */
     @Override
-    public int getItemViewType(int position) {
+    public int getItemViewType(File file, int position) {
         if (position == 0 && hasParent) {
             return HASPARENTFOLDER;
         }

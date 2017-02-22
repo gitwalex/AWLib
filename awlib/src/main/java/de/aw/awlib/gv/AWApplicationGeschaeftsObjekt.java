@@ -495,7 +495,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
     /**
      * @return ID des Geschaeftsvorfalls
      */
-    public final long getID() {
+    public long getID() {
         if (id == null) {
             throw new IllegalStateException("ID ist Null. Vorher insert() " + "ausfuehren");
         }
