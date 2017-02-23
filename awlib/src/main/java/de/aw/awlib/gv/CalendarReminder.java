@@ -118,6 +118,7 @@ public class CalendarReminder {
     private ContentValues createEventValues(long calendarID, @NonNull Date start, long dauer,
                                             @NonNull String title, @Nullable String body) {
         ContentValues values = new ContentValues();
+        values.put(Events.CUSTOM_APP_PACKAGE, mContext.getPackageName());
         values.put(Events.DTSTART, start.getTime());
         values.put(Events.DTEND, start.getTime() + dauer);
         values.put(Events.TITLE, title);
@@ -127,6 +128,17 @@ public class CalendarReminder {
         values.put(Events.CALENDAR_ID, calendarID);
         values.put(Events.EVENT_TIMEZONE, Locale.getDefault().getDisplayName());
         return values;
+    }
+
+    /**
+     * Loescht alle Kalendereintraege der App aus dem Kalender.
+     */
+    public void deleteAllAppEvents() {
+        String selection = Events.CUSTOM_APP_PACKAGE + " = ?";
+        String[] selectionArgs = new String[]{mContext.getPackageName()};
+        int result =
+                mContext.getContentResolver().delete(Events.CONTENT_URI, selection, selectionArgs);
+        AWApplication.Log("Events geloescht: " + result);
     }
 
     /**
@@ -168,8 +180,10 @@ public class CalendarReminder {
                                     Events.SYNC_DATA4, Events.SYNC_DATA5, Events.SYNC_DATA6,
                                     Events.SYNC_DATA7, Events.SYNC_DATA8, Events.SYNC_DATA9,
                                     Events.SYNC_DATA10};
+                    String selection = Events.CUSTOM_APP_PACKAGE + " like 'de.aw.%'";
                     Cursor c = mContext.getContentResolver()
-                                       .query(Events.CONTENT_URI, projection, null, null, null);
+                                       .query(Events.CONTENT_URI, projection, selection, null,
+                                               null);
                     try {
                         if (c.moveToFirst()) {
                             do {
@@ -177,13 +191,15 @@ public class CalendarReminder {
                                 for (int i = 0; i < projection.length; i++) {
                                     String value = c.getString(i);
                                     if (value != null && !value.equals("0")) {
-                                        sb.append(", " + projection[i] + ":" + c.getString(i));
+                                        sb.append(", ").append(projection[i]).append(":")
+                                          .append(value);
                                     }
                                 }
                                 AWApplication.Log(sb.toString());
                             } while (c.moveToNext());
                         }
                     } finally {
+                        AWApplication.Log("Event: Anzahl " + c.getCount());
                         c.close();
                     }
                 }
@@ -205,7 +221,6 @@ public class CalendarReminder {
                 PackageManager.PERMISSION_GRANTED) {
             ContentResolver cr = mContext.getContentResolver();
             ContentValues values = new ContentValues();
-            // The new title for the event
             values.put(CalendarContract.Events.DTSTART, start.getTime());
             values.put(CalendarContract.Events.DTEND, end.getTime());
             Uri updateUri = ContentUris.withAppendedId(Events.CONTENT_URI, eventID);
