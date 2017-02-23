@@ -140,9 +140,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
         return itemList.indexOf(item);
     }
 
-    /**
-     * @return Liefert die Liste der entfernten Items zurueck
-     */
+    @Override
     public List<T> getRemovedItemList() {
         return removedItemList;
     }

@@ -133,6 +133,11 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public abstract int getPosition(T item);
 
     /**
+     * @return Liefert die Liste der entfernten Items zurueck
+     */
+    public abstract List<T> getRemovedItemList();
+
+    /**
      * @param item
      *         Item
      * @return Liefert den Index eines Items zuruck

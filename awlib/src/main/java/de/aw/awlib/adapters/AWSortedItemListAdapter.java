@@ -133,7 +133,8 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
         return sortedItemList.indexOf(item);
     }
 
-    public final List<T> getRemovedItems() {
+    @Override
+    public List<T> getRemovedItemList() {
         return removedSortedItemList;
     }
 
