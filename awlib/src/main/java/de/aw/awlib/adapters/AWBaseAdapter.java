@@ -71,7 +71,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
-     * Canceled PendingDelete
+     * Cancels PendingDelete
      */
     @CallSuper
     public void cancelPendingDelete() {
@@ -81,7 +81,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
-     * Canceled PendingSwipe
+     * Cancels PendingSwipe
      */
     @CallSuper
     public void cancelPendingSwipe() {
@@ -330,10 +330,10 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
-     * Hier kann eine Item zu loeschen vorgemerkt werden. In diesem Fall wird eine View mit
-     * 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView bewegt wird oder ein
-     * anderes Item zu Loeschung vorgemerjt wird, wird das Item tatsaechlich aus dem Adapter
-     * entfernt.
+     * Hier kann eine Item durch Angabe der Position zum loeschen vorgemerkt werden. In diesem Fall
+     * wird eine View mit 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView
+     * bewegt wird oder ein anderes Item zu Loeschung vorgemerkt wird, wird das Item tatsaechlich
+     * aus dem Adapter entfernt.
      * <p>
      * Der Binder wird durch {@link AWBaseAdapterBinder#onItemDismissed(int)} informiert.
      *

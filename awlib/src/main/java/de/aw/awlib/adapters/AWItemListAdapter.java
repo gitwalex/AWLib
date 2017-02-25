@@ -17,7 +17,7 @@ package de.aw.awlib.adapters;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.database.Cursor;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -33,8 +33,6 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
 public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> {
     private final ArrayList<T> removedItemList;
     private final ArrayList<T> itemList;
-    private ItemGenerator<T> mItemgenerator;
-    private int mCount;
 
     public AWItemListAdapter(@NonNull AWListAdapterBinder<T> binder) {
         super(binder);
@@ -47,26 +45,10 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      */
     @Override
     public final int add(T item) {
-        itemList.add(item);
-        return itemList.size();
-    }
-
-    /**
-     * Fuegt Items aus einem Cursor hinzu
-     *
-     * @param cursor
-     *         Cursor, mit dem die Items generiert werden sollen
-     * @param generator
-     *         Generator. Wird zum genererieren der Items gerufen.
-     */
-    @Override
-    public final void addAll(Cursor cursor, ItemGenerator<T> generator) {
-        mItemgenerator = generator;
-        mCount = cursor.getCount();
-        int newSize = mCount > 20 ? 20 : mCount;
-        for (int i = itemList.size(); i < newSize; i++) {
-            itemList.add(generator.createItem(i));
+        if (itemList.add(item)) {
+            notifyItemInserted(itemList.size());
         }
+        return itemList.size();
     }
 
     /**
@@ -77,7 +59,9 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      */
     @Override
     public final void addAll(List<T> items) {
+        int oldSize = itemList.size();
         itemList.addAll(items);
+        notifyItemRangeInserted(oldSize, itemList.size() - oldSize);
     }
 
     /**
@@ -105,17 +89,6 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     }
 
     /**
-     * @return Liefert die Anzahl der Items zuruck
-     */
-    @Override
-    public final int getItemCount() {
-        if (mItemgenerator != null) {
-            return mCount;
-        }
-        return itemList.size();
-    }
-
-    /**
      * @param position
      *         Position
      * @return Liefert das Item an position zuruck
@@ -133,6 +106,14 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      */
     public List<T> getItemList() {
         return itemList;
+    }
+
+    /**
+     * @return Liefert die Anzahl der Items zuruck
+     */
+    @Override
+    public final int getItemListCount() {
+        return itemList.size();
     }
 
     @Override
@@ -155,32 +136,13 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
         return itemList.indexOf(item);
     }
 
-    /**
-     * Ist der ViewType des Viewholders != UNDOLETEVIEW, wird der {@link AWListAdapterBinder}
-     * gerufen.
-     * <p>
-     * Ist die angefragte Position > size der ItemList UND gibt es einen ursor, der weitere Daten
-     * beinhaltet, wird nachgelesen.
-     *
-     * @param holder
-     *         ViewHolder
-     * @param position
-     *         Position
-     * @throws IndexOutOfBoundsException
-     *         wenn size < position oder position < 0
-     */
+    @CallSuper
     @Override
-    public final void onBindViewHolder(AWLibViewHolder holder, int position) {
-        super.onBindViewHolder(holder, position);
+    public void onBindViewHolder(AWLibViewHolder holder, int position) {
         if (itemList.size() < position + 1) {
-            int newSize = position + 20 > mCount ? position + 20 : mCount;
-            for (int i = itemList.size(); i < newSize; i++) {
-                itemList.add(mItemgenerator.createItem(i));
-            }
+            itemList.addAll(fillItemList(itemList.size()));
         }
-        if (holder.getItemViewType() != UNDODELETEVIEW) {
-            mBinder.onBindViewHolder(holder, itemList.get(position), position);
-        }
+        super.onBindViewHolder(holder, position);
     }
 
     /**
@@ -225,28 +187,13 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      */
     @Override
     public final boolean remove(T item) {
+        int position = getPosition(item);
         if (itemList.remove(item)) {
+            notifyItemRemoved(position);
             removedItemList.add(item);
             return true;
         }
         return false;
-    }
-
-    /**
-     * Entfernt ein Item an position
-     *
-     * @param position
-     *         Position des Items
-     * @return true, wenn erfolgreich.
-     *
-     * @throws IndexOutOfBoundsException
-     *         wenn size < position oder position < 0
-     */
-    @Override
-    public final T removeItemAt(int position) {
-        T item = itemList.remove(position);
-        removedItemList.add(item);
-        return item;
     }
 
     /**
@@ -257,27 +204,6 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
         itemList.clear();
         removedItemList.clear();
         notifyDataSetChanged();
-    }
-
-    /**
-     * Tauscht die Liste aus
-     *
-     * @param items
-     *         Liste mit Items
-     */
-    public void swap(List<T> items) {
-        reset();
-        addAll(items);
-    }
-
-    /**
-     * Tauscht die Liste aus
-     *
-     * @param items
-     *         Array mit Items
-     */
-    public void swap(T[] items) {
-        swap(Arrays.asList(items));
     }
 
     /**

@@ -18,6 +18,7 @@ package de.aw.awlib.adapters;
  */
 
 import android.database.Cursor;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 
@@ -33,8 +34,6 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
 public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTemplate<T> {
     private final SortedList<T> sortedItemList;
     private final List<T> removedSortedItemList;
-    private ItemGenerator<T> mItemgenerator;
-    private int mCount;
 
     public AWSortedItemListAdapter(@NonNull Class<T> clazz,
                                    @NonNull AWListAdapterBinder<T> binder) {
@@ -49,18 +48,6 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     @Override
     public final int add(T item) {
         return sortedItemList.add(item);
-    }
-
-    @Override
-    public final void addAll(Cursor cursor, ItemGenerator<T> generator) {
-        mItemgenerator = generator;
-        mCount = cursor.getCount();
-        int newSize = mCount > 20 ? 20 : mCount;
-        sortedItemList.beginBatchedUpdates();
-        for (int i = sortedItemList.size(); i < newSize; i++) {
-            add(generator.createItem(i));
-        }
-        sortedItemList.endBatchedUpdates();
     }
 
     @Override
@@ -116,16 +103,13 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     @Override
-    public final int getItemCount() {
-        if (mItemgenerator != null) {
-            return mCount;
-        }
-        return sortedItemList.size();
+    public final long getItemId(int position) {
+        return getID(sortedItemList.get(position));
     }
 
     @Override
-    public final long getItemId(int position) {
-        return getID(sortedItemList.get(position));
+    public final int getItemListCount() {
+        return sortedItemList.size();
     }
 
     @Override
@@ -148,18 +132,13 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
         return sortedItemList.indexOf(item);
     }
 
+    @CallSuper
     @Override
-    public final void onBindViewHolder(AWLibViewHolder holder, int position) {
-        super.onBindViewHolder(holder, position);
+    public void onBindViewHolder(AWLibViewHolder holder, int position) {
         if (sortedItemList.size() < position + 1) {
-            int newSize = position + 20 > mCount ? position + 20 : mCount;
-            for (int i = sortedItemList.size(); i < newSize; i++) {
-                sortedItemList.add(mItemgenerator.createItem(i));
-            }
+            sortedItemList.addAll(fillItemList(sortedItemList.size()));
         }
-        if (holder.getItemViewType() != UNDODELETEVIEW) {
-            mBinder.onBindViewHolder(holder, sortedItemList.get(position), position);
-        }
+        super.onBindViewHolder(holder, position);
     }
 
     @Override
@@ -180,25 +159,23 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     @Override
-    public final T removeItemAt(int position) {
-        T item = sortedItemList.get(position);
-        if (remove(item)) {
-            return item;
-        }
-        return null;
-    }
-
-    @Override
     public final void reset() {
         sortedItemList.clear();
         removedSortedItemList.clear();
         notifyDataSetChanged();
     }
 
+    @Override
+    public void swap(Cursor cursor, ItemGenerator<T> generator) {
+        sortedItemList.beginBatchedUpdates();
+        super.swap(cursor, generator);
+        sortedItemList.endBatchedUpdates();
+    }
+
+    @Override
     public final void swap(List<T> items) {
         sortedItemList.beginBatchedUpdates();
-        reset();
-        addAll(items);
+        super.swap(items);
         sortedItemList.endBatchedUpdates();
     }
 

@@ -18,9 +18,11 @@ package de.aw.awlib.adapters;
  */
 
 import android.database.Cursor;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,7 +32,13 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  * Template eines Adapters mit Liste.
  */
 public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
+    /**
+     * Anzahl der (nach-) zu lesenden Items aus einem Cursor.
+     */
+    private static final int LOADITEMS = 20;
     protected final AWListAdapterBinder<T> mBinder;
+    private ItemGenerator<T> mItemgenerator;
+    private Cursor mCursor;
     private T mPendingSwipeItem;
     private T mPendingDeleteItem;
 
@@ -43,16 +51,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * Fuegt ein Item der Liste hinzu.
      */
     public abstract int add(T item);
-
-    /**
-     * Fuegt Items aus einem Cursor hinzu
-     *
-     * @param cursor
-     *         Cursor, mit dem die Items generiert werden sollen
-     * @param generator
-     *         Generator. Wird zum genererieren der Items gerufen.
-     */
-    public abstract void addAll(Cursor cursor, ItemGenerator<T> generator);
 
     /**
      * Fuegt alle Items einer Liste hinzu.
@@ -83,6 +81,24 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     }
 
     /**
+     * Erstellt Items aus einem Cursor. Es werden maximal {@link AWItemListAdapterTemplate#LOADITEMS}
+     * Items generiert
+     *
+     * @param start
+     *         Startposition des Cursors, ab der Items generiert werden sollen
+     * @return Liste mit neuen Items
+     */
+    protected final List<T> fillItemList(int start) {
+        List<T> newItemList = new ArrayList<>();
+        int newSize = mCursor.getCount() > LOADITEMS ? start + LOADITEMS : mCursor.getCount();
+        for (int i = start; i < newSize; i++) {
+            mCursor.moveToPosition(i);
+            newItemList.add(mItemgenerator.createItem(mCursor, i));
+        }
+        return newItemList;
+    }
+
+    /**
      * @param position
      *         Position des Items
      * @return Liefert ein Item an der Position zuruck.
@@ -95,10 +111,19 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     protected abstract long getID(T item);
 
     /**
-     * @return Liefert die Anzahl der Items zuruck
+     * @return die Anzahl der Items. Gibt es einen Cursor, wird die Anzahl der Cursorzeilen
+     * zurueckgeliefert. Damit wird erreicht, dass beim Start nur eine durch {@link
+     * AWItemListAdapterTemplate#LOADITEMS} festgelegte Anzahl von Items geberiert werden koennen.
+     * Erbende Klassen muessen in {@link AWItemListAdapterTemplate#onBindViewHolder(AWLibViewHolder,
+     * int)} entsprechend nachlesen.
      */
     @Override
-    public abstract int getItemCount();
+    public final int getItemCount() {
+        if (mCursor != null) {
+            return mCursor.getCount();
+        }
+        return getItemListCount();
+    }
 
     /**
      * @param position
@@ -110,6 +135,11 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      */
     @Override
     public abstract long getItemId(int position);
+
+    /**
+     * @return Liefert die aktuelle Anzahl der Items in der Liste zuruck
+     */
+    public abstract int getItemListCount();
 
     /**
      * @return Das aktuelle PendingDeleteItem. Ist keins gesetzt, dann null.
@@ -143,6 +173,15 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * @return Liefert den Index eines Items zuruck
      */
     public abstract int indexOf(T item);
+
+    @CallSuper
+    @Override
+    public void onBindViewHolder(AWLibViewHolder holder, int position) {
+        if (holder.getItemViewType() != UNDODELETEVIEW) {
+            mBinder.onBindViewHolder(holder, get(position), position);
+        }
+        super.onBindViewHolder(holder, position);
+    }
 
     /**
      * Wird gerufen, wenn ein Item entfernt wird.
@@ -220,9 +259,9 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *
      * @param position
      *         Position des Items
-     * @return true, wenn erfolgreich.
+     * @return das Item
      */
-    public T removeItemAt(int position) {
+    public final T removeItemAt(int position) {
         T item = get(position);
         remove(item);
         return item;
@@ -267,28 +306,57 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
         super.setPendingSwipeItemPosition(getPosition(item));
     }
 
+    /**
+     * Hier kann die Position eines Items gesetzt werden, dass eine separate View anzeigt. Diese
+     * View ist vom Binder entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn
+     * dann die RecyclerView bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder
+     * zureuckgesetzt
+     *
+     * @param position
+     *         Position des Items
+     */
     @Override
     public final void setPendingSwipeItemPosition(int position) {
         setPendingSwipeItem(get(position));
     }
 
     /**
-     * Tauscht die ItemListe aus.
+     * Tauscht den Cursor aus
      *
-     * @param items
-     *         Array von Items
+     * @param cursor
+     *         cursor
+     * @param generator
+     *         Itemgenerator
      */
-    public void swap(T[] items) {
-        swap(Arrays.asList(items));
+    @CallSuper
+    public void swap(Cursor cursor, ItemGenerator<T> generator) {
+        mItemgenerator = generator;
+        mCursor = cursor;
+        reset();
+        addAll(fillItemList(0));
     }
 
     /**
-     * Tauscht die ItemListe aus.
+     * Tauscht die Liste aus
      *
      * @param items
-     *         Liste der Items
+     *         Liste mit Items
      */
-    public abstract void swap(List<T> items);
+    @CallSuper
+    public void swap(List<T> items) {
+        reset();
+        addAll(items);
+    }
+
+    /**
+     * Tauscht die Liste aus
+     *
+     * @param items
+     *         Array mit Items
+     */
+    public final void swap(T[] items) {
+        swap(Arrays.asList(items));
+    }
 
     /**
      * Tauscht das Item an der Stelle position aus.
@@ -302,7 +370,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
 
     /**
      * Generator fuer Items. Wird im Zusammenhang mit einem Cursor verwendet. Siehe {@link
-     * AWItemListAdapterTemplate#addAll(Cursor, ItemGenerator)}
+     * AWItemListAdapterTemplate#swap(Cursor, ItemGenerator)}
      */
     public interface ItemGenerator<T> {
         /**
@@ -312,7 +380,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
          *         Position
          * @return Erstelltes Item
          */
-        T createItem(int position);
+        T createItem(Cursor c, int position);
     }
 
     /**
