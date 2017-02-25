@@ -340,6 +340,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * @param position
      *         Position des Items
      */
+    @CallSuper
     public void setPendingDeleteItemPosition(int position) {
         int mPending = mPendingDeleteItemPosition;
         if (mPendingDeleteItemPosition != NO_POSITION) {
@@ -359,6 +360,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * @param position
      *         Position des Items
      */
+    @CallSuper
     public void setPendingSwipeItemPosition(int position) {
         if (mPendingSwipeItemPosition != NO_POSITION) {
             cancelPendingSwipe();

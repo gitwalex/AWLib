@@ -156,7 +156,6 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     @Override
     public final void onItemDismissed(T item, int position) {
         remove(item);
-        notifyItemRemoved(position);
         mBinder.onItemDismiss(item, position);
     }
 
@@ -189,8 +188,8 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     public final boolean remove(T item) {
         int position = getPosition(item);
         if (itemList.remove(item)) {
-            notifyItemRemoved(position);
             removedItemList.add(item);
+            notifyItemRemoved(position);
             return true;
         }
         return false;

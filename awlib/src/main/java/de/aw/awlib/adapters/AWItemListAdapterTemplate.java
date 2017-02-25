@@ -290,7 +290,8 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
 
     @Override
     public final void setPendingDeleteItemPosition(int position) {
-        setPendingDeleteItem(get(position));
+        mPendingDeleteItem = get(position);
+        super.setPendingDeleteItemPosition(position);
     }
 
     /**
@@ -317,7 +318,8 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      */
     @Override
     public final void setPendingSwipeItemPosition(int position) {
-        setPendingSwipeItem(get(position));
+        mPendingSwipeItem = get(position);
+        super.setPendingSwipeItemPosition(position);
     }
 
     /**
