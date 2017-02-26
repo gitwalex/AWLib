@@ -62,11 +62,30 @@ public abstract class PDFDocument {
      * @throws DocumentException
      *         Wenn das pdf nicht erstellt werden kann
      */
-    public PDFDocument(String filename) throws FileNotFoundException, DocumentException {
+    public PDFDocument(@NonNull String filename) throws FileNotFoundException, DocumentException {
         mDocument = new Document(PageSize.A4);
         writer = PdfWriter.getInstance(mDocument, new FileOutputStream(filename + ".pdf"));
         writer.setPageEvent(new PDFEventHelper());
         mDocument.open();
+    }
+
+    /**
+     * Fuegt einen Titel zum Document hinzu
+     *
+     * @param titel
+     *         Titel des Documents
+     * @throws DocumentException
+     *         Wenn das pdf nicht erstellt werden kann
+     * @throws DocumentException
+     */
+    public void addDocumentTitle(String titel) throws DocumentException {
+        Paragraph preface = new Paragraph();
+        // We add one empty line
+        addEmptyLine(preface, 1);
+        // Lets write a big header
+        preface.add(new Paragraph(titel, catFont));
+        addEmptyLine(preface, 1);
+        mDocument.add(preface);
     }
 
     /**
@@ -101,19 +120,12 @@ public abstract class PDFDocument {
     /**
      * Erstellt die Ueberschrift
      *
-     * @param documentTitle
-     *         Titel
      * @param ueberschrift
      *         Uebeschrift
      * @throws DocumentException
      */
-    protected void addTitlePage(@NonNull String documentTitle, @NonNull String ueberschrift)
-            throws DocumentException {
+    protected void addUeberschrift(@NonNull String ueberschrift) throws DocumentException {
         Paragraph preface = new Paragraph();
-        // We add one empty line
-        addEmptyLine(preface, 1);
-        // Lets write a big header
-        preface.add(new Paragraph(documentTitle, catFont));
         addEmptyLine(preface, 1);
         preface.add(new Paragraph(ueberschrift, smallBold));
         addEmptyLine(preface, 1);
