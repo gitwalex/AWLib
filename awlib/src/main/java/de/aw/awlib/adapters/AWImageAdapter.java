@@ -23,7 +23,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 
@@ -66,7 +66,7 @@ public class AWImageAdapter extends BaseAdapter {
     /**
      * Erstellt bei Bedarf ein ImageView fuer das zu an die position zu ladende Bild.
      * <p>
-     * Das Bild wird mittels Picasso geladen
+     * Das Bild wird mittels Glide geladen
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -77,8 +77,8 @@ public class AWImageAdapter extends BaseAdapter {
         } else {
             imageView = (ImageView) convertView;
         }
-        Picasso.with(mContext).load(mImageFiles[position]).noFade().resize(180, 180).centerCrop()
-               .into(imageView);
+        Glide.with(mContext).load(mImageFiles[position]).override(300, 400).centerCrop()
+             .into(imageView);
         return imageView;
     }
 }

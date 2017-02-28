@@ -167,16 +167,14 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
 
     @Override
     public void swap(Cursor cursor, ItemGenerator<T> generator) {
-        sortedItemList.beginBatchedUpdates();
         super.swap(cursor, generator);
-        sortedItemList.endBatchedUpdates();
+        swap(fillItemList(0));
     }
 
     @Override
     public final void swap(List<T> items) {
-        sortedItemList.beginBatchedUpdates();
-        super.swap(items);
-        sortedItemList.endBatchedUpdates();
+        reset();
+        addAll(items);
     }
 
     @Override

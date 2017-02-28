@@ -17,6 +17,7 @@ package de.aw.awlib.adapters;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.database.Cursor;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
@@ -202,6 +203,21 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     public final void reset() {
         itemList.clear();
         removedItemList.clear();
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void swap(Cursor cursor, ItemGenerator<T> generator) {
+        super.swap(cursor, generator);
+        reset();
+        itemList.addAll(fillItemList(0));
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void swap(List<T> items) {
+        reset();
+        itemList.addAll(items);
         notifyDataSetChanged();
     }
 

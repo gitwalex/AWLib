@@ -122,6 +122,7 @@ public interface AWInterface {
             , REMOTEFILESERVER = "REMOTEFILESERVER"//
             , COLUMS = "COLUMS"//
             , FORMATE = "FORMATE"//
+            , FRAGMENTTITLE = "FRAGMENTTITLE"//
             ;
     int
             /**
@@ -148,6 +149,10 @@ public interface AWInterface {
              *
              */
             , REQUEST_TIME = 150
+            /**
+             *
+             */
+            , REQUEST_PERMISSION_CAMERA = 160//
             /**
              *
              */

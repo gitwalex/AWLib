@@ -18,7 +18,6 @@ package de.aw.awlib.utils;
  */
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -150,13 +149,21 @@ public final class AWUtils {
         return activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
     }
 
-    public static Intent prepareNewPhoto(Activity activity, String prefix) {
+    /**
+     * @param context
+     *         Context
+     * @param prefix
+     *         Name des Ordners, in dem das Photo abgelegt werden soll. Gibt es den Ordner noch
+     *         nicht, wird er in {@link AWApplication#getApplicationPicturePath()} angelegt
+     * @return einen Intent zum Starten der Camera oder null
+     */
+    public static Intent prepareNewPhoto(Context context, String prefix) {
         // the intent is my camera
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         //Setting the file Uri to my photo
-        if (intent.resolveActivity(activity.getPackageManager()) != null) {
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
             String mPath =
-                    ((AWApplication) activity.getApplicationContext()).getApplicationPicturePath();
+                    ((AWApplication) context.getApplicationContext()).getApplicationPicturePath();
             File folder = new File(mPath + "/" + prefix);
             //if it doesn't exist the folder will be created
             if (!folder.exists()) {
@@ -335,7 +342,7 @@ public final class AWUtils {
     private static File getFile(File folder, String prefix) {
         @SuppressLint("SimpleDateFormat") String timeStamp =
                 new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = prefix + "_" + timeStamp + "_";
+        String imageFileName = prefix + "_" + timeStamp;
         File image_file = null;
         try {
             image_file = File.createTempFile(imageFileName, ".jpg", folder);

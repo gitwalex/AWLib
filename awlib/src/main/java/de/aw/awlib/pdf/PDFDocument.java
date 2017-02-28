@@ -78,7 +78,7 @@ public abstract class PDFDocument {
      *         Wenn das pdf nicht erstellt werden kann
      * @throws DocumentException
      */
-    public void addDocumentTitle(String titel) throws DocumentException {
+    protected void addDocumentTitle(String titel) throws DocumentException {
         Paragraph preface = new Paragraph();
         // We add one empty line
         addEmptyLine(preface, 1);
@@ -135,7 +135,7 @@ public abstract class PDFDocument {
     /**
      * Ist nach fertigstellung des pdf zu rufen.
      */
-    public void close() {
+    protected void close() {
         mDocument.close();
     }
 
@@ -188,11 +188,11 @@ public abstract class PDFDocument {
                 "Methode muss bei Nutzung von createTable (...) ueberschrieben werden!");
     }
 
-    public void setFooter(String footer) {
+    protected void setFooter(String footer) {
         this.footer = footer;
     }
 
-    public void setHeader(String header) {
+    protected void setHeader(String header) {
         this.header = header;
     }
 

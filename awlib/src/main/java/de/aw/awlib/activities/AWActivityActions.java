@@ -40,6 +40,7 @@ import de.aw.awlib.fragments.AWFileChooser;
 import de.aw.awlib.fragments.AWFragment;
 import de.aw.awlib.fragments.AWFragmentActionBar;
 import de.aw.awlib.fragments.AWFragmentRemoteFileServer;
+import de.aw.awlib.fragments.AWImageGallery;
 import de.aw.awlib.fragments.AWRemoteFileChooser;
 import de.aw.awlib.fragments.AWRemoteServerConnectionData;
 import de.aw.awlib.fragments.AWShowPicture;
@@ -132,8 +133,10 @@ public class AWActivityActions extends AWMainActivity
                         getDefaultFAB().setOnClickListener(this);
                         break;
                     case ShowPicture:
-                        String filename = args.getString(FILENAME);
-                        f = AWShowPicture.newInstance(filename);
+                        f = AWShowPicture.newInstance(args);
+                        break;
+                    case ShowPictureGallery:
+                        f = AWImageGallery.newInstance(args);
                         break;
                     default:
                         throw new IllegalArgumentException(

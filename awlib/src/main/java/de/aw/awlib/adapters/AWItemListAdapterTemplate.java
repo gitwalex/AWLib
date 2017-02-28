@@ -334,8 +334,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public void swap(Cursor cursor, ItemGenerator<T> generator) {
         mItemgenerator = generator;
         mCursor = cursor;
-        reset();
-        addAll(fillItemList(0));
     }
 
     /**
@@ -344,11 +342,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * @param items
      *         Liste mit Items
      */
-    @CallSuper
-    public void swap(List<T> items) {
-        reset();
-        addAll(items);
-    }
+    public abstract void swap(List<T> items);
 
     /**
      * Tauscht die Liste aus

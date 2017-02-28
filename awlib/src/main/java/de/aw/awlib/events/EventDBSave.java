@@ -29,7 +29,7 @@ import android.preference.PreferenceManager;
 
 import java.io.File;
 import java.sql.Date;
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -43,7 +43,9 @@ import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.utils.AWUtils;
 
 /**
- * Klasse fuer Sicheren/Restoren DB
+ * Klasse fuer Sicheren/Restoren DB.
+ * <p>
+ * Der Filename der Sicherung lautet: yyyy_MM_dd_HH_mm.zip_
  */
 public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWInterface {
     private static final String ALARMTIME = "ALARMTIME";
@@ -134,11 +136,9 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
         DATABASEFILENAME = mApplication.getApplicationDatabaseAbsoluteFilename();
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         date = new Date(System.currentTimeMillis());
-        Locale locale = Locale.getDefault();
-        DateFormat formatter =
-                DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-        backupFile = new File(
-                BACKUPPATH + (formatter.format(date)).replace(".", "_").replace(":", "_") + ".zip");
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault());
+        backupFile = new File(BACKUPPATH + fmt.format(cal.getTime()) + ".zip");
     }
 
     @Override

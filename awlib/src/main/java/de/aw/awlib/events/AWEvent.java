@@ -21,37 +21,48 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Definiert moegliche Events innerhalb MonMa.
+ * Definiert moegliche Events innerhalb AWLib.
  */
 public enum AWEvent implements Parcelable {
     /**
      * Event fuer Sicherung der Datenbank
      */
-    DoDatabaseSave
+    DoDatabaseSave,//
     /**
      * Event zur kompriemierung Datenbank
      */
-    , doVaccum
+    doVaccum,//
     /**
      * Event restore Datenbank
      */
-    , showBackupFiles
+    showBackupFiles,//
     /**
      *
      */
-    , showRemoteFileServer
+    showRemoteFileServer,//
     /**
      *
      */
-    , configRemoteFileServer
+    configRemoteFileServer,//
     /**
      *
      */
-    , copyAndDebugDatabase
+    copyAndDebugDatabase,//
     /**
-     *
+     * Zeigt ein Image. Der Filename (absolut) muss im Bundle unter 'FILENAME' als String
+     * geliefert wewrden. Der Name des zu ladenden Files wird im Titel angezeigt.Gibt es im Bundle
+     * unter 'FRAGMENTTITLE' einen Text, wird dieser als Titel angezeigt. Ansonsten der Letzte Teil
+     * des Filenamens
      */
-    , ShowPicture;
+    ShowPicture,//
+    /**
+     * Zeigt eine ImageGallery. Der Directoryname muss im Bundle unter 'FILENAME' als String
+     * geliefert wewrden. Bilder mit Extension '.jpg' in diesem Directory werden angezeigt.Gibt es
+     * unter 'FRAGMENTTITLE' einen Text, wird dieser als Titel angezeigt. Ansonsten der Letzte Teil
+     * des Directorynamens
+     */
+    ShowPictureGallery//
+    ;
     public static final Parcelable.Creator<AWEvent> CREATOR =
             new android.os.Parcelable.Creator<AWEvent>() {
                 public AWEvent createFromParcel(Parcel in) {
