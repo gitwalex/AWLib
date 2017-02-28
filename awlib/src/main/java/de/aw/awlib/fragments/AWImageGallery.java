@@ -49,13 +49,16 @@ import de.aw.awlib.utils.AWUtils;
  * Zeigt eine ImageGallery. Der Directoryname muss im Bundle unter 'FILENAME' als String geliefert
  * wewrden. Bilder mit Extension '.jpg' in diesem Directory werden angezeigt. Gibt es unter
  * 'FRAGMENTTITLE' einen Text, wird dieser als Titel angezeigt. Ansonsten der Letzte Teil des
- * Directorynamens
+ * Directorynamens.
+ * <p>
+ * Wird ein Foto erstellt, wird dieses Foto im Directoty abgelegt.
  */
 public class AWImageGallery extends AWItemListRecyclerViewFragment<File> {
     private static final int layout = R.layout.awlib_default_recycler_view;
     private static final int viewHolderLayout = R.layout.awlib_imagegalleryrc;
     private String mPicturePath;
     private String mTitel;
+    private String mFolderName;
 
     /**
      * Neue Instanz
@@ -105,8 +108,10 @@ public class AWImageGallery extends AWItemListRecyclerViewFragment<File> {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_PICTURE_RESULT && resultCode == Activity.RESULT_OK) {
-            getAdapter().swap(getFiles());
+        if (requestCode == REQUEST_PICTURE_RESULT) {
+            if (resultCode == Activity.RESULT_OK) {
+                getAdapter().swap(getFiles());
+            }
         }
     }
 
@@ -120,10 +125,10 @@ public class AWImageGallery extends AWItemListRecyclerViewFragment<File> {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPicturePath = args.getString(FILENAME);
+        mFolderName = Uri.parse(mPicturePath).getLastPathSegment();
         mTitel = args.getString(FRAGMENTTITLE);
         if (mTitel == null) {
-            Uri uri = Uri.parse(mPicturePath);
-            mTitel = uri.getLastPathSegment();
+            mTitel = mFolderName;
         }
         setHasOptionsMenu(true);
     }
@@ -141,7 +146,7 @@ public class AWImageGallery extends AWItemListRecyclerViewFragment<File> {
             if (ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
-                Intent intent = AWUtils.prepareNewPhoto(getActivity(), mPicturePath);
+                Intent intent = AWUtils.prepareNewPhoto(getActivity(), mFolderName);
                 if (intent != null) {
                     startActivityForResult(intent, REQUEST_PICTURE_RESULT);
                 }

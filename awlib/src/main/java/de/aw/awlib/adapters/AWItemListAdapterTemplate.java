@@ -351,7 +351,11 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *         Array mit Items
      */
     public final void swap(T[] items) {
-        swap(Arrays.asList(items));
+        if (items != null) {
+            swap(Arrays.asList(items));
+        } else {
+            reset();
+        }
     }
 
     /**

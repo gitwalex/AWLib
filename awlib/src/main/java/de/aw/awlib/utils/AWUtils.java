@@ -170,7 +170,10 @@ public final class AWUtils {
                 folder.mkdirs();
             }
             //getting uri of the file
-            Uri file = Uri.fromFile(getFile(folder, prefix));
+            @SuppressLint("SimpleDateFormat") String timeStamp =
+                    new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            File imageFile = new File(folder + File.separator + prefix + "_" + timeStamp + ".jpg");
+            Uri file = Uri.fromFile(imageFile);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
             return intent;
         }
@@ -336,20 +339,6 @@ public final class AWUtils {
                 fos.close();
             }
         }
-    }
-
-    //this method will create and return the path to the image file
-    private static File getFile(File folder, String prefix) {
-        @SuppressLint("SimpleDateFormat") String timeStamp =
-                new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = prefix + "_" + timeStamp;
-        File image_file = null;
-        try {
-            image_file = File.createTempFile(imageFileName, ".jpg", folder);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return image_file;
     }
 }
 
