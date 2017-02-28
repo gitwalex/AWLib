@@ -152,6 +152,18 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
         throw new IllegalStateException("Drag wird von einer SortedList nicht unterstuetzt!");
     }
 
+    /**
+     * Sortiert die Liste neu. Nur sinnvoll, wenn sich das Sortierkriterium geaendert hat.
+     */
+    @Override
+    public void recalculatePositions() {
+        sortedItemList.beginBatchedUpdates();
+        for (int index = 0; index < sortedItemList.size(); index++) {
+            sortedItemList.recalculatePositionOfItemAt(index);
+        }
+        sortedItemList.endBatchedUpdates();
+    }
+
     @Override
     public final boolean remove(T item) {
         removedSortedItemList.add(item);

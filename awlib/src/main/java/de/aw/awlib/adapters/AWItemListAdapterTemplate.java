@@ -246,6 +246,12 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     }
 
     /**
+     * Kalkuliert Positionen von Items neu. Die Default-Implementierung macht hier nichts.
+     */
+    public void recalculatePositions() {
+    }
+
+    /**
      * Entfernt ein Item
      *
      * @param item
