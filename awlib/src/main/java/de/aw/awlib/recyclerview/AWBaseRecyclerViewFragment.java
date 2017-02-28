@@ -52,7 +52,7 @@ import static de.aw.awlib.adapters.AWBaseAdapter.UNDODELETEVIEW;
 public abstract class AWBaseRecyclerViewFragment extends AWFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
     public final static int minCardWidth = 800;
-    public static final int SWIPEDVIEW = UNDODELETEVIEW - 1;
+    public static final int CHANGEDVIEW = UNDODELETEVIEW - 1;
     protected LayoutManager mLayoutManager;
     protected RecyclerView mRecyclerView;
     protected int viewHolderLayout;

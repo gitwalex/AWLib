@@ -211,14 +211,12 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
         super.swap(cursor, generator);
         reset();
         itemList.addAll(fillItemList(0));
-        notifyDataSetChanged();
     }
 
     @Override
     public void swap(List<T> items) {
         reset();
         itemList.addAll(items);
-        notifyDataSetChanged();
     }
 
     /**

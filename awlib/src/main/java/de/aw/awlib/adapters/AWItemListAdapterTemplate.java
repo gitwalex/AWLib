@@ -39,7 +39,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     protected final AWListAdapterBinder<T> mBinder;
     private ItemGenerator<T> mItemgenerator;
     private Cursor mCursor;
-    private T mPendingSwipeItem;
+    private T mPendingChangedItem;
     private T mPendingDeleteItem;
 
     public AWItemListAdapterTemplate(@NonNull AWListAdapterBinder<T> binder) {
@@ -69,15 +69,15 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public abstract void addAll(T[] items);
 
     @Override
-    public final void cancelPendingDelete() {
-        mPendingDeleteItem = null;
-        super.cancelPendingDelete();
+    public final void cancelPendingChangeItem() {
+        mPendingChangedItem = null;
+        super.cancelPendingChangeItem();
     }
 
     @Override
-    public final void cancelPendingSwipe() {
-        mPendingSwipeItem = null;
-        super.cancelPendingSwipe();
+    public final void cancelPendingDelete() {
+        mPendingDeleteItem = null;
+        super.cancelPendingDelete();
     }
 
     /**
@@ -142,17 +142,17 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public abstract int getItemListCount();
 
     /**
+     * @return Das aktuelle PendingChangedItem. Ist keins gesetzt, dann null.
+     */
+    public final T getPendingChangedItem() {
+        return mPendingChangedItem;
+    }
+
+    /**
      * @return Das aktuelle PendingDeleteItem. Ist keins gesetzt, dann null.
      */
     public final T getPendingDeleteItem() {
         return mPendingDeleteItem;
-    }
-
-    /**
-     * @return Das aktuelle PendingSwipeItem. Ist keins gesetzt, dann null.
-     */
-    public final T getPendingSwipeItem() {
-        return mPendingSwipeItem;
     }
 
     /**
@@ -273,6 +273,34 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public abstract void reset();
 
     /**
+     * Hier kann ein Item gesetzt werden, dass eine separate View anzeigt. Diese View ist vom Binder
+     * entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn dann die RecyclerView
+     * bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder zureuckgesetzt
+     *
+     * @param item
+     *         Item
+     */
+    public final void setPendingChangedItem(T item) {
+        mPendingChangedItem = item;
+        super.setPendingChangedItemPosition(getPosition(item));
+    }
+
+    /**
+     * Hier kann die Position eines Items gesetzt werden, dass eine separate View anzeigt. Diese
+     * View ist vom Binder entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn
+     * dann die RecyclerView bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder
+     * zureuckgesetzt
+     *
+     * @param position
+     *         Position des Items
+     */
+    @Override
+    public final void setPendingChangedItemPosition(int position) {
+        mPendingChangedItem = get(position);
+        super.setPendingChangedItemPosition(position);
+    }
+
+    /**
      * Hier kann eine Item zu loeschen vorgemerkt werden. In diesem Fall wird eine View mit
      * 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView bewegt wird oder ein
      * anderes Item zu Loeschung vorgemerjt wird, wird das Item tatsaechlich aus dem Adapter
@@ -292,34 +320,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public final void setPendingDeleteItemPosition(int position) {
         mPendingDeleteItem = get(position);
         super.setPendingDeleteItemPosition(position);
-    }
-
-    /**
-     * Hier kann ein Item gesetzt werden, dass eine separate View anzeigt. Diese View ist vom Binder
-     * entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn dann die RecyclerView
-     * bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder zureuckgesetzt
-     *
-     * @param item
-     *         Item
-     */
-    public final void setPendingSwipeItem(T item) {
-        mPendingSwipeItem = item;
-        super.setPendingSwipeItemPosition(getPosition(item));
-    }
-
-    /**
-     * Hier kann die Position eines Items gesetzt werden, dass eine separate View anzeigt. Diese
-     * View ist vom Binder entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn
-     * dann die RecyclerView bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder
-     * zureuckgesetzt
-     *
-     * @param position
-     *         Position des Items
-     */
-    @Override
-    public final void setPendingSwipeItemPosition(int position) {
-        mPendingSwipeItem = get(position);
-        super.setPendingSwipeItemPosition(position);
     }
 
     /**

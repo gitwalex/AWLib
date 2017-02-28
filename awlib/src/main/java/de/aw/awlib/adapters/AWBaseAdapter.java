@@ -39,7 +39,7 @@ import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.OnScrollListener;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
-import static de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment.SWIPEDVIEW;
+import static de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment.CHANGEDVIEW;
 
 /**
  * Basis-Adapter fuer RecyclerView. Unterstuetzt Swipe und Drag.
@@ -57,7 +57,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     private int onTouchStartDragResID = -1;
     private OnDragListener mOnDragListener;
     private OnSwipeListener mOnSwipeListener;
-    private int mPendingSwipeItemPosition = NO_POSITION;
+    private int mPendingChangedItemPosition = NO_POSITION;
     private int mPendingDeleteItemPosition = NO_POSITION;
 
     /**
@@ -71,22 +71,22 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
+     * Cancels PendingSwipe
+     */
+    @CallSuper
+    public void cancelPendingChangeItem() {
+        int position = mPendingChangedItemPosition;
+        mPendingChangedItemPosition = NO_POSITION;
+        notifyItemChanged(position);
+    }
+
+    /**
      * Cancels PendingDelete
      */
     @CallSuper
     public void cancelPendingDelete() {
         int position = mPendingDeleteItemPosition;
         mPendingDeleteItemPosition = NO_POSITION;
-        notifyItemChanged(position);
-    }
-
-    /**
-     * Cancels PendingSwipe
-     */
-    @CallSuper
-    public void cancelPendingSwipe() {
-        int position = mPendingSwipeItemPosition;
-        mPendingSwipeItemPosition = NO_POSITION;
         notifyItemChanged(position);
     }
 
@@ -131,8 +131,8 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         if (mPendingDeleteItemPosition == position) {
             return UNDODELETEVIEW;
         }
-        if (mPendingSwipeItemPosition == position) {
-            return SWIPEDVIEW;
+        if (mPendingChangedItemPosition == position) {
+            return CHANGEDVIEW;
         }
         return getViewType(position);
     }
@@ -148,7 +148,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * @return Die Position eines PendingSwipeItems oder NO_POSITION
      */
     protected int getPendingSwipeItemPosition() {
-        return mPendingSwipeItemPosition;
+        return mPendingChangedItemPosition;
     }
 
     public final RecyclerView getRecyclerView() {
@@ -330,6 +330,23 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
+     * Hier kann ein Item gesetzt werden, dass eine separate View anzeigt. Diese View ist vom Binder
+     * entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn dann die RecyclerView
+     * bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder zureuckgesetzt
+     *
+     * @param position
+     *         Position des Items
+     */
+    @CallSuper
+    public void setPendingChangedItemPosition(int position) {
+        if (mPendingChangedItemPosition != NO_POSITION) {
+            cancelPendingChangeItem();
+        }
+        this.mPendingChangedItemPosition = position;
+        notifyItemChanged(position);
+    }
+
+    /**
      * Hier kann eine Item durch Angabe der Position zum loeschen vorgemerkt werden. In diesem Fall
      * wird eine View mit 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView
      * bewegt wird oder ein anderes Item zu Loeschung vorgemerkt wird, wird das Item tatsaechlich
@@ -350,23 +367,6 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
             mPendingDeleteItemPosition = position;
             notifyItemChanged(position);
         }
-    }
-
-    /**
-     * Hier kann ein Item gesetzt werden, dass eine separate View anzeigt. Diese View ist vom Binder
-     * entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn dann die RecyclerView
-     * bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder zureuckgesetzt
-     *
-     * @param position
-     *         Position des Items
-     */
-    @CallSuper
-    public void setPendingSwipeItemPosition(int position) {
-        if (mPendingSwipeItemPosition != NO_POSITION) {
-            cancelPendingSwipe();
-        }
-        this.mPendingSwipeItemPosition = position;
-        notifyItemChanged(position);
     }
 
     public final void setTextResID(@StringRes int textresID) {
@@ -397,8 +397,8 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                         dismissItem(mPendingDeleteItemPosition);
                         cancelPendingDelete();
                     }
-                    if (mPendingSwipeItemPosition != NO_POSITION) {
-                        cancelPendingSwipe();
+                    if (mPendingChangedItemPosition != NO_POSITION) {
+                        cancelPendingChangeItem();
                     }
                     break;
             }
