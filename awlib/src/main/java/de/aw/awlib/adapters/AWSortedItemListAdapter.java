@@ -17,16 +17,14 @@ package de.aw.awlib.adapters;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
  * Adapter mit einer {@link SortedList}. Dieser Adapter ist Swipeable, aber nicht Dragable
@@ -132,24 +130,21 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
         return sortedItemList.indexOf(item);
     }
 
-    @CallSuper
-    @Override
-    public void onBindViewHolder(AWLibViewHolder holder, int position) {
-        if (sortedItemList.size() < position + 1) {
-            sortedItemList.addAll(fillItemList(sortedItemList.size()));
-        }
-        super.onBindViewHolder(holder, position);
-    }
-
     @Override
     public final void onItemDismissed(T item, int position) {
         remove(item);
         mBinder.onItemDismiss(item, position);
     }
 
+    /**
+     * Wird nicht unterstuetzt
+     *
+     * @throws UnsupportedOperationException
+     */
     @Override
     public final void onItemMoved(int fromPosition, int toPosition) {
-        throw new IllegalStateException("Drag wird von einer SortedList nicht unterstuetzt!");
+        throw new UnsupportedOperationException(
+                "Drag wird von einer SortedList nicht unterstuetzt!");
     }
 
     /**
@@ -177,10 +172,17 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
         notifyDataSetChanged();
     }
 
+    /**
+     * Wird nicht unterstuetzt.
+     *
+     * @param cursor
+     *         cursor
+     * @throws UnsupportedOperationException
+     */
+    @SuppressLint("MissingSuperCall")
     @Override
     public void swap(Cursor cursor, ItemGenerator<T> generator) {
-        super.swap(cursor, generator);
-        swap(fillItemList(0));
+        throw new UnsupportedOperationException("Wird nicht unterstuetzt");
     }
 
     @Override

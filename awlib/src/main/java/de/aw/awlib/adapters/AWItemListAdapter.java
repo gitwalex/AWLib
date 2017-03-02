@@ -99,6 +99,9 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      */
     @Override
     public final long getItemId(int position) {
+        if (itemList.size() < position + 1) {
+            itemList.addAll(fillItemList(itemList.size()));
+        }
         return getID(itemList.get(position));
     }
 
