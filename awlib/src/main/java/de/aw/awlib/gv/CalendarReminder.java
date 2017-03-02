@@ -67,7 +67,7 @@ public class CalendarReminder {
         }
         cal.set(Calendar.HOUR_OF_DAY, 18);
         cal.set(Calendar.MINUTE, 0);
-        return createEvent(calendarID, cal.getTime(), DateUtils.MINUTE_IN_MILLIS * 30, title, body);
+        return createEvent(calendarID, cal.getTime(), 30, title, body);
     }
 
     /**
@@ -108,7 +108,7 @@ public class CalendarReminder {
      * @param start
      *         Startdatum des Events
      * @param dauer
-     *         Dauer des Events
+     *         Dauer des Events in Minuten
      * @param title
      *         Title des Events
      * @param body
@@ -120,7 +120,7 @@ public class CalendarReminder {
         ContentValues values = new ContentValues();
         values.put(Events.CUSTOM_APP_PACKAGE, mContext.getPackageName());
         values.put(Events.DTSTART, start.getTime());
-        values.put(Events.DTEND, start.getTime() + dauer);
+        values.put(Events.DTEND, start.getTime() + DateUtils.MINUTE_IN_MILLIS * dauer);
         values.put(Events.TITLE, title);
         if (body != null) {
             values.put(Events.DESCRIPTION, body);
