@@ -94,8 +94,10 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
      * <p>
      * sonst 0. Dann wird {@link AWSortedItemListAdapter#areItemsTheSame(Object, Object)} gerufen
      */
+
     protected abstract int compare(T item, T other);
 
+    @Override
     public final T get(int position) {
         return sortedItemList.get(position);
     }
