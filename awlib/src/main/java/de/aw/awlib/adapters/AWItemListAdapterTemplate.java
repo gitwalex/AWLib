@@ -19,6 +19,7 @@ package de.aw.awlib.adapters;
 
 import android.database.Cursor;
 import android.support.annotation.CallSuper;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.view.View;
 
@@ -114,8 +115,10 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * @return die Anzahl der Items. Gibt es einen Cursor, wird die Anzahl der Cursorzeilen
      * zurueckgeliefert. Damit wird erreicht, dass beim Start nur eine durch {@link
      * AWItemListAdapterTemplate#LOADITEMS} festgelegte Anzahl von Items geberiert werden koennen.
-     * Erbende Klassen muessen in {@link AWItemListAdapterTemplate#onBindViewHolder(AWLibViewHolder,
-     * int)} entsprechend nachlesen.
+     * Erbende Klassen muessen in
+     * <p>
+     * {@link AWItemListAdapterTemplate#onBindViewHolder(AWLibViewHolder, int)} entsprechend
+     * nachlesen.
      */
     @Override
     public final int getItemCount() {
@@ -216,8 +219,9 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public abstract void onItemMoved(int fromPosition, int toPosition);
 
     /**
-     * Ruft bei Klick auf Item in der RecyclerView  {@link AWListAdapterBinder#onRecyclerItemClick(View,
-     * int, Object)}
+     * Ruft bei Klick auf Item in der RecyclerView
+     * <p>
+     * {@link AWListAdapterBinder#onRecyclerItemClick(View, int, Object)}
      *
      * @param holder
      *         ViewHolder
@@ -231,8 +235,9 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     }
 
     /**
-     * Ruft bei LongKlick auf Item in der RecyclerView  {@link AWListAdapterBinder#onRecyclerItemLongClick(View,
-     * int, Object)}
+     * Ruft bei LongKlick auf Item in der RecyclerView .
+     * <p>
+     * {@link AWListAdapterBinder#onRecyclerItemLongClick(View, int, Object)}
      *
      * @param holder
      *         ViewHolder
@@ -286,9 +291,9 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * @param item
      *         Item
      */
-    public final void setPendingChangedItem(T item) {
+    public final void setPendingChangedItem(T item, @LayoutRes int layout) {
+        super.setPendingChangedItemPosition(getPosition(item), layout);
         mPendingChangedItem = item;
-        super.setPendingChangedItemPosition(getPosition(item));
     }
 
     /**
@@ -301,9 +306,9 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *         Position des Items
      */
     @Override
-    public final void setPendingChangedItemPosition(int position) {
+    public final void setPendingChangedItemPosition(int position, @LayoutRes int layout) {
+        super.setPendingChangedItemPosition(position, layout);
         mPendingChangedItem = get(position);
-        super.setPendingChangedItemPosition(position);
     }
 
     /**
@@ -318,8 +323,8 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *         Item
      */
     public final void setPendingDeleteItem(T item) {
-        mPendingDeleteItem = item;
         super.setPendingDeleteItemPosition(getPosition(item));
+        mPendingDeleteItem = item;
     }
 
     @Override

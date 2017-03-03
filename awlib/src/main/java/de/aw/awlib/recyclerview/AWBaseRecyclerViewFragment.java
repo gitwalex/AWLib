@@ -38,7 +38,6 @@ import de.aw.awlib.adapters.AWBaseAdapter;
 import de.aw.awlib.database.AWLoaderManagerEngine;
 import de.aw.awlib.fragments.AWFragment;
 
-import static de.aw.awlib.adapters.AWBaseAdapter.UNDODELETEVIEW;
 
 /**
  * Erstellt eine Liste ueber Daten einer Tabelle.
@@ -52,7 +51,6 @@ import static de.aw.awlib.adapters.AWBaseAdapter.UNDODELETEVIEW;
 public abstract class AWBaseRecyclerViewFragment extends AWFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
     public final static int minCardWidth = 800;
-    public static final int CHANGEDVIEW = UNDODELETEVIEW - 1;
     protected LayoutManager mLayoutManager;
     protected RecyclerView mRecyclerView;
     protected int viewHolderLayout;
@@ -262,7 +260,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         mLayoutManager = getLayoutManager();
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setItemAnimator(new AWRecyclerViewAnimator(getContext()));
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                      .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);

@@ -19,6 +19,7 @@ package de.aw.awlib.adapters;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
@@ -39,7 +40,6 @@ import de.aw.awlib.recyclerview.AWSimpleItemTouchHelperCallback;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.OnScrollListener;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
-import static de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment.CHANGEDVIEW;
 
 /**
  * Basis-Adapter fuer RecyclerView. Unterstuetzt Swipe und Drag.
@@ -47,7 +47,8 @@ import static de.aw.awlib.recyclerview.AWBaseRecyclerViewFragment.CHANGEDVIEW;
 public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder>
         implements AWLibViewHolder.OnHolderClickListener,
         AWLibViewHolder.OnHolderLongClickListener {
-    public static final int UNDODELETEVIEW = -1;
+    static final int UNDODELETEVIEW = -1;
+    private static final int CHANGEDVIEW = UNDODELETEVIEW - 1;
     private final AWBaseAdapterBinder mBinder;
     private RecyclerView mRecyclerView;
     private int mTextResID = R.string.tvGeloescht;
@@ -59,6 +60,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     private OnSwipeListener mOnSwipeListener;
     private int mPendingChangedItemPosition = NO_POSITION;
     private int mPendingDeleteItemPosition = NO_POSITION;
+    private int mPendingChangeLayout;
 
     /**
      * Initialisiert Adapter.
@@ -176,6 +178,8 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         }
         mOnScrollListener = new AWOnScrollListener();
         mRecyclerView.addOnScrollListener(mOnScrollListener);
+        // Erzwingen, dass Holder vom Typ CHANGEDVIEW immer wieder neu erstellt werden
+        mRecyclerView.getRecycledViewPool().setMaxRecycledViews(CHANGEDVIEW, 0);
     }
 
     /**
@@ -236,6 +240,9 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         switch (itemType) {
             case UNDODELETEVIEW:
                 rowView = inflater.inflate(R.layout.can_undo_view, viewGroup, false);
+                break;
+            case CHANGEDVIEW:
+                rowView = inflater.inflate(mPendingChangeLayout, viewGroup, false);
                 break;
             default:
                 rowView = mBinder.onCreateViewHolder(inflater, viewGroup, itemType);
@@ -338,10 +345,11 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      *         Position des Items
      */
     @CallSuper
-    public void setPendingChangedItemPosition(int position) {
+    public void setPendingChangedItemPosition(int position, @LayoutRes int layout) {
         if (mPendingChangedItemPosition != NO_POSITION) {
             cancelPendingChangeItem();
         }
+        mPendingChangeLayout = layout;
         this.mPendingChangedItemPosition = position;
         notifyItemChanged(position);
     }
