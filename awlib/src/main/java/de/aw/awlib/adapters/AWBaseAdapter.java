@@ -61,6 +61,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     private int mPendingChangedItemPosition = NO_POSITION;
     private int mPendingDeleteItemPosition = NO_POSITION;
     private int mPendingChangeLayout;
+    private OnDissmissListener mOnDismissListener;
 
     /**
      * Initialisiert Adapter.
@@ -178,8 +179,10 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         }
         mOnScrollListener = new AWOnScrollListener();
         mRecyclerView.addOnScrollListener(mOnScrollListener);
-        // Erzwingen, dass Holder vom Typ CHANGEDVIEW immer wieder neu erstellt werden
+        // Erzwingen, dass Holder vom Typ CHANGEDVIEW und UNDOLETEVIEW immer
+        // wieder neu erstellt werden
         mRecyclerView.getRecycledViewPool().setMaxRecycledViews(CHANGEDVIEW, 0);
+        mRecyclerView.getRecycledViewPool().setMaxRecycledViews(UNDODELETEVIEW, 0);
     }
 
     /**
@@ -190,7 +193,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      */
     @CallSuper
     @Override
-    public void onBindViewHolder(final AWLibViewHolder holder, int position) {
+    public void onBindViewHolder(final AWLibViewHolder holder, final int position) {
         switch (holder.getItemViewType()) {
             case UNDODELETEVIEW:
                 View view = holder.itemView.findViewById(R.id.llUndo);
@@ -208,7 +211,15 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        dismissItem(mPendingDeleteItemPosition);
+                        if (position != NO_POSITION) {
+                            mPendingDeleteItemPosition = NO_POSITION;
+                        }
+                        if (mOnDismissListener != null) {
+                            mOnDismissListener.onDismiss(mPendingDeleteItemPosition);
+                            mOnDismissListener = null;
+                        } else {
+                            onItemDismissed(mPendingDeleteItemPosition);
+                        }
                     }
                 });
                 break;
@@ -377,8 +388,33 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         }
     }
 
+    /**
+     * Setzten der PendingDeletePosition.
+     *
+     * @param position
+     *         Position
+     * @param listener
+     *         Wird gerufen, wenn der  AktionButton (z.B. 'Geloescht') gewaehlt wird. In diesem Fall
+     *         wird {@link AWBaseAdapter#onItemDismissed(int)} nicht gerufen.
+     */
+    public void setPendingDeleteItemPosition(int position, OnDissmissListener listener) {
+        mOnDismissListener = listener;
+        setPendingDeleteItemPosition(position);
+    }
+
+    /**
+     * Setzt die ResID des Textes, der in einer UndoleteView angezeigt wird. Wird die nicht gesetzt,
+     * wird 'Geloescht' angezeigt.
+     *
+     * @param textresID
+     *         textResID
+     */
     public final void setTextResID(@StringRes int textresID) {
         mTextResID = textresID;
+    }
+
+    public interface OnDissmissListener {
+        void onDismiss(int position);
     }
 
     public interface OnSwipeListener {

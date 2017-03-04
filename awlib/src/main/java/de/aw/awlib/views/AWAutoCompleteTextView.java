@@ -40,7 +40,8 @@ import de.aw.awlib.database.AbstractDBHelper;
  *
  * @see AWAutoCompleteTextView#sendMessage()
  */
-public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
+public abstract class AWAutoCompleteTextView
+        extends android.support.v7.widget.AppCompatAutoCompleteTextView
         implements AWInterface, SimpleCursorAdapter.CursorToStringConverter, FilterQueryProvider,
         AdapterView.OnItemClickListener, AutoCompleteTextView.Validator {
     private static int[] viewResIDs = new int[]{android.R.id.text1};
@@ -126,7 +127,7 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
      * @return Liefert den Text
      */
     public String getValue() {
-        return getText().toString();
+        return getText().toString().trim();
     }
 
     /**
@@ -339,8 +340,8 @@ public abstract class AWAutoCompleteTextView extends AutoCompleteTextView
          * @param newText
          *         Neuer Text.
          * @param newID
-         *         ID aus der DB, wenn Nutzer ein Item aus dem Pulldown selektiert hat oder wenn
-         *         der LoaderManager nur eine Zeile gefunden hat UND ein validator gesetzt ist.
+         *         ID aus der DB, wenn Nutzer ein Item aus dem Pulldown selektiert hat oder wenn der
+         *         LoaderManager nur eine Zeile gefunden hat UND ein validator gesetzt ist.
          */
         void onTextChanged(View view, String newText, long newID);
     }

@@ -329,8 +329,8 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
 
     @Override
     public final void setPendingDeleteItemPosition(int position) {
-        mPendingDeleteItem = get(position);
         super.setPendingDeleteItemPosition(position);
+        mPendingDeleteItem = get(position);
     }
 
     /**
