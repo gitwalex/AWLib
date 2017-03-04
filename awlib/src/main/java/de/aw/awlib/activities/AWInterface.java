@@ -156,6 +156,10 @@ public interface AWInterface {
             /**
              *
              */
+            , REQUEST_EMAIL = 170
+            /**
+             *
+             */
             , NOLAYOUT = -1
             /**
              *

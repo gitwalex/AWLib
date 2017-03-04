@@ -14,7 +14,6 @@
   ~ You should have received a copy of the GNU General Public License along with this program; if
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
-
 <resources>
     <!-- Preferences Allgemein -->
     <string name="settings">Einstellungen</string>
@@ -70,5 +69,8 @@
     <string name="cbConnectionType">verschlüsselte Verbindung</string>
     <string name="dlgTitleDate">Datum</string>
     <string name="prefsSummaryAllgemein">Operationen mit der Datenbank und Infos zur App</string>
-
+    <string name="email">Report per Mail versenden</string>
+    <string name="pkSendMail">Report nach Erstellung versenden</string>
+    <string name="pkEmpfaenger">Empfänger</string>
+    <string name="pkMailBody">Text</string>
 </resources>

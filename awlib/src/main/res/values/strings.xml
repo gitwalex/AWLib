@@ -61,4 +61,5 @@
     <string name="titleInsertCalendar">In den Kalender einfügen</string>
     <string name="tvGeloescht">Gelöscht</string>
     <string name="tvRueckgaengig">Rückgängig</string>
+    <string name="noValidEmailAdress">Dies ist keine gültige eMail-Adresse</string>
 </resources>

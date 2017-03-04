@@ -51,6 +51,7 @@ public abstract class PDFDocument {
     private static Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
     private final Document mDocument;
     private final PdfWriter writer;
+    private final String mFilename;
     private String header;
     private String footer;
 
@@ -64,7 +65,8 @@ public abstract class PDFDocument {
      */
     public PDFDocument(@NonNull String filename) throws FileNotFoundException, DocumentException {
         mDocument = new Document(PageSize.A4);
-        writer = PdfWriter.getInstance(mDocument, new FileOutputStream(filename + ".pdf"));
+        mFilename = filename + ".pdf";
+        writer = PdfWriter.getInstance(mDocument, new FileOutputStream(mFilename));
         writer.setPageEvent(new PDFEventHelper());
         mDocument.open();
     }
@@ -186,6 +188,10 @@ public abstract class PDFDocument {
     protected String getCellContent(int row, int column) {
         throw new IllegalStateException(
                 "Methode muss bei Nutzung von createTable (...) ueberschrieben werden!");
+    }
+
+    protected String getNameOfFile() {
+        return mFilename;
     }
 
     protected void setFooter(String footer) {

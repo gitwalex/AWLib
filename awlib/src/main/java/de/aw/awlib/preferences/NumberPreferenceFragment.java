@@ -72,7 +72,7 @@ public class NumberPreferenceFragment
         // Exception when there is no NumberPicker
         if (mNumberPicker == null) {
             throw new IllegalStateException(
-                    "Dialog view must contain" + " a NumberPicker with id 'pNumberPicker'");
+                    "Dialog view must contain a NumberPicker with id 'pNumberPicker'");
         }
         DialogPreference preference = getPreference();
         if (preference instanceof NumberPreference) {

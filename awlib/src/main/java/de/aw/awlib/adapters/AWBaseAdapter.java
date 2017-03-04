@@ -413,6 +413,14 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         mTextResID = textresID;
     }
 
+    /**
+     * Swap den Adapter nochmals in die RecyclerView. Sinnvoll, wenn sich Inhalte geaendert haben,
+     * aber keine neuen Daten generiert werden sollen.
+     */
+    public final void swap() {
+        mRecyclerView.swapAdapter(this, false);
+    }
+
     public interface OnDissmissListener {
         void onDismiss(int position);
     }
