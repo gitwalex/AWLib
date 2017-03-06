@@ -105,6 +105,9 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
 
     @Override
     public final long getItemId(int position) {
+        if (sortedItemList.size() < position + 1) {
+            sortedItemList.addAll(fillItemList(sortedItemList.size()));
+        }
         return getID(sortedItemList.get(position));
     }
 
@@ -179,11 +182,9 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
 
     @Override
     public final void reset() {
+        super.reset();
         sortedItemList.clear();
         removedSortedItemList.clear();
-        cancelPendingChange();
-        cancelPendingDelete();
-        notifyDataSetChanged();
     }
 
     @Override
@@ -199,7 +200,6 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     public final void swap(List<T> items) {
         reset();
         addAll(items);
-        notifyDataSetChanged();
     }
 
     @Override

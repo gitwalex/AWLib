@@ -204,11 +204,9 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      */
     @Override
     public final void reset() {
+        super.reset();
         itemList.clear();
         removedItemList.clear();
-        cancelPendingChange();
-        cancelPendingDelete();
-        notifyDataSetChanged();
     }
 
     @Override
@@ -216,12 +214,14 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
         super.swap(cursor, generator);
         reset();
         itemList.addAll(fillItemList(0));
+        notifyDataSetChanged();
     }
 
     @Override
     public void swap(List<T> items) {
         reset();
         itemList.addAll(items);
+        notifyDataSetChanged();
     }
 
     /**
