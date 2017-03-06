@@ -61,7 +61,6 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     private int mPendingChangedItemPosition = NO_POSITION;
     private int mPendingDeleteItemPosition = NO_POSITION;
     private int mPendingChangeLayout;
-    private OnDissmissListener mOnDismissListener;
 
     /**
      * Initialisiert Adapter.
@@ -77,10 +76,12 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * Cancels PendingSwipe
      */
     @CallSuper
-    public void cancelPendingChangeItem() {
+    public void cancelPendingChange() {
         int position = mPendingChangedItemPosition;
-        mPendingChangedItemPosition = NO_POSITION;
-        notifyItemChanged(position);
+        if (position != NO_POSITION) {
+            mPendingChangedItemPosition = NO_POSITION;
+            notifyItemChanged(position);
+        }
     }
 
     /**
@@ -89,8 +90,10 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     @CallSuper
     public void cancelPendingDelete() {
         int position = mPendingDeleteItemPosition;
-        mPendingDeleteItemPosition = NO_POSITION;
-        notifyItemChanged(position);
+        if (position != NO_POSITION) {
+            mPendingDeleteItemPosition = NO_POSITION;
+            notifyItemChanged(position);
+        }
     }
 
     private void configure() {
@@ -214,12 +217,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                         if (position != NO_POSITION) {
                             mPendingDeleteItemPosition = NO_POSITION;
                         }
-                        if (mOnDismissListener != null) {
-                            mOnDismissListener.onDismiss(mPendingDeleteItemPosition);
-                            mOnDismissListener = null;
-                        } else {
-                            onItemDismissed(mPendingDeleteItemPosition);
-                        }
+                        onItemDismissed(mPendingDeleteItemPosition);
                     }
                 });
                 break;
@@ -358,7 +356,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     @CallSuper
     public void setPendingChangedItemPosition(int position, @LayoutRes int layout) {
         if (mPendingChangedItemPosition != NO_POSITION) {
-            cancelPendingChangeItem();
+            cancelPendingChange();
         }
         mPendingChangeLayout = layout;
         this.mPendingChangedItemPosition = position;
@@ -386,20 +384,6 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
             mPendingDeleteItemPosition = position;
             notifyItemChanged(position);
         }
-    }
-
-    /**
-     * Setzten der PendingDeletePosition.
-     *
-     * @param position
-     *         Position
-     * @param listener
-     *         Wird gerufen, wenn der  AktionButton (z.B. 'Geloescht') gewaehlt wird. In diesem Fall
-     *         wird {@link AWBaseAdapter#onItemDismissed(int)} nicht gerufen.
-     */
-    public void setPendingDeleteItemPosition(int position, OnDissmissListener listener) {
-        mOnDismissListener = listener;
-        setPendingDeleteItemPosition(position);
     }
 
     /**
@@ -450,7 +434,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                         cancelPendingDelete();
                     }
                     if (mPendingChangedItemPosition != NO_POSITION) {
-                        cancelPendingChangeItem();
+                        cancelPendingChange();
                     }
                     break;
             }

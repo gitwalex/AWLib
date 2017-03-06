@@ -70,9 +70,9 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public abstract void addAll(T[] items);
 
     @Override
-    public final void cancelPendingChangeItem() {
+    public final void cancelPendingChange() {
         mPendingChangedItem = null;
-        super.cancelPendingChangeItem();
+        super.cancelPendingChange();
     }
 
     @Override

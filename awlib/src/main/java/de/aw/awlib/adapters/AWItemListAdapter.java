@@ -206,6 +206,8 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     public final void reset() {
         itemList.clear();
         removedItemList.clear();
+        cancelPendingChange();
+        cancelPendingDelete();
         notifyDataSetChanged();
     }
 

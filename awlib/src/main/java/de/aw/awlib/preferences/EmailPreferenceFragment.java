@@ -25,22 +25,25 @@ import android.os.Bundle;
 import android.support.v14.preference.PreferenceDialogFragment;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.NumberPicker;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 
+import static de.aw.awlib.AWResultCodes.RESULT_Divers;
+import static de.aw.awlib.AWResultCodes.RESULT_OK;
+
 /**
- * Created by alex on 04.03.2017.
+ * Fragment zur Eingabe von Mail-Adressen
  */
 public class EmailPreferenceFragment extends PreferenceDialogFragment implements AWInterface {
     private EditText mEmailText;
 
     /**
-     * Erstellt einen NumberDialog zur NumberPreference
+     * Erstellt einen EditText zur Eingabe von Mail-Adressen
      *
      * @param pref
-     *         NumberPreference
+     *         EMail-Preference. Das {@link PreferenceDialogFragment} erwartet unter dem Tag {@link
+     *         PreferenceDialogFragment#ARG_KEY} den key der Preference.
      * @return Fragment
      */
     public static EmailPreferenceFragment newInstance(EmailPreference pref) {
@@ -52,7 +55,7 @@ public class EmailPreferenceFragment extends PreferenceDialogFragment implements
     }
 
     /**
-     * Erstellt den Dialog. View muss ein Element {@link NumberPicker} mit der id 'pNumberPicker'
+     * Erstellt den Dialog. View muss ein Element {@link EditText} mit der id 'emailEditText'
      * enthalten
      */
     @Override
@@ -69,21 +72,34 @@ public class EmailPreferenceFragment extends PreferenceDialogFragment implements
         mEmailText.selectAll();
     }
 
+    /**
+     * Prueft bei positiveResult, ob eine gueltige Mail-Adresse eingegeben wurde. In dem Fall wird
+     * die Adresse in der Preferences gespeichert und das TagetFragment mit dem ResultCode
+     * 'RESULT_OK' gerufen. Im Intent wird unter dem Tag 'DIALOGRESULT' dann die eingegebene
+     * EmailAdresse mitgeliefert.
+     * <p>
+     * <p>
+     * Ansonsten wird ein Dialog angezeigt und das TargetFragment mit 'RESULT_DIVERS' gerufen. Im
+     * Intent wird unter dem Tag 'DIALOGRESULT' dann die urspruenglich eingegebene EmailAdresse
+     * mitgeliefert.
+     * <p>
+     *
+     * @param positiveResult
+     *         true, wenn die Eingabe mit ok abgeschlossen wurd
+     */
     @Override
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             // generate value to save
+            Fragment targetFragment = getTargetFragment();
+            Intent intent = new Intent();
             String text = mEmailText.getText().toString();
+            EmailPreference eMailPreference = (EmailPreference) getPreference();
             if (android.util.Patterns.EMAIL_ADDRESS.matcher(text).matches()) {
-                // Get the related Preference and save the value
-                EmailPreference eMailPreference = (EmailPreference) getPreference();
+                // Save the value
                 eMailPreference.setText(text);
-                Fragment targetFragment = getTargetFragment();
-                if (targetFragment != null) {
-                    Intent intent = new Intent();
-                    intent.putExtra(DIALOGRESULT, text);
-                    targetFragment.onActivityResult(getTargetRequestCode(), 0, intent);
-                }
+                intent.putExtra(DIALOGRESULT, text);
+                targetFragment.onActivityResult(getTargetRequestCode(), RESULT_OK, intent);
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.pkEmpfaenger);
@@ -95,6 +111,8 @@ public class EmailPreferenceFragment extends PreferenceDialogFragment implements
                             }
                         });
                 builder.create().show();
+                intent.putExtra(DIALOGRESULT, eMailPreference.getText());
+                targetFragment.onActivityResult(getTargetRequestCode(), RESULT_Divers, intent);
             }
         }
     }

@@ -133,6 +133,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
      * @param tbd
      *         AWAbstractDBDefinition
      * @param go
+     *         GO, dessen Inhalte kopiert werden sollen.
      */
     protected AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd,
                                             AWApplicationGeschaeftsObjekt go) {
@@ -310,6 +311,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         Cursor c = context.getContentResolver()
                           .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), selection,
                                   selectionArgs, null);
+        assert c != null;
         try {
             if (c.moveToFirst()) {
                 fillContent(c);
@@ -342,6 +344,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
         String[] projection = tbd.columnNames(tbd.getTableItems());
         Cursor c = context.getContentResolver()
                           .query(tbd.getUri(), projection, selection, selectionArgs, null);
+        assert c != null;
         try {
             if (c.getCount() > 1) {
                 AWApplication.Log("selection" + selection);
@@ -533,8 +536,7 @@ public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parc
             currentContent.put(mContext.getDBHelper().columnName(R.string._id), id);
         } else {
             AWApplication.Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME +
-                    " fehlgeschlagen! Werte: " +
-                    currentContent.toString());
+                    " fehlgeschlagen! Werte: " + currentContent.toString());
             currentContent.clear();
         }
         selectionArgs = new String[]{id.toString()};

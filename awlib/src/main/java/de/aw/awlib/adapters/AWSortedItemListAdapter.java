@@ -17,14 +17,16 @@ package de.aw.awlib.adapters;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.annotation.SuppressLint;
 import android.database.Cursor;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
  * Adapter mit einer {@link SortedList}. Dieser Adapter ist Swipeable, aber nicht Dragable
@@ -63,7 +65,7 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     /**
-     * Wird aus dem Adapter gerufen, wenn {@link AWSortedItemListAdapter#areItemsTheSame(Object,
+     * Wird aus dem Adapter gerufen, wenn {@link AWSortedItemListAdapter#areItemsTheSame(Object, *
      * Object)} true zuruckgegeben hat. Dann kann hier angegeben werden, ob nicht nur die
      * Suchkritieren identisch sind, sindern auch der Inhalt.
      *
@@ -94,7 +96,6 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
      * <p>
      * sonst 0. Dann wird {@link AWSortedItemListAdapter#areItemsTheSame(Object, Object)} gerufen
      */
-
     protected abstract int compare(T item, T other);
 
     @Override
@@ -130,6 +131,15 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     @Override
     public final int indexOf(T item) {
         return sortedItemList.indexOf(item);
+    }
+
+    @CallSuper
+    @Override
+    public void onBindViewHolder(AWLibViewHolder holder, int position) {
+        if (sortedItemList.size() < position + 1) {
+            sortedItemList.addAll(fillItemList(sortedItemList.size()));
+        }
+        super.onBindViewHolder(holder, position);
     }
 
     @Override
@@ -171,26 +181,25 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     public final void reset() {
         sortedItemList.clear();
         removedSortedItemList.clear();
+        cancelPendingChange();
+        cancelPendingDelete();
         notifyDataSetChanged();
     }
 
-    /**
-     * Wird nicht unterstuetzt.
-     *
-     * @param cursor
-     *         cursor
-     * @throws UnsupportedOperationException
-     */
-    @SuppressLint("MissingSuperCall")
     @Override
     public void swap(Cursor cursor, ItemGenerator<T> generator) {
-        throw new UnsupportedOperationException("Wird nicht unterstuetzt");
+        super.swap(cursor, generator);
+        reset();
+        sortedItemList.beginBatchedUpdates();
+        sortedItemList.addAll(fillItemList(0));
+        sortedItemList.endBatchedUpdates();
     }
 
     @Override
     public final void swap(List<T> items) {
         reset();
         addAll(items);
+        notifyDataSetChanged();
     }
 
     @Override
