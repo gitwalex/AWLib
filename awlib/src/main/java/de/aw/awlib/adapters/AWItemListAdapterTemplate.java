@@ -33,10 +33,6 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
  * Template eines Adapters mit Liste.
  */
 public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
-    /**
-     * Anzahl der (nach-) zu lesenden Items aus einem Cursor.
-     */
-    private static final int LOADITEMS = 20;
     protected final AWListAdapterBinder<T> mBinder;
     private ItemGenerator<T> mItemgenerator;
     private Cursor mCursor;
@@ -82,8 +78,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     }
 
     /**
-     * Erstellt Items aus einem Cursor. Es werden maximal {@link AWItemListAdapterTemplate#LOADITEMS}
-     * Items generiert
+     * Erstellt Items aus einem Cursor.
      *
      * @param start
      *         Startposition des Cursors, ab der Items generiert werden sollen
@@ -91,11 +86,8 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      */
     protected final List<T> fillItemList(int start) {
         List<T> newItemList = new ArrayList<>();
-        int newSize = mCursor.getCount() > LOADITEMS ? start + LOADITEMS : mCursor.getCount();
-        for (int i = start; i < newSize; i++) {
-            mCursor.moveToPosition(i);
-            newItemList.add(mItemgenerator.createItem(mCursor, i));
-        }
+        mCursor.moveToPosition(start);
+        newItemList.addAll(mItemgenerator.createItems(mCursor, start));
         return newItemList;
     }
 
@@ -113,9 +105,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
 
     /**
      * @return die Anzahl der Items. Gibt es einen Cursor, wird die Anzahl der Cursorzeilen
-     * zurueckgeliefert. Damit wird erreicht, dass beim Start nur eine durch {@link
-     * AWItemListAdapterTemplate#LOADITEMS} festgelegte Anzahl von Items geberiert werden koennen.
-     * Erbende Klassen muessen in
+     * zurueckgeliefert. Erbende Klassen muessen in
      * <p>
      * {@link AWItemListAdapterTemplate#onBindViewHolder(AWLibViewHolder, int)} entsprechend
      * nachlesen.
@@ -385,13 +375,18 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      */
     public interface ItemGenerator<T> {
         /**
-         * Erstellt ein Item zur position
+         * Erstellt eine Liste von Items ab der Position im Curosr. Der Cursor steht an der ersten
+         * zu generierenden Position.
          *
+         * @param c
+         *         Aktueller Cursor. Steht schon an der Stelle, die Daten fuer das erste Item
+         *         beinhaltet
          * @param position
          *         Position
-         * @return Erstelltes Item
+         * @return Liste erstellter Items - mindestens eins. Der ItemGenartor kann entscheiden,
+         * wieviele Items generiert werden sollen.
          */
-        T createItem(Cursor c, int position);
+        List<T> createItems(Cursor c, int position);
     }
 
     /**
