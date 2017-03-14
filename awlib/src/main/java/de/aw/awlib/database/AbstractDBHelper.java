@@ -287,8 +287,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 }
                 if (col == null) {
                     throw new AWAbstractDBDefinition.ResIDNotFoundException(
-                            "ResID " + resID + " nicht " +
-                                    "vorhanden!.");
+                            "ResID " + resID + " nicht " + "vorhanden!.");
                 }
                 columns.add(col);
             }
@@ -647,8 +646,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     public final List<String> getTableNamesForColumn(String columnName) {
         List<String> tables = new ArrayList<>();
         String[] projection = new String[]{"name"};
-        String selection = " sql LIKE '%" + columnName + "%' AND " +
-                " type = 'table'";
+        String selection = " sql LIKE '%" + columnName + "%' AND " + " type = 'table'";
         Cursor c = getWritableDatabase()
                 .query("sqlite_master", projection, selection, null, null, null, null);
         try {
@@ -907,7 +905,31 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      */
     @SuppressWarnings("unused")
     public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
-        RemoteServer() {
+        /**
+         * Definition fuer Calendar
+         */
+        AndroidCalendar() {
+            public Uri mUri;
+
+            /**
+             *
+             * @return nur _id als Table-Item
+             */
+            @Override
+            public int[] getTableItems() {
+                return new int[]{R.string._id//
+                };
+            }
+
+
+            @Override
+            public Uri getUri() {
+                if (mUri == null) {
+                    mUri = Uri.parse("content://com.android.calendar/calendars");
+                }
+                return mUri;
+            }
+        }, RemoteServer() {
             @Override
             public int[] getTableItems() {
                 return new int[]{R.string._id//
@@ -916,130 +938,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                         , R.string.column_connectionType//
                         , R.string.column_maindirectory//
                 };
-            }
-
-            private String mAuthority;
-            private Uri mUri;
-            private AbstractDBHelper dbHelper;
-
-            public void setDBHelper(AbstractDBHelper dbHelper) {
-                this.dbHelper = dbHelper;
-            }
-
-            /**
-             * Name einer Columns als String
-             *
-             * @param resID
-             *         ResId, zu der der Columnname gewuenscht werden.
-             *
-             * @return Name der Columns
-             *
-             * @throws ResIDNotFoundException
-             *         wenn ResId nicht in der Liste der Columns enthalten ist.
-             */
-            public String columnName(int resID) {
-                return dbHelper.columnName(resID);
-            }
-
-            /**
-             * Liste der Columns als StringArray
-             *
-             * @param resIDs
-             *         Liste der ResId, zu denen die Columnnames gewuenscht werden.
-             *
-             * @return Liste der Columns. Anm Ende wird noch die Spalte '_id' hinzugefuegt.
-             *
-             * @throws ResIDNotFoundException
-             *         wenn ResId nicht in der Liste der Columns enthalten ist.
-             * @throws IllegalArgumentException
-             *         wenn initialize(context) nicht gerufen wurde
-             */
-            public String[] columnNames(int... resIDs) {
-                return dbHelper.columnNames(resIDs);
-            }
-
-            /**
-             * Wird beim Erstellen der DB Nach Anlage aller Tabellen und Indices gerufen. Hier koennen
-             * noch Nacharbeiten durchgefuehrt werden
-             *
-             * @param helper
-             *         AWDBAlterHelper database
-             */
-            public void createDatabase(AWDBAlterHelper helper) {
-            }
-
-            @Override
-            public int describeContents() {
-                return 0;
-            }
-
-            /**
-             * @return den String fuer den Aubau einer View (ohne CREATE View AS name). Muss bei Views
-             * ueberscheiben werden. Standard: null
-             */
-            public String getCreateViewSQL() {
-                return null;
-            }
-
-            /**
-             * Liste der fuer eine sinnvolle Sortierung notwendigen Spalten.
-             *
-             * @return ResId der Spalten, die zu einer Sortierung herangezogen werden sollen.
-             */
-            public int[] getOrderByItems() {
-                return new int[]{getTableItems()[0]};
-            }
-
-            /**
-             * Liefert ein Array der Columns zurueck, nach den sortiert werden sollte,
-             *
-             * @return Array der Columns, nach denen sortiert werden soll.
-             */
-            public String[] getOrderColumns() {
-                int[] columItems = getOrderByItems();
-                return columnNames(columItems);
-            }
-
-            /**
-             * OrderBy-String - direkt fuer SQLITE verwendbar.
-             *
-             * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
-             */
-            public String getOrderString() {
-                String[] orderColumns = getOrderColumns();
-                StringBuilder order = new StringBuilder(orderColumns[0]);
-                for (int i = 1; i < orderColumns.length; i++) {
-                    order.append(", ").append(orderColumns[i]);
-                }
-                return order.toString();
-            }
-
-            @Override
-            public Uri getUri() {
-                if (mUri == null) {
-                    mUri = Uri.parse("content://" + mAuthority + "/" + name());
-                }
-                return mUri;
-            }
-
-            /**
-             * Indicator, ob AbstractDBHelper.AWDBDefinition eine View ist. Default false
-             *
-             * @return false. Wenn DBDefintion eine View ist, muss dies zwingend ueberschreiben werden,
-             * sonst wirds in DBHelper als Tabelle angelegt.
-             */
-            public boolean isView() {
-                return false;
-            }
-
-            @Override
-            public void setAuthority(String authority) {
-                mAuthority = authority;
-            }
-
-            @Override
-            public void writeToParcel(Parcel out, int flags) {
-                out.writeInt(ordinal());
             }
         };
         public static final Parcelable.Creator<AWDBDefinition> CREATOR =
@@ -1054,7 +952,126 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                         return new AWDBDefinition[size];
                     }
                 };
+        private String mAuthority;
+        private Uri mUri;
+        private AbstractDBHelper dbHelper;
 
-        public abstract void setDBHelper(AbstractDBHelper dbHelper);
+        /**
+         * Name einer Columns als String
+         *
+         * @param resID
+         *         ResId, zu der der Columnname gewuenscht werden.
+         * @return Name der Columns
+         *
+         * @throws ResIDNotFoundException
+         *         wenn ResId nicht in der Liste der Columns enthalten ist.
+         */
+        public String columnName(int resID) {
+            return dbHelper.columnName(resID);
+        }
+
+        /**
+         * Liste der Columns als StringArray
+         *
+         * @param resIDs
+         *         Liste der ResId, zu denen die Columnnames gewuenscht werden.
+         * @return Liste der Columns. Anm Ende wird noch die Spalte '_id' hinzugefuegt.
+         *
+         * @throws ResIDNotFoundException
+         *         wenn ResId nicht in der Liste der Columns enthalten ist.
+         * @throws IllegalArgumentException
+         *         wenn initialize(context) nicht gerufen wurde
+         */
+        public String[] columnNames(int... resIDs) {
+            return dbHelper.columnNames(resIDs);
+        }
+
+        /**
+         * Wird beim Erstellen der DB Nach Anlage aller Tabellen und Indices gerufen. Hier koennen
+         * noch Nacharbeiten durchgefuehrt werden
+         *
+         * @param helper
+         *         AWDBAlterHelper database
+         */
+        public void createDatabase(AWDBAlterHelper helper) {
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        /**
+         * @return den String fuer den Aubau einer View (ohne CREATE View AS name). Muss bei Views
+         * ueberscheiben werden. Standard: null
+         */
+        public String getCreateViewSQL() {
+            return null;
+        }
+
+        /**
+         * Liste der fuer eine sinnvolle Sortierung notwendigen Spalten.
+         *
+         * @return ResId der Spalten, die zu einer Sortierung herangezogen werden sollen.
+         */
+        public int[] getOrderByItems() {
+            return new int[]{getTableItems()[0]};
+        }
+
+        /**
+         * Liefert ein Array der Columns zurueck, nach den sortiert werden sollte,
+         *
+         * @return Array der Columns, nach denen sortiert werden soll.
+         */
+        public String[] getOrderColumns() {
+            int[] columItems = getOrderByItems();
+            return columnNames(columItems);
+        }
+
+        /**
+         * OrderBy-String - direkt fuer SQLITE verwendbar.
+         *
+         * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
+         */
+        public String getOrderString() {
+            String[] orderColumns = getOrderColumns();
+            StringBuilder order = new StringBuilder(orderColumns[0]);
+            for (int i = 1; i < orderColumns.length; i++) {
+                order.append(", ").append(orderColumns[i]);
+            }
+            return order.toString();
+        }
+
+        @Override
+        public Uri getUri() {
+            if (mUri == null) {
+                mUri = Uri.parse("content://" + mAuthority + "/" + name());
+            }
+            return mUri;
+        }
+
+        /**
+         * Indicator, ob AbstractDBHelper.AWDBDefinition eine View ist. Default false
+         *
+         * @return false. Wenn DBDefintion eine View ist, muss dies zwingend ueberschreiben werden,
+         * sonst wirds in DBHelper als Tabelle angelegt.
+         */
+        public boolean isView() {
+            return false;
+        }
+
+        @Override
+        public void setAuthority(String authority) {
+            mAuthority = authority;
+        }
+
+        public void setDBHelper(AbstractDBHelper dbHelper) {
+            this.dbHelper = dbHelper;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            out.writeInt(ordinal());
+        }
     }
 }

@@ -68,7 +68,7 @@ import static de.aw.awlib.application.AWApplication.LogError;
  * AWLoaderManagerEngine#onLoadFinished(Loader, Cursor)} super(...) zu rufen! }
  */
 public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Cursor> {
-    private final LoaderManager.LoaderCallbacks<Cursor> mCallback;
+    private final Callback mCallback;
     private final Context mContext;
     private final LoaderManager mLoaderManager;
     private Cursor mCursor;
@@ -78,9 +78,9 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
         mLoaderManager = activity.getSupportLoaderManager();
         try {
             //noinspection unchecked
-            mCallback = (LoaderManager.LoaderCallbacks<Cursor>) activity;
+            mCallback = (Callback) activity;
         } catch (ClassCastException e) {
-            Log("Activity must implement LoaderManager.LoaderCallbacks<Cursor>)");
+            Log("Activity must implement AWLoaderManagerEngine.Callback)");
             throw e;
         }
     }
@@ -90,9 +90,9 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
         mLoaderManager = fragment.getLoaderManager();
         try {
             //noinspection unchecked
-            mCallback = (LoaderManager.LoaderCallbacks<Cursor>) fragment;
+            mCallback = (Callback) fragment;
         } catch (ClassCastException e) {
-            Log("Fragment must implement LoaderManager.LoaderCallbacks<Cursor>)");
+            Log("Fragment must implement AWLoaderManagerEngine.Callback)");
             throw e;
         }
     }
@@ -126,42 +126,39 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
      */
     @Override
     public Loader<Cursor> onCreateLoader(int p1, Bundle args) {
-        Loader<Cursor> mLoader = mCallback.onCreateLoader(p1, args);
-        if (mLoader == null) {
-            AWAbstractDBDefinition tbd = args.getParcelable(DBDEFINITION);
-            if (tbd != null) {
-                Uri mUri = tbd.getUri();
-                String[] projection = args.getStringArray(PROJECTION);
-                int[] fromResIDs = args.getIntArray(FROMRESIDS);
-                if (projection != null && fromResIDs != null) {
-                    LogError(getClass().getSimpleName() +
-                            ": PROJECTION und FROMRESIDS sind belegt! Pruefen!");
-                }
-                if (projection == null) {
-                    // Null: Also fromResIDs
-                    projection = tbd.columnNames(fromResIDs);
-                }
-                if (projection == null) {
-                    projection = tbd.columnNames(tbd.getTableItems());
-                }
-                String selection = args.getString(SELECTION);
-                String[] selectionArgs = args.getStringArray(SELECTIONARGS);
-                String groupBy = args.getString(GROUPBY);
-                if (groupBy != null) {
-                    if (selection == null) {
-                        selection = " 1=1";
-                    }
-                    selection = selection + " GROUP BY " + groupBy;
-                }
-                String orderBy = args.getString(ORDERBY);
-                if (orderBy == null) {
-                    orderBy = tbd.getOrderString();
-                }
-                mLoader = new CursorLoader(mContext, mUri, projection, selection, selectionArgs,
-                        orderBy);
+        mCallback.setCursorLoaderArguments(p1, args);
+        AWAbstractDBDefinition tbd = args.getParcelable(DBDEFINITION);
+        if (tbd != null) {
+            Uri mUri = tbd.getUri();
+            String[] projection = args.getStringArray(PROJECTION);
+            int[] fromResIDs = args.getIntArray(FROMRESIDS);
+            if (projection != null && fromResIDs != null) {
+                LogError(getClass().getSimpleName() +
+                        ": PROJECTION und FROMRESIDS sind belegt! Pruefen!");
             }
+            if (projection == null) {
+                // Null: Also fromResIDs
+                projection = tbd.columnNames(fromResIDs);
+            }
+            if (projection == null) {
+                projection = tbd.columnNames(tbd.getTableItems());
+            }
+            String selection = args.getString(SELECTION);
+            String[] selectionArgs = args.getStringArray(SELECTIONARGS);
+            String groupBy = args.getString(GROUPBY);
+            if (groupBy != null) {
+                if (selection == null) {
+                    selection = " 1=1";
+                }
+                selection = selection + " GROUP BY " + groupBy;
+            }
+            String orderBy = args.getString(ORDERBY);
+            if (orderBy == null) {
+                orderBy = tbd.getOrderString();
+            }
+            return new CursorLoader(mContext, mUri, projection, selection, selectionArgs, orderBy);
         }
-        return mLoader;
+        return null;
     }
 
     @CallSuper
@@ -191,5 +188,36 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
         } else {
             mLoaderManager.initLoader(loaderID, args, this);
         }
+    }
+
+    public interface Callback {
+        /**
+         * Wird gerufen, wenn der Loader den Cursor erhalten hat
+         *
+         * @param loader
+         *         loader
+         * @param cursor
+         *         cursor mit Daten
+         */
+        void onLoadFinished(Loader<Cursor> loader, Cursor cursor);
+
+        /**
+         * Wird gerufen, wenn der Loader resettet wird
+         *
+         * @param loader
+         *         loader
+         */
+        void onLoaderReset(Loader<Cursor> loader);
+
+        /**
+         * Wird vor Erstellung des Loaders gerufen. Letzte Moeglichkeit, Argumente fuer den Loader
+         * zu setzen
+         *
+         * @param loaderID
+         *         id des Loader, der initialisiert wird
+         * @param args
+         *         Bundle. Hier sollen die Argumente gesetzt werden
+         */
+        void setCursorLoaderArguments(int loaderID, Bundle args);
     }
 }

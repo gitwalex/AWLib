@@ -20,17 +20,15 @@ package de.aw.awlib.fragments;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract.Calendars;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
+import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
@@ -41,6 +39,11 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
     private static final int layout = R.layout.awlib_default_recycler_view;
     private static final int viewHolderLayout = R.layout.awlib_calendarview;
     private static final int[] viewResIDs = new int[]{R.id.tvCalendarName};
+    private static final AbstractDBHelper.AWDBDefinition tbd =
+            AbstractDBHelper.AWDBDefinition.AndroidCalendar;
+    private static final String[] projection =
+            new String[]{Calendars._ID, Calendars.CALENDAR_DISPLAY_NAME};
+    private static final String selection = Calendars.CALENDAR_DISPLAY_NAME + " like '%@%'";
 
     @Override
     protected boolean onBindView(AWLibViewHolder holder, View view, int resID, Cursor cursor,
@@ -52,14 +55,6 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
         } else {
             return super.onBindView(holder, view, resID, cursor, cursorPosition);
         }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int p1, Bundle args) {
-        Uri mUri = Uri.parse("content://com.android.calendar/calendars");
-        String[] projection = new String[]{Calendars._ID, Calendars.CALENDAR_DISPLAY_NAME};
-        String selection = Calendars.CALENDAR_DISPLAY_NAME + " like '%@%'";
-        return new CursorLoader(getActivity(), mUri, projection, selection, null, null);
     }
 
     @Override
@@ -88,6 +83,9 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
         args.putInt(LAYOUT, layout);
         args.putInt(VIEWHOLDERLAYOUT, viewHolderLayout);
         args.putIntArray(VIEWRESIDS, viewResIDs);
+        args.putParcelable(DBDEFINITION, tbd);
+        args.putStringArray(PROJECTION, projection);
+        args.putString(SELECTION, selection);
     }
 
     @Override

@@ -22,7 +22,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -49,7 +48,7 @@ import de.aw.awlib.fragments.AWFragment;
  * value) erhaelt die RecyclerView eine andere ID.
  */
 public abstract class AWBaseRecyclerViewFragment extends AWFragment
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+        implements AWLoaderManagerEngine.Callback {
     public final static int minCardWidth = 800;
     protected LayoutManager mLayoutManager;
     protected RecyclerView mRecyclerView;
@@ -168,11 +167,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         mAdapter.setOnTouchStartDragResID(onTouchStartDragResID);
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
-    }
-
     public View onCreateViewHolder(LayoutInflater inflater, ViewGroup viewGroup, int itemType) {
         return inflater.inflate(itemType, viewGroup, false);
     }
@@ -263,6 +257,10 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
         getActivity().getWindow()
                      .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    }
+
+    @Override
+    public void setCursorLoaderArguments(int id, Bundle args) {
     }
 
     @Override

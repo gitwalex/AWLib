@@ -20,7 +20,6 @@ package de.aw.awlib.fragments;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
 
@@ -52,11 +51,10 @@ import de.aw.awlib.database.AWLoaderManagerEngine;
  * <p>
  * Beim Start des Loader wird in der ActionBar die ProgressBar-Indeterminate-Visibility auf true
  * gesetzt. Nach dem Laden wird diese wieder abgeschaltet. Daher ist zwingend beim Ueberschreiben
- * von {@link AWLoaderFragment#onCreateLoader(int, Bundle)} sowie {@link
- * AWLoaderFragment#onLoadFinished(Loader, Cursor)} super(...) zu rufen! }
+ * von {@link AWLoaderFragment#onLoadFinished(Loader, Cursor)} super(...) zu rufen! }
  */
 public abstract class AWLoaderFragment extends AWFragment
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+        implements AWLoaderManagerEngine.Callback {
     private View mProgressbar;
     private AWLoaderManagerEngine mLoaderEngine;
 
@@ -64,14 +62,6 @@ public abstract class AWLoaderFragment extends AWFragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         startOrRestartLoader(layout, args);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int p1, Bundle args) {
-        if (mProgressbar != null) {
-            mProgressbar.setVisibility(View.VISIBLE);
-        }
-        return null;
     }
 
     @CallSuper
@@ -99,6 +89,13 @@ public abstract class AWLoaderFragment extends AWFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mProgressbar = view.findViewById(R.id.awlib_default_recyclerview_progressbar);
+    }
+
+    @Override
+    public void setCursorLoaderArguments(int p1, Bundle args) {
+        if (mProgressbar != null) {
+            mProgressbar.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
