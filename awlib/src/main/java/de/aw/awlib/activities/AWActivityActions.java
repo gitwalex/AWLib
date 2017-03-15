@@ -40,7 +40,6 @@ import de.aw.awlib.fragments.AWFileChooser;
 import de.aw.awlib.fragments.AWFragment;
 import de.aw.awlib.fragments.AWFragmentActionBar;
 import de.aw.awlib.fragments.AWFragmentRemoteFileServer;
-import de.aw.awlib.fragments.AWImageGallery;
 import de.aw.awlib.fragments.AWRemoteFileChooser;
 import de.aw.awlib.fragments.AWRemoteServerConnectionData;
 import de.aw.awlib.fragments.AWShowPicture;
@@ -112,7 +111,7 @@ public class AWActivityActions extends AWMainActivity
         } else {
             Integer subTitleResID = null;
             if (savedInstanceState == null) {
-                Fragment f;
+                Fragment f = null;
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 switch (event) {
                     case showBackupFiles:
@@ -133,10 +132,10 @@ public class AWActivityActions extends AWMainActivity
                         getDefaultFAB().setOnClickListener(this);
                         break;
                     case ShowPicture:
-                        f = AWShowPicture.newInstance(args);
-                        break;
-                    case ShowPictureGallery:
-                        f = AWImageGallery.newInstance(args);
+                        String filename = args.getString(FILENAME);
+                        if (filename != null) {
+                            f = AWShowPicture.newInstance(filename);
+                        }
                         break;
                     default:
                         throw new IllegalArgumentException(

@@ -15,14 +15,13 @@
   ~ You should have received a copy of the GNU General Public License along with this program; if
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:padding="10dp"/>
-</LinearLayout>
+    <de.aw.awlib.views.AWZoomableImageView
+        android:id="@+id/GalleryImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</ScrollView>

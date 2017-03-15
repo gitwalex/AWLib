@@ -15,10 +15,8 @@
   ~ You should have received a copy of the GNU General Public License along with this program; if
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="de.aw.awlib">
-
     <!--<permission-group-->
     <!--android:name="de.aw.awlib.permission"-->
     <!--android:description="@string/app_name"-->
@@ -44,23 +42,19 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false"/>
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AWLibTheme">
-
-
         <activity
             android:name=".activities.AWActivityActions"
             android:parentActivityName=".activities.AWPreferenceActivity">
-
         </activity>
-
-        <activity android:name=".activities.AWActivityDebug"></activity>
-        <activity android:name=".activities.AWWebViewActivity"></activity>
-        <activity android:name=".activities.AWPreferenceActivity"></activity>
+        <activity android:name=".activities.AWActivityDebug"/>
+        <activity android:name=".activities.AWWebViewActivity"/>
+        <activity android:name=".activities.AWPreferenceActivity"/>
+        <activity android:name=".activities.AWGalleryActivity"/>
         <!-- Receiver fuer Boot-Completed Message -->
         <receiver
             android:name=".events.EventDBSave"
@@ -69,11 +63,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-
         <service
             android:name=".events.AWEventService"
             android:label="@string/awlib_eventservice"/>
-
     </application>
-
 </manifest>

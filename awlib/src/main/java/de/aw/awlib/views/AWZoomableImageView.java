@@ -49,6 +49,10 @@ public class AWZoomableImageView extends ImageView {
     private ScaleGestureDetector mScaleDetector;
     private Context context;
 
+    public AWZoomableImageView(Context context) {
+        this(context, null);
+    }
+
     public AWZoomableImageView(Context context, AttributeSet attr) {
         super(context, attr);
         super.setClickable(true);

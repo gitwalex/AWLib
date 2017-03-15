@@ -49,19 +49,12 @@ public enum AWEvent implements Parcelable {
      */
     copyAndDebugDatabase,//
     /**
-     * Zeigt ein Image. Der Filename (absolut) muss im Bundle unter 'FILENAME' als String
-     * geliefert wewrden. Der Name des zu ladenden Files wird im Titel angezeigt.Gibt es im Bundle
+     * Zeigt ein Image. Der Filename (absolut) muss  als String
+     * geliefert werden. Der Name des zu ladenden Files wird im Titel angezeigt.Gibt es im Bundle
      * unter 'FRAGMENTTITLE' einen Text, wird dieser als Titel angezeigt. Ansonsten der Letzte Teil
      * des Filenamens
      */
     ShowPicture,//
-    /**
-     * Zeigt eine ImageGallery. Der Directoryname muss im Bundle unter 'FILENAME' als String
-     * geliefert wewrden. Bilder mit Extension '.jpg' in diesem Directory werden angezeigt.Gibt es
-     * unter 'FRAGMENTTITLE' einen Text, wird dieser als Titel angezeigt. Ansonsten der Letzte Teil
-     * des Directorynamens
-     */
-    ShowPictureGallery//
     ;
     public static final Parcelable.Creator<AWEvent> CREATOR =
             new android.os.Parcelable.Creator<AWEvent>() {

@@ -287,7 +287,6 @@ public class AWFileChooser extends AWItemListRecyclerViewFragment<File> {
                     createFileList(new File(mDirectoy));
                 }
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     /**

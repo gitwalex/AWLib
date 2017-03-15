@@ -210,10 +210,12 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     }
 
     @Override
-    public void swap(Cursor cursor, ItemGenerator<T> generator) {
+    public void swap(@NonNull Cursor cursor, @NonNull ItemGenerator<T> generator) {
         super.swap(cursor, generator);
         reset();
-        itemList.addAll(fillItemList(0));
+        if (cursor.getCount() > 0) {
+            itemList.addAll(fillItemList(0));
+        }
         notifyDataSetChanged();
     }
 

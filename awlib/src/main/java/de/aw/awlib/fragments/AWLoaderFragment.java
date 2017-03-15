@@ -50,8 +50,7 @@ import de.aw.awlib.database.AWLoaderManagerEngine;
  * Tabellendefinition verwendet.
  * <p>
  * Beim Start des Loader wird in der ActionBar die ProgressBar-Indeterminate-Visibility auf true
- * gesetzt. Nach dem Laden wird diese wieder abgeschaltet. Daher ist zwingend beim Ueberschreiben
- * von {@link AWLoaderFragment#onLoadFinished(Loader, Cursor)} super(...) zu rufen! }
+ * gesetzt. Nach dem Laden wird diese wieder abgeschaltet.
  */
 public abstract class AWLoaderFragment extends AWFragment
         implements AWLoaderManagerEngine.Callback {

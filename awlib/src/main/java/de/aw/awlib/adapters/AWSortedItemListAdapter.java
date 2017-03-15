@@ -65,8 +65,7 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     /**
-     * Wird aus dem Adapter gerufen, wenn {@link AWSortedItemListAdapter#areItemsTheSame(Object, *
-     * Object)} true zuruckgegeben hat. Dann kann hier angegeben werden, ob nicht nur die
+     * Wird aus dem Adapter gerufen, wenn {@link AWSortedItemListAdapter#areItemsTheSame(Object, * Object)} true zuruckgegeben hat. Dann kann hier angegeben werden, ob nicht nur die
      * Suchkritieren identisch sind, sindern auch der Inhalt.
      *
      * @param other
@@ -188,12 +187,14 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     @Override
-    public void swap(Cursor cursor, ItemGenerator<T> generator) {
+    public void swap(@NonNull Cursor cursor, @NonNull ItemGenerator<T> generator) {
         super.swap(cursor, generator);
         reset();
-        sortedItemList.beginBatchedUpdates();
-        sortedItemList.addAll(fillItemList(0));
-        sortedItemList.endBatchedUpdates();
+        if (cursor.getCount() > 0) {
+            sortedItemList.beginBatchedUpdates();
+            sortedItemList.addAll(fillItemList(0));
+            sortedItemList.endBatchedUpdates();
+        }
     }
 
     @Override

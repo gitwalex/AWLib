@@ -142,12 +142,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         getAdapter().swapCursor(cursor); // swap the new cursor in.
     }
 
-    /*
-         * (non-Javadoc)
-         * @see
-         * android.app.LoaderManager.LoaderCallbacks#onLoaderReset(android.content
-         * .Loader)
-         */
     @Override
     public void onLoaderReset(Loader<Cursor> p1) {
         if (getAdapter() != null) {

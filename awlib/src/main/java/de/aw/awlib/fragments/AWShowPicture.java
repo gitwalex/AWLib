@@ -17,14 +17,16 @@ package de.aw.awlib.fragments;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.net.Uri;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
+import de.aw.awlib.Manifest;
 import de.aw.awlib.R;
 
 /**
@@ -34,47 +36,56 @@ import de.aw.awlib.R;
  */
 public class AWShowPicture extends AWFragment {
     private static final int layout = R.layout.awlib_zoomableimageview;
-    private String mFilename;
-    private String mTitel;
+    private ImageView imageView;
 
     /**
      * Neue Instanz
      *
-     * @param args
-     *         Bundle mit mindestens einem Filenamen unter 'FILENAME' als String. Dieses Bild wird
-     *         angezeigt. Gibt es unter 'FRAGMENTTITLE' einen Text, wied dieser als Titel angezeigt.
-     *         Ansonsten der Letzte Teil des Filenamens
-     * @return Neues Fragment
+     * @param filename
+     *         Filename des Bildes. Dieses Bild wird angezeigt.
      */
-    public static AWShowPicture newInstance(@NonNull Bundle args) {
+    public static AWShowPicture newInstance(@NonNull String filename) {
         AWShowPicture fragment = new AWShowPicture();
+        Bundle args = new Bundle();
+        args.putString(FILENAME, filename);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    private void createPicture() {
+        String mFilename = args.getString(FILENAME);
+        Glide.with(getContext()).load(mFilename).asBitmap().centerCrop().fitCenter()
+             .into(imageView);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFilename = args.getString(FILENAME);
-        assert mFilename != null;
-        mTitel = args.getString(FRAGMENTTITLE);
-        if (mTitel == null) {
-            Uri uri = Uri.parse(mFilename);
-            mTitel = uri.getLastPathSegment();
-        }
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        setTitle(mTitel);
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_STORAGE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    createPicture();
+                }
+        }
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ImageView imageView = (ImageView) view.findViewById(R.id.imgView);
-        Glide.with(getContext()).load(mFilename).asBitmap().into(imageView);
+        imageView = (ImageView) view.findViewById(R.id.imgView);
+        if (ContextCompat
+                .checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED) {
+            createPicture();
+        } else {
+            requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                    REQUEST_PERMISSION_STORAGE);
+        }
     }
 
     @Override
