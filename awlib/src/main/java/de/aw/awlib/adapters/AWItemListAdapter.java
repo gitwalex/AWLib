@@ -45,7 +45,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      * @return neue Groesse der Liste
      */
     @Override
-    public final int add(T item) {
+    public final int add(@NonNull T item) {
         if (itemList.add(item)) {
             notifyItemInserted(itemList.size());
         }
@@ -59,7 +59,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      *         Liste mit Items.
      */
     @Override
-    public final void addAll(List<T> items) {
+    public final void addAll(@NonNull List<T> items) {
         int oldSize = itemList.size();
         itemList.addAll(items);
         notifyItemRangeInserted(oldSize, itemList.size() - oldSize);
@@ -72,7 +72,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      *         Array mit Items.
      */
     @Override
-    public final void addAll(T[] items) {
+    public final void addAll(@NonNull T[] items) {
         addAll(Arrays.asList(items));
     }
 
@@ -121,7 +121,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     }
 
     @Override
-    public int getPosition(T item) {
+    public int getPosition(@NonNull T item) {
         return itemList.indexOf(item);
     }
 
@@ -136,7 +136,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      * @return Liefert den Index eines Items zuruck, -1 wenn kein Item existiert
      */
     @Override
-    public final int indexOf(T item) {
+    public final int indexOf(@NonNull T item) {
         return itemList.indexOf(item);
     }
 
@@ -220,7 +220,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     }
 
     @Override
-    public void swap(List<T> items) {
+    public void swap(@NonNull List<T> items) {
         reset();
         itemList.addAll(items);
         notifyDataSetChanged();
@@ -237,7 +237,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      *         wenn size < position oder position < 0
      */
     @Override
-    public final void updateItemAt(int position, T item) {
+    public final void updateItemAt(int position, @NonNull T item) {
         itemList.add(position, item);
     }
 }

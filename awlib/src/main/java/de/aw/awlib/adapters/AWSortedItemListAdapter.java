@@ -46,12 +46,12 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
      * @see SortedList#add(Object)
      */
     @Override
-    public final int add(T item) {
+    public final int add(@NonNull T item) {
         return sortedItemList.add(item);
     }
 
     @Override
-    public final void addAll(List<T> items) {
+    public final void addAll(@NonNull List<T> items) {
         sortedItemList.beginBatchedUpdates();
         for (T item : items) {
             add(item);
@@ -60,7 +60,7 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     @Override
-    public final void addAll(T[] items) {
+    public final void addAll(@NonNull T[] items) {
         addAll(Arrays.asList(items));
     }
 
@@ -116,7 +116,7 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     @Override
-    public int getPosition(T item) {
+    public int getPosition(@NonNull T item) {
         return sortedItemList.indexOf(item);
     }
 
@@ -131,7 +131,7 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     @Override
-    public final int indexOf(T item) {
+    public final int indexOf(@NonNull T item) {
         return sortedItemList.indexOf(item);
     }
 
@@ -198,13 +198,13 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     @Override
-    public final void swap(List<T> items) {
+    public final void swap(@NonNull List<T> items) {
         reset();
         addAll(items);
     }
 
     @Override
-    public final void updateItemAt(int position, T item) {
+    public final void updateItemAt(int position, @NonNull T item) {
         sortedItemList.updateItemAt(position, item);
     }
 

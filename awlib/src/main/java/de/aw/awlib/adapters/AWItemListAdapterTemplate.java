@@ -47,7 +47,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     /**
      * Fuegt ein Item der Liste hinzu.
      */
-    public abstract int add(T item);
+    public abstract int add(@NonNull T item);
 
     /**
      * Fuegt alle Items einer Liste hinzu.
@@ -55,7 +55,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * @param items
      *         Liste mit Items.
      */
-    public abstract void addAll(List<T> items);
+    public abstract void addAll(@NonNull List<T> items);
 
     /**
      * Fuegt alle Items zu einer Liste hinzu.
@@ -63,7 +63,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * @param items
      *         Array mit Items.
      */
-    public abstract void addAll(T[] items);
+    public abstract void addAll(@NonNull T[] items);
 
     @Override
     public final void cancelPendingChange() {
@@ -101,7 +101,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     /**
      * @return Liefert die ID zuruck.
      */
-    protected abstract long getID(T item);
+    protected abstract long getID(@NonNull T item);
 
     /**
      * @return die Anzahl der Items. Gibt es einen Cursor, wird die Anzahl der Cursorzeilen
@@ -153,7 +153,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *         Item
      * @return Liefert die Position des Items
      */
-    public abstract int getPosition(T item);
+    public abstract int getPosition(@NonNull T item);
 
     /**
      * @return Liefert die Liste der entfernten Items zurueck
@@ -165,7 +165,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *         Item
      * @return Liefert den Index eines Items zuruck
      */
-    public abstract int indexOf(T item);
+    public abstract int indexOf(@NonNull T item);
 
     @CallSuper
     @Override
@@ -316,7 +316,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * @param item
      *         Item
      */
-    public final void setPendingDeleteItem(T item) {
+    public final void setPendingDeleteItem(@NonNull T item) {
         super.setPendingDeleteItemPosition(getPosition(item));
         mPendingDeleteItem = item;
     }
@@ -347,7 +347,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * @param items
      *         Liste mit Items
      */
-    public abstract void swap(List<T> items);
+    public abstract void swap(@NonNull List<T> items);
 
     /**
      * Tauscht die Liste aus
@@ -371,7 +371,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * @param item
      *         Item
      */
-    public abstract void updateItemAt(int position, T item);
+    public abstract void updateItemAt(int position, @NonNull T item);
 
     /**
      * Generator fuer Items. Wird im Zusammenhang mit einem Cursor verwendet. Siehe {@link

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.format.Formatter;
 import android.view.View;
 import android.widget.ImageView;
@@ -125,7 +126,7 @@ public class AWRemoteFileChooser extends AWItemListRecyclerViewFragment<FTPFile>
             }
 
             @Override
-            protected long getID(FTPFile item) {
+            protected long getID(@NonNull FTPFile item) {
                 return 0;
             }
         };

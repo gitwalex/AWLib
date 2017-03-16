@@ -20,15 +20,16 @@ package de.aw.awlib.fragments;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.provider.CalendarContract.Calendars;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.view.View;
-import android.widget.TextView;
 
+import de.aw.awlib.BR;
 import de.aw.awlib.R;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.gv.CalendarItem;
 import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 import de.aw.awlib.recyclerview.AWLibViewHolder;
 
@@ -38,7 +39,6 @@ import de.aw.awlib.recyclerview.AWLibViewHolder;
 public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
     private static final int layout = R.layout.awlib_default_recycler_view;
     private static final int viewHolderLayout = R.layout.awlib_calendarview;
-    private static final int[] viewResIDs = new int[]{R.id.tvCalendarName};
     private static final AbstractDBHelper.AWDBDefinition tbd =
             AbstractDBHelper.AWDBDefinition.AndroidCalendar;
     private static final String[] projection =
@@ -46,15 +46,10 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
     private static final String selection = Calendars.CALENDAR_DISPLAY_NAME + " like '%@%'";
 
     @Override
-    protected boolean onBindView(AWLibViewHolder holder, View view, int resID, Cursor cursor,
-                                 int cursorPosition) {
-        if (resID == R.id.tvCalendarName) {
-            TextView tv = (TextView) view;
-            tv.setText(cursor.getString(1));
-            return true;
-        } else {
-            return super.onBindView(holder, view, resID, cursor, cursorPosition);
-        }
+    public void onBindViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
+        CalendarItem item = new CalendarItem(getContext(), cursor);
+        ViewDataBinding binding = holder.getViewDataBinding();
+        binding.setVariable(BR.calendar, item);
     }
 
     @Override
@@ -82,7 +77,6 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
         super.setInternalArguments(args);
         args.putInt(LAYOUT, layout);
         args.putInt(VIEWHOLDERLAYOUT, viewHolderLayout);
-        args.putIntArray(VIEWRESIDS, viewResIDs);
         args.putParcelable(DBDEFINITION, tbd);
         args.putStringArray(PROJECTION, projection);
         args.putString(SELECTION, selection);

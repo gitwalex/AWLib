@@ -154,7 +154,7 @@ public class AWFileChooser extends AWItemListRecyclerViewFragment<File> {
             }
 
             @Override
-            protected long getID(File item) {
+            protected long getID(@NonNull File item) {
                 return 0;
             }
         };
