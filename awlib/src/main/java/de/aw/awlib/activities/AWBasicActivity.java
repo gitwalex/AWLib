@@ -17,6 +17,7 @@ package de.aw.awlib.activities;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -72,6 +73,7 @@ public abstract class AWBasicActivity extends AppCompatActivity implements AWInt
         }
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         onCreate(savedInstanceState, layout);

@@ -275,12 +275,12 @@ public abstract class AWApplication extends Application {
                 // Replace System.err with one that'll monitor for StrictMode
                 // killing us and perform a hprof heap dump just before it does.
                 System.setErr(new PrintStreamThatDumpsHprofWhenStrictModeKillsUs(System.err));
-                FragmentManager.enableDebugLogging(EnableFragmentManagerLogging);
-                LoaderManager.enableDebugLogging(EnableLoaderManagerLogging);
             } catch (Exception e) {
                 // ignore errors
             }
         }
+        FragmentManager.enableDebugLogging(EnableFragmentManagerLogging);
+        LoaderManager.enableDebugLogging(EnableLoaderManagerLogging);
         // Bei Abbruch ein Fenster mit der Fehlermeldung
         // zeigen
         final UncaughtExceptionHandler oldExceptionHandler =

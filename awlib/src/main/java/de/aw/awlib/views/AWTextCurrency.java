@@ -22,7 +22,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.widget.TextView;
 
 import de.aw.awlib.R;
 import de.aw.awlib.database.AWDBConvert;
@@ -31,7 +30,7 @@ import de.aw.awlib.database.AWDBConvert;
  * Zeigt einen Betrag in der jeweiligen Waehrung an. Als Defult wird bei negativen Werten der Text
  * in rot gezeigt. Das kann durch {@link AWTextCurrency#setColorMode(boolean)} geaendert werden.
  */
-public class AWTextCurrency extends TextView {
+public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView {
     private static final int minCharacters = 10;
     private boolean colorMode = true;
     private Long value = null;

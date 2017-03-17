@@ -27,16 +27,18 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 
 import java.io.File;
+import java.io.FileFilter;
 
 import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.fragments.AWShowPicture;
 
 /**
- * Zeigt eine Gallery von Bildern in einem ViewPager.
+ * Zeigt eine Gallery von Bildern im jpg-Format in einem ViewPager.
  */
-public class AWGalleryActivity extends AWBasicActivity {
+public class AWGalleryActivity extends AWBasicActivity implements ViewPager.OnPageChangeListener {
     private static int layout = R.layout.awactivity_gallery;
+    private ScreenSlidePagerAdapter mAdapter;
 
     @SuppressLint("MissingSuperCall")
     @Override
@@ -45,16 +47,23 @@ public class AWGalleryActivity extends AWBasicActivity {
         ViewPager pager = (ViewPager) findViewById(R.id.GalleryPager);
         String mDirectory = args.getString(FILENAME);
         if (mDirectory == null) {
-            AWApplication.Log("Kein Verzeichnis in Intent unter 'DIRECTORY'");
+            AWApplication.Log("Kein Verzeichnis in Intent unter 'FILENAME'");
             finish();
         } else {
             File directory = new File(mDirectory);
             if (directory.isDirectory()) {
-                File[] pictures = directory.listFiles();
+                File[] pictures = directory.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File pathname) {
+                        return pathname.getName().endsWith("jpg");
+                    }
+                });
                 if (pictures != null) {
-                    ScreenSlidePagerAdapter adapter =
-                            new ScreenSlidePagerAdapter(getSupportFragmentManager(), pictures);
-                    pager.setAdapter(adapter);
+                    mAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), pictures);
+                    pager.setAdapter(mAdapter);
+                    pager.addOnPageChangeListener(this);
+                    setTitle(directory.getName());
+                    setSubTitle(mAdapter.getPageTitle(0));
                 } else {
                     AWApplication.Log("Kein Zugriff");
                 }
@@ -63,6 +72,19 @@ public class AWGalleryActivity extends AWBasicActivity {
                 finish();
             }
         }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        setSubTitle(mAdapter.getPageTitle(position));
     }
 
     /**

@@ -19,14 +19,13 @@ package de.aw.awlib.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.EditText;
 
 import de.aw.awlib.activities.AWInterface;
 
 /**
  * Created by alex on 02.03.2015.
  */
-public class AWEditText extends EditText implements AWInterface {
+public class AWEditText extends android.support.v7.widget.AppCompatEditText implements AWInterface {
     private String aktuellerText;
     private int mBroadcastIndex;
     private AWAutoCompleteTextView.OnTextChangedListener mOnTextChangedListener;
@@ -45,10 +44,6 @@ public class AWEditText extends EditText implements AWInterface {
 
     public int getBroadcastIndex() {
         return mBroadcastIndex;
-    }
-
-    public void setBroadcastIndex(int index) {
-        mBroadcastIndex = index;
     }
 
     public String getValue() {
@@ -71,7 +66,6 @@ public class AWEditText extends EditText implements AWInterface {
             aktuellerText = newText;
             sendBroadcast(newText);
         }
-        super.onTextChanged(text, start, lengthBefore, lengthAfter);
     }
 
     /**
@@ -84,6 +78,10 @@ public class AWEditText extends EditText implements AWInterface {
         if (mOnTextChangedListener != null) {
             mOnTextChangedListener.onTextChanged(this, text, NOID);
         }
+    }
+
+    public void setBroadcastIndex(int index) {
+        mBroadcastIndex = index;
     }
 
     public void setOnTextChangedListener(AWAutoCompleteTextView.OnTextChangedListener listener) {

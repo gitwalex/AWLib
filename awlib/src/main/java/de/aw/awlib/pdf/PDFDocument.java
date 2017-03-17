@@ -151,7 +151,7 @@ public abstract class PDFDocument {
      * @throws DocumentException
      *         wenn das Document nicht erstellt werden kann.
      */
-    protected void createTable(@NonNull String[] columnHeaders, int rowCount)
+    protected void createTable(@NonNull String[] columnHeaders, int rowCount, CellCreator creator)
             throws DocumentException {
         PdfPTable table = new PdfPTable(columnHeaders.length);
         // t.setBorderColor(BaseColor.GRAY);
@@ -166,28 +166,10 @@ public abstract class PDFDocument {
         table.setHeaderRows(1);
         for (int row = 0; row < rowCount; row++) {
             for (int column = 0; column < columnHeaders.length; column++) {
-                table.addCell(getCellContent(row, column));
+                table.addCell(creator.getCellContent(row, column));
             }
         }
         mDocument.add(table);
-    }
-
-    /**
-     * Wird aus {@link PDFDocument#createTable(String[], int)} gerufen und muss ueberschrieben
-     * werden.
-     *
-     * @param row
-     *         aktuelle Reihe der Tabelle
-     * @param column
-     *         aktuelle Spalte der Tabelle
-     * @return Inhalt der Zelle
-     *
-     * @throws IllegalStateException
-     *         wenn diese Methode nicht ueberschrieben wurde.
-     */
-    protected String getCellContent(int row, int column) {
-        throw new IllegalStateException(
-                "Methode muss bei Nutzung von createTable (...) ueberschrieben werden!");
     }
 
     protected String getNameOfFile() {
@@ -200,6 +182,19 @@ public abstract class PDFDocument {
 
     protected void setHeader(String header) {
         this.header = header;
+    }
+
+    public interface CellCreator {
+        /**
+         * Wird aus {@link PDFDocument#createTable(String[], int, CellCreator)} gerufen
+         *
+         * @param row
+         *         aktuelle Reihe der Tabelle
+         * @param column
+         *         aktuelle Spalte der Tabelle
+         * @return Inhalt der Zelle
+         */
+        String getCellContent(int row, int column);
     }
 
     private class PDFEventHelper extends PdfPageEventHelper {
