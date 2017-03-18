@@ -260,7 +260,8 @@ public abstract class AWAutoCompleteTextView
         Cursor data = getContext().getContentResolver()
                                   .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs,
                                           mOrderBy);
-        if (data != null && data.moveToFirst()) {
+        assert data != null;
+        if (data.moveToFirst()) {
             selectionID = data.getLong(1);
             selectedText = data.getString(0).trim();
             if (data.getCount() == 1) {

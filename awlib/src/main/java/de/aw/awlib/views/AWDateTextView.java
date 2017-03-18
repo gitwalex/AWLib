@@ -25,7 +25,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.DatePicker;
-import android.widget.TextView;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -38,7 +37,7 @@ import de.aw.awlib.database.AWDBConvert;
  * TextView fuer Eingabe Datum. Bei Klick wird ein DatePickerDialog gezeigt und eine Aenderung durch
  * dem OnDateTextViewListener bekanntgegeben
  */
-public class AWDateTextView extends TextView
+public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
         implements AWInterface, OnDateSetListener, OnClickListener {
     private Calendar cal = Calendar.getInstance();
     private OnDateTextViewListener mOnDateSetListener;

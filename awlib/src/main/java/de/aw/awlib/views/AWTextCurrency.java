@@ -40,13 +40,19 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
     }
 
     public AWTextCurrency(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        setValue(attrs);
+        this(context, attrs, 0);
     }
 
     public AWTextCurrency(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setValue(attrs);
+        TypedArray a = getContext().getTheme()
+                                   .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
+        try {
+            float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
+            setValue(val);
+        } finally {
+            a.recycle();
+        }
     }
 
     /**
@@ -80,17 +86,6 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
     public void setValue(float value) {
         if (!isInEditMode()) {
             setValue((long) (value * AWDBConvert.mCurrencyDigits));
-        }
-    }
-
-    private void setValue(AttributeSet attrs) {
-        TypedArray a = getContext().getTheme()
-                                   .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
-        try {
-            float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
-            setValue(val);
-        } finally {
-            a.recycle();
         }
     }
 

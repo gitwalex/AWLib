@@ -38,6 +38,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -167,6 +168,68 @@ public abstract class PDFDocument {
         for (int row = 0; row < rowCount; row++) {
             for (int column = 0; column < columnHeaders.length; column++) {
                 table.addCell(creator.getCellContent(row, column));
+            }
+        }
+        mDocument.add(table);
+    }
+
+    /**
+     * Erstellt eine Tabelle im pdf
+     *
+     * @param columnHeaders
+     *         Header der Tabellenspalten
+     * @param cellcontent
+     *         Inhalte der Tabellenzeilen
+     * @throws DocumentException
+     *         wenn das Document nicht erstellt werden kann.
+     */
+    protected void createTable(@NonNull String[] columnHeaders,
+                               @NonNull List<List<String>> cellcontent) throws DocumentException {
+        PdfPTable table = new PdfPTable(columnHeaders.length);
+        // t.setBorderColor(BaseColor.GRAY);
+        // t.setPadding(4);
+        // t.setSpacing(4);
+        // t.setBorderWidth(1);
+        for (String columnHeader : columnHeaders) {
+            PdfPCell c1 = new PdfPCell(new Phrase(columnHeader));
+            c1.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(c1);
+        }
+        table.setHeaderRows(1);
+        for (List<String> cells : cellcontent) {
+            for (String cell : cells) {
+                table.addCell(cell);
+            }
+        }
+        mDocument.add(table);
+    }
+
+    /**
+     * Erstellt eine Tabelle im pdf
+     *
+     * @param columnHeaders
+     *         Header der Tabellenspalten
+     * @param cellcontent
+     *         Inhalte der Tabellenzeilen
+     * @throws DocumentException
+     *         wenn das Document nicht erstellt werden kann.
+     */
+    protected void createTable(@NonNull String[] columnHeaders, @NonNull String[][] cellcontent)
+            throws DocumentException {
+        PdfPTable table = new PdfPTable(columnHeaders.length);
+        // t.setBorderColor(BaseColor.GRAY);
+        // t.setPadding(4);
+        // t.setSpacing(4);
+        // t.setBorderWidth(1);
+        for (String columnHeader : columnHeaders) {
+            PdfPCell c1 = new PdfPCell(new Phrase(columnHeader));
+            c1.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(c1);
+        }
+        table.setHeaderRows(1);
+        for (String[] cells : cellcontent) {
+            for (String cell : cells) {
+                table.addCell(cell);
             }
         }
         mDocument.add(table);
