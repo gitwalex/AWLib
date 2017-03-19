@@ -37,7 +37,6 @@ import de.aw.awlib.adapters.AWBaseAdapter;
 import de.aw.awlib.database.AWLoaderManagerEngine;
 import de.aw.awlib.fragments.AWFragment;
 
-
 /**
  * Erstellt eine Liste ueber Daten einer Tabelle.
  * <p/>
@@ -137,14 +136,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         if (activity instanceof AWBaseRecyclerViewListener) {
             mBaseRecyclerViewListener = (AWBaseRecyclerViewListener) activity;
         }
-    }
-
-    /**
-     * Wird hier nicht benoetigt.
-     */
-    @Override
-    protected final boolean onBindView(View view, int resID) {
-        return super.onBindView(view, resID);
     }
 
     /**

@@ -32,15 +32,10 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityActions;
@@ -48,8 +43,6 @@ import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.events.AWEvent;
-import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
-import de.aw.awlib.recyclerview.AWLibViewHolder;
 
 /**
  * Template fuer MonMaFragmente
@@ -80,7 +73,6 @@ public abstract class AWFragment extends DialogFragment
     protected boolean isCanceled;
     protected int[] viewResIDs;
     protected int[] fromResIDs;
-    protected AWApplicationGeschaeftsObjekt awlib_gv;
     protected int containerID;
     /**
      * Merker, ob der ActionBarSubtitle ueberschrieben wurde.
@@ -111,19 +103,6 @@ public abstract class AWFragment extends DialogFragment
 
     protected final void LogError(String message) {
         AWApplication.LogError(message);
-    }
-
-    /**
-     * Wird aus {@link MyTextWatcher#afterTextChanged(Editable)} aufgerufen.
-     *
-     * @param view
-     *         View, deren Text geaendert wurde
-     * @param identifier
-     *         identifier gemaess Konstructor
-     * @param newText
-     *         Neuer Text
-     */
-    protected void afterTextChanged(TextView view, int identifier, String newText) {
     }
 
     public MainAction getMainAction() {
@@ -164,9 +143,6 @@ public abstract class AWFragment extends DialogFragment
         setInternalArguments(args);
     }
 
-    protected boolean onBindView(View view, int resID) {
-        return false;
-    }
 
     /**
      * Wird ein Dialog gecancelt, wird der mOnCancelListener gerufen (wenn vorhanden)
@@ -357,47 +333,6 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Wird ein Dialog angezeigt und ein Array viewResIDs ist nicht null, wird die View mit Daten
-     * versorgt. Aufrufende Klasse kann in onBindView() die View selbst belegen.
-     * <p>
-     * Nur wenn die (Text-/EditText-) View nicht selbst belegt wurde, passiert folgendes:
-     * <p>
-     * Handelt es sich bei der View um eine EditText-View, wird ein {@link MyTextWatcher} auf die
-     * View gesetzt. Ausserdem werden die Werte direkt in den GV uebernommen (nur, wenn awlib_gv
-     * nicht null ist).
-     * <p>
-     * Handelt es sich bei der View um eine TextView und awlib_gv ist nicht null, wird der Text aus
-     * dem gv anhand der fromresID geholt und als Text eingestellt.
-     * <p>
-     * Damit dieses Feature benutzt werden kann sind folgende Voraussetzungen zu erfuellen:
-     * <p>
-     * VIEWRESIDS in args ist mit den resIDs der View belegt.
-     * <p>
-     * FROMRESIDS in args ist mit den entsprechend korrespondierenen fromResIDs zu viewResIDs
-     * belegt.
-     */
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        if (awlib_gv != null && viewResIDs != null) {
-            AWLibViewHolder holder = new AWLibViewHolder(view);
-            for (int i = 0; i < viewResIDs.length; i++) {
-                View target = holder.itemView.findViewById(viewResIDs[i]);
-                if (!onBindView(target, viewResIDs[i])) {
-                    int fromResID = fromResIDs[i];
-                    if (target instanceof TextView) {
-                        TextView v = (TextView) target;
-                        v.setText(awlib_gv.getAsString(fromResID));
-                    }
-                    if (target instanceof EditText) {
-                        EditText v = (EditText) target;
-                        v.addTextChangedListener(new MyTextWatcher(v, fromResID));
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Uebernimmt Argumente zusaetzlich(!) zu bereits vorhandenen
      *
      * @see Fragment#setArguments(Bundle)
@@ -547,61 +482,5 @@ public abstract class AWFragment extends DialogFragment
          *         Dialog
          */
         void onDismiss(@LayoutRes int layoutID, DialogInterface dialog);
-    }
-
-    /**
-     * TextWatcher, der auf in der View vorhandene EditTexte gelegt wird.
-     */
-    public class MyTextWatcher implements TextWatcher {
-        private final EditText view;
-        private final int identifier;
-
-        /**
-         * @param view
-         *         EditText
-         * @param identifier
-         *         die ResID der Spalte des Geschaeftobjectes, in die der Text geschrieben wird.
-         *         Dies wird immer in afterTextChanged(s) durchgefuehrt.
-         */
-        public MyTextWatcher(EditText view, int identifier) {
-            this.view = view;
-            this.identifier = identifier;
-        }
-
-        /**
-         * Solbald sich der Text geaendert hat, wird in die durch den identifier vorgegebene Spalte
-         * des Geschaeftspbjectes der Wert mittels put(resID, text) geschrieben.
-         * <p>
-         * Ist kein Text vorhanden, wird mittels remove(resID) der Wert aus der Spalte entfernt.
-         * <p>
-         * Ausserdem wird {@link AWFragment#afterTextChanged(TextView, int, String)} aufgerufen.
-         *
-         * @param s
-         *         Text der EditTextView
-         */
-        @Override
-        public void afterTextChanged(Editable s) {
-            String newText = s.toString();
-            if (!TextUtils.isEmpty(newText)) {
-                awlib_gv.put(identifier, newText);
-            } else {
-                awlib_gv.remove(identifier);
-            }
-            AWFragment.this.afterTextChanged(view, identifier, newText);
-        }
-
-        /**
-         * Leer
-         */
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        /**
-         * Leer
-         */
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
     }
 }

@@ -48,7 +48,7 @@ public class CalculatorTextCurrency extends AWTextCurrency
     }
 
     public CalculatorTextCurrency(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public CalculatorTextCurrency(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -57,10 +57,6 @@ public class CalculatorTextCurrency extends AWTextCurrency
 
     public int getIndex() {
         return mIndex;
-    }
-
-    public void setIndex(int index) {
-        mIndex = index;
     }
 
     public void hideCalculator() {
@@ -124,6 +120,10 @@ public class CalculatorTextCurrency extends AWTextCurrency
     @Override
     public void onResultChanged(Double result) {
         setValue((long) (result * 100));
+    }
+
+    public void setIndex(int index) {
+        mIndex = index;
     }
 
     @Override
