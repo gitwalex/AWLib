@@ -20,6 +20,7 @@ package de.aw.awlib.views;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.Context;
+import android.databinding.BindingAdapter;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.View;
@@ -43,12 +44,17 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     private OnDateTextViewListener mOnDateSetListener;
     private int year, month, day;
 
+    @BindingAdapter({"app:onDateChanged"})
+    public static void onDateChanged(AWDateTextView view, OnDateTextViewListener listener) {
+        view.setOnDateChangedListener(listener);
+    }
+
     public AWDateTextView(Context context) {
         super(context);
     }
 
     public AWDateTextView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public AWDateTextView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -63,14 +69,28 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     }
 
     /**
+     * Setzt das uebergebene Datum.
+     *
+     * @param date
+     *         Datum im SQLiteFormat
+     * @throws ParseException,
+     *         wenn das Datum nicht geparst werden kann
+     */
+    public void setDate(String date) throws ParseException {
+        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
+        setDate(d);
+    }
+
+    /**
      * Startet den DatumsDialog
      */
     @Override
     public void onClick(View v) {
         if (isFocusable()) {
-            DatePickerDialog dialog = new DatePickerDialog(getContext(), this, year, month, day);
-            dialog.getDatePicker().setCalendarViewShown(false);
-            dialog.show();
+            DatePickerDialog mDatePickerDialog =
+                    new DatePickerDialog(getContext(), this, year, month, day);
+            mDatePickerDialog.getDatePicker().setCalendarViewShown(false);
+            mDatePickerDialog.show();
         }
     }
 
@@ -90,19 +110,6 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
         super.setOnClickListener(this);
         setFocusable(true);
         setInputType(InputType.TYPE_CLASS_DATETIME | InputType.TYPE_DATETIME_VARIATION_DATE);
-    }
-
-    /**
-     * Setzt das uebergebene Datum.
-     *
-     * @param date
-     *         Datum im SQLiteFormat
-     * @throws ParseException,
-     *         wenn das Datum nicht geparst werden kann
-     */
-    public void setDate(String date) throws ParseException {
-        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
-        setDate(d);
     }
 
     /**

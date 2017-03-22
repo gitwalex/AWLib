@@ -143,7 +143,6 @@ public abstract class AWFragment extends DialogFragment
         setInternalArguments(args);
     }
 
-
     /**
      * Wird ein Dialog gecancelt, wird der mOnCancelListener gerufen (wenn vorhanden)
      * <p>
@@ -230,10 +229,7 @@ public abstract class AWFragment extends DialogFragment
             this.containerID = container.getId();
         }
         if (!getShowsDialog()) {
-            if (layout == NOLAYOUT) {
-                return null;
-            }
-            return inflater.inflate(layout, container, false);
+            return layout == NOLAYOUT ? null : inflater.inflate(layout, container, false);
         }
         return null;
     }

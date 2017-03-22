@@ -62,6 +62,12 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
         return value;
     }
 
+    public void setValue(float value) {
+        if (!isInEditMode()) {
+            setValue((long) (value * AWDBConvert.mCurrencyDigits));
+        }
+    }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -81,12 +87,6 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
      */
     public void setColorMode(boolean colorMode) {
         this.colorMode = colorMode;
-    }
-
-    public void setValue(float value) {
-        if (!isInEditMode()) {
-            setValue((long) (value * AWDBConvert.mCurrencyDigits));
-        }
     }
 
     /**
