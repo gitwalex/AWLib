@@ -27,6 +27,7 @@ import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -41,6 +42,7 @@ import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityActions;
 import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.activities.AWInterface;
+import de.aw.awlib.activities.AWMainActivity;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.events.AWEvent;
 
@@ -341,6 +343,23 @@ public abstract class AWFragment extends DialogFragment
             }
         } else {
             super.setArguments(args);
+        }
+    }
+
+    /**
+     * Setzt die Sichtbarkkeit des DefaultFloatingActionButton
+     *
+     * @param visible
+     *         true: Visible
+     * @throws ClassCastException
+     *         wenn Activity nicht Instance von {@link AWMainActivity}
+     */
+    protected void setDefaultFabVisibility(boolean visible) {
+        FloatingActionButton fab = ((AWMainActivity) getActivity()).getDefaultFAB();
+        if (visible) {
+            fab.setVisibility(View.VISIBLE);
+        } else {
+            fab.setVisibility(View.GONE);
         }
     }
 
