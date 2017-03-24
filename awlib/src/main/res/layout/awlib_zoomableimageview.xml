@@ -15,8 +15,20 @@
   ~ You should have received a copy of the GNU General Public License along with this program; if
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
-<de.aw.awlib.views.AWZoomableImageView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/imgView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_height="match_parent">
+
+    <de.aw.awlib.views.AWZoomableImageView
+        android:id="@+id/imgView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <TextView
+        android:id="@+id/tvFilename"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/na"
+        android:textColorLink="@android:color/white"/>
+</FrameLayout>

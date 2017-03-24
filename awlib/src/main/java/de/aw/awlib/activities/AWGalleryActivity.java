@@ -18,13 +18,13 @@ package de.aw.awlib.activities;
  */
 
 import android.annotation.SuppressLint;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -33,58 +33,50 @@ import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.fragments.AWShowPicture;
 
+import static de.aw.awlib.activities.AWInterface.FILENAME;
+
 /**
  * Zeigt eine Gallery von Bildern im jpg-Format in einem ViewPager.
  */
-public class AWGalleryActivity extends AWBasicActivity implements ViewPager.OnPageChangeListener {
+public class AWGalleryActivity extends AppCompatActivity {
     private static int layout = R.layout.awactivity_gallery;
-    private ScreenSlidePagerAdapter mAdapter;
 
     @SuppressLint("MissingSuperCall")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, layout);
+        super.onCreate(savedInstanceState);
+        setContentView(layout);
         ViewPager pager = (ViewPager) findViewById(R.id.GalleryPager);
-        String mDirectory = args.getString(FILENAME);
-        if (mDirectory == null) {
+        Bundle args = getIntent().getExtras();
+        if (args != null) {
+            String mDirectory = args.getString(FILENAME);
+            if (mDirectory == null) {
+                AWApplication.Log("Kein Verzeichnis in Intent unter 'FILENAME'");
+                finish();
+            } else {
+                File directory = new File(mDirectory);
+                if (directory.isDirectory()) {
+                    File[] pictures = directory.listFiles(new FileFilter() {
+                        @Override
+                        public boolean accept(File pathname) {
+                            return pathname.getName().endsWith("jpg");
+                        }
+                    });
+                    if (pictures != null) {
+                        pager.setAdapter(
+                                new ScreenSlidePagerAdapter(getSupportFragmentManager(), pictures));
+                    } else {
+                        AWApplication.Log("Kein Zugriff");
+                    }
+                } else {
+                    AWApplication.Log(mDirectory + " ist kein Verzeichnis");
+                    finish();
+                }
+            }
+        } else {
             AWApplication.Log("Kein Verzeichnis in Intent unter 'FILENAME'");
             finish();
-        } else {
-            File directory = new File(mDirectory);
-            if (directory.isDirectory()) {
-                File[] pictures = directory.listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File pathname) {
-                        return pathname.getName().endsWith("jpg");
-                    }
-                });
-                if (pictures != null) {
-                    mAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), pictures);
-                    pager.setAdapter(mAdapter);
-                    pager.addOnPageChangeListener(this);
-                    setTitle(directory.getName());
-                    setSubTitle(mAdapter.getPageTitle(0));
-                } else {
-                    AWApplication.Log("Kein Zugriff");
-                }
-            } else {
-                AWApplication.Log(mDirectory + " ist kein Verzeichnis");
-                finish();
-            }
         }
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        setSubTitle(mAdapter.getPageTitle(position));
     }
 
     /**
@@ -112,12 +104,6 @@ public class AWGalleryActivity extends AWBasicActivity implements ViewPager.OnPa
         @Override
         public Fragment getItem(int position) {
             return AWShowPicture.newInstance(mPictures[position].getAbsolutePath());
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Uri uri = Uri.parse(mPictures[position].getAbsolutePath());
-            return uri.getLastPathSegment();
         }
     }
 }

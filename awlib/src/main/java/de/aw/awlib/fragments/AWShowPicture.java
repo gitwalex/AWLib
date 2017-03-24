@@ -23,8 +23,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+
+import java.io.File;
 
 import de.aw.awlib.Manifest;
 import de.aw.awlib.R;
@@ -37,6 +40,7 @@ import de.aw.awlib.R;
 public class AWShowPicture extends AWFragment {
     private static final int layout = R.layout.awlib_zoomableimageview;
     private ImageView imageView;
+    private TextView tvFilename;
 
     /**
      * Neue Instanz
@@ -53,14 +57,9 @@ public class AWShowPicture extends AWFragment {
     }
 
     private void createPicture() {
-        String mFilename = args.getString(FILENAME);
-        Glide.with(getContext()).load(mFilename).asBitmap().centerCrop().fitCenter()
-             .into(imageView);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        File file = new File(args.getString(FILENAME));
+        Glide.with(getContext()).load(file).asBitmap().centerCrop().fitCenter().into(imageView);
+        tvFilename.setText(file.getName());
     }
 
     @Override
@@ -77,6 +76,7 @@ public class AWShowPicture extends AWFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        tvFilename = (TextView) view.findViewById(R.id.tvFilename);
         imageView = (ImageView) view.findViewById(R.id.imgView);
         if (ContextCompat
                 .checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) !=

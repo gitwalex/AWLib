@@ -34,6 +34,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -52,7 +53,7 @@ public abstract class PDFDocument {
     private static Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
     private final Document mDocument;
     private final PdfWriter writer;
-    private final String mFilename;
+    private final File mFile;
     private String header;
     private String footer;
 
@@ -66,8 +67,8 @@ public abstract class PDFDocument {
      */
     public PDFDocument(@NonNull String filename) throws FileNotFoundException, DocumentException {
         mDocument = new Document(PageSize.A4);
-        mFilename = filename + ".pdf";
-        writer = PdfWriter.getInstance(mDocument, new FileOutputStream(mFilename));
+        mFile = new File(filename + ".pdf");
+        writer = PdfWriter.getInstance(mDocument, new FileOutputStream(mFile));
         writer.setPageEvent(new PDFEventHelper());
         mDocument.open();
     }
@@ -79,7 +80,6 @@ public abstract class PDFDocument {
      *         Titel des Documents
      * @throws DocumentException
      *         Wenn das pdf nicht erstellt werden kann
-     * @throws DocumentException
      */
     protected void addDocumentTitle(String titel) throws DocumentException {
         Paragraph preface = new Paragraph();
@@ -126,8 +126,9 @@ public abstract class PDFDocument {
      * @param ueberschrift
      *         Uebeschrift
      * @throws DocumentException
+     *         Wenn das pdf nicht erstellt werden kann
      */
-    protected void addUeberschrift(@NonNull String ueberschrift) throws DocumentException {
+    public void addUeberschrift(@NonNull String ueberschrift) throws DocumentException {
         Paragraph preface = new Paragraph();
         addEmptyLine(preface, 1);
         preface.add(new Paragraph(ueberschrift, smallBold));
@@ -135,10 +136,18 @@ public abstract class PDFDocument {
         mDocument.add(preface);
     }
 
+    public void cancel() {
+        close();
+        if (mFile != null && mFile.exists()) {
+            mFile.delete();
+        }
+    }
+
     /**
      * Ist nach fertigstellung des pdf zu rufen.
      */
     protected void close() {
+        writer.close();
         mDocument.close();
     }
 
@@ -236,7 +245,7 @@ public abstract class PDFDocument {
     }
 
     protected String getNameOfFile() {
-        return mFilename;
+        return mFile.getName();
     }
 
     protected void setFooter(String footer) {
