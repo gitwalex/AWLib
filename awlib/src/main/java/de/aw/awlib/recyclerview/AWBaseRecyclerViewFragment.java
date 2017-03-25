@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.adapters.AWBaseAdapter;
 import de.aw.awlib.database.AWLoaderManagerEngine;
 import de.aw.awlib.fragments.AWFragment;
@@ -90,11 +91,15 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     /**
      * Ermittelt die aktuell angezeigte Position der RecyclerView
      *
-     * @return Position des aktuellen Items der RecyclerView
+     * @return Position des aktuellen Items der RecyclerView. 0, wenn es sich nicht um einen {@link
+     * }{@link LinearLayoutManager} handelt.
      */
     private int getRecyclerViewPosition() {
-        LinearLayoutManager manager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-        return manager.findFirstVisibleItemPosition();
+        LayoutManager manager = mRecyclerView.getLayoutManager();
+        if (manager instanceof LinearLayoutManager) {
+            return ((LinearLayoutManager) manager).findFirstVisibleItemPosition();
+        }
+        return 0;
     }
 
     /**
@@ -146,6 +151,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((AWBasicActivity) getActivity()).hide_keyboard();
         layout = args.getInt(LAYOUT);
         viewHolderLayout = args.getInt(VIEWHOLDERLAYOUT);
         mAdapter = createBaseAdapter();
@@ -174,7 +180,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     @Override
     public void onPause() {
         super.onPause();
-        args.putInt(LASTSELECTEDPOSITION, getRecyclerViewPosition());
     }
 
     /**
@@ -209,6 +214,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        args.putInt(LASTSELECTEDPOSITION, getRecyclerViewPosition());
         args.putLong(SELECTEDVIEWHOLDERITEM, mSelectedID);
         super.onSaveInstanceState(outState);
     }
@@ -299,6 +305,10 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         if (mAdapter != null) {
             mAdapter.setOnTouchStartDragResID(resID);
         }
+    }
+
+    protected void startOrRestartLoader() {
+        startOrRestartLoader(layout, args);
     }
 
     protected void startOrRestartLoader(int loaderID, Bundle args) {

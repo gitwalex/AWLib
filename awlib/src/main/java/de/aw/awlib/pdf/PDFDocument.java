@@ -52,7 +52,6 @@ public abstract class PDFDocument {
     private static Font subFont = new Font(Font.FontFamily.TIMES_ROMAN, 16, Font.BOLD);
     private static Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
     private final Document mDocument;
-    private final PdfWriter writer;
     private final File mFile;
     private String header;
     private String footer;
@@ -68,7 +67,7 @@ public abstract class PDFDocument {
     public PDFDocument(@NonNull String filename) throws FileNotFoundException, DocumentException {
         mDocument = new Document(PageSize.A4);
         mFile = new File(filename + ".pdf");
-        writer = PdfWriter.getInstance(mDocument, new FileOutputStream(mFile));
+        PdfWriter writer = PdfWriter.getInstance(mDocument, new FileOutputStream(mFile));
         writer.setPageEvent(new PDFEventHelper());
         mDocument.open();
     }
@@ -147,7 +146,6 @@ public abstract class PDFDocument {
      * Ist nach fertigstellung des pdf zu rufen.
      */
     protected void close() {
-        writer.close();
         mDocument.close();
     }
 

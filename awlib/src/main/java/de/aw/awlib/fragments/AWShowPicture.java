@@ -67,7 +67,8 @@ public class AWShowPicture extends AWFragment {
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_PERMISSION_STORAGE:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     createPicture();
                 }
         }
@@ -79,7 +80,7 @@ public class AWShowPicture extends AWFragment {
         tvFilename = (TextView) view.findViewById(R.id.tvFilename);
         imageView = (ImageView) view.findViewById(R.id.imgView);
         if (ContextCompat
-                .checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                .checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                 PackageManager.PERMISSION_GRANTED) {
             createPicture();
         } else {
