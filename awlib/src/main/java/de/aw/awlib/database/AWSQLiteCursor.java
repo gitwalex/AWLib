@@ -28,9 +28,12 @@ import android.database.sqlite.SQLiteQuery;
 public class AWSQLiteCursor extends SQLiteCursor {
     private final long finishTime;
 
+    {
+        finishTime = System.nanoTime();
+    }
+
     public AWSQLiteCursor(SQLiteCursorDriver driver, String editTable, SQLiteQuery query) {
         super(driver, editTable, query);
-        finishTime = System.nanoTime();
     }
 
     @Override

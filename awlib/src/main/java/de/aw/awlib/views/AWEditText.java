@@ -18,6 +18,7 @@ package de.aw.awlib.views;
  */
 
 import android.content.Context;
+import android.databinding.BindingAdapter;
 import android.util.AttributeSet;
 
 import de.aw.awlib.activities.AWInterface;
@@ -26,9 +27,13 @@ import de.aw.awlib.activities.AWInterface;
  * Created by alex on 02.03.2015.
  */
 public class AWEditText extends android.support.v7.widget.AppCompatEditText implements AWInterface {
-    private String aktuellerText;
-    private int mBroadcastIndex;
-    private AWAutoCompleteTextView.OnTextChangedListener mOnTextChangedListener;
+    private int mIndex;
+    private OnTextChangedListener mOnTextChangedListener;
+
+    @BindingAdapter({"onTextChanged"})
+    public static void onTextChanged(AWEditText view, OnTextChangedListener listener) {
+        view.setOnTextChangedListener(listener);
+    }
 
     public AWEditText(Context context) {
         super(context);
@@ -42,14 +47,6 @@ public class AWEditText extends android.support.v7.widget.AppCompatEditText impl
         super(context, attrs, defStyleAttr);
     }
 
-    public int getBroadcastIndex() {
-        return mBroadcastIndex;
-    }
-
-    public String getValue() {
-        return getText().toString();
-    }
-
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -57,34 +54,24 @@ public class AWEditText extends android.support.v7.widget.AppCompatEditText impl
     }
 
     /**
-     * Verendet eine BroadcastMessage, wenn sich der Text geaendert hat.
+     * Informiert den OnTextChnagedListener, wenn sich der Text geaendert hat.
      */
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
-        String newText = text.toString();
-        if (!newText.equals(aktuellerText)) {
-            aktuellerText = newText;
-            sendBroadcast(newText);
-        }
-    }
-
-    /**
-     * Versendet den Text als Broadcast
-     *
-     * @param text
-     *         Text, der versendet werden soll.
-     */
-    protected void sendBroadcast(String text) {
         if (mOnTextChangedListener != null) {
-            mOnTextChangedListener.onTextChanged(this, text, NOID);
+            mOnTextChangedListener.onTextChanged(this, text.toString(), mIndex);
         }
     }
 
-    public void setBroadcastIndex(int index) {
-        mBroadcastIndex = index;
+    public void setIndex(int index) {
+        mIndex = index;
     }
 
-    public void setOnTextChangedListener(AWAutoCompleteTextView.OnTextChangedListener listener) {
+    public void setOnTextChangedListener(OnTextChangedListener listener) {
         mOnTextChangedListener = listener;
+    }
+
+    public interface OnTextChangedListener {
+        void onTextChanged(AWEditText view, String newText, int index);
     }
 }

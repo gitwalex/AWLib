@@ -36,7 +36,6 @@ import static de.aw.awlib.activities.AWInterface.ORDERBY;
 import static de.aw.awlib.activities.AWInterface.PROJECTION;
 import static de.aw.awlib.activities.AWInterface.SELECTION;
 import static de.aw.awlib.activities.AWInterface.SELECTIONARGS;
-import static de.aw.awlib.application.AWApplication.Log;
 import static de.aw.awlib.application.AWApplication.LogError;
 
 /**
@@ -71,34 +70,19 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
     private final Callback mCallback;
     private final Context mContext;
     private final LoaderManager mLoaderManager;
-    private Cursor mCursor;
+
+    public AWLoaderManagerEngine(Context context, LoaderManager loadermanager, Callback callback) {
+        mContext = context;
+        mLoaderManager = loadermanager;
+        mCallback = callback;
+    }
 
     public AWLoaderManagerEngine(AWBasicActivity activity) {
-        mContext = activity;
-        mLoaderManager = activity.getSupportLoaderManager();
-        try {
-            //noinspection unchecked
-            mCallback = (Callback) activity;
-        } catch (ClassCastException e) {
-            Log("Activity must implement AWLoaderManagerEngine.Callback)");
-            throw e;
-        }
+        this(activity, activity.getSupportLoaderManager(), (Callback) activity);
     }
 
     public AWLoaderManagerEngine(AWFragment fragment) {
-        mContext = fragment.getContext();
-        mLoaderManager = fragment.getLoaderManager();
-        try {
-            //noinspection unchecked
-            mCallback = (Callback) fragment;
-        } catch (ClassCastException e) {
-            Log("Fragment must implement AWLoaderManagerEngine.Callback)");
-            throw e;
-        }
-    }
-
-    public Cursor getCursor() {
-        return mCursor;
+        this(fragment.getContext(), fragment.getLoaderManager(), (Callback) fragment);
     }
 
     /**
@@ -118,8 +102,6 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
      * args.getString(ORDERBY): OrderBy-Clause. Ist dies nicht belegt, wird der Cursor gemaess
      * {@link AbstractDBHelper#getOrderString(AWAbstractDBDefinition)} sortiert.
      *
-     * @throws NullPointerException
-     *         wenn args.getParcelable(DBDEFINITION) Null liefert
      * @throws NullPointerException
      *         wenn weder PROJECTION noch FROMRESIDS belegt sind
      * @see LoaderManager.LoaderCallbacks#onCreateLoader(int, Bundle)
@@ -164,7 +146,6 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
     @CallSuper
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mCursor = cursor;
         mCallback.onLoadFinished(loader, cursor);
     }
 

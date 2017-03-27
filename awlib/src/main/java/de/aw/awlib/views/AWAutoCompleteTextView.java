@@ -29,9 +29,7 @@ import android.widget.FilterQueryProvider;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
-import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
-import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * AutoCompleteTextView (siehe  {@link AWAutoCompleteTextView#initialize (DBDefinition, String,
@@ -49,7 +47,7 @@ public abstract class AWAutoCompleteTextView
     private int columnIndex;
     private int fromResID;
     private boolean isValidatorSet;
-    private int mBroadcastIndex;
+    private int mIndex;
     private CharSequence mConstraint;
     private String mMainColumn;
     private String mOrderBy;
@@ -72,8 +70,7 @@ public abstract class AWAutoCompleteTextView
     }
 
     private void buildSelectionArguments(String mUserSelection, String[] mUserSelectionArgs) {
-        AWApplication mAppContext = (AWApplication) getContext().getApplicationContext();
-        mSelection = mAppContext.getDBHelper().columnName(fromResID) + " Like ? ";
+        mSelection = tbd.columnName(fromResID) + " Like ? ";
         mOrderBy = "LENGTH(" + mMainColumn + ")";
         if (mUserSelection != null) {
             if (mUserSelectionArgs != null) {
@@ -88,17 +85,27 @@ public abstract class AWAutoCompleteTextView
     }
 
     @Override
-    public CharSequence convertToString(Cursor cursor) {
+    public final CharSequence convertToString(Cursor cursor) {
         return cursor.getString(columnIndex);
     }
 
     @Override
-    public CharSequence fixText(CharSequence invalidText) {
+    public final CharSequence fixText(CharSequence invalidText) {
         return selectedText;
     }
 
-    public int getBroadcastIndex() {
-        return mBroadcastIndex;
+    public final int getIndex() {
+        return mIndex;
+    }
+
+    /**
+     * Dann kann diese View mehrmals in einem Layout verwendet werden.
+     *
+     * @param index
+     *         index
+     */
+    public final void setIndex(int index) {
+        mIndex = index;
     }
 
     /**
@@ -115,19 +122,16 @@ public abstract class AWAutoCompleteTextView
         }
     }
 
+    public void setSelectedText(String text) {
+        selectedText = text;
+    }
+
     /**
      * @return Liefert die ID des selektierten Textes. Ist ein Validator gesetzt, den ersten aus dem
      * Cursor,ansonsten NOID.
      */
     public long getSelectionID() {
         return selectionID;
-    }
-
-    /**
-     * @return Liefert den Text
-     */
-    public String getValue() {
-        return getText().toString().trim();
     }
 
     /**
@@ -144,16 +148,33 @@ public abstract class AWAutoCompleteTextView
      * @throws NullPointerException,
      *         wenn LoaderManager null ist.
      */
-    public void initialize(OnTextChangedListener mOnTextChangeListener, AWAbstractDBDefinition tbd,
-                           String selection, String[] selectionArgs, int fromResID) {
+    public final void initialize(OnTextChangedListener mOnTextChangeListener,
+                                 AWAbstractDBDefinition tbd, String selection,
+                                 String[] selectionArgs, int fromResID) {
         this.mOnTextChangeListener = mOnTextChangeListener;
+        initialize(tbd, selection, selectionArgs, fromResID);
+    }
+
+    /**
+     * Initialisiert AutoCompleteTextView.
+     *
+     * @param tbd
+     *         DBDefinition. Aus dieser Tabelle wird das Feld gelesen
+     * @param selection
+     *         selection
+     * @param selectionArgs
+     *         Argumente zur Selection
+     * @param fromResID
+     *         Feld, welches fuer die Selection benutzt werden soll.
+     * @throws NullPointerException,
+     *         wenn LoaderManager null ist.
+     */
+    public final void initialize(AWAbstractDBDefinition tbd, String selection,
+                                 String[] selectionArgs, int fromResID) {
         this.tbd = tbd;
         this.fromResID = fromResID;
-        AbstractDBHelper mDBHelper =
-                ((AWApplication) getContext().getApplicationContext()).getDBHelper();
-        mMainColumn = mDBHelper.columnName(this.fromResID);
-        mProjection =
-                new String[]{mDBHelper.columnName(fromResID), mDBHelper.columnName(R.string._id)};
+        mMainColumn = tbd.columnName(this.fromResID);
+        mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
         buildSelectionArguments(selection, selectionArgs);
         SimpleCursorAdapter mSimpleCursorAdapter =
                 new SimpleCursorAdapter(getContext(), android.R.layout.simple_dropdown_item_1line,
@@ -269,9 +290,7 @@ public abstract class AWAutoCompleteTextView
             }
         }
         setDropDownHeight(getLineHeight() * 18);
-        AbstractDBHelper mDBHelper =
-                ((AWApplication) getContext().getApplicationContext()).getDBHelper();
-        columnIndex = data.getColumnIndexOrThrow(mDBHelper.columnName(fromResID));
+        columnIndex = data.getColumnIndexOrThrow(tbd.columnName(fromResID));
         return data;
     }
 
@@ -313,20 +332,6 @@ public abstract class AWAutoCompleteTextView
     public void setAsValidator(Validator validator) {
         super.setValidator(validator);
         isValidatorSet = true;
-    }
-
-    /**
-     * Dann kann diese View mehrmals in einem Layout verwendet werden.
-     *
-     * @param index
-     *         index
-     */
-    public void setBroadcastIndex(int index) {
-        mBroadcastIndex = index;
-    }
-
-    public void setSelectedText(String text) {
-        selectedText = text;
     }
 
     /**

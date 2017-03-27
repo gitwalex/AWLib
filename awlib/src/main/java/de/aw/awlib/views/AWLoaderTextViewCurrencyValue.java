@@ -19,17 +19,29 @@ package de.aw.awlib.views;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.util.AttributeSet;
 
+import de.aw.awlib.R;
+import de.aw.awlib.activities.AWInterface;
+import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
+import de.aw.awlib.database.AWLoaderManagerEngine;
 
 /**
  * Convenience-Klasse fuer TextView, die mit einem Loader hinterlegt ist. ID der TextView wird
- * entweder durch xml vorgegeben. Alternativ wird die resID benutzt, die in initialize() uebergeben
+ * durch xml vorgegeben. Alternativ wird die resID benutzt, die in initialize() uebergeben
  * wird. Der Wert wird als Waehrung angezeigt.
  */
-public class AWLoaderTextViewCurrencyValue extends AWAbstractLoaderTextView {
-    private long mValue;
+public class AWLoaderTextViewCurrencyValue extends android.support.v7.widget.AppCompatTextView
+        implements AWInterface, AWLoaderManagerEngine.Callback {
+    private final Bundle args = new Bundle();
+    private AWLoaderManagerEngine mLoaderManagerEngine;
 
     public AWLoaderTextViewCurrencyValue(Context context) {
         super(context);
@@ -43,13 +55,83 @@ public class AWLoaderTextViewCurrencyValue extends AWAbstractLoaderTextView {
         super(context, attrs, defStyle);
     }
 
-    @Override
-    protected String convertValue(Cursor data) {
-        mValue = data.getLong(0);
-        return AWDBConvert.convertCurrency(mValue);
+    /**
+     * Initialisiert die TextView/ Loader und startet Loader
+     *
+     * @param lm
+     *         LoaderManager
+     * @param tbd
+     *         DBDefinition fuer Loader
+     * @param resID
+     *         des Items, welches geladen wird. Wird fuer Anzeige der Daten im korrekten Format
+     *         benoetigt.
+     * @param projection
+     *         Item , welches geladen werden soll.
+     * @param selection
+     *         Selection. Kann null sein
+     * @param selectionArgs
+     *         Argumente der Selection. Kann null sein.
+     * @throws RuntimeException
+     *         wenn Argumente nicht vollstaendig sind oder nicht zueinander passen.
+     */
+    public void initialize(LoaderManager lm, @NonNull AWAbstractDBDefinition tbd,
+                           @StringRes int resID, @NonNull String projection,
+                           @Nullable String selection, @Nullable String[] selectionArgs) {
+        if (resID == 0) {
+            throw new RuntimeException(
+                    "resID muss mit einem Wert initialisiert sein. Wird fuer Konvertieren der " +
+                            "Daten benoetigt.");
+        }
+        // setzten der ID, wenn noch nicht vorhanden.
+        if (getId() == NO_ID) {
+            setId(resID);
+        }
+        args.putParcelable(DBDEFINITION, tbd);
+        args.putStringArray(PROJECTION, new String[]{projection});
+        args.putString(SELECTION, selection);
+        args.putStringArray(SELECTIONARGS, selectionArgs);
+        args.putIntArray(FROMRESIDS, new int[]{resID});
+        // Starten des Loaders
+        mLoaderManagerEngine = new AWLoaderManagerEngine(getContext(), lm, this);
+        mLoaderManagerEngine.startOrRestartLoader(getId(), args);
     }
 
-    public long getValue() {
-        return mValue;
+    /**
+     * Belegt die TextView mit den Daten aus dem Cursor.
+     *
+     * @see LoaderManager.LoaderCallbacks#onLoadFinished(Loader, Object)
+     */
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        String text;
+        if (data.moveToFirst()) {
+            int rows = data.getCount();
+            if (rows > 1) {
+                throw new IllegalArgumentException(
+                        "SQL-Statement liefert zu viele Daten(Rows: " + rows);
+            }
+            text = AWDBConvert.convertCurrency(data.getLong(0));
+        } else {
+            text = getContext().getString(R.string.na);
+        }
+        setText(text);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // keine Reference auf Daten gehalten. Nichts zu tun
+    }
+
+    /**
+     * Setzt die Argumente fuer die Selection neu und restartet den Loader.
+     */
+    public void restart(String selection, String[] selectionArgs) {
+        args.putString(SELECTION, selection);
+        args.putStringArray(SELECTIONARGS, selectionArgs);
+        mLoaderManagerEngine.startOrRestartLoader(getId(), args);
+    }
+
+    @Override
+    public void setCursorLoaderArguments(int loaderID, Bundle args) {
     }
 }
