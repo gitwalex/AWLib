@@ -19,13 +19,16 @@ package de.aw.awlib.views;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.databinding.BindingAdapter;
 import android.graphics.Rect;
+import android.support.annotation.CallSuper;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.FilterQueryProvider;
+import android.widget.TextView;
 
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
@@ -36,26 +39,29 @@ import de.aw.awlib.database.AWAbstractDBDefinition;
  * String[], boolean, int[])}.<br> Sendet eine Message nach einer TextAenderung. Threshold ist
  * standardmaessig 3.
  *
- * @see AWAutoCompleteTextView#sendMessage()
+ * @see AWAutoCompleteTextView#onTextChanged(String newText)
  */
 public abstract class AWAutoCompleteTextView
         extends android.support.v7.widget.AppCompatAutoCompleteTextView
         implements AWInterface, SimpleCursorAdapter.CursorToStringConverter, FilterQueryProvider,
         AdapterView.OnItemClickListener, AutoCompleteTextView.Validator {
-    private static int[] viewResIDs = new int[]{android.R.id.text1};
     protected OnTextChangedListener mOnTextChangeListener;
     private int columnIndex;
     private int fromResID;
-    private boolean isValidatorSet;
     private int mIndex;
     private CharSequence mConstraint;
     private String mMainColumn;
     private String mOrderBy;
     private String[] mProjection;
     private String mSelection;
-    private String selectedText = null;
+    private String validatedText = null;
     private long selectionID;
     private AWAbstractDBDefinition tbd;
+
+    @BindingAdapter({"onTextChanged"})
+    public static void onTextChanged(AWAutoCompleteTextView view, OnTextChangedListener listener) {
+        view.setOnTextChangedListener(listener);
+    }
 
     public AWAutoCompleteTextView(Context context) {
         super(context);
@@ -91,7 +97,7 @@ public abstract class AWAutoCompleteTextView
 
     @Override
     public final CharSequence fixText(CharSequence invalidText) {
-        return selectedText;
+        return validatedText;
     }
 
     public final int getIndex() {
@@ -109,29 +115,18 @@ public abstract class AWAutoCompleteTextView
     }
 
     /**
-     * Liefert den gueltigen Text zurueck. Entweder den im Textfeld, ist ein Validator gesetzt, der
-     * entsprechende Text aus dem Cursor.
-     *
-     * @return Text
-     */
-    public String getSelectedText() {
-        if (isValidatorSet) {
-            return selectedText;
-        } else {
-            return getText().toString();
-        }
-    }
-
-    public void setSelectedText(String text) {
-        selectedText = text;
-    }
-
-    /**
      * @return Liefert die ID des selektierten Textes. Ist ein Validator gesetzt, den ersten aus dem
      * Cursor,ansonsten NOID.
      */
     public long getSelectionID() {
-        return selectionID;
+        if (getValidator() != null) {
+            return selectionID;
+        } else {
+            if (getText().toString().equals(validatedText)) {
+                return selectionID;
+            }
+        }
+        return NOID;
     }
 
     /**
@@ -178,7 +173,7 @@ public abstract class AWAutoCompleteTextView
         buildSelectionArguments(selection, selectionArgs);
         SimpleCursorAdapter mSimpleCursorAdapter =
                 new SimpleCursorAdapter(getContext(), android.R.layout.simple_dropdown_item_1line,
-                        null, mProjection, viewResIDs, 0);
+                        null, mProjection, new int[]{android.R.id.text1}, 0);
         mSimpleCursorAdapter.setCursorToStringConverter(this);
         mSimpleCursorAdapter.setFilterQueryProvider(this);
         setAdapter(mSimpleCursorAdapter);
@@ -189,7 +184,7 @@ public abstract class AWAutoCompleteTextView
      */
     @Override
     public boolean isValid(CharSequence text) {
-        return (text.toString().equals(selectedText));
+        return (text.toString().equals(validatedText));
     }
 
     @Override
@@ -210,7 +205,6 @@ public abstract class AWAutoCompleteTextView
         setThreshold(3);
         setOnItemClickListener(this);
         setSelectAllOnFocus(true);
-        selectAll();
     }
 
     /**
@@ -220,15 +214,13 @@ public abstract class AWAutoCompleteTextView
      */
     @Override
     protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
-        if (previouslyFocusedRect == null) {
-            setSelection(length());
-            selectAll();
-        }
         if (!focused) {
-            if (isValidatorSet) {
-                setText(selectedText);
+            if (getValidator() != null) {
+                setText(validatedText);
+                onTextChanged(validatedText);
             }
-            sendMessage();
+        } else {
+            showDropDown();
         }
         super.onFocusChanged(focused, direction, previouslyFocusedRect);
     }
@@ -239,8 +231,30 @@ public abstract class AWAutoCompleteTextView
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         selectionID = id;
-        selectedText = getText().toString().trim();
-        sendMessage();
+        validatedText = ((TextView) view).getText().toString().trim();
+        onTextChanged(validatedText);
+    }
+
+    @Override
+    protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
+        if (getValidator() != null) {
+            onTextChanged(validatedText);
+        } else {
+            onTextChanged(text.toString());
+        }
+    }
+
+    /**
+     * Wird bei Textaenderungen gerufen.
+     *
+     * @param newText
+     *         Text
+     */
+    @CallSuper
+    protected void onTextChanged(String newText) {
+        if (mOnTextChangeListener != null) {
+            mOnTextChangeListener.onTextChanged(this, newText, getSelectionID(), mIndex);
+        }
     }
 
     /**
@@ -284,54 +298,30 @@ public abstract class AWAutoCompleteTextView
         assert data != null;
         if (data.moveToFirst()) {
             selectionID = data.getLong(1);
-            selectedText = data.getString(0).trim();
-            if (data.getCount() == 1) {
-                sendMessage();
+            validatedText = data.getString(0).trim();
+            if (data.getCount() == 1 && getValidator() != null) {
+                setText(validatedText);
             }
         }
-        setDropDownHeight(getLineHeight() * 18);
         columnIndex = data.getColumnIndexOrThrow(tbd.columnName(fromResID));
         return data;
     }
 
-    /**
-     * Wird bei Textaenderungen gerufen:
-     * <p/>
-     * 1. Es wird ein Item aus der Liste gewaehlt. Dann findet man unter {@link
-     * AWAutoCompleteTextView#getSelectionID()} die ID, unter {@link AWAutoCompleteTextView#getSelectedText()}
-     * den entsprechenden Text der Liste.
-     * <p/>
-     * 2a. Es ist kein Validator gesetzt: Dann findet man unter {@link
-     * AWAutoCompleteTextView#getSelectionID()} die ID. diese ist NOID, wenn Text eingegeben wurde,
-     * der nicht in der Liste vorhanden ist.Unter {@link AWAutoCompleteTextView#getSelectedText()}den
-     * eingegebenen Text.
-     * <p/>
-     * 2b. Es ist ein Validator gesetzt: Es wird nach Lesen der Datenbank die selectionID mit der ID
-     * und der Text mit dem Text des ersten gefundenen Wertes des Cursors vorbelegt.Diese ID findet
-     * man dann unter {@link AWAutoCompleteTextView#getSelectionID()}. Unter {@link
-     * AWAutoCompleteTextView#getSelectedText()}den zur ID gehoerenden Text. Es sind gibt dann keine
-     * neuen Werte.
-     */
-    protected void sendMessage() {
-        mOnTextChangeListener.onTextChanged(this, getSelectedText(), getSelectionID());
+    public void setOnTextChangedListener(OnTextChangedListener onTextChangedListener) {
+        mOnTextChangeListener = onTextChangedListener;
+    }
+
+    public void setValidatedText(String text) {
+        validatedText = text;
     }
 
     /**
      * Setzt sich selbst als Validator.
      *
-     * @see AWAutoCompleteTextView#setAsValidator(Validator)
+     * @see AWAutoCompleteTextView#setValidator(Validator)
      */
-    public void setAsValidator() {
-        setAsValidator(this);
-    }
-
-    /**
-     * Setzt einen Validator. Wird einer gesetzt, koennen nur Zeilen aus der Tabelle gewaehlt
-     * werden.
-     */
-    public void setAsValidator(Validator validator) {
-        super.setValidator(validator);
-        isValidatorSet = true;
+    public void setValidating() {
+        setValidator(this);
     }
 
     /**
@@ -346,9 +336,11 @@ public abstract class AWAutoCompleteTextView
          * @param newText
          *         Neuer Text.
          * @param newID
-         *         ID aus der DB, wenn Nutzer ein Item aus dem Pulldown selektiert hat oder wenn der
-         *         LoaderManager nur eine Zeile gefunden hat UND ein validator gesetzt ist.
+         *         ID aus der DB, wenn Nutzer ein Item aus dem Pulldown selektiert hat oder wenn
+         *         der
+         * @param index
+         *         index, wie in {@link AWAutoCompleteTextView#setIndex(int)} gesetzt
          */
-        void onTextChanged(View view, String newText, long newID);
+        void onTextChanged(View view, String newText, long newID, int index);
     }
 }
