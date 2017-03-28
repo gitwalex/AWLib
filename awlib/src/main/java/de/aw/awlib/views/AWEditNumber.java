@@ -22,7 +22,6 @@ import android.graphics.Rect;
 import android.text.InputType;
 import android.util.AttributeSet;
 
-import de.aw.awlib.calculator.CalculatorTextCurrency;
 import de.aw.awlib.database.AWDBConvert;
 
 /**
@@ -30,7 +29,7 @@ import de.aw.awlib.database.AWDBConvert;
  * AWDBConvert#mNumberDigits} Stellen.
  */
 public class AWEditNumber extends AWEditText {
-    private CalculatorTextCurrency.OnLongValueChangedListener mOnLongValueChangedListener;
+    private OnLongValueChangedListener mOnLongValueChangedListener;
     private long mValue;
 
     public AWEditNumber(Context context) {
@@ -82,8 +81,7 @@ public class AWEditNumber extends AWEditText {
         }
     }
 
-    public void setOnLongValueChangedListener(
-            CalculatorTextCurrency.OnLongValueChangedListener listener) {
+    public void setOnLongValueChangedListener(OnLongValueChangedListener listener) {
         mOnLongValueChangedListener = listener;
     }
 
@@ -92,5 +90,9 @@ public class AWEditNumber extends AWEditText {
             mValue = value;
             setText(((Double) (value / AWDBConvert.mNumberDigits)).toString());
         }
+    }
+
+    public interface OnLongValueChangedListener {
+        void onLongValueChanged(AWEditText view, long value);
     }
 }

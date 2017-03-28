@@ -43,13 +43,12 @@ import de.aw.awlib.database.AWAbstractDBDefinition;
  */
 public abstract class AWAutoCompleteTextView
         extends android.support.v7.widget.AppCompatAutoCompleteTextView
-        implements AWInterface, SimpleCursorAdapter.CursorToStringConverter, FilterQueryProvider,
-        AdapterView.OnItemClickListener, AutoCompleteTextView.Validator {
+        implements AWInterface, FilterQueryProvider, AdapterView.OnItemClickListener,
+        AutoCompleteTextView.Validator {
     protected OnTextChangedListener mOnTextChangeListener;
     private int columnIndex;
     private int fromResID;
     private int mIndex;
-    private CharSequence mConstraint;
     private String mMainColumn;
     private String mOrderBy;
     private String[] mProjection;
@@ -68,7 +67,7 @@ public abstract class AWAutoCompleteTextView
     }
 
     public AWAutoCompleteTextView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public AWAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -88,11 +87,6 @@ public abstract class AWAutoCompleteTextView
         }
         mSelection = mSelection + "  GROUP BY " + mMainColumn;
         mOrderBy = mOrderBy + ", " + mMainColumn;
-    }
-
-    @Override
-    public final CharSequence convertToString(Cursor cursor) {
-        return cursor.getString(columnIndex);
     }
 
     @Override
@@ -143,27 +137,6 @@ public abstract class AWAutoCompleteTextView
      * @throws NullPointerException,
      *         wenn LoaderManager null ist.
      */
-    public final void initialize(OnTextChangedListener mOnTextChangeListener,
-                                 AWAbstractDBDefinition tbd, String selection,
-                                 String[] selectionArgs, int fromResID) {
-        this.mOnTextChangeListener = mOnTextChangeListener;
-        initialize(tbd, selection, selectionArgs, fromResID);
-    }
-
-    /**
-     * Initialisiert AutoCompleteTextView.
-     *
-     * @param tbd
-     *         DBDefinition. Aus dieser Tabelle wird das Feld gelesen
-     * @param selection
-     *         selection
-     * @param selectionArgs
-     *         Argumente zur Selection
-     * @param fromResID
-     *         Feld, welches fuer die Selection benutzt werden soll.
-     * @throws NullPointerException,
-     *         wenn LoaderManager null ist.
-     */
     public final void initialize(AWAbstractDBDefinition tbd, String selection,
                                  String[] selectionArgs, int fromResID) {
         this.tbd = tbd;
@@ -171,12 +144,6 @@ public abstract class AWAutoCompleteTextView
         mMainColumn = tbd.columnName(this.fromResID);
         mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
         buildSelectionArguments(selection, selectionArgs);
-        SimpleCursorAdapter mSimpleCursorAdapter =
-                new SimpleCursorAdapter(getContext(), android.R.layout.simple_dropdown_item_1line,
-                        null, mProjection, new int[]{android.R.id.text1}, 0);
-        mSimpleCursorAdapter.setCursorToStringConverter(this);
-        mSimpleCursorAdapter.setFilterQueryProvider(this);
-        setAdapter(mSimpleCursorAdapter);
     }
 
     /**
@@ -202,9 +169,27 @@ public abstract class AWAutoCompleteTextView
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        setThreshold(3);
-        setOnItemClickListener(this);
-        setSelectAllOnFocus(true);
+        if (!isInEditMode()) {
+            SimpleCursorAdapter mSimpleCursorAdapter = new SimpleCursorAdapter(getContext(),
+                    android.R.layout.simple_dropdown_item_1line, null, mProjection,
+                    new int[]{android.R.id.text1}, 0);
+            mSimpleCursorAdapter
+                    .setCursorToStringConverter(new SimpleCursorAdapter.CursorToStringConverter() {
+                        @Override
+                        public CharSequence convertToString(Cursor cursor) {
+                            return cursor.getString(columnIndex);
+                        }
+                    });
+            mSimpleCursorAdapter.setFilterQueryProvider(this);
+            setAdapter(mSimpleCursorAdapter);
+            setOnItemClickListener(this);
+            setSelectAllOnFocus(true);
+            setFocusable(true);
+            setFocusableInTouchMode(true);
+            setThreshold(0);
+            setDropDownBackgroundResource(R.color.white);
+            setDropDownHeight(getLineHeight() * 18);
+        }
     }
 
     /**
@@ -214,6 +199,7 @@ public abstract class AWAutoCompleteTextView
      */
     @Override
     protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
+        super.onFocusChanged(focused, direction, previouslyFocusedRect);
         if (!focused) {
             if (getValidator() != null) {
                 setText(validatedText);
@@ -222,7 +208,6 @@ public abstract class AWAutoCompleteTextView
         } else {
             showDropDown();
         }
-        super.onFocusChanged(focused, direction, previouslyFocusedRect);
     }
 
     /**
@@ -269,7 +254,7 @@ public abstract class AWAutoCompleteTextView
         if (selection != null) {
             buildSelectionArguments(selection, selectionArgs);
         }
-        runQuery(mConstraint);
+        ((SimpleCursorAdapter) getAdapter()).notifyDataSetChanged();
     }
 
     /**
@@ -290,7 +275,7 @@ public abstract class AWAutoCompleteTextView
         if (constraint == null) {
             constraint = "";
         }
-        mConstraint = constraint.toString().trim();
+        CharSequence mConstraint = constraint.toString().trim();
         String[] mSelectionArgs = new String[]{"%" + mConstraint + "%"};
         Cursor data = getContext().getContentResolver()
                                   .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs,

@@ -55,10 +55,6 @@ public class CalculatorTextCurrency extends AWTextCurrency
         super(context, attrs, defStyleAttr);
     }
 
-    public int getIndex() {
-        return mIndex;
-    }
-
     public void hideCalculator() {
         if (calculatorPopUp.isShowing()) {
             calculatorPopUp.dismiss();
@@ -147,7 +143,7 @@ public class CalculatorTextCurrency extends AWTextCurrency
         if (!isInEditMode()) {
             super.setValue(amount);
             if (mOnValueChangeListener != null) {
-                mOnValueChangeListener.onLongValueChanged(this, amount);
+                mOnValueChangeListener.onLongValueChanged(this, amount, mIndex);
             }
             initialValue = amount / AWDBConvert.mCurrencyDigits;
         }
@@ -170,8 +166,8 @@ public class CalculatorTextCurrency extends AWTextCurrency
          * @param view
          *         view
          * @param newAmount
-         *         neuer Wert
+         * @param index
          */
-        void onLongValueChanged(View view, long newAmount);
+        void onLongValueChanged(View view, long newAmount, int index);
     }
 }
