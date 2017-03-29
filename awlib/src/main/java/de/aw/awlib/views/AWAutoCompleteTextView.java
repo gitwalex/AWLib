@@ -90,6 +90,11 @@ public abstract class AWAutoCompleteTextView
     }
 
     @Override
+    public boolean enoughToFilter() {
+        return true;
+    }
+
+    @Override
     public final CharSequence fixText(CharSequence invalidText) {
         return validatedText;
     }
@@ -191,6 +196,9 @@ public abstract class AWAutoCompleteTextView
             setThreshold(0);
             setDropDownBackgroundResource(R.color.white);
             setDropDownHeight(getLineHeight() * 18);
+            if (hasFocus()) {
+                showDropDown();
+            }
         }
     }
 
@@ -208,6 +216,7 @@ public abstract class AWAutoCompleteTextView
                 onTextChanged(validatedText);
             }
         } else {
+            performFiltering(getText(), 0);
             showDropDown();
         }
     }

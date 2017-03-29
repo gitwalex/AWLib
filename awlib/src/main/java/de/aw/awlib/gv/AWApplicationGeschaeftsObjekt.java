@@ -21,6 +21,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.databinding.BaseObservable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
@@ -50,7 +51,8 @@ import de.aw.awlib.database.AbstractDBHelper;
  * @author alex
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public abstract class AWApplicationGeschaeftsObjekt implements AWInterface, Parcelable {
+public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
+        implements AWInterface, Parcelable {
     /**
      * Flag, ob gerade Daten importiert werden.
      */
