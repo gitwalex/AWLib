@@ -40,7 +40,7 @@ public class AWEditText extends android.support.v7.widget.AppCompatEditText impl
     }
 
     public AWEditText(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public AWEditText(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -50,6 +50,8 @@ public class AWEditText extends android.support.v7.widget.AppCompatEditText impl
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        setFocusable(true);
+        setFocusableInTouchMode(true);
         setSelectAllOnFocus(true);
     }
 

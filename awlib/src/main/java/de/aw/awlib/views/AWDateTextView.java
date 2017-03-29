@@ -49,6 +49,11 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
         view.setOnDateChangedListener(listener);
     }
 
+    @BindingAdapter({"value"})
+    public static void setValue(AWDateTextView view, Date date) {
+        view.setDate(date);
+    }
+
     public AWDateTextView(Context context) {
         super(context);
     }

@@ -96,7 +96,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
      */
     private int getRecyclerViewPosition() {
         LayoutManager manager = mRecyclerView.getLayoutManager();
-        if (manager instanceof LinearLayoutManager) {
+        if (manager != null && manager instanceof LinearLayoutManager) {
             return ((LinearLayoutManager) manager).findFirstVisibleItemPosition();
         }
         return 0;

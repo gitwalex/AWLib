@@ -18,6 +18,7 @@ package de.aw.awlib.calculator;
  */
 
 import android.content.Context;
+import android.databinding.BindingAdapter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -42,6 +43,12 @@ public class CalculatorTextCurrency extends AWTextCurrency
     private int mIndex;
     private OnClickListener mOnClickListener;
     private OnLongValueChangedListener mOnValueChangeListener;
+
+    @BindingAdapter({"onValueChanged"})
+    public static void onLongValueChanged(CalculatorTextCurrency view,
+                                          OnLongValueChangedListener listener) {
+        view.setOnLongValueChangedListener(listener);
+    }
 
     public CalculatorTextCurrency(Context context) {
         super(context);

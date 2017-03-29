@@ -139,11 +139,13 @@ public abstract class AWAutoCompleteTextView
      */
     public final void initialize(AWAbstractDBDefinition tbd, String selection,
                                  String[] selectionArgs, int fromResID) {
-        this.tbd = tbd;
-        this.fromResID = fromResID;
-        mMainColumn = tbd.columnName(this.fromResID);
-        mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
-        buildSelectionArguments(selection, selectionArgs);
+        if (!isInEditMode()) {
+            this.tbd = tbd;
+            this.fromResID = fromResID;
+            mMainColumn = tbd.columnName(this.fromResID);
+            mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
+            buildSelectionArguments(selection, selectionArgs);
+        }
     }
 
     /**
@@ -284,9 +286,6 @@ public abstract class AWAutoCompleteTextView
         if (data.moveToFirst()) {
             selectionID = data.getLong(1);
             validatedText = data.getString(0).trim();
-            if (data.getCount() == 1 && getValidator() != null) {
-                setText(validatedText);
-            }
         }
         columnIndex = data.getColumnIndexOrThrow(tbd.columnName(fromResID));
         return data;
