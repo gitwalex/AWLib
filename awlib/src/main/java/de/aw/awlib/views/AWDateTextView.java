@@ -74,29 +74,24 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     }
 
     /**
-     * Setzt das uebergebene Datum. Die Zeit wird auf 00:00 gesetzt
+     * Setzt das uebergebene Datum.
      *
      * @param date
-     *         Datum
+     *         Datum im SQLiteFormat
+     * @throws ParseException,
+     *         wenn das Datum nicht geparst werden kann
      */
-    public void setDate(Date date) {
-        cal.setTime(date);
-        cal.set(Calendar.MILLISECOND, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        year = cal.get(Calendar.YEAR);
-        month = cal.get(Calendar.MONTH);
-        day = cal.get(Calendar.DAY_OF_MONTH);
-        super.setText(AWDBConvert.convertDate(date));
+    public void setDate(String date) throws ParseException {
+        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
+        setDate(d);
     }
 
     /**
-     * Startet den DatumsDialog
+     * Startet den DatumsDialog, wenn ein {@link OnDateTextViewListener} gesetzt ist
      */
     @Override
     public void onClick(View v) {
-        if (isFocusable()) {
+        if (mOnDateSetListener != null && isFocusable()) {
             DatePickerDialog mDatePickerDialog =
                     new DatePickerDialog(getContext(), this, year, month, day);
             mDatePickerDialog.getDatePicker().setCalendarViewShown(false);
@@ -123,16 +118,21 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     }
 
     /**
-     * Setzt das uebergebene Datum.
+     * Setzt das uebergebene Datum. Die Zeit wird auf 00:00 gesetzt
      *
      * @param date
-     *         Datum im SQLiteFormat
-     * @throws ParseException,
-     *         wenn das Datum nicht geparst werden kann
+     *         Datum
      */
-    public void setDate(String date) throws ParseException {
-        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
-        setDate(d);
+    public void setDate(Date date) {
+        cal.setTime(date);
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        year = cal.get(Calendar.YEAR);
+        month = cal.get(Calendar.MONTH);
+        day = cal.get(Calendar.DAY_OF_MONTH);
+        super.setText(AWDBConvert.convertDate(date));
     }
 
     /**

@@ -26,7 +26,8 @@ import de.aw.awlib.activities.AWInterface;
 /**
  * Created by alex on 02.03.2015.
  */
-public class AWEditText extends android.support.v7.widget.AppCompatEditText implements AWInterface {
+public class AWEditText extends android.support.design.widget.TextInputEditText
+        implements AWInterface {
     private int mIndex;
     private OnTextChangedListener mOnTextChangedListener;
 

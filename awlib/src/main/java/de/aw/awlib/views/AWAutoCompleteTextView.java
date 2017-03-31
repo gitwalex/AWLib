@@ -74,9 +74,13 @@ public abstract class AWAutoCompleteTextView
         super(context, attrs, defStyleAttr);
     }
 
-    private void buildSelectionArguments(String mUserSelection, String[] mUserSelectionArgs) {
+    private void buildSelectionArguments(String mUserSelection, String[] mUserSelectionArgs,
+                                         String orderBy) {
         mSelection = tbd.columnName(fromResID) + " Like ? ";
-        mOrderBy = "LENGTH(" + mMainColumn + ")";
+        mOrderBy = orderBy;
+        if (mOrderBy == null) {
+            mOrderBy = "LENGTH(" + mMainColumn + ")";
+        }
         if (mUserSelection != null) {
             if (mUserSelectionArgs != null) {
                 for (String sel : mUserSelectionArgs) {
@@ -139,17 +143,18 @@ public abstract class AWAutoCompleteTextView
      *         Argumente zur Selection
      * @param fromResID
      *         Feld, welches fuer die Selection benutzt werden soll.
+     * @param orderBy
      * @throws NullPointerException,
      *         wenn LoaderManager null ist.
      */
     public final void initialize(AWAbstractDBDefinition tbd, String selection,
-                                 String[] selectionArgs, int fromResID) {
+                                 String[] selectionArgs, int fromResID, String orderBy) {
         if (!isInEditMode()) {
             this.tbd = tbd;
             this.fromResID = fromResID;
             mMainColumn = tbd.columnName(this.fromResID);
             mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
-            buildSelectionArguments(selection, selectionArgs);
+            buildSelectionArguments(selection, selectionArgs, orderBy);
         }
     }
 
@@ -196,9 +201,6 @@ public abstract class AWAutoCompleteTextView
             setThreshold(0);
             setDropDownBackgroundResource(R.color.white);
             setDropDownHeight(getLineHeight() * 18);
-            if (hasFocus()) {
-                showDropDown();
-            }
         }
     }
 
@@ -216,8 +218,10 @@ public abstract class AWAutoCompleteTextView
                 onTextChanged(validatedText);
             }
         } else {
-            performFiltering(getText(), 0);
-            showDropDown();
+            if (!isInEditMode()) {
+                performFiltering(getText(), 0);
+                showDropDown();
+            }
         }
     }
 
@@ -251,21 +255,6 @@ public abstract class AWAutoCompleteTextView
         if (mOnTextChangeListener != null) {
             mOnTextChangeListener.onTextChanged(this, newText, getSelectionID(), mIndex);
         }
-    }
-
-    /**
-     * Restartet die TextView mit neuen Argumenten
-     *
-     * @param selection
-     *         neue selection
-     * @param selectionArgs
-     *         neue SelectionArgs
-     */
-    protected void restart(String selection, String[] selectionArgs) {
-        if (selection != null) {
-            buildSelectionArguments(selection, selectionArgs);
-        }
-        ((SimpleCursorAdapter) getAdapter()).notifyDataSetChanged();
     }
 
     /**
