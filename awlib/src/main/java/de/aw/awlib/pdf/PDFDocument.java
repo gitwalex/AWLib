@@ -18,6 +18,7 @@ package de.aw.awlib.pdf;
  */
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
@@ -45,7 +46,7 @@ import java.util.Locale;
 /**
  * Erstellt ein pdf.
  */
-public abstract class PDFDocument {
+public class PDFDocument {
     private static Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
     private static Font redFont =
             new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL, BaseColor.RED);
@@ -73,6 +74,21 @@ public abstract class PDFDocument {
     }
 
     /**
+     * Erstellt die Ueberschrift
+     *
+     * @param header
+     *         Uebeschrift
+     * @throws DocumentException
+     *         Wenn das pdf nicht erstellt werden kann
+     */
+    public void addDocumentHeader(@NonNull String header) throws DocumentException {
+        Paragraph preface = new Paragraph();
+        addEmptyLine(preface, 1);
+        preface.add(new Paragraph(header, smallBold));
+        mDocument.add(preface);
+    }
+
+    /**
      * Fuegt einen Titel zum Document hinzu
      *
      * @param titel
@@ -80,7 +96,7 @@ public abstract class PDFDocument {
      * @throws DocumentException
      *         Wenn das pdf nicht erstellt werden kann
      */
-    protected void addDocumentTitle(String titel) throws DocumentException {
+    public void addDocumentTitle(String titel) throws DocumentException {
         Paragraph preface = new Paragraph();
         // We add one empty line
         addEmptyLine(preface, 1);
@@ -98,10 +114,16 @@ public abstract class PDFDocument {
      * @param number
      *         Anzahl der leeren Zeilen
      */
-    private void addEmptyLine(Paragraph paragraph, int number) {
+    public void addEmptyLine(Paragraph paragraph, int number) {
         for (int i = 0; i < number; i++) {
             paragraph.add(new Paragraph(" "));
         }
+    }
+
+    public void addEmptyLine(int number) throws DocumentException {
+        Paragraph preface = new Paragraph();
+        addEmptyLine(preface, number);
+        mDocument.add(preface);
     }
 
     /**
@@ -112,7 +134,7 @@ public abstract class PDFDocument {
      * @param subject
      *         Inhalt des pdf
      */
-    protected void addMetaData(@NonNull String titel, @NonNull String subject) {
+    public void addMetaData(@NonNull String titel, @NonNull String subject) {
         mDocument.addTitle(titel);
         mDocument.addSubject(subject);
         mDocument.addAuthor("Alexander Winkler");
@@ -120,18 +142,23 @@ public abstract class PDFDocument {
     }
 
     /**
+     * Fuegt eine neue Seite hinzu
+     */
+    public void addPage() {
+        mDocument.newPage();
+    }
+
+    /**
      * Erstellt die Ueberschrift
      *
-     * @param ueberschrift
+     * @param header
      *         Uebeschrift
      * @throws DocumentException
      *         Wenn das pdf nicht erstellt werden kann
      */
-    public void addUeberschrift(@NonNull String ueberschrift) throws DocumentException {
+    public void addTableTitle(@NonNull String header) throws DocumentException {
         Paragraph preface = new Paragraph();
-        addEmptyLine(preface, 1);
-        preface.add(new Paragraph(ueberschrift, smallBold));
-        addEmptyLine(preface, 1);
+        preface.add(new Paragraph(header, smallBold));
         mDocument.add(preface);
     }
 
@@ -145,7 +172,7 @@ public abstract class PDFDocument {
     /**
      * Ist nach fertigstellung des pdf zu rufen.
      */
-    protected void close() {
+    public void close() {
         mDocument.close();
     }
 
@@ -159,8 +186,11 @@ public abstract class PDFDocument {
      * @throws DocumentException
      *         wenn das Document nicht erstellt werden kann.
      */
-    protected void createTable(@NonNull String[] columnHeaders, int rowCount, CellCreator creator)
-            throws DocumentException {
+    public void createTable(@NonNull String[] columnHeaders, @Nullable String summary, int rowCount,
+                            CellCreator creator) throws DocumentException {
+        if (summary != null) {
+            addTableTitle(summary);
+        }
         PdfPTable table = new PdfPTable(columnHeaders.length);
         // t.setBorderColor(BaseColor.GRAY);
         // t.setPadding(4);
@@ -190,8 +220,8 @@ public abstract class PDFDocument {
      * @throws DocumentException
      *         wenn das Document nicht erstellt werden kann.
      */
-    protected void createTable(@NonNull String[] columnHeaders,
-                               @NonNull List<List<String>> cellcontent) throws DocumentException {
+    public void createTable(@NonNull String[] columnHeaders,
+                            @NonNull List<List<String>> cellcontent) throws DocumentException {
         PdfPTable table = new PdfPTable(columnHeaders.length);
         // t.setBorderColor(BaseColor.GRAY);
         // t.setPadding(4);
@@ -221,8 +251,11 @@ public abstract class PDFDocument {
      * @throws DocumentException
      *         wenn das Document nicht erstellt werden kann.
      */
-    protected void createTable(@NonNull String[] columnHeaders, @NonNull String[][] cellcontent)
-            throws DocumentException {
+    public void createTable(@NonNull String[] columnHeaders, @Nullable String summary,
+                            @NonNull String[][] cellcontent) throws DocumentException {
+        if (summary != null) {
+            addTableTitle(summary);
+        }
         PdfPTable table = new PdfPTable(columnHeaders.length);
         // t.setBorderColor(BaseColor.GRAY);
         // t.setPadding(4);
@@ -242,15 +275,15 @@ public abstract class PDFDocument {
         mDocument.add(table);
     }
 
-    protected String getNameOfFile() {
-        return mFile.getName();
+    public File getNameOfFile() {
+        return mFile;
     }
 
-    protected void setFooter(String footer) {
+    public void setFooter(String footer) {
         this.footer = footer;
     }
 
-    protected void setHeader(String header) {
+    public void setHeader(String header) {
         this.header = header;
     }
 
