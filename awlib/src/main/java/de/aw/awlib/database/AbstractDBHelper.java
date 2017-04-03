@@ -59,7 +59,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     private final SparseArray<Character> mapResID2Formate = new SparseArray<>();
     private final Map<Character, String> formate = new HashMap<>();
     private final Map<String, Integer> mapColumnName2ResID = new HashMap<>();
-    private final Map<Integer, String> mapResID2ColumnName = new HashMap<>();
+    private final SparseArray<String> mapResID2ColumnName = new SparseArray<>();
     private final WeakReference<AWApplication> mApplicationContext;
     /**
      * DBHelperTemplate ist ein Singleton.
@@ -74,8 +74,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *         Array, zu dem die Namen ermittelt werden sollen
      * @return ColumnNamen, Komma getrennt
      */
-    public final static String getCommaSeperatedList(@NonNull Context context,
-                                                     @NonNull int[] columnResIds) {
+    public static String getCommaSeperatedList(@NonNull Context context,
+                                               @NonNull int[] columnResIds) {
         StringBuilder indexSQL = new StringBuilder(context.getString(columnResIds[0]));
         for (int j = 1; j < columnResIds.length; j++) {
             String column = context.getString(columnResIds[j]);
@@ -91,7 +91,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *         Liste der Columns
      * @return ColumnNamen, Komma getrennt
      */
-    public final static String getCommaSeperatedList(@NonNull List<String> columns) {
+    public static String getCommaSeperatedList(@NonNull List<String> columns) {
         StringBuilder indexSQL = new StringBuilder(columns.get(0));
         for (int j = 1; j < columns.size(); j++) {
             String column = columns.get(j);
@@ -107,7 +107,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      *         Liste der Columns
      * @return ColumnNamen, Komma getrennt
      */
-    public final static String getCommaSeperatedList(@NonNull String[] columns) {
+    public static String getCommaSeperatedList(@NonNull String[] columns) {
         StringBuilder indexSQL = new StringBuilder(columns[0]);
         for (int j = 1; j < columns.length; j++) {
             String column = columns[j];
@@ -920,7 +920,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 return new int[]{R.string._id//
                 };
             }
-
 
             @Override
             public Uri getUri() {

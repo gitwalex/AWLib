@@ -25,12 +25,11 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.ImageView;
 
 /**
  * ZoomableImageView. Kann out-of-the-Box zoomen
  */
-public class AWZoomableImageView extends ImageView {
+public class AWZoomableImageView extends android.support.v7.widget.AppCompatImageView {
     private static final int NONE = 0;
     private static final int DRAG = 1;
     private static final int ZOOM = 2;

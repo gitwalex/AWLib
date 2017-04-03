@@ -17,6 +17,7 @@ package de.aw.awlib.activities;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -130,6 +131,7 @@ public abstract class AWActivityMainScreen extends AWMainActivity
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, layout);

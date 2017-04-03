@@ -75,7 +75,6 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      */
     private ContentValues currentContent = new ContentValues();
     private boolean isDirty;
-    private boolean isUpdatable = true;
 
     public static boolean isImport() {
         return isImport;
@@ -660,10 +659,6 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         if (id == null) {
             throw new IllegalStateException(
                     "AWApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
-        }
-        if (!isUpdatable) {
-            throw new IllegalStateException(
-                    "AWApplicationGeschaeftsObjekt kann nicht upgedatet werden!");
         }
         if (isDirty) {
             currentContent.put(mContext.getDBHelper().columnName(R.string._id), getID());

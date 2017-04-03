@@ -27,7 +27,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 
-import java.io.File;
 import java.util.concurrent.ExecutionException;
 
 import de.aw.awlib.R;
@@ -55,7 +54,7 @@ public class AWEventService extends IntentService implements AWInterface {
                         .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                         PackageManager.PERMISSION_GRANTED) {
                     try {
-                        File file = new EventDBSave(this).execute();
+                        new EventDBSave(this).execute();
                         Context context = getApplicationContext();
                         SharedPreferences prefs =
                                 PreferenceManager.getDefaultSharedPreferences(context);
