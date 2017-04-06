@@ -27,8 +27,6 @@ import android.view.View;
  */
 public class AWLibViewHolder extends RecyclerView.ViewHolder
         implements View.OnClickListener, View.OnLongClickListener {
-    private boolean isSelectable;
-    private boolean isSelected;
     private OnHolderClickListener mOnHolderClickListener;
     private OnHolderLongClickListener mOnLonClickListener;
     private ViewDataBinding viewDataBinding;
@@ -41,28 +39,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
      */
     public AWLibViewHolder(View view) {
         super(view);
-    }
-
-    public ViewDataBinding getViewDataBinding() {
-        if (viewDataBinding == null) {
-            viewDataBinding = DataBindingUtil.bind(itemView);
-        }
-        return viewDataBinding;
-    }
-
-    /**
-     * @return ob der Holder auswaehlbar ist. Siehe {@link AWLibViewHolder#setSelectable(boolean)}
-     */
-    public boolean isSelectable() {
-        return isSelectable;
-    }
-
-    /**
-     * @return ob der Holder durch eine vorherige Selection ausgewaehlt ist. Siehe {@link
-     * AWLibViewHolder#setSelected(boolean)}
-     */
-    public boolean isSelected() {
-        return isSelected;
     }
 
     @Override
@@ -100,28 +76,6 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     }
 
     /**
-     * Setzt ein Flag, ob der Holder selecatble ist.
-     *
-     * @param selectable
-     *         Flag. true: ist selectable
-     */
-    public void setSelectable(boolean selectable) {
-        isSelectable = selectable;
-    }
-
-    /**
-     * Setzt ein Flag, ob der Holder selectiert wurde. Es wird itemView.setSelected(flag)
-     * durchgefuehrt
-     *
-     * @param isSelected
-     *         Flag. true: ist selectiert
-     */
-    public void setSelected(boolean isSelected) {
-        this.isSelected = isSelected;
-        itemView.setSelected(isSelected);
-    }
-
-    /**
      * Setzt das uebergebene Tag mit dem Key direkt in der View.
      *
      * @param resID
@@ -131,6 +85,22 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
      */
     public void setTag(int resID, Object object) {
         itemView.setTag(resID, object);
+    }
+
+    /**
+     * Databinding. Setzt das uebergebene Object als Item fuer Databinding
+     *
+     * @param variableID
+     *         BR.varialbleID
+     * @param Item
+     *         Item fuer Databinding
+     */
+    public void setVariable(int variableID, Object Item) {
+        if (viewDataBinding == null) {
+            viewDataBinding = DataBindingUtil.bind(itemView);
+        }
+        viewDataBinding.setVariable(variableID, Item);
+        viewDataBinding.executePendingBindings();
     }
 
     /**

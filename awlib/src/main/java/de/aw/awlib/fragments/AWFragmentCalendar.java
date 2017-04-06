@@ -20,7 +20,6 @@ package de.aw.awlib.fragments;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.provider.CalendarContract.Calendars;
 import android.support.annotation.NonNull;
@@ -48,8 +47,7 @@ public class AWFragmentCalendar extends AWCursorRecyclerViewFragment {
     @Override
     public void onBindViewHolder(AWLibViewHolder holder, Cursor cursor, int position) {
         CalendarItem item = new CalendarItem(getContext(), cursor);
-        ViewDataBinding binding = holder.getViewDataBinding();
-        binding.setVariable(BR.calendar, item);
+        holder.setVariable(BR.calendar, item);
     }
 
     @Override
