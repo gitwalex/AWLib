@@ -73,9 +73,7 @@ public abstract class AWFragment extends DialogFragment
      */
     protected SharedPreferences prefs;
     protected boolean isCanceled;
-    protected int[] viewResIDs;
-    protected int[] fromResIDs;
-    protected int containerID;
+    private int containerID;
     /**
      * Merker, ob der ActionBarSubtitle ueberschrieben wurde.
      */
@@ -171,8 +169,6 @@ public abstract class AWFragment extends DialogFragment
             args.putAll(savedInstanceState);
         }
         layout = args.getInt(LAYOUT, NOLAYOUT);
-        viewResIDs = args.getIntArray(VIEWRESIDS);
-        fromResIDs = args.getIntArray(FROMRESIDS);
         mainAction = args.getParcelable(AWLIBACTION);
         if (mainAction == null) {
             mainAction = MainAction.SHOW;
@@ -328,6 +324,24 @@ public abstract class AWFragment extends DialogFragment
                     String.valueOf(System.currentTimeMillis() - timer));
             timer = 0;
         }
+    }
+
+    /**
+     * Ersetzt das aktuelle Fragment durch das uebergebene Fragment und fuegt es dem BackStacj
+     * hinzu.
+     *
+     * @param f
+     *         neues Fragment
+     * @throws IllegalStateException,
+     *         wenn nicht super.onCreate(...) gerufen wurde..
+     */
+    protected void replaceFragment(AWFragment f) {
+        if (containerID == NOID) {
+            throw new IllegalStateException(
+                    "Container nicht bekannt. Wurde super.onCreateView(...) gerufen?");
+        }
+        getActivity().getSupportFragmentManager().beginTransaction().replace(containerID, f)
+                     .addToBackStack(null).commit();
     }
 
     /**

@@ -43,6 +43,8 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         implements AWCursorAdapter.AWCursorAdapterBinder {
     protected int indexColumn;
     private AWCursorAdapter mAdapter;
+    private int[] viewResIDs;
+    private int[] fromResIDs;
 
     @Override
     protected final AWCursorAdapter createBaseAdapter() {
@@ -122,6 +124,13 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
                 }
             }
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewResIDs = args.getIntArray(VIEWRESIDS);
+        fromResIDs = args.getIntArray(FROMRESIDS);
     }
 
     @Override
