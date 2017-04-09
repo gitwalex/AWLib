@@ -37,22 +37,17 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
 
     public AWTextCurrency(Context context) {
         super(context);
+        init(context, null);
     }
 
     public AWTextCurrency(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        init(context, attrs);
     }
 
     public AWTextCurrency(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        TypedArray a = getContext().getTheme()
-                                   .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
-        try {
-            float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
-            setValue(val);
-        } finally {
-            a.recycle();
-        }
+        init(context, attrs);
     }
 
     /**
@@ -62,9 +57,31 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
         return value;
     }
 
-    public void setValue(float value) {
-        if (!isInEditMode()) {
-            setValue((long) (value * AWDBConvert.mCurrencyDigits));
+    /**
+     * Setzt einen long-Wert als Text. Dieser wird in das entsprechende Currency-Format
+     * umformatiert.
+     *
+     * @param amount
+     *         Wert zur Anzeige
+     */
+    public void setValue(long amount) {
+        value = amount;
+        setText(AWDBConvert.convertCurrency(value));
+        if (colorMode && value < 0) {
+            setTextColor(Color.RED);
+        } else {
+            setTextColor(Color.BLACK);
+        }
+    }
+
+    private void init(Context context, AttributeSet attrs) {
+        TypedArray a = getContext().getTheme()
+                                   .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
+        try {
+            float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
+            setValue(val);
+        } finally {
+            a.recycle();
         }
     }
 
@@ -89,20 +106,9 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
         this.colorMode = colorMode;
     }
 
-    /**
-     * Setzt einen long-Wert als Text. Dieser wird in das entsprechende Currency-Format
-     * umformatiert.
-     *
-     * @param amount
-     *         Wert zur Anzeige
-     */
-    public void setValue(long amount) {
-        value = amount;
-        setText(AWDBConvert.convertCurrency(value));
-        if (colorMode && value < 0) {
-            setTextColor(Color.RED);
-        } else {
-            setTextColor(Color.BLACK);
+    public void setValue(float value) {
+        if (!isInEditMode()) {
+            setValue((long) (value * AWDBConvert.mCurrencyDigits));
         }
     }
 }

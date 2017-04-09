@@ -46,16 +46,14 @@ public class AWZoomableImageView extends android.support.v7.widget.AppCompatImag
     private float saveScale = 1f;
     private float right, bottom, origWidth, origHeight, bmWidth, bmHeight;
     private ScaleGestureDetector mScaleDetector;
-    private Context context;
 
     public AWZoomableImageView(Context context) {
         this(context, null);
     }
 
-    public AWZoomableImageView(Context context, AttributeSet attr) {
-        super(context, attr);
+    public AWZoomableImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
         super.setClickable(true);
-        this.context = context;
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         matrix.setTranslate(1f, 1f);
         m = new float[9];
@@ -157,6 +155,10 @@ public class AWZoomableImageView extends android.support.v7.widget.AppCompatImag
                 return true;
             }
         });
+    }
+
+    public AWZoomableImageView(Context context, AttributeSet attr) {
+        this(context, attr, 0);
     }
 
     @Override

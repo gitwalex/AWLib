@@ -175,6 +175,6 @@ public class CalculatorTextCurrency extends AWTextCurrency
          * @param newAmount
          * @param index
          */
-        void onLongValueChanged(View view, long newAmount, int index);
+        void onLongValueChanged(CalculatorTextCurrency view, long newAmount, int index);
     }
 }

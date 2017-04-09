@@ -67,7 +67,7 @@ public abstract class AWAutoCompleteTextView
     }
 
     public AWAutoCompleteTextView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
     }
 
     public AWAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
