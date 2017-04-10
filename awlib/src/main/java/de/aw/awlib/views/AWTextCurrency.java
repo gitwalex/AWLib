@@ -33,7 +33,7 @@ import de.aw.awlib.database.AWDBConvert;
 public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView {
     private static final int minCharacters = 10;
     private boolean colorMode = true;
-    private Long value = null;
+    private long value;
 
     public AWTextCurrency(Context context) {
         super(context);
@@ -79,18 +79,16 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
                                    .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
         try {
             float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
-            setValue(val);
+            value = (long) (val * AWDBConvert.mCurrencyDigits);
         } finally {
             a.recycle();
+            this.setValue(value);
         }
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        if (!isInEditMode()) {
-            setValue(0);
-        }
         setEms(minCharacters);
         setGravity(Gravity.END);
     }
@@ -104,11 +102,5 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
      */
     public void setColorMode(boolean colorMode) {
         this.colorMode = colorMode;
-    }
-
-    public void setValue(float value) {
-        if (!isInEditMode()) {
-            setValue((long) (value * AWDBConvert.mCurrencyDigits));
-        }
     }
 }

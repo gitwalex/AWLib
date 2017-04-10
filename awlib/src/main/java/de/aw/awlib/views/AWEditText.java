@@ -30,6 +30,7 @@ public class AWEditText extends android.support.design.widget.TextInputEditText
         implements AWInterface {
     private int mIndex;
     private OnTextChangedListener mOnTextChangedListener;
+    private CharSequence oldText;
 
     @BindingAdapter({"onTextChanged"})
     public static void onTextChanged(AWEditText view, OnTextChangedListener listener) {
@@ -57,11 +58,12 @@ public class AWEditText extends android.support.design.widget.TextInputEditText
     }
 
     /**
-     * Informiert den OnTextChnagedListener, wenn sich der Text geaendert hat.
+     * Informiert den OnTextChangedListener, wenn sich der Text geaendert hat.
      */
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
-        if (mOnTextChangedListener != null) {
+        if (!(text.toString().equals(oldText)) && mOnTextChangedListener != null) {
+            oldText = text;
             mOnTextChangedListener.onTextChanged(this, text.toString(), mIndex);
         }
     }

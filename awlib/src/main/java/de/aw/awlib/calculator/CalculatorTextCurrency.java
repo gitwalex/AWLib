@@ -43,6 +43,7 @@ public class CalculatorTextCurrency extends AWTextCurrency
     private int mIndex;
     private OnClickListener mOnClickListener;
     private OnLongValueChangedListener mOnValueChangeListener;
+    private Long oldAmount;
 
     @BindingAdapter({"onValueChanged"})
     public static void onLongValueChanged(CalculatorTextCurrency view,
@@ -55,7 +56,7 @@ public class CalculatorTextCurrency extends AWTextCurrency
     }
 
     public CalculatorTextCurrency(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
     }
 
     public CalculatorTextCurrency(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -148,11 +149,14 @@ public class CalculatorTextCurrency extends AWTextCurrency
     @Override
     public void setValue(long amount) {
         if (!isInEditMode()) {
-            super.setValue(amount);
-            if (mOnValueChangeListener != null) {
-                mOnValueChangeListener.onLongValueChanged(this, amount, mIndex);
+            if (oldAmount == null || oldAmount != amount) {
+                oldAmount = amount;
+                super.setValue(amount);
+                if (mOnValueChangeListener != null) {
+                    mOnValueChangeListener.onLongValueChanged(this, amount, mIndex);
+                }
+                initialValue = amount / AWDBConvert.mCurrencyDigits;
             }
-            initialValue = amount / AWDBConvert.mCurrencyDigits;
         }
     }
 

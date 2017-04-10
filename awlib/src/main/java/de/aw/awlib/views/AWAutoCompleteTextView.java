@@ -53,9 +53,10 @@ public abstract class AWAutoCompleteTextView
     private String mOrderBy;
     private String[] mProjection;
     private String mSelection;
-    private String validatedText = null;
+    private String validatedText = "";
     private long selectionID;
     private AWAbstractDBDefinition tbd;
+    private String oldText;
 
     @BindingAdapter({"onTextChanged"})
     public static void onTextChanged(AWAutoCompleteTextView view, OnTextChangedListener listener) {
@@ -252,7 +253,8 @@ public abstract class AWAutoCompleteTextView
      */
     @CallSuper
     protected void onTextChanged(String newText) {
-        if (mOnTextChangeListener != null) {
+        if (!newText.equals(oldText) && mOnTextChangeListener != null) {
+            oldText = newText;
             mOnTextChangeListener.onTextChanged(this, newText, getSelectionID(), mIndex);
         }
     }

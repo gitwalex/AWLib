@@ -72,8 +72,9 @@ public class AWEditNumber extends AWEditText {
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
         try {
             String val = text.toString().replaceAll("\\.", "");
-            mValue = (long) (Double.parseDouble(val) * AWDBConvert.mNumberDigits);
-            if (mOnLongValueChangedListener != null) {
+            long mNewValue = (long) (Double.parseDouble(val) * AWDBConvert.mNumberDigits);
+            if (!(mNewValue == mValue) && mOnLongValueChangedListener != null) {
+                mValue = mNewValue;
                 mOnLongValueChangedListener.onLongValueChanged(this, mValue);
             }
         } catch (NumberFormatException e) {

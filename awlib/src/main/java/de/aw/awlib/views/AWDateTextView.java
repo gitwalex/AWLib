@@ -79,16 +79,25 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     }
 
     /**
-     * Setzt das uebergebene Datum.
+     * Setzt das uebergebene Datum. Die Zeit wird auf 00:00 gesetzt
      *
      * @param date
-     *         Datum im SQLiteFormat
-     * @throws ParseException,
-     *         wenn das Datum nicht geparst werden kann
+     *         Datum
      */
-    public void setDate(String date) throws ParseException {
-        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
-        setDate(d);
+    public void setDate(Date date) {
+        Calendar newCal = Calendar.getInstance();
+        newCal.setTime(date);
+        newCal.set(Calendar.MILLISECOND, 0);
+        newCal.set(Calendar.SECOND, 0);
+        newCal.set(Calendar.MINUTE, 0);
+        newCal.set(Calendar.HOUR_OF_DAY, 0);
+        if (!(newCal.getTimeInMillis() == cal.getTimeInMillis())) {
+            cal = newCal;
+            year = cal.get(Calendar.YEAR);
+            month = cal.get(Calendar.MONTH);
+            day = cal.get(Calendar.DAY_OF_MONTH);
+            super.setText(AWDBConvert.convertDate(date));
+        }
     }
 
     /**
@@ -130,21 +139,16 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     }
 
     /**
-     * Setzt das uebergebene Datum. Die Zeit wird auf 00:00 gesetzt
+     * Setzt das uebergebene Datum.
      *
      * @param date
-     *         Datum
+     *         Datum im SQLiteFormat
+     * @throws ParseException,
+     *         wenn das Datum nicht geparst werden kann
      */
-    public void setDate(Date date) {
-        cal.setTime(date);
-        cal.set(Calendar.MILLISECOND, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        year = cal.get(Calendar.YEAR);
-        month = cal.get(Calendar.MONTH);
-        day = cal.get(Calendar.DAY_OF_MONTH);
-        super.setText(AWDBConvert.convertDate(date));
+    public void setDate(String date) throws ParseException {
+        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
+        setDate(d);
     }
 
     /**
@@ -158,10 +162,11 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
      *         Tag des Monats
      */
     public void setDate(int year, int month, int day) {
-        cal.set(Calendar.YEAR, year);
-        cal.set(Calendar.MONTH, month);
-        cal.set(Calendar.DAY_OF_MONTH, day);
-        setDate(cal.getTime());
+        Calendar newCal = Calendar.getInstance();
+        newCal.set(Calendar.YEAR, year);
+        newCal.set(Calendar.MONTH, month);
+        newCal.set(Calendar.DAY_OF_MONTH, day);
+        setDate(newCal.getTime());
     }
 
     /**
