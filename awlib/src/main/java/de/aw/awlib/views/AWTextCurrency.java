@@ -74,23 +74,27 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
         }
     }
 
+    /**
+     * Initialisieret die Attribute.
+     * Wenn nicht anders angegegeben: 'android:gravity=Gravity.End' und 'android:ems=10'
+     *
+     * @param context
+     *         context
+     * @param attrs
+     *         Attribute
+     */
     private void init(Context context, AttributeSet attrs) {
         TypedArray a = getContext().getTheme()
-                                   .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
+                .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
         try {
             float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
             value = (long) (val * AWDBConvert.mCurrencyDigits);
         } finally {
             a.recycle();
+            setEms(minCharacters);
+            setGravity(Gravity.END);
             this.setValue(value);
         }
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        setEms(minCharacters);
-        setGravity(Gravity.END);
     }
 
     /**
