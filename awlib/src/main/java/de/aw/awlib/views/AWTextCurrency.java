@@ -90,9 +90,19 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
             float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
             value = (long) (val * AWDBConvert.mCurrencyDigits);
         } finally {
+            int gravity = Gravity.END;
+            int ems = minCharacters;
+            if (attrs != null) {
+                gravity =
+                        attrs.getAttributeIntValue("http://schemas.android.com/apk/res/android",
+                                "gravity", Gravity.END);
+                ems =
+                        attrs.getAttributeIntValue("http://schemas.android.com/apk/res/android",
+                                "ems", minCharacters);
+            }
             a.recycle();
-            setEms(minCharacters);
-            setGravity(Gravity.END);
+            setGravity(gravity);
+            setEms(ems);
             this.setValue(value);
         }
     }
