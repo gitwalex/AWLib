@@ -17,6 +17,7 @@ package de.aw.awlib.views;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -37,17 +38,17 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
 
     public AWTextCurrency(Context context) {
         super(context);
-        init(context, null);
+        init(null);
     }
 
     public AWTextCurrency(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        init(attrs);
     }
 
     public AWTextCurrency(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs);
+        init(attrs);
     }
 
     /**
@@ -64,13 +65,18 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
      * @param amount
      *         Wert zur Anzeige
      */
+    @SuppressLint("SetTextI18n")
     public void setValue(long amount) {
-        value = amount;
-        setText(AWDBConvert.convertCurrency(value));
-        if (colorMode && value < 0) {
-            setTextColor(Color.RED);
+        if (!isInEditMode()) {
+            value = amount;
+            setText(AWDBConvert.convertCurrency(value));
+            if (colorMode && value < 0) {
+                setTextColor(Color.RED);
+            } else {
+                setTextColor(Color.BLACK);
+            }
         } else {
-            setTextColor(Color.BLACK);
+            setText("0,00 €");
         }
     }
 
@@ -78,33 +84,33 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
      * Initialisieret die Attribute.
      * Wenn nicht anders angegegeben: 'android:gravity=Gravity.End' und 'android:ems=10'
      *
-     * @param context
-     *         context
      * @param attrs
      *         Attribute
      */
-    private void init(Context context, AttributeSet attrs) {
-        TypedArray a = getContext().getTheme()
-                .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
-        try {
-            float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
-            value = (long) (val * AWDBConvert.mCurrencyDigits);
-        } finally {
-            int gravity = Gravity.END;
-            int ems = minCharacters;
-            if (attrs != null) {
-                gravity =
-                        attrs.getAttributeIntValue("http://schemas.android.com/apk/res/android",
-                                "gravity", Gravity.END);
-                ems =
-                        attrs.getAttributeIntValue("http://schemas.android.com/apk/res/android",
-                                "ems", minCharacters);
+    private void init(AttributeSet attrs) {
+        int gravity = Gravity.END;
+        int ems = minCharacters;
+        if (!isInEditMode()) {
+            TypedArray a = getContext().getTheme()
+                    .obtainStyledAttributes(attrs, R.styleable.AWTextCurrency, 0, 0);
+            try {
+                float val = a.getFloat(R.styleable.AWTextCurrency_value, 0f);
+                value = (long) (val * AWDBConvert.mCurrencyDigits);
+            } finally {
+                if (attrs != null) {
+                    gravity =
+                            attrs.getAttributeIntValue("http://schemas.android.com/apk/res/android",
+                                    "gravity", Gravity.END);
+                    ems =
+                            attrs.getAttributeIntValue("http://schemas.android.com/apk/res/android",
+                                    "ems", minCharacters);
+                }
+                a.recycle();
             }
-            a.recycle();
-            setGravity(gravity);
-            setEms(ems);
-            this.setValue(value);
         }
+        setGravity(gravity);
+        setEms(ems);
+        this.setValue(value);
     }
 
     /**

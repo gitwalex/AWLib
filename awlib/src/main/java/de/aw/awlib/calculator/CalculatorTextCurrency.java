@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.views.AWTextCurrency;
 
@@ -157,11 +158,14 @@ public class CalculatorTextCurrency extends AWTextCurrency
                 }
                 initialValue = amount / AWDBConvert.mCurrencyDigits;
             }
+        } else {
+            super.setValue(amount);
         }
     }
 
     public void showCalculator() {
         if (hasFocus() && !calculatorPopUp.isShowing()) {
+            ((AWBasicActivity) getContext()).hide_keyboard();
             calculatorPopUp.showAsDropDown(this);
             setTypeface(Typeface.DEFAULT_BOLD);
         }
