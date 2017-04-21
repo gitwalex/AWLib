@@ -18,10 +18,14 @@ package de.aw.awlib.fragments;
  */
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -65,33 +69,52 @@ public class AWRemoteServerConnectionData extends AWFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dlg = super.onCreateDialog(savedInstanceState);
-        dlg.setTitle(R.string.titleFileServerKonfigurieren);
-        return dlg;
-    }
-
-    @Override
-    protected boolean onOKButtonClicked() {
-        mRemoteFileServer
-                .put(getContext(), R.string.column_serverurl, mURLEditText.getText().toString());
-        mRemoteFileServer
-                .put(getContext(), R.string.column_userID, mUIDEditText.getText().toString());
-        mRemoteFileServer.setUserPassword(mPasswortEditText.getText().toString());
-        if (mRemoteFileServer.isValid()) {
-            AWApplication mAppConfig = (AWApplication) getContext().getApplicationContext();
-            AbstractDBHelper db = mAppConfig.getDBHelper();
-            if (mRemoteFileServer.isInserted()) {
-                mRemoteFileServer.update(getContext(), db);
-            } else {
-                mRemoteFileServer.insert(getContext(), db);
-            }
-            View view = getView();
-            if (view != null) {
-                Snackbar.make(view, getString(R.string.awlib_datensatzSaved), Snackbar.LENGTH_SHORT)
-                        .show();
-            }
-        }
-        return true;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View childView = inflater.inflate(layout, null);
+        onViewCreated(childView, savedInstanceState);
+        builder.setView(childView);
+        Dialog dialog = builder.setPositiveButton(R.string.awlib_btnAccept,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mRemoteFileServer
+                                .put(getContext(), R.string.column_serverurl,
+                                        mURLEditText.getText().toString());
+                        mRemoteFileServer
+                                .put(getContext(), R.string.column_userID,
+                                        mUIDEditText.getText().toString());
+                        mRemoteFileServer.setUserPassword(mPasswortEditText.getText().toString());
+                        if (mRemoteFileServer.isValid()) {
+                            AWApplication mAppConfig =
+                                    (AWApplication) getContext().getApplicationContext();
+                            AbstractDBHelper db = mAppConfig.getDBHelper();
+                            if (mRemoteFileServer.isInserted()) {
+                                mRemoteFileServer.update(getContext(), db);
+                            } else {
+                                mRemoteFileServer.insert(getContext(), db);
+                            }
+                            View view = getView();
+                            if (view != null) {
+                                Snackbar.make(view, getString(R.string.awlib_datensatzSaved),
+                                        Snackbar.LENGTH_SHORT)
+                                        .show();
+                            }
+                        }
+                    }
+                }).setNegativeButton(R.string.awlib_btnCancel,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Nix tun
+                    }
+                }).setView(childView).create();
+        // Wenn das Dialogfenster teilweise von der eingeblendeten Tatstatur
+        // ueberlappt wird, resize des Fensters zulassen.
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        dialog.setTitle(R.string.titleFileServerKonfigurieren);
+        setRetainInstance(true);
+        return dialog;
     }
 
     @Override

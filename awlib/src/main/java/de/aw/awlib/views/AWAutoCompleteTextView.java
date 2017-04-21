@@ -31,6 +31,7 @@ import android.widget.FilterQueryProvider;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
+import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 
@@ -58,11 +59,6 @@ public abstract class AWAutoCompleteTextView
     private AWAbstractDBDefinition tbd;
     private String oldText;
 
-    @BindingAdapter({"onTextChanged"})
-    public static void onTextChanged(AWAutoCompleteTextView view, OnTextChangedListener listener) {
-        view.setOnTextChangedListener(listener);
-    }
-
     public AWAutoCompleteTextView(Context context) {
         super(context);
     }
@@ -73,6 +69,11 @@ public abstract class AWAutoCompleteTextView
 
     public AWAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    @BindingAdapter({"onTextChanged"})
+    public static void onTextChanged(AWAutoCompleteTextView view, OnTextChangedListener listener) {
+        view.setOnTextChangedListener(listener);
     }
 
     private void buildSelectionArguments(String mUserSelection, String[] mUserSelectionArgs,
@@ -145,6 +146,7 @@ public abstract class AWAutoCompleteTextView
      * @param fromResID
      *         Feld, welches fuer die Selection benutzt werden soll.
      * @param orderBy
+     *
      * @throws NullPointerException,
      *         wenn LoaderManager null ist.
      */
@@ -221,7 +223,7 @@ public abstract class AWAutoCompleteTextView
         } else {
             if (!isInEditMode()) {
                 performFiltering(getText(), 0);
-                showDropDown();
+//                showDropDown();
             }
         }
     }
@@ -261,14 +263,14 @@ public abstract class AWAutoCompleteTextView
 
     /**
      * Nach tippen wird hier nachgelesen. Es wird mit 'LIKE %constraint%' ausgewaehlt.
-     * <p>
      * Hat der Cursor Daten und validierung ist eingeschaltet (es ist kein neuer Wert zugelassen),
      * wird die erste ID aus dem Cursor geholt und der  Text auf den entsprechenden Wert des Cursors
-     * gesetzt. Ausserdem wird dann gleich eine Message versendet, wenn es nur genau einen Wert
-     * gibt.
+     * gesetzt.
+     * Gibt es nur einen oder gar keinen Wert, wird Dropdown ausgeblendet
      *
      * @param constraint
      *         Text
+     *
      * @return den neuen Cursor
      */
     @Override
@@ -279,14 +281,26 @@ public abstract class AWAutoCompleteTextView
         }
         CharSequence mConstraint = constraint.toString().trim();
         String[] mSelectionArgs = new String[]{"%" + mConstraint + "%"};
-        Cursor data = getContext().getContentResolver()
-                                  .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs,
-                                          mOrderBy);
+        final Cursor data = getContext().getContentResolver()
+                .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs,
+                        mOrderBy);
         assert data != null;
         if (data.moveToFirst()) {
             selectionID = data.getLong(1);
             validatedText = data.getString(0).trim();
+            if (data.getCount() == 1) {
+                onTextChanged(validatedText);
+            }
         }
+        ((AWBasicActivity) getContext()).runOnUiThread(new Runnable() {
+            @Override public void run() {
+                if (data.getCount() <= 1) {
+                    dismissDropDown();
+                } else {
+                    showDropDown();
+                }
+            }
+        });
         columnIndex = data.getColumnIndexOrThrow(tbd.columnName(fromResID));
         return data;
     }

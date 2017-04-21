@@ -18,6 +18,7 @@ package de.aw.awlib.views;
  */
 
 import android.content.Context;
+import android.databinding.BindingAdapter;
 import android.graphics.Rect;
 import android.text.InputType;
 import android.util.AttributeSet;
@@ -42,6 +43,11 @@ public class AWEditNumber extends AWEditText {
 
     public AWEditNumber(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    @BindingAdapter({"onValueChanged"})
+    public static void onLongValueChanged(AWEditNumber view, OnLongValueChangedListener listener) {
+        view.setOnLongValueChangedListener(listener);
     }
 
     /**
@@ -71,8 +77,8 @@ public class AWEditNumber extends AWEditText {
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
         try {
-            String val = text.toString().replaceAll("\\.", "");
-            long mNewValue = (long) (Double.parseDouble(val) * AWDBConvert.mNumberDigits);
+            long mNewValue =
+                    (long) (Double.parseDouble(text.toString()) * AWDBConvert.mNumberDigits);
             if (!(mNewValue == mValue) && mOnLongValueChangedListener != null) {
                 mValue = mNewValue;
                 mOnLongValueChangedListener.onLongValueChanged(this, mValue);
@@ -89,11 +95,11 @@ public class AWEditNumber extends AWEditText {
     public void setValue(long value) {
         if (value != mValue) {
             mValue = value;
-            setText(((Double) (value / AWDBConvert.mNumberDigits)).toString());
+            setText((String.valueOf(value / AWDBConvert.mNumberDigits)));
         }
     }
 
     public interface OnLongValueChangedListener {
-        void onLongValueChanged(AWEditText view, long value);
+        void onLongValueChanged(AWEditNumber view, long value);
     }
 }

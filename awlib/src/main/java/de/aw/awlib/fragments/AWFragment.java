@@ -17,7 +17,6 @@ package de.aw.awlib.fragments;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,19 +25,15 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 
-import de.aw.awlib.R;
 import de.aw.awlib.activities.AWActivityActions;
 import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.activities.AWInterface;
@@ -50,7 +45,6 @@ import de.aw.awlib.events.AWEvent;
  * Template fuer MonMaFragmente
  * <p/>
  * Folgende Funktionen:
- * <p>
  * Bereitstellung eines Bundle 'args' fuer alle abgeleiteten Klassen
  */
 public abstract class AWFragment extends DialogFragment
@@ -145,7 +139,6 @@ public abstract class AWFragment extends DialogFragment
 
     /**
      * Wird ein Dialog gecancelt, wird der mOnCancelListener gerufen (wenn vorhanden)
-     * <p>
      * Ausserdem ist dann isCanceled true.
      */
     @Override
@@ -159,7 +152,6 @@ public abstract class AWFragment extends DialogFragment
     /**
      * Setzen der durch setArguments(args) erhaltenen bzw. Ruecksichern der Argumente im Bundle
      * args.
-     * <p>
      * Gibt es keine MainAction unter AWLIBACTION, wird MainAction.SHOW verwendet.
      */
     @Override
@@ -173,47 +165,6 @@ public abstract class AWFragment extends DialogFragment
         if (mainAction == null) {
             mainAction = MainAction.SHOW;
         }
-    }
-
-    /**
-     * Erstellt einen Dialog mit Positive und Negative-Button. Die View fuer den Dailog wird ueber
-     * LAYOUT in args ermittelt und ind den Dialog eingestellt.  Der Dailog wird so eingestellt,
-     * dass ein Resize der View moeglich ist. Als ButtonListener wird das AWFragment eingestellt,
-     * daher ist ggfs, die Methode {@link AWFragment#onOKButtonClicked()}  zu ueberschreiben. Nur
-     * wenn die Methode true zurueck gibt, wird der Datensatz gespeichert.
-     * <p>
-     * Nach Erstellen der View wird {@link AWFragment#onViewCreated(View, Bundle)} gerufen.
-     * <p>
-     * Ausserdem wird setRetainInstance(true) gesetzt, damit der Dialog bei einem
-     * ConfigurationChange nicht verschwindet
-     */
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View childView = inflater.inflate(layout, null);
-        onViewCreated(childView, savedInstanceState);
-        builder.setView(childView);
-        Dialog dialog = builder.setPositiveButton(R.string.awlib_btnAccept,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (AWFragment.this.onOKButtonClicked()) {
-                        }
-                    }
-                }).setNegativeButton(R.string.awlib_btnCancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Nix tun
-                    }
-                }).setView(childView).create();
-        // Wenn das Dialogfenster teilweise von der eingeblendeten Tatstatur
-        // ueberlappt wird, resize des Fensters zulassen.
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        setRetainInstance(true);
-        return dialog;
     }
 
     /**
@@ -265,14 +216,9 @@ public abstract class AWFragment extends DialogFragment
         }
     }
 
-    protected boolean onOKButtonClicked() {
-        return true;
-    }
-
     /**
      * Deregistrierung als OnSharedPreferenceListener, wenn die Klasse eine Instanz von
      * OnSharedPreferenceChangeListener ist.
-     * <p>
      * Wiederherstellen eines Subtitles, wenn vorhanden.
      */
     @Override
@@ -332,6 +278,7 @@ public abstract class AWFragment extends DialogFragment
      *
      * @param f
      *         neues Fragment
+     *
      * @throws IllegalStateException,
      *         wenn nicht super.onCreate(...) gerufen wurde..
      */
@@ -341,7 +288,7 @@ public abstract class AWFragment extends DialogFragment
                     "Container nicht bekannt. Wurde super.onCreateView(...) gerufen?");
         }
         getActivity().getSupportFragmentManager().beginTransaction().replace(containerID, f)
-                     .addToBackStack(null).commit();
+                .addToBackStack(null).commit();
     }
 
     /**
@@ -365,6 +312,7 @@ public abstract class AWFragment extends DialogFragment
      *
      * @param visible
      *         true: Visible
+     *
      * @throws ClassCastException
      *         wenn Activity nicht Instance von {@link AWMainActivity}
      */
@@ -380,11 +328,9 @@ public abstract class AWFragment extends DialogFragment
     /**
      * Methode wird aus onAttach gerufen. Im uebergebenen Bundle sind alle Argumente gespeichert,
      * die ggfs. in newInstance(...) belegt wurden.
-     * <p>
      * Zweckmaessigerweise wird zuerst super.setInternalArguments(args) gerufen. Danach sind in args
      * die Argumente der Vererbungshirache vorhanden, welche auch ueberschrieben werden koennen. Es
      * koennen weitere Argumente zum Initialisieren genau dieses Fragments gesetzt werden.
-     * <p>
      * Argumente, die von einem vererbten Fragment gesetzt werden, sind aber noch nicht vorhanden.
      * Werden diese benoetigt, sollten diese fruehestens in onCreate(saveStateInstance) aus args
      * geholt werden.
