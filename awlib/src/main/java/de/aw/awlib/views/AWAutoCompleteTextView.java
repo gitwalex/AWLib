@@ -31,7 +31,6 @@ import android.widget.FilterQueryProvider;
 import android.widget.TextView;
 
 import de.aw.awlib.R;
-import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 
@@ -54,7 +53,7 @@ public abstract class AWAutoCompleteTextView
     private String mOrderBy;
     private String[] mProjection;
     private String mSelection;
-    private String validatedText = "";
+    private String cursorText = "";
     private long selectionID;
     private AWAbstractDBDefinition tbd;
     private String oldText;
@@ -102,7 +101,7 @@ public abstract class AWAutoCompleteTextView
 
     @Override
     public final CharSequence fixText(CharSequence invalidText) {
-        return validatedText;
+        return cursorText;
     }
 
     public final int getIndex() {
@@ -127,7 +126,7 @@ public abstract class AWAutoCompleteTextView
         if (getValidator() != null) {
             return selectionID;
         } else {
-            if (getText().toString().equals(validatedText)) {
+            if (getText().toString().equals(cursorText)) {
                 return selectionID;
             }
         }
@@ -166,7 +165,7 @@ public abstract class AWAutoCompleteTextView
      */
     @Override
     public boolean isValid(CharSequence text) {
-        return (text.toString().equals(validatedText));
+        return (text.toString().equals(cursorText));
     }
 
     @Override
@@ -216,9 +215,10 @@ public abstract class AWAutoCompleteTextView
     protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
         super.onFocusChanged(focused, direction, previouslyFocusedRect);
         if (!focused) {
+            dismissDropDown();
             if (getValidator() != null) {
-                setText(validatedText);
-                onTextChanged(validatedText);
+                setText(cursorText);
+                onTextChanged(cursorText);
             }
         } else {
             if (!isInEditMode()) {
@@ -234,14 +234,14 @@ public abstract class AWAutoCompleteTextView
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         selectionID = id;
-        validatedText = ((TextView) view).getText().toString().trim();
-        onTextChanged(validatedText);
+        cursorText = ((TextView) view).getText().toString().trim();
+        onTextChanged(cursorText);
     }
 
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
         if (getValidator() != null) {
-            onTextChanged(validatedText);
+            onTextChanged(cursorText);
         } else {
             onTextChanged(text.toString());
         }
@@ -250,14 +250,15 @@ public abstract class AWAutoCompleteTextView
     /**
      * Wird bei Textaenderungen gerufen.
      *
-     * @param newText
+     * @param currentText
      *         Text
      */
     @CallSuper
-    protected void onTextChanged(String newText) {
-        if (!newText.equals(oldText) && mOnTextChangeListener != null) {
-            oldText = newText;
-            mOnTextChangeListener.onTextChanged(this, newText, getSelectionID(), mIndex);
+    protected void onTextChanged(String currentText) {
+        if (!currentText.equals(oldText) && mOnTextChangeListener != null) {
+            oldText = currentText;
+            mOnTextChangeListener
+                    .onTextChanged(this, currentText, cursorText, getSelectionID(), mIndex);
         }
     }
 
@@ -287,17 +288,19 @@ public abstract class AWAutoCompleteTextView
         assert data != null;
         if (data.moveToFirst()) {
             selectionID = data.getLong(1);
-            validatedText = data.getString(0).trim();
+            cursorText = data.getString(0).trim();
             if (data.getCount() == 1) {
-                onTextChanged(validatedText);
+                onTextChanged(cursorText);
             }
         }
-        ((AWBasicActivity) getContext()).runOnUiThread(new Runnable() {
+        post(new Runnable() {
             @Override public void run() {
                 if (data.getCount() <= 1) {
                     dismissDropDown();
                 } else {
-                    showDropDown();
+                    if (hasFocus()) {
+                        showDropDown();
+                    }
                 }
             }
         });
@@ -307,10 +310,6 @@ public abstract class AWAutoCompleteTextView
 
     public void setOnTextChangedListener(OnTextChangedListener onTextChangedListener) {
         mOnTextChangeListener = onTextChangedListener;
-    }
-
-    public void setValidatedText(String text) {
-        validatedText = text;
     }
 
     /**
@@ -331,7 +330,7 @@ public abstract class AWAutoCompleteTextView
          *
          * @param view
          *         view, deren Text sich geaendert hat
-         * @param newText
+         * @param currentText
          *         Neuer Text.
          * @param newID
          *         ID aus der DB, wenn Nutzer ein Item aus dem Pulldown selektiert hat oder wenn
@@ -339,6 +338,6 @@ public abstract class AWAutoCompleteTextView
          * @param index
          *         index, wie in {@link AWAutoCompleteTextView#setIndex(int)} gesetzt
          */
-        void onTextChanged(View view, String newText, long newID, int index);
+        void onTextChanged(View view, String currentText, String cursorText, long newID, int index);
     }
 }
