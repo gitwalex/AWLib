@@ -118,6 +118,13 @@ public abstract class AWAutoCompleteTextView
         mIndex = index;
     }
 
+    protected Cursor getSelectionCursor(String constraint) {
+        String[] mSelectionArgs = new String[]{"%" + constraint + "%"};
+        return getContext().getContentResolver()
+                .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs,
+                        mOrderBy);
+    }
+
     /**
      * @return Liefert die ID des selektierten Textes. Ist ein Validator gesetzt, den ersten aus dem
      * Cursor,ansonsten NOID.
@@ -275,16 +282,10 @@ public abstract class AWAutoCompleteTextView
      * @return den neuen Cursor
      */
     @Override
-    public Cursor runQuery(CharSequence constraint) {
+    public Cursor runQuery(final CharSequence constraint) {
         selectionID = NOID;
-        if (constraint == null) {
-            constraint = "";
-        }
-        CharSequence mConstraint = constraint.toString().trim();
-        String[] mSelectionArgs = new String[]{"%" + mConstraint + "%"};
-        final Cursor data = getContext().getContentResolver()
-                .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs,
-                        mOrderBy);
+        final String mConstraint = constraint == null ? "" : constraint.toString().trim();
+        final Cursor data = getSelectionCursor(mConstraint);
         assert data != null;
         if (data.moveToFirst()) {
             selectionID = data.getLong(1);
@@ -295,7 +296,7 @@ public abstract class AWAutoCompleteTextView
         }
         post(new Runnable() {
             @Override public void run() {
-                if (data.getCount() <= 1) {
+                if (data.getCount() == 1 && mConstraint.equals(cursorText)) {
                     dismissDropDown();
                 } else {
                     if (hasFocus()) {
