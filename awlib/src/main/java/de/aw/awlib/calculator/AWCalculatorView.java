@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 import de.aw.awlib.R;
@@ -48,7 +49,7 @@ public class AWCalculatorView extends LinearLayout implements View.OnClickListen
                     R.id.buttonSquared, R.id.buttonInvert, R.id.buttonSine, R.id.buttonCosine,
                     R.id.buttonTangent};
     DecimalFormat df = new DecimalFormat("@###########");
-    private Double initialValue;
+    private BigDecimal initialValue;
     private CalculatorBrain mCalculatorBrain;
     private TextView mCalculatorDisplay;
     private ResultListener mCalculatorResultListener;
@@ -95,14 +96,14 @@ public class AWCalculatorView extends LinearLayout implements View.OnClickListen
                 userIsInTheMiddleOfTypingANumber = true;
             }
             if (mCalculatorResultListener != null) {
-                double value = Double.parseDouble(mCalculatorDisplay.getText().toString());
+                BigDecimal value = new BigDecimal(mCalculatorDisplay.getText().toString());
                 mCalculatorResultListener.onResultChanged(value);
             }
         } else {
             // operation was pressed
             if (userIsInTheMiddleOfTypingANumber) {
                 mCalculatorBrain
-                        .setOperand(Double.parseDouble(mCalculatorDisplay.getText().toString()));
+                        .setOperand(new BigDecimal(mCalculatorDisplay.getText().toString()));
                 userIsInTheMiddleOfTypingANumber = false;
             }
             mCalculatorBrain.performOperation(buttonPressed);
@@ -129,12 +130,12 @@ public class AWCalculatorView extends LinearLayout implements View.OnClickListen
     protected void onRestoreInstanceState(Parcelable state) {
         Bundle args = (Bundle) state;
         super.onRestoreInstanceState(args.getParcelable("SAVESTATE"));
-        mCalculatorBrain.setOperand(args.getDouble("OPERAND"));
-        mCalculatorBrain.setMemory(args.getDouble("MEMORY"));
+        mCalculatorBrain.setOperand(new BigDecimal(args.getDouble("OPERAND")));
+        mCalculatorBrain.setMemory(new BigDecimal(args.getDouble("MEMORY")));
         onResultChanged(mCalculatorBrain.getResult());
     }
 
-    private void onResultChanged(double result) {
+    private void onResultChanged(BigDecimal result) {
         mCalculatorDisplay.setText(df.format(mCalculatorBrain.getResult()));
         if (mCalculatorResultListener != null) {
             mCalculatorResultListener.onResultChanged(result);
@@ -145,13 +146,13 @@ public class AWCalculatorView extends LinearLayout implements View.OnClickListen
     protected Parcelable onSaveInstanceState() {
         Parcelable outState = super.onSaveInstanceState();
         Bundle args = new Bundle();
-        args.putDouble("MEMORY", mCalculatorBrain.getMemory());
-        args.putDouble("OPERAND", mCalculatorBrain.getResult());
+        args.putDouble("MEMORY", mCalculatorBrain.getMemory().doubleValue());
+        args.putDouble("OPERAND", mCalculatorBrain.getResult().doubleValue());
         args.putParcelable("SAVESTATE", outState);
         return args;
     }
 
-    public void setInitialValue(double initialValue) {
+    public void setInitialValue(BigDecimal initialValue) {
         this.initialValue = initialValue;
     }
 
@@ -161,6 +162,6 @@ public class AWCalculatorView extends LinearLayout implements View.OnClickListen
     }
 
     public interface ResultListener {
-        void onResultChanged(Double result);
+        void onResultChanged(BigDecimal result);
     }
 }

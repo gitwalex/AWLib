@@ -27,6 +27,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
+import java.math.BigDecimal;
+
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.database.AWDBConvert;
@@ -40,7 +42,7 @@ import de.aw.awlib.views.AWTextCurrency;
 public class CalculatorTextCurrency extends AWTextCurrency
         implements AWCalculatorView.ResultListener, View.OnClickListener {
     private PopupWindow calculatorPopUp;
-    private Double initialValue;
+    private BigDecimal initialValue;
     private int mIndex;
     private OnClickListener mOnClickListener;
     private OnLongValueChangedListener mOnValueChangeListener;
@@ -123,8 +125,8 @@ public class CalculatorTextCurrency extends AWTextCurrency
     }
 
     @Override
-    public void onResultChanged(Double result) {
-        setValue((long) (result * 100));
+    public void onResultChanged(BigDecimal result) {
+        setValue((long) (result.doubleValue() * 100));
     }
 
     public void setIndex(int index) {
@@ -156,7 +158,8 @@ public class CalculatorTextCurrency extends AWTextCurrency
                 if (mOnValueChangeListener != null) {
                     mOnValueChangeListener.onLongValueChanged(this, amount, mIndex);
                 }
-                initialValue = amount / AWDBConvert.mCurrencyDigits;
+                initialValue = new BigDecimal(amount).divide(new BigDecimal(AWDBConvert
+                        .mCurrencyDigits));
             }
         } else {
             super.setValue(amount);

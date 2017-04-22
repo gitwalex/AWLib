@@ -17,112 +17,109 @@ package de.aw.awlib.calculator;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * Created by alex on 11.03.2016.
  */
 public class CalculatorBrain {
     // operator types
-    public static final String ADD = "+";
-    public static final String SUBTRACT = "-";
-    public static final String MULTIPLY = "*";
-    public static final String DIVIDE = "/";
-    public static final String CLEAR = "C";
-    public static final String CLEARMEMORY = "MC";
-    public static final String ADDTOMEMORY = "M+";
-    public static final String SUBTRACTFROMMEMORY = "M-";
-    public static final String RECALLMEMORY = "MR";
-    public static final String SQUAREROOT = "√";
-    public static final String SQUARED = "x²";
-    public static final String INVERT = "1/x";
-    public static final String TOGGLESIGN = "+/-";
-    public static final String SINE = "sin";
-    public static final String COSINE = "cos";
-    public static final String TANGENT = "tan";
-    private double mCalculatorMemory;
+    private static final String ADD = "+";
+    private static final String SUBTRACT = "-";
+    private static final String MULTIPLY = "*";
+    private static final String DIVIDE = "/";
+    private static final String CLEAR = "C";
+    private static final String CLEARMEMORY = "MC";
+    private static final String ADDTOMEMORY = "M+";
+    private static final String SUBTRACTFROMMEMORY = "M-";
+    private static final String RECALLMEMORY = "MR";
+    private static final String SQUAREROOT = "√";
+    private static final String SQUARED = "x²";
+    private static final String INVERT = "1/x";
+    private static final String TOGGLESIGN = "+/-";
+    private static final String SINE = "sin";
+    private static final String COSINE = "cos";
+    private static final String TANGENT = "tan";
+    private static final MathContext mathContext = new MathContext(8);
+    private BigDecimal mCalculatorMemory;
     // 3 + 6 = 9
     // 3 & 6 are called the operand.
     // The + is called the operator.
     // 9 is the result of the operation.
-    private double mOperand;
-    private double mWaitingOperand;
-    private String mWaitingOperator;
+    private BigDecimal mOperand = new BigDecimal(0);
+    private BigDecimal mWaitingOperand = new BigDecimal(0);
+    private String mWaitingOperator = "";
     // public static final String EQUALS = "=";
 
-    // constructor
-    public CalculatorBrain() {
-        // initialize variables upon start
-        mOperand = 0;
-        mWaitingOperand = 0;
-        mWaitingOperator = "";
-        mCalculatorMemory = 0;
-    }
-
-    public CalculatorBrain(Double initialValue) {
-        this();
+    public CalculatorBrain(BigDecimal initialValue) {
         if (initialValue != null) {
             mOperand = initialValue;
         }
     }
 
     // used on screen orientation change
-    public double getMemory() {
+    public BigDecimal getMemory() {
         return mCalculatorMemory;
     }
 
     // used on screen orientation change
-    public void setMemory(double calculatorMemory) {
+    public void setMemory(BigDecimal calculatorMemory) {
         mCalculatorMemory = calculatorMemory;
     }
 
-    public double getResult() {
+    public BigDecimal getResult() {
         return mOperand;
     }
 
-    protected double performOperation(String operator) {
+    protected BigDecimal performOperation(String operator) {
         switch (operator) {
             case CLEAR:
-                mOperand = 0;
+                mOperand = new BigDecimal(0);
                 mWaitingOperator = "";
-                mWaitingOperand = 0;
+                mWaitingOperand = new BigDecimal(0);
                 // mCalculatorMemory = 0;
                 break;
             case CLEARMEMORY:
-                mCalculatorMemory = 0;
+                mCalculatorMemory = new BigDecimal(0);
                 break;
             case ADDTOMEMORY:
-                mCalculatorMemory = mCalculatorMemory + mOperand;
+                mCalculatorMemory = mCalculatorMemory.add(mOperand);
                 break;
             case SUBTRACTFROMMEMORY:
-                mCalculatorMemory = mCalculatorMemory - mOperand;
+                mCalculatorMemory = mCalculatorMemory.subtract(mOperand);
                 break;
             case RECALLMEMORY:
                 mOperand = mCalculatorMemory;
                 break;
             case SQUAREROOT:
-                mOperand = Math.sqrt(mOperand);
+                mOperand = new BigDecimal(Math.sqrt(mOperand.doubleValue()));
                 break;
             case SQUARED:
-                mOperand = mOperand * mOperand;
+                mOperand = mOperand.multiply(mOperand);
                 break;
             case INVERT:
-                if (mOperand != 0) {
-                    mOperand = 1 / mOperand;
+                if (mOperand.doubleValue() != 0) {
+                    mOperand = new BigDecimal(1).divide(mOperand, mathContext);
                 }
                 break;
             case TOGGLESIGN:
-                mOperand = -mOperand;
+                mOperand = new BigDecimal(0).subtract(mOperand);
                 break;
             case SINE:
-                mOperand = Math.sin(Math.toRadians(
-                        mOperand)); // Math.toRadians(mOperand) converts result to degrees
+                mOperand = new BigDecimal(Math.sin(Math.toRadians(
+                        mOperand.doubleValue()))); // Math.toRadians(mOperand) converts result to
+                // degrees
                 break;
             case COSINE:
-                mOperand = Math.cos(Math.toRadians(
-                        mOperand)); // Math.toRadians(mOperand) converts result to degrees
+                mOperand = new BigDecimal(Math.cos(Math.toRadians(
+                        mOperand.doubleValue()))); // Math.toRadians(mOperand) converts result to
+                // degrees
                 break;
             case TANGENT:
-                mOperand = Math.tan(Math.toRadians(
-                        mOperand)); // Math.toRadians(mOperand) converts result to degrees
+                mOperand = new BigDecimal(Math.tan(Math.toRadians(
+                        mOperand.doubleValue()))); // Math.toRadians(mOperand) converts result to
+                // degrees
                 break;
             default:
                 performWaitingOperation();
@@ -136,27 +133,27 @@ public class CalculatorBrain {
     protected void performWaitingOperation() {
         switch (mWaitingOperator) {
             case ADD:
-                mOperand = mWaitingOperand + mOperand;
+                mOperand = mWaitingOperand.add(mOperand);
                 break;
             case SUBTRACT:
-                mOperand = mWaitingOperand - mOperand;
+                mOperand = mWaitingOperand.subtract(mOperand);
                 break;
             case MULTIPLY:
-                mOperand = mWaitingOperand * mOperand;
+                mOperand = mWaitingOperand.multiply(mOperand);
                 break;
             case DIVIDE:
-                if (mOperand != 0) {
-                    mOperand = mWaitingOperand / mOperand;
+                if (mOperand.doubleValue() != 0) {
+                    mOperand = mWaitingOperand.divide(mOperand, mathContext);
                 }
                 break;
         }
     }
 
-    public void setOperand(double operand) {
+    public void setOperand(BigDecimal operand) {
         mOperand = operand;
     }
 
     public String toString() {
-        return Double.toString(mOperand);
+        return mOperand.toString();
     }
 }
