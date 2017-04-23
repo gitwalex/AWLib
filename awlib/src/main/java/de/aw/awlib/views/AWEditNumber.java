@@ -19,7 +19,6 @@ package de.aw.awlib.views;
 
 import android.content.Context;
 import android.databinding.BindingAdapter;
-import android.graphics.Rect;
 import android.text.InputType;
 import android.util.AttributeSet;
 
@@ -35,14 +34,17 @@ public class AWEditNumber extends AWEditText {
 
     public AWEditNumber(Context context) {
         super(context);
+        init();
     }
 
     public AWEditNumber(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public AWEditNumber(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     @BindingAdapter({"onValueChanged"})
@@ -61,17 +63,10 @@ public class AWEditNumber extends AWEditText {
     /**
      * Startwerte festlegen.
      */
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
+    private void init() {
         setSelectAllOnFocus(true);
         setEms(10);
         setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-    }
-
-    @Override
-    protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
-        super.onFocusChanged(focused, direction, previouslyFocusedRect);
     }
 
     @Override

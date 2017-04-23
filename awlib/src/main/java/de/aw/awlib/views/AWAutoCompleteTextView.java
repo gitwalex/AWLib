@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.databinding.BindingAdapter;
 import android.graphics.Rect;
 import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.AttributeSet;
 import android.view.View;
@@ -118,11 +119,23 @@ public abstract class AWAutoCompleteTextView
         mIndex = index;
     }
 
+    /**
+     * Liefert den Cursor zu einem Text in der TextView. Kann ueberschrieben werden, muss aber im
+     * Cursor an der ersten Stelle den Text und an der zweiten Stelle die ID liefern
+     *
+     * @param constraint
+     *         Text in der TextView
+     *
+     * @return Curos mit Daten
+     */
+    @NonNull
     protected Cursor getSelectionCursor(String constraint) {
         String[] mSelectionArgs = new String[]{"%" + constraint + "%"};
-        return getContext().getContentResolver()
+        Cursor c = getContext().getContentResolver()
                 .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs,
                         mOrderBy);
+        assert c != null;
+        return c;
     }
 
     /**
@@ -230,7 +243,6 @@ public abstract class AWAutoCompleteTextView
         } else {
             if (!isInEditMode()) {
                 performFiltering(getText(), 0);
-//                showDropDown();
             }
         }
     }
@@ -295,7 +307,8 @@ public abstract class AWAutoCompleteTextView
             }
         }
         post(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 if (data.getCount() == 1 && mConstraint.equals(cursorText)) {
                     dismissDropDown();
                 } else {

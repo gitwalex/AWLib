@@ -38,7 +38,6 @@ import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * MonMa AWApplicationGeschaeftsObjekt
- * <p>
  * Vorlage fuer die Geschaeftsvorfaelle, z.B. Bankkonto-Buchung, Neues Account etc. Bietet
  * Import-Funktion, die Tabellen werden direkt aus dem Import-File gefuellt.
  * <p/>
@@ -53,10 +52,6 @@ import de.aw.awlib.database.AbstractDBHelper;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         implements AWInterface, Parcelable {
-    /**
-     * Flag, ob gerade Daten importiert werden.
-     */
-    protected static boolean isImport = false;
     private final String CLASSNAME = this.getClass().getSimpleName();
     /**
      * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
@@ -76,20 +71,6 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
     private ContentValues currentContent = new ContentValues();
     private boolean isDirty;
 
-    public static boolean isImport() {
-        return isImport;
-    }
-
-    /**
-     * Setzt ein Flag, ob Import stattfindet
-     *
-     * @param flag
-     *         true: Import findet statt
-     */
-    public static void setIsImport(boolean flag) {
-        isImport = flag;
-    }
-
     /**
      * Laden eines Geschaeftsvorfalls mit der id aus der Datenbank.
      *
@@ -97,6 +78,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *         Tabelle, der der GV zugeordnet ist.
      * @param id
      *         ID des Geschaeftsvorfalls in der entsprechenden Tabelle.
+     *
      * @throws LineNotFoundException
      *         Wenn keine Zeile mit der id gefunden wurde.
      * @throws android.content.res.Resources.NotFoundException
@@ -162,6 +144,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param resID
      *         resID des keys
+     *
      * @return true, wenn vorhanden. Sonst false
      */
     public boolean IsNull(int resID) {
@@ -174,6 +157,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param resID
      *         resID der Spalte
+     *
      * @return true, wenn ein Wert ungleich null enthalten ist
      */
     public final boolean containsValue(int resID) {
@@ -230,6 +214,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
     /**
      * @param o
      *         zu vergleichendes Object.
+     *
      * @return true,  wenn das vergleichende Object ein Geschaeftsobjekte ist, beide auf die gleiche
      * Tabelle zeigen (DBDefiniton)und die gleiche Anzahl Werte mit den gleichen Inhalten in den
      * ContentValues vorhanden sind.
@@ -287,6 +272,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param id
      *         in der Tabelle
+     *
      * @throws LineNotFoundException
      *         Wenn keine Zeile mit der id gefunden wurde.
      */
@@ -304,14 +290,15 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *         selection
      * @param selectionArgs
      *         selectionArgs
+     *
      * @throws LineNotFoundException
      *         wenn keine Zeile gefunden wurde.
      */
     public final void fillContent(Context context, Long id, String selection,
                                   String[] selectionArgs) throws LineNotFoundException {
         Cursor c = context.getContentResolver()
-                          .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), selection,
-                                  selectionArgs, null);
+                .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), selection,
+                        selectionArgs, null);
         assert c != null;
         try {
             if (c.moveToFirst()) {
@@ -335,6 +322,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *         Where-Clause
      * @param selectionArgs
      *         Argumente
+     *
      * @throws LineNotFoundException
      *         Wenn keine Zeile mit der zur Selektion gefunden wurde.
      * @throws IllegalStateException
@@ -344,7 +332,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
             throws LineNotFoundException {
         String[] projection = tbd.columnNames(tbd.getTableItems());
         Cursor c = context.getContentResolver()
-                          .query(tbd.getUri(), projection, selection, selectionArgs, null);
+                .query(tbd.getUri(), projection, selection, selectionArgs, null);
         assert c != null;
         try {
             if (c.getCount() > 1) {
@@ -385,6 +373,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param resID
      *         resID der Spalte
+     *
      * @return Den aktuellen Wert der Spalte (true ooder false)
      */
     public final Boolean getAsBoolean(int resID) {
@@ -403,6 +392,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param datum
      *         Datum im SQLite-Format
+     *
      * @return Date-Objekt oder null
      */
     public Date getAsDate(String datum) {
@@ -426,6 +416,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param resID
      *         resID der Spalte
+     *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Integer getAsInt(int resID) {
@@ -438,6 +429,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param resID
      *         resID der Spalte
+     *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final int getAsInt(int resID, int defaultValue) {
@@ -454,6 +446,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param resID
      *         resID der Spalte
+     *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final Long getAsLong(int resID) {
@@ -478,6 +471,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param resID
      *         resID der Spalte
+     *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
     public final String getAsString(int resID) {
@@ -574,6 +568,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *         bereits identisch vorhanden (DB oder als geaenderter Wert), wird nichts eingefuegt.
      *         Ist value == null oder ein leerer String, wird ein ggfs. geaenderter Wert in der
      *         Spalte und nach Update dann auch aus der DB entfernt.
+     *
      * @return true, wenn die Aktion erfolgreich war, also ein Wert eingefuegt/entfernt wurde.
      * false, wenn der gleiche Wert bereitsvorhanden war.
      *
@@ -603,6 +598,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *         ResID der Spalte, die eingefuegt werden soll.
      * @param value
      *         BlobWert, der eingefuegt werden soll.
+     *
      * @return true, wenn die Aktion erfolgreich war, also ein Wert eingefuegt/entfernt wurde.
      * false, wenn der gleiche Wert bereitsvorhanden war.
      *
@@ -625,6 +621,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @param resID
      *         ResID der Spalte, die entfernt werden soll.
+     *
      * @throws UnsupportedOperationException
      *         wennn _id entfernt werden soll.
      */
