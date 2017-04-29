@@ -82,6 +82,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *
      * @param start
      *         Startposition des Cursors, ab der Items generiert werden sollen
+     *
      * @return Liste mit neuen Items
      */
     protected final List<T> fillItemList(int start) {
@@ -94,6 +95,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     /**
      * @param position
      *         Position des Items
+     *
      * @return Liefert ein Item an der Position zuruck.
      */
     public abstract T get(int position);
@@ -106,7 +108,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     /**
      * @return die Anzahl der Items. Gibt es einen Cursor, wird die Anzahl der Cursorzeilen
      * zurueckgeliefert. Erbende Klassen muessen in
-     * <p>
      * {@link AWItemListAdapterTemplate#onBindViewHolder(AWLibViewHolder, int)} entsprechend
      * nachlesen.
      */
@@ -121,6 +122,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     /**
      * @param position
      *         Position
+     *
      * @return Liefert das Item an position zuruck
      *
      * @throws IndexOutOfBoundsException
@@ -128,6 +130,14 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      */
     @Override
     public abstract long getItemId(int position);
+
+    public List<T> getItemList() {
+        List<T> itemList = new ArrayList<>();
+        for (int i = 0; i < getItemCount(); i++) {
+            itemList.add(get(i));
+        }
+        return itemList;
+    }
 
     /**
      * @return Liefert die aktuelle Anzahl der Items in der Liste zuruck
@@ -149,8 +159,24 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     }
 
     /**
+     * Hier kann eine Item zu loeschen vorgemerkt werden. In diesem Fall wird eine View mit
+     * 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView bewegt wird oder ein
+     * anderes Item zu Loeschung vorgemerjt wird, wird das Item tatsaechlich aus dem Adapter
+     * entfernt.
+     * Der Binder wird durch {@link AWBaseAdapterBinder#onItemDismissed(int)} informiert.
+     *
      * @param item
      *         Item
+     */
+    public final void setPendingDeleteItem(@NonNull T item) {
+        super.setPendingDeleteItemPosition(getPosition(item));
+        mPendingDeleteItem = item;
+    }
+
+    /**
+     * @param item
+     *         Item
+     *
      * @return Liefert die Position des Items
      */
     public abstract int getPosition(@NonNull T item);
@@ -163,6 +189,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     /**
      * @param item
      *         Item
+     *
      * @return Liefert den Index eines Items zuruck
      */
     public abstract int indexOf(@NonNull T item);
@@ -210,7 +237,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
 
     /**
      * Ruft bei Klick auf Item in der RecyclerView
-     * <p>
      * {@link AWListAdapterBinder#onRecyclerItemClick(View, int, Object)}
      *
      * @param holder
@@ -226,7 +252,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
 
     /**
      * Ruft bei LongKlick auf Item in der RecyclerView .
-     * <p>
      * {@link AWListAdapterBinder#onRecyclerItemLongClick(View, int, Object)}
      *
      * @param holder
@@ -251,6 +276,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *
      * @param item
      *         Item
+     *
      * @return true, wenn erfolgreich.
      */
     public abstract boolean remove(T item);
@@ -260,6 +286,7 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *
      * @param position
      *         Position des Items
+     *
      * @return das Item
      */
     public final T removeItemAt(int position) {
@@ -303,22 +330,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public final void setPendingChangedItemPosition(int position, @LayoutRes int layout) {
         super.setPendingChangedItemPosition(position, layout);
         mPendingChangedItem = get(position);
-    }
-
-    /**
-     * Hier kann eine Item zu loeschen vorgemerkt werden. In diesem Fall wird eine View mit
-     * 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView bewegt wird oder ein
-     * anderes Item zu Loeschung vorgemerjt wird, wird das Item tatsaechlich aus dem Adapter
-     * entfernt.
-     * <p>
-     * Der Binder wird durch {@link AWBaseAdapterBinder#onItemDismissed(int)} informiert.
-     *
-     * @param item
-     *         Item
-     */
-    public final void setPendingDeleteItem(@NonNull T item) {
-        super.setPendingDeleteItemPosition(getPosition(item));
-        mPendingDeleteItem = item;
     }
 
     @Override
@@ -372,26 +383,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *         Item
      */
     public abstract void updateItemAt(int position, @NonNull T item);
-
-    /**
-     * Generator fuer Items. Wird im Zusammenhang mit einem Cursor verwendet. Siehe {@link
-     * AWItemListAdapterTemplate#swap(Cursor, ItemGenerator)}
-     */
-    public interface ItemGenerator<T> {
-        /**
-         * Erstellt eine Liste von Items ab der Position im Curosr. Der Cursor steht an der ersten
-         * zu generierenden Position.
-         *
-         * @param c
-         *         Aktueller Cursor. Steht schon an der Stelle, die Daten fuer das erste Item
-         *         beinhaltet
-         * @param position
-         *         Position
-         * @return Liste erstellter Items - mindestens eins. Der ItemGenartor kann entscheiden,
-         * wieviele Items generiert werden sollen.
-         */
-        List<T> createItems(Cursor c, int position);
-    }
 
     /**
      * Binder fuer Adapter-Aktionen
@@ -454,5 +445,26 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
          *         Item
          */
         boolean onRecyclerItemLongClick(View v, int position, T item);
+    }
+
+    /**
+     * Generator fuer Items. Wird im Zusammenhang mit einem Cursor verwendet. Siehe {@link
+     * AWItemListAdapterTemplate#swap(Cursor, ItemGenerator)}
+     */
+    public interface ItemGenerator<T> {
+        /**
+         * Erstellt eine Liste von Items ab der Position im Curosr. Der Cursor steht an der ersten
+         * zu generierenden Position.
+         *
+         * @param c
+         *         Aktueller Cursor. Steht schon an der Stelle, die Daten fuer das erste Item
+         *         beinhaltet
+         * @param position
+         *         Position
+         *
+         * @return Liste erstellter Items - mindestens eins. Der ItemGenartor kann entscheiden,
+         * wieviele Items generiert werden sollen.
+         */
+        List<T> createItems(Cursor c, int position);
     }
 }

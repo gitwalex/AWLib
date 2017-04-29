@@ -190,7 +190,12 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         return newValue;
     }
 
-    public int delete(AbstractDBHelper db) {
+    protected void copy(AWApplicationGeschaeftsObjekt source) {
+        currentContent = source.getContent();
+        id = source.id;
+    }
+
+    protected int delete(AbstractDBHelper db) {
         if (id == null) {
             AWApplication
                     .Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht moeglich");
@@ -510,7 +515,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         return id.intValue();
     }
 
-    public long insert(AbstractDBHelper db) {
+    protected long insert(AbstractDBHelper db) {
         if (isInserted()) {
             throw new IllegalStateException(
                     "AWApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
@@ -651,7 +656,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         return sb.toString();
     }
 
-    public int update(AbstractDBHelper db) {
+    protected int update(AbstractDBHelper db) {
         int result = 0;
         if (id == null) {
             throw new IllegalStateException(
