@@ -146,7 +146,8 @@ public abstract class AWAutoCompleteTextView
         if (getValidator() != null) {
             return selectionID;
         } else {
-            if (getText().toString().equals(cursorText)) {
+            String text = getText().toString();
+            if (text.equals(cursorText)) {
                 return selectionID;
             }
         }
@@ -175,7 +176,8 @@ public abstract class AWAutoCompleteTextView
             this.tbd = tbd;
             this.fromResID = fromResID;
             mMainColumn = tbd.columnName(this.fromResID);
-            mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
+            mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R
+                    .string._id)};
             buildSelectionArguments(selection, selectionArgs, orderBy);
         }
     }
@@ -274,10 +276,9 @@ public abstract class AWAutoCompleteTextView
      */
     @CallSuper
     protected void onTextChanged(String currentText) {
-        if (!currentText.equals(oldText) && mOnTextChangeListener != null) {
-            oldText = currentText;
+        if (mOnTextChangeListener != null) {
             mOnTextChangeListener
-                    .onTextChanged(this, currentText, cursorText, getSelectionID(), mIndex);
+                    .onTextChanged(this, currentText, cursorText, selectionID, mIndex);
         }
     }
 
@@ -298,7 +299,6 @@ public abstract class AWAutoCompleteTextView
         selectionID = NOID;
         final String mConstraint = constraint == null ? "" : constraint.toString().trim();
         final Cursor data = getSelectionCursor(mConstraint);
-        assert data != null;
         if (data.moveToFirst()) {
             selectionID = data.getLong(1);
             cursorText = data.getString(0).trim();

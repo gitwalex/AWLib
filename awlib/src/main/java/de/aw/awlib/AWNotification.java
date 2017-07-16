@@ -81,10 +81,38 @@ public class AWNotification implements AWInterface {
     }
 
     /**
+     * Erstelle Notification.
+     *
+     * @param contentListHeader
+     *         Header der Liste.
+     * @param contentListTexte
+     *         Liste der NotificationTexte
+     *
+     * @return die NotificationID
+     */
+    public int createNotification(@NonNull String contentListHeader,
+                                  @NonNull List<String> contentListTexte) {
+        NotificationCompat.Builder mBuilder = getNotification();
+        mBuilder.setContentTitle(contentTitle);
+        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+        inboxStyle.setSummaryText(contentListHeader);
+        for (String s : contentListTexte) {
+            inboxStyle.addLine(s);
+        }
+        mBuilder.setContentText(contentListHeader);
+        mBuilder.setStyle(inboxStyle);
+        NotificationManager mNotificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(mNotifyID, mBuilder.build());
+        return mNotifyID;
+    }
+
+    /**
      * Erstellt Notification mit  Titel aus Konstruktor und ContentText
      *
      * @param contentText
      *         ContentText
+     *
      * @return NotifyID
      */
     public int createNotification(@NonNull String contentText) {
@@ -98,6 +126,7 @@ public class AWNotification implements AWInterface {
      *         ContentTitel
      * @param contentText
      *         ContentText
+     *
      * @return NotifyID
      */
     public int createNotification(@NonNull String contentTitle, @NonNull String contentText) {
@@ -122,10 +151,10 @@ public class AWNotification implements AWInterface {
      */
     protected NotificationCompat.Builder getNotification() {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).
-                                                                                             setSmallIcon(
-                                                                                                     R.drawable.ic_stat_action_account)
-                                                                                     .setAutoCancel(
-                                                                                             true);
+                setSmallIcon(
+                        R.drawable.ic_stat_action_account)
+                .setAutoCancel(
+                        true);
         if (ticker != null) {
             mBuilder.setTicker(ticker);
         }
@@ -157,6 +186,7 @@ public class AWNotification implements AWInterface {
      *
      * @param contentText
      *         Text
+     *
      * @return NotifyID
      */
     public int replaceNotification(@NonNull String contentText) {
@@ -170,6 +200,7 @@ public class AWNotification implements AWInterface {
      *         Title der Notification
      * @param contentText
      *         Text der Notification
+     *
      * @return NotifyID
      */
     public int replaceNotification(@NonNull String contentTitle, @NonNull String contentText) {
@@ -189,6 +220,7 @@ public class AWNotification implements AWInterface {
      *         Header der Liste.
      * @param contentListTexte
      *         Liste der NotificationTexte
+     *
      * @return die NotificationID
      */
     public int replaceNotification(@NonNull String contentListHeader,
