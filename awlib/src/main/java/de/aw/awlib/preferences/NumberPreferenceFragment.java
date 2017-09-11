@@ -29,34 +29,64 @@ import de.aw.awlib.activities.AWInterface;
 
 /**
  * Fragment zur Ermittlung und speicherung einer Zeit in Minuten seit Mitternacht.
- * <p>
  * In der in {@link NumberPreferenceFragment#newInstance(NumberPreference)} uebergebenen Preference
  * wird der eingestellte Wert als int gespeichert.
- * <p>
  * Ausserdem wird das rufende Fragent durch {@link PreferenceDialogFragment#onActivityResult(int,
  * int, Intent)} mit folgenden Daten benachrichtig:
- * <p>
  * requestCode: wird beim Erstellen des Dialogs eingestellt.
- * <p>
  * resultCode: Konstant {@link AWInterface#DIALOGRESULT}
- * <p>
  * intent: null
  */
 public class NumberPreferenceFragment
         extends android.support.v14.preference.PreferenceDialogFragment implements AWInterface {
+    private static final String MINVALUE = "MINVALUE";
+    private static final String MAXVALUE = "MAXVALUE";
     private NumberPicker mNumberPicker;
+    private int maxValue = 1;
+    private int minValue = 180;
 
     /**
      * Erstellt einen NumberDialog zur NumberPreference
      *
      * @param pref
      *         NumberPreference
+     *
      * @return Fragment
      */
     public static NumberPreferenceFragment newInstance(NumberPreference pref) {
         final NumberPreferenceFragment fragment = new NumberPreferenceFragment();
         final Bundle b = new Bundle(1);
         b.putString(ARG_KEY, pref.getKey());
+        b.putInt(MAXVALUE, 180);
+        b.putInt(MINVALUE, 1);
+        fragment.setArguments(b);
+        return fragment;
+    }
+
+    /**
+     * Erstellt einen NumberDialog zur NumberPreference
+     *
+     * @param pref
+     *         NumberPreference
+     * @param minValue
+     *         Mindestwert im Picker
+     * @param maxValue
+     *         Maximalwert im Picker
+     *
+     * @return Fragment
+     */
+    public static NumberPreferenceFragment newInstance(NumberPreference pref, int minValue, int
+            maxValue) {
+        final NumberPreferenceFragment fragment = new NumberPreferenceFragment();
+        final Bundle b = new Bundle(1);
+        b.putString(ARG_KEY, pref.getKey());
+        if (minValue > maxValue) {
+            b.putInt(MAXVALUE, minValue);
+            b.putInt(MINVALUE, minValue);
+        } else {
+            b.putInt(MINVALUE, minValue);
+            b.putInt(MAXVALUE, minValue);
+        }
         fragment.setArguments(b);
         return fragment;
     }
@@ -77,10 +107,18 @@ public class NumberPreferenceFragment
         DialogPreference preference = getPreference();
         if (preference instanceof NumberPreference) {
             int number = ((NumberPreference) preference).getNumber();
-            mNumberPicker.setMinValue(1);
-            mNumberPicker.setMaxValue(180);
+            mNumberPicker.setMinValue(minValue);
+            mNumberPicker.setMaxValue(maxValue);
             mNumberPicker.setValue(number);
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        minValue = args.getInt(MINVALUE, 1);
+        maxValue = args.getInt(MINVALUE, 180);
     }
 
     /**

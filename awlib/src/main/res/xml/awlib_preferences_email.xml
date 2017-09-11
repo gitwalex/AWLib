@@ -25,7 +25,7 @@
             android:title="@string/pkSendMail"
             app:key="@string/pkSendMail"
             app:title="@string/pkSendMail"/>
-        <de.aw.awlib.preferences.EmailPreference
+        <Preference
             android:defaultValue=""
             android:dependency="@string/pkSendMail"
             android:key="@string/pkEmpfaenger"

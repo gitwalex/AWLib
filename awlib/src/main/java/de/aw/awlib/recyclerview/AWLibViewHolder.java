@@ -30,6 +30,7 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     private OnHolderClickListener mOnHolderClickListener;
     private OnHolderLongClickListener mOnLonClickListener;
     private ViewDataBinding viewDataBinding;
+    private Object mBindingVariable;
 
     /**
      * Erstellt AWLibViewHolder.
@@ -39,6 +40,14 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
      */
     public AWLibViewHolder(View view) {
         super(view);
+    }
+
+    /**
+     * @return Liefert die in {@link AWLibViewHolder#setVariable(int, Object)} gesetzte Variable
+     * zurueck
+     */
+    public Object getBindingVariable() {
+        return mBindingVariable;
     }
 
     @Override
@@ -92,15 +101,16 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
      *
      * @param variableID
      *         BR.varialbleID
-     * @param Item
+     * @param item
      *         Item fuer Databinding
      */
-    public void setVariable(int variableID, Object Item) {
+    public void setVariable(int variableID, Object item) {
         if (viewDataBinding == null) {
             viewDataBinding = DataBindingUtil.bind(itemView);
         }
-        viewDataBinding.setVariable(variableID, Item);
+        viewDataBinding.setVariable(variableID, item);
         viewDataBinding.executePendingBindings();
+        mBindingVariable = item;
     }
 
     /**

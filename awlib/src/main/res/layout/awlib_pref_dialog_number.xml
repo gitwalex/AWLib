@@ -15,9 +15,10 @@
   ~ not, see <http://www.gnu.org/licenses/>.
   -->
 
-<NumberPicker xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/pNumberPicker"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:paddingBottom="@dimen/alert_def_padding"
-              android:paddingTop="@dimen/alert_def_padding"/>
+<NumberPicker
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pNumberPicker"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/alert_def_padding"
+    android:paddingTop="@dimen/alert_def_padding"/>

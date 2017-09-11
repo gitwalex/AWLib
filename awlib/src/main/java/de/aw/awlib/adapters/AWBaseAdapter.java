@@ -17,6 +17,7 @@ package de.aw.awlib.adapters;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.content.Context;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
@@ -50,6 +51,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     static final int UNDODELETEVIEW = -1;
     private static final int CHANGEDVIEW = UNDODELETEVIEW - 1;
     private final AWBaseAdapterBinder mBinder;
+    private final Context mContext;
     private RecyclerView mRecyclerView;
     private int mTextResID = R.string.tvGeloescht;
     private AWOnScrollListener mOnScrollListener;
@@ -62,6 +64,11 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     private int mPendingDeleteItemPosition = NO_POSITION;
     private int mPendingChangeLayout;
 
+    protected AWBaseAdapter(Context context) {
+        mContext = context;
+        mBinder = null;
+    }
+
     /**
      * Initialisiert Adapter.
      *
@@ -70,6 +77,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      */
     public AWBaseAdapter(AWBaseAdapterBinder binder) {
         mBinder = binder;
+        mContext = null;
     }
 
     /**
@@ -151,6 +159,28 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
+     * Hier kann eine Item durch Angabe der Position zum loeschen vorgemerkt werden. In diesem Fall
+     * wird eine View mit 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView
+     * bewegt wird oder ein anderes Item zu Loeschung vorgemerkt wird, wird das Item tatsaechlich
+     * aus dem Adapter entfernt.
+     * Der Binder wird durch {@link AWBaseAdapterBinder#onItemDismissed(int)} informiert.
+     *
+     * @param position
+     *         Position des Items
+     */
+    @CallSuper
+    public void setPendingDeleteItemPosition(int position) {
+        int mPending = mPendingDeleteItemPosition;
+        if (mPendingDeleteItemPosition != NO_POSITION) {
+            dismissItem(mPending);
+        }
+        if (mPending != position) {
+            mPendingDeleteItemPosition = position;
+            notifyItemChanged(position);
+        }
+    }
+
+    /**
      * @return Die Position eines PendingSwipeItems oder NO_POSITION
      */
     protected int getPendingSwipeItemPosition() {
@@ -166,6 +196,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      *
      * @param position
      *         Position im Adapter
+     *
      * @return Typ der View. Siehe {@link RecyclerView.Adapter#getItemViewType}
      */
     public int getViewType(int position) {
@@ -190,7 +221,6 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
 
     /**
      * Wird aus {@link AWBaseAdapter#onBindViewHolder(AWLibViewHolder, int)}  gerufen.
-     * <p>
      * Erbende Klassen muesen pruefen, ob der ItemViewType < 0 ist, in diesem Fall wird eine View
      * gezeigt, die hier bearbeitet wurde.
      */
@@ -364,29 +394,6 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
-     * Hier kann eine Item durch Angabe der Position zum loeschen vorgemerkt werden. In diesem Fall
-     * wird eine View mit 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView
-     * bewegt wird oder ein anderes Item zu Loeschung vorgemerkt wird, wird das Item tatsaechlich
-     * aus dem Adapter entfernt.
-     * <p>
-     * Der Binder wird durch {@link AWBaseAdapterBinder#onItemDismissed(int)} informiert.
-     *
-     * @param position
-     *         Position des Items
-     */
-    @CallSuper
-    public void setPendingDeleteItemPosition(int position) {
-        int mPending = mPendingDeleteItemPosition;
-        if (mPendingDeleteItemPosition != NO_POSITION) {
-            dismissItem(mPending);
-        }
-        if (mPending != position) {
-            mPendingDeleteItemPosition = position;
-            notifyItemChanged(position);
-        }
-    }
-
-    /**
      * Setzt die ResID des Textes, der in einer UndoleteView angezeigt wird. Wird die nicht gesetzt,
      * wird 'Geloescht' angezeigt.
      *
@@ -405,12 +412,14 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         mRecyclerView.swapAdapter(this, false);
     }
 
-    public interface OnDissmissListener {
-        void onDismiss(int position);
+    public interface AWBaseAdapterBinder {
+        int getItemViewType(int position);
+
+        View onCreateViewHolder(LayoutInflater inflater, ViewGroup viewGroup, int itemType);
     }
 
-    public interface OnSwipeListener {
-        void onSwiped(AWLibViewHolder viewHolder, int direction, final int position, final long id);
+    public interface OnDissmissListener {
+        void onDismiss(int position);
     }
 
     public interface OnDragListener {
@@ -418,10 +427,8 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                        RecyclerView.ViewHolder to);
     }
 
-    public interface AWBaseAdapterBinder {
-        int getItemViewType(int position);
-
-        View onCreateViewHolder(LayoutInflater inflater, ViewGroup viewGroup, int itemType);
+    public interface OnSwipeListener {
+        void onSwiped(AWLibViewHolder viewHolder, int direction, final int position, final long id);
     }
 
     private class AWOnScrollListener extends OnScrollListener {
