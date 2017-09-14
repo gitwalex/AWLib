@@ -65,11 +65,13 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
     }
 
     /**
-     * Wird aus dem Adapter gerufen, wenn {@link AWSortedItemListAdapter#areItemsTheSame(Object, * Object)} true zuruckgegeben hat. Dann kann hier angegeben werden, ob nicht nur die
+     * Wird aus dem Adapter gerufen, wenn {@link AWSortedItemListAdapter#areItemsTheSame(Object,
+     * Object)} true zuruckgegeben hat. Dann kann hier angegeben werden, ob nicht nur die
      * Suchkritieren identisch sind, sindern auch der Inhalt.
      *
      * @param other
      *         das zu vergleichende Item
+     *
      * @return true, wenn die Inhalte gleich sind.
      */
     protected abstract boolean areContentsTheSame(T item, T other);
@@ -80,6 +82,7 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
      *
      * @param other
      *         das zu vergleichende Item
+     *
      * @return true, wenn die Suchkriterien gleich sind.
      */
     protected abstract boolean areItemsTheSame(T item, T other);
@@ -89,10 +92,9 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
      *
      * @param other
      *         das zu vergleichende Item
+     *
      * @return -1, wenn dieses Item vor other liegen soll
-     * <p>
      * 1, wenn dieses Item hinter other liegen soll
-     * <p>
      * sonst 0. Dann wird {@link AWSortedItemListAdapter#areItemsTheSame(Object, Object)} gerufen
      */
     protected abstract int compare(T item, T other);

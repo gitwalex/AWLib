@@ -85,11 +85,9 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      *
      * @return Liste mit neuen Items
      */
-    protected final List<T> fillItemList(int start) {
-        List<T> newItemList = new ArrayList<>();
+    protected final T fillItemList(int start) {
         mCursor.moveToPosition(start);
-        newItemList.addAll(mItemgenerator.createItems(mCursor, start));
-        return newItemList;
+        return mItemgenerator.createItem(mCursor);
     }
 
     /**
@@ -107,9 +105,8 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
 
     /**
      * @return die Anzahl der Items. Gibt es einen Cursor, wird die Anzahl der Cursorzeilen
-     * zurueckgeliefert. Erbende Klassen muessen in
-     * {@link AWItemListAdapterTemplate#onBindViewHolder(AWLibViewHolder, int)} entsprechend
-     * nachlesen.
+     * zurueckgeliefert. Erbende Klassen muessen in {@link AWItemListAdapterTemplate#onBindViewHolder(AWLibViewHolder,
+     * int)} entsprechend nachlesen.
      */
     @Override
     public final int getItemCount() {
@@ -453,18 +450,15 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      */
     public interface ItemGenerator<T> {
         /**
-         * Erstellt eine Liste von Items ab der Position im Curosr. Der Cursor steht an der ersten
+         * Erstellt das Items ab der Position im Curosr. Der Cursor steht an der ersten
          * zu generierenden Position.
          *
          * @param c
          *         Aktueller Cursor. Steht schon an der Stelle, die Daten fuer das erste Item
          *         beinhaltet
-         * @param position
-         *         Position
          *
-         * @return Liste erstellter Items - mindestens eins. Der ItemGenartor kann entscheiden,
-         * wieviele Items generiert werden sollen.
+         * @return Item
          */
-        List<T> createItems(Cursor c, int position);
+        T createItem(Cursor c);
     }
 }

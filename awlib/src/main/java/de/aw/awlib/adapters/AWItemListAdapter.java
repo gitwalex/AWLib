@@ -79,6 +79,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     /**
      * @param position
      *         Position des Items
+     *
      * @return Liefert ein Item an der Position zuruck.
      *
      * @throws IndexOutOfBoundsException
@@ -92,6 +93,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     /**
      * @param position
      *         Position
+     *
      * @return Liefert das Item an position zuruck
      *
      * @throws IndexOutOfBoundsException
@@ -99,8 +101,8 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      */
     @Override
     public final long getItemId(int position) {
-        if (itemList.size() < position + 1) {
-            itemList.addAll(fillItemList(itemList.size()));
+        while (itemList.size() < position + 1) {
+            itemList.add(fillItemList(itemList.size()));
         }
         return getID(itemList.get(position));
     }
@@ -133,6 +135,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     /**
      * @param item
      *         Item
+     *
      * @return Liefert den Index eines Items zuruck, -1 wenn kein Item existiert
      */
     @Override
@@ -143,8 +146,8 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
     @CallSuper
     @Override
     public void onBindViewHolder(AWLibViewHolder holder, int position) {
-        if (itemList.size() < position + 1) {
-            itemList.addAll(fillItemList(itemList.size()));
+        while (itemList.size() < position + 1) {
+            itemList.add(fillItemList(itemList.size()));
         }
         super.onBindViewHolder(holder, position);
     }
@@ -154,6 +157,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      *
      * @param position
      *         Position
+     *
      * @throws IndexOutOfBoundsException
      *         wenn size < position oder position < 0
      */
@@ -170,6 +174,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      *         Urspruenglich Position des Items
      * @param toPosition
      *         Neue Position des Items
+     *
      * @throws IndexOutOfBoundsException
      *         wenn size < fromPosition oder fromPosition < 0 oder size < toPosition oder toPosition
      *         < 0
@@ -186,6 +191,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      *
      * @param item
      *         Item
+     *
      * @return true, wenn erfolgreich.
      */
     @Override
@@ -214,7 +220,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
         super.swap(cursor, generator);
         reset();
         if (cursor.getCount() > 0) {
-            itemList.addAll(fillItemList(0));
+            itemList.add(fillItemList(0));
         }
         notifyDataSetChanged();
     }
@@ -233,6 +239,7 @@ public abstract class AWItemListAdapter<T> extends AWItemListAdapterTemplate<T> 
      *         Position
      * @param item
      *         Item
+     *
      * @throws IndexOutOfBoundsException
      *         wenn size < position oder position < 0
      */

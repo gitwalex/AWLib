@@ -17,7 +17,6 @@ package de.aw.awlib.adapters;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.content.Context;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
@@ -51,7 +50,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     static final int UNDODELETEVIEW = -1;
     private static final int CHANGEDVIEW = UNDODELETEVIEW - 1;
     private final AWBaseAdapterBinder mBinder;
-    private final Context mContext;
+    private final int[] mViewHolderResIDs;
     private RecyclerView mRecyclerView;
     private int mTextResID = R.string.tvGeloescht;
     private AWOnScrollListener mOnScrollListener;
@@ -64,9 +63,9 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     private int mPendingDeleteItemPosition = NO_POSITION;
     private int mPendingChangeLayout;
 
-    protected AWBaseAdapter(Context context) {
-        mContext = context;
+    protected AWBaseAdapter(@LayoutRes int[] viewHolderResIDs) {
         mBinder = null;
+        mViewHolderResIDs = viewHolderResIDs;
     }
 
     /**
@@ -77,7 +76,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      */
     public AWBaseAdapter(AWBaseAdapterBinder binder) {
         mBinder = binder;
-        mContext = null;
+        mViewHolderResIDs = null;
     }
 
     /**

@@ -23,7 +23,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.databinding.BaseObservable;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 
 import java.text.ParseException;
@@ -51,7 +50,7 @@ import de.aw.awlib.database.AbstractDBHelper;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
-        implements AWInterface, Parcelable {
+        implements AWInterface {
     private final String CLASSNAME = this.getClass().getSimpleName();
     /**
      * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
@@ -211,7 +210,6 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         return result;
     }
 
-    @Override
     public int describeContents() {
         return 0;
     }
@@ -676,7 +674,6 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         return result;
     }
 
-    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(this.tbd, flags);
         dest.writeString(this.selection);
