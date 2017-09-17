@@ -44,7 +44,6 @@ import de.aw.awlib.utils.AWUtils;
 
 /**
  * Klasse fuer Sicheren/Restoren DB.
- * <p>
  * Der Filename der Sicherung lautet: yyyy_MM_dd_HH_mm.zip_
  */
 public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWInterface {
@@ -57,6 +56,24 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
     private Context mContext;
     private AWNotification mNotification;
     private SharedPreferences prefs;
+
+    public EventDBSave(Context context) {
+        init(context);
+    }
+
+    public EventDBSave() {
+    }
+
+    private static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
+        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AWEventService.class);
+        intent.setAction(AWLIBACTION);
+        PendingIntent alarmIntent =
+                PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        mAlarmManager.cancel(alarmIntent);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(context.getString(R.string.nextDoDBSave)).apply();
+    }
 
     /**
      * Prueft, ob die automatische Sicherung der DB in den Preferences gewuenscht ist, dann ggfs.
@@ -73,17 +90,6 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
         } else {
             cancelDBSaveAlarm(context, prefs);
         }
-    }
-
-    private static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
-        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AWEventService.class);
-        intent.setAction(AWLIBACTION);
-        PendingIntent alarmIntent =
-                PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        mAlarmManager.cancel(alarmIntent);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.remove(context.getString(R.string.nextDoDBSave)).apply();
     }
 
     /**
@@ -111,13 +117,6 @@ public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWI
         PendingIntent newAlarmIntent =
                 PendingIntent.getService(context, 0, newIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         mAlarmManager.set(ALARM_TYPE, nextDBSave, newAlarmIntent);
-    }
-
-    public EventDBSave(Context context) {
-        init(context);
-    }
-
-    public EventDBSave() {
     }
 
     public File execute() throws ExecutionException, InterruptedException {

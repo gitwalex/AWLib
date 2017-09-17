@@ -62,6 +62,7 @@ public class NumberPreference extends DialogPreference {
         mNumber = number;
         persistInt(number);
         setSummary("" + number);
+        callChangeListener(number);
     }
 
     @Override

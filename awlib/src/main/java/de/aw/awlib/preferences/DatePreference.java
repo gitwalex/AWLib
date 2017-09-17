@@ -55,6 +55,7 @@ public class DatePreference extends DialogPreference {
     public void setDate(long timeInMillis) {
         mCalendar.setTimeInMillis(timeInMillis);
         setInternalValues();
+        callChangeListener(timeInMillis);
     }
 
     @Override

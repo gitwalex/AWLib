@@ -24,6 +24,8 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 
@@ -36,9 +38,9 @@ import de.aw.awlib.activities.AWInterface;
  */
 public class AWNotification implements AWInterface {
     private static int lastNotifyID = 1;
+    protected final Bundle extras = new Bundle();
     private final Context context;
     private String contentTitle;
-    private Bundle extras;
     private boolean hasProgressBar;
     private int mNotifyID;
     private int number = NOID;
@@ -69,6 +71,15 @@ public class AWNotification implements AWInterface {
         this.contentTitle = contentTitle;
         mNotifyID = lastNotifyID;
         lastNotifyID++;
+    }
+
+    /**
+     * @param extras
+     *         Bundle fuer die zu rufende Activity
+     */
+    @CallSuper
+    public void addExtras(Bundle extras) {
+        this.extras.putAll(extras);
     }
 
     /**
@@ -144,17 +155,23 @@ public class AWNotification implements AWInterface {
     }
 
     /**
+     * @return Liefert das Icon zuruck, welches neben der Notification gezeigt wird. Default:
+     * R.drawable.ic_stat_action_account
+     */
+    @DrawableRes
+    protected int getIconResID() {
+        return R.drawable.ic_stat_action_account;
+    }
+
+    /**
      * Erstellt einen NotificationBuilder mit Ticker {@link AWNotification#ticker}, hasProgressBar
      * und setzt (wenn gesetzt) startActivity als StartActivity.
      *
      * @return NotificationBuilder
      */
     protected NotificationCompat.Builder getNotification() {
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).
-                setSmallIcon(
-                        R.drawable.ic_stat_action_account)
-                .setAutoCancel(
-                        true);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+        mBuilder.setSmallIcon(getIconResID()).setAutoCancel(true);
         if (ticker != null) {
             mBuilder.setTicker(ticker);
         }
@@ -166,9 +183,7 @@ public class AWNotification implements AWInterface {
         if (startActivity != null) {
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
             intent = new Intent(context, startActivity);
-            if (extras != null) {
-                intent.putExtras(extras);
-            }
+            intent.putExtras(extras);
             stackBuilder.addNextIntent(intent);
             PendingIntent resultPendingIntent =
                     stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -248,14 +263,6 @@ public class AWNotification implements AWInterface {
      */
     public void setContentTitle(String contentTitle) {
         this.contentTitle = contentTitle;
-    }
-
-    /**
-     * @param extras
-     *         Bundle fuer die zu rufende Activity
-     */
-    public void setExtras(Bundle extras) {
-        this.extras = extras;
     }
 
     /**

@@ -52,18 +52,6 @@ public class EmailPreference extends DialogPreference {
         return mText;
     }
 
-    @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
-        // Default value from attribute. Fallback value is set to 0.
-        return a.getString(index);
-    }
-
-    @Override
-    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        // Read the value. Use the default value if it is not possible.
-        setText(restorePersistedValue ? getPersistedString(mText) : (String) defaultValue);
-    }
-
     /**
      * Persisitiert die Mail-Adresse und stellt sie in die Summary ein.
      *
@@ -74,5 +62,18 @@ public class EmailPreference extends DialogPreference {
         mText = text;
         persistString(text);
         setSummary(text);
+        callChangeListener(text);
+    }
+
+    @Override
+    protected Object onGetDefaultValue(TypedArray a, int index) {
+        // Default value from attribute. Fallback value is set to 0.
+        return a.getString(index);
+    }
+
+    @Override
+    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+        // Read the value. Use the default value if it is not possible.
+        setText(restorePersistedValue ? getPersistedString(mText) : (String) defaultValue);
     }
 }

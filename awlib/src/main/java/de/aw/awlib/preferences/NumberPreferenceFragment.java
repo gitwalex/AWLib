@@ -118,7 +118,7 @@ public class NumberPreferenceFragment
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         minValue = args.getInt(MINVALUE, 1);
-        maxValue = args.getInt(MINVALUE, 180);
+        maxValue = args.getInt(MAXVALUE, 180);
     }
 
     /**

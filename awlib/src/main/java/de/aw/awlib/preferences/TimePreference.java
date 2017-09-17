@@ -22,6 +22,8 @@ import android.content.res.TypedArray;
 import android.support.v7.preference.DialogPreference;
 import android.util.AttributeSet;
 
+import java.util.Locale;
+
 import de.aw.awlib.R;
 
 /**
@@ -63,7 +65,9 @@ public class TimePreference extends DialogPreference {
         persistInt(time);
         int hours = time / 60;
         int minutes = time % 60;
-        setSummary(String.format("%02d", hours) + ":" + String.format("%02d", minutes));
+        setSummary(String.format(Locale.getDefault(), "%02d", hours) + ":" + String.format(Locale
+                .getDefault(), "%02d", minutes));
+        callChangeListener(time);
     }
 
     @Override

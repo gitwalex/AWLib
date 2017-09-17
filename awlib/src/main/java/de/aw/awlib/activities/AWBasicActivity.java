@@ -34,9 +34,7 @@ import de.aw.awlib.R;
 
 /**
  * Basis-Activity fuer AWLib mit einem simplen Layout
- * <p>
  * Stellt ein Bundle args mit den extras aus Intent bereit
- * <p>
  * Erwartet eine Toolbar unter R.id.awlib_toolbar
  */
 public abstract class AWBasicActivity extends AppCompatActivity implements AWInterface {
@@ -81,10 +79,8 @@ public abstract class AWBasicActivity extends AppCompatActivity implements AWInt
 
     /**
      * Bereitstellen der Argumente aus Intent bzw savedStateInstance in args.
-     * <p>
      * Ist in den Args ein String unter {@link AWInterface#NEXTACTIVITY} vorhanden, wird diiese
      * Activity nachgestartet
-     * <p>
      * Setzen der View
      *
      * @param savedInstanceState
@@ -106,7 +102,9 @@ public abstract class AWBasicActivity extends AppCompatActivity implements AWInt
         if (nextActivity != null) {
             try {
                 Intent intent = new Intent(this, Class.forName(nextActivity));
-                intent.putExtras(args);
+                Bundle newArgs = new Bundle(args);
+                newArgs.remove(NEXTACTIVITY);
+                intent.putExtras(newArgs);
                 startActivity(intent);
             } catch (ClassNotFoundException e) {
                 //TODO Execption bearbeiten
