@@ -55,14 +55,12 @@ import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.events.AWEvent;
 import de.aw.awlib.events.AWEventService;
-import de.aw.awlib.events.EventDBSave;
 import de.aw.awlib.fragments.AWPreferenceFragment;
 import de.aw.awlib.utils.AWUtils;
 
 import static de.aw.awlib.application.AWApplication.DE_AW_APPLICATIONPATH;
 import static de.aw.awlib.events.AWEvent.DoDatabaseSave;
 import static de.aw.awlib.events.AWEvent.copyAndDebugDatabase;
-import static de.aw.awlib.events.AWEvent.doVaccum;
 
 /**
  * Erstellt und bearbeitet die allgemeinen Preferences.
@@ -73,12 +71,11 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
         implements Preference.OnPreferenceClickListener, AWInterface {
     private static final int[] mPrefs =
             new int[]{R.string.pkDBVacuum, R.string.pkDBSave, R.string.pkDBRestore,
-                    R.string.pkSavePeriodic, R.string.pkCopyright, R.string.pkAbout,
+                    R.string.pkCopyright, R.string.pkAbout,
                     R.string.pkCompileInfo, R.string.pkVersionInfo, R.string.pkExterneSicherung,
                     R.string.pkServerURL, R.string.pkServerUID};
     private AWApplication mApplication;
     private AWEvent pendingEvent;
-    private Preference regelmSicherung;
 
     private void buildAndShowDialog(int titleRes, int messageRes) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -104,35 +101,6 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
         Uri uri = Uri.parse("sqlite:" + dest.getAbsolutePath());
         intent.setData(uri);
         startActivity(intent);
-    }
-
-    /**
-     * Fuehrt die ausgewaehlte Aktion gemaess {@link AWEvent}durch.
-     *
-     * @param event
-     *         Aktion geamaess Action
-     */
-    private void doAction(final AWEvent event) {
-        switch (event) {
-            case DoDatabaseSave:
-                int permission = ContextCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                if (permission == PackageManager.PERMISSION_GRANTED) {
-                    startDBSave(event);
-                } else {
-                    pendingEvent = event;
-                    ActivityCompat.requestPermissions(getActivity(),
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_PERMISSION_STORAGE);
-                }
-                break;
-            case doVaccum:
-                buildAndShowDialog(R.string.dbTitleDatenbank, R.string.dlgDatenbankAufraeumen);
-                Intent intent = new Intent(getActivity(), AWEventService.class);
-                intent.putExtra(AWLIBEVENT, (Parcelable) event);
-                getActivity().startService(intent);
-                break;
-        }
     }
 
     @CallSuper
@@ -170,11 +138,23 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
     public boolean onPreferenceClick(Preference preference) {
         String key = preference.getKey();
         if (getString(R.string.pkDBVacuum).equals(key)) {
-            doAction(doVaccum);
+            buildAndShowDialog(R.string.dbTitleDatenbank, R.string.dlgDatenbankAufraeumen);
+            Intent intent = new Intent(getActivity(), AWEventService.class);
+            intent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.doVaccum);
+            getActivity().startService(intent);
             return true;
         } else if (getString(R.string.pkDBSave).equals(key)) {
             // Datenbank sichern
-            doAction(DoDatabaseSave);
+            int permission = ContextCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permission == PackageManager.PERMISSION_GRANTED) {
+                startDBSave(DoDatabaseSave);
+            } else {
+                pendingEvent = DoDatabaseSave;
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_PERMISSION_STORAGE);
+            }
             return true;
         } else if (getString(R.string.pkDBRestore).equals(key)) {
             Intent intent = new Intent(getActivity(), AWActivityActions.class);
@@ -216,9 +196,6 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
                         }
                     });
             builder.create().show();
-            return true;
-        } else if (getString(R.string.pkSavePeriodic).equals(key)) {
-            EventDBSave.checkDBSaveAlarm(getActivity(), preference.getSharedPreferences());
             return true;
         } else if (getString(R.string.pkCompileInfo).equals(key)) {
             if (ContextCompat.checkSelfPermission(getActivity(),

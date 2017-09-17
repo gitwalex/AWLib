@@ -57,7 +57,7 @@
         <activity android:name=".activities.AWGalleryActivity"/>
         <!-- Receiver fuer Boot-Completed Message -->
         <receiver
-            android:name=".events.EventDBSave"
+            android:name=".events.AWLibBootBroadcastReceiver"
             android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>

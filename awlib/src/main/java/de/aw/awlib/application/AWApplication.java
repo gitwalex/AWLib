@@ -22,13 +22,11 @@ import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
-import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.ViewConfiguration;
@@ -46,9 +44,9 @@ import java.util.Date;
 import de.aw.awlib.activities.AWActivityDebug;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.events.AWEventService;
 
 import static de.aw.awlib.activities.AWInterface.linefeed;
-import static de.aw.awlib.events.EventDBSave.checkDBSaveAlarm;
 
 /**
  * AWApplication: Einschalten von StrictModus, wenn im debug-mode. Erstellt eine HProf-Log bei
@@ -156,9 +154,7 @@ public abstract class AWApplication extends Application {
 
     /**
      * @return Liefert ein HTML-File  fuer die Auswahl der Preferences 'About'. Das file wird in
-     * /assets/html erwartet.
-     * <p>
-     * Default: Anzeige kein About
+     * /assets/html erwartet. Default: Anzeige kein About
      */
     public String getAboutHTML() {
         return "no_about.html";
@@ -196,9 +192,7 @@ public abstract class AWApplication extends Application {
 
     /**
      * @return Liefert ein HTML-File  fuer die Auswahl der Preferences 'Copyright'. Das file wird in
-     * /assets/html erwartet.
-     * <p>
-     * Default: Anzeige kein Copyright
+     * /assets/html erwartet. Default: Anzeige kein Copyright
      */
     public String getCopyrightHTML() {
         return "no_copyright.html";
@@ -214,9 +208,7 @@ public abstract class AWApplication extends Application {
     }
 
     /**
-     * @return Das DebugFlag der Application
-     * <p>
-     * Default: True, immer im Debugmodus
+     * @return Das DebugFlag der Application Default: True, immer im Debugmodus
      */
     public boolean getDebugFlag() {
         return true;
@@ -250,8 +242,7 @@ public abstract class AWApplication extends Application {
         createDBHelper(this);
         boolean mDebugFlag = getDebugFlag();
         super.onCreate();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        checkDBSaveAlarm(this, prefs);
+        AWEventService.setDailyAlarm(this);
         if (mDebugFlag) {
             try {
                 // Im Debug-Mode Pruefen lassen, welche Constraints verletzt werden.
@@ -266,9 +257,9 @@ public abstract class AWApplication extends Application {
                 // -violation-2-instances-1-expected-on-rotati/25252425#25252425
                 StrictMode.setVmPolicy(
                         new StrictMode.VmPolicy.Builder().detectLeakedClosableObjects()
-                                                         .detectLeakedRegistrationObjects()
-                                                         .detectLeakedSqlLiteObjects().penaltyLog()
-                                                         .build());
+                                .detectLeakedRegistrationObjects()
+                                .detectLeakedSqlLiteObjects().penaltyLog()
+                                .build());
                 // Schreiben/Lesen auf Disk erlauben
                 StrictMode.allowThreadDiskReads();
                 StrictMode.allowThreadDiskWrites();
@@ -333,9 +324,7 @@ public abstract class AWApplication extends Application {
     public abstract int theDatenbankVersion();
 
     /**
-     * @return Datenbankname
-     * <p>
-     * Default: "database.db"
+     * @return Datenbankname Default: "database.db"
      */
     public String theDatenbankname() {
         return "database.db";

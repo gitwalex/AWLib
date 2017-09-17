@@ -55,7 +55,7 @@ public enum AWEvent implements Parcelable {
      * des Filenamens
      */
     ShowPicture,//
-    ;
+    AWLibDailyEvent;
     public static final Parcelable.Creator<AWEvent> CREATOR =
             new android.os.Parcelable.Creator<AWEvent>() {
                 public AWEvent createFromParcel(Parcel in) {

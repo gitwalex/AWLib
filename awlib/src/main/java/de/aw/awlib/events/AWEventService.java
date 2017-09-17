@@ -17,21 +17,22 @@ package de.aw.awlib.events;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.Manifest;
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
+import android.os.Parcelable;
+import android.support.v7.preference.PreferenceManager;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Calendar;
 
-import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
+
+import static de.aw.awlib.events.AWEvent.DoDatabaseSave;
 
 /**
  * Bearbeitet Events innerhalb MonMa.
@@ -42,33 +43,51 @@ public class AWEventService extends IntentService implements AWInterface {
     }
 
     /**
+     * Setzt den taeglichen Alarm auf den naechsten Tag 00:00 Uhr. Das Geraet wird nicht geweckkt.
+     *
+     * @param context
+     *         Context
+     */
+    public static void setDailyAlarm(Context context) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(System.currentTimeMillis());
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        long nextAlarm = cal.getTimeInMillis();
+        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent newIntent = new Intent(context, AWEventService.class);
+        newIntent.setAction(AWLIBEVENT);
+        newIntent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.AWLibDailyEvent);
+        PendingIntent newAlarmIntent =
+                PendingIntent.getService(context, 0, newIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        mAlarmManager.set(AlarmManager.RTC, nextAlarm, newAlarmIntent);
+        AWApplication.Log("AWLIB next Daily-Alarmset to: " + cal.getTime().toString());
+    }
+
+    /**
      * Handelt Intents.
      */
     @Override
     protected void onHandleIntent(Intent intent) {
         Bundle extras = intent.getExtras();
         AWEvent event = extras.getParcelable(AWLIBEVENT);
+        assert event != null;
         switch (event) {
-            case DoDatabaseSave:
-                if (ContextCompat
-                        .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                        PackageManager.PERMISSION_GRANTED) {
-                    try {
-                        new EventDBSave(this).execute();
-                        Context context = getApplicationContext();
-                        SharedPreferences prefs =
-                                PreferenceManager.getDefaultSharedPreferences(context);
-                        if (prefs.getBoolean(context.getString(R.string.pkExterneSicherung),
-                                false)) {
-                        }
-                    } catch (ExecutionException e) {
-                        //TODO Execption bearbeiten
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        //TODO Execption bearbeiten
-                        e.printStackTrace();
-                    }
+            case AWLibDailyEvent:
+                SharedPreferences prefs =
+                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                int nextDBSave = prefs.getInt(DoDatabaseSave.name() + "nextDBSave", 1);
+                nextDBSave--;
+                if (nextDBSave == 0) {
+                    new EventDBSave().execute(getApplicationContext());
+                    nextDBSave = 5;
                 }
+                prefs.edit().putInt(DoDatabaseSave.name() + "nextDBSave", nextDBSave).apply();
+                setDailyAlarm(getApplicationContext());
+                break;
+            case DoDatabaseSave:
+                new EventDBSave().execute(getApplicationContext());
                 break;
             case doVaccum:
                 ((AWApplication) getApplicationContext()).getDBHelper().optimize();

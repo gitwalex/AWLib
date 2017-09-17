@@ -17,22 +17,19 @@ package de.aw.awlib.events;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
+import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 
 import java.io.File;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import de.aw.awlib.AWNotification;
 import de.aw.awlib.AWResultCodes;
@@ -46,147 +43,79 @@ import de.aw.awlib.utils.AWUtils;
  * Klasse fuer Sicheren/Restoren DB.
  * Der Filename der Sicherung lautet: yyyy_MM_dd_HH_mm.zip_
  */
-public class EventDBSave extends BroadcastReceiver implements AWResultCodes, AWInterface {
-    private static final String ALARMTIME = "ALARMTIME";
-    private static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
+public class EventDBSave extends AsyncTask<File, Void, Integer> implements AWResultCodes,
+        AWInterface {
     private static String DATABASEFILENAME;
-    private static String BACKUPPATH;
-    private File backupFile;
     private Date date;
     private Context mContext;
     private AWNotification mNotification;
     private SharedPreferences prefs;
 
-    public EventDBSave(Context context) {
-        init(context);
-    }
-
     public EventDBSave() {
     }
 
-    private static void cancelDBSaveAlarm(Context context, SharedPreferences prefs) {
-        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AWEventService.class);
-        intent.setAction(AWLIBACTION);
-        PendingIntent alarmIntent =
-                PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        mAlarmManager.cancel(alarmIntent);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.remove(context.getString(R.string.nextDoDBSave)).apply();
-    }
-
-    /**
-     * Prueft, ob die automatische Sicherung der DB in den Preferences gewuenscht ist, dann ggfs.
-     * Alarm setzen. Ansonsten einen ggfs. vorhandenen Alarm cancel.
-     *
-     * @param context
-     *         Context
-     * @param prefs
-     *         SharedPreferences
-     */
-    public static void checkDBSaveAlarm(Context context, SharedPreferences prefs) {
-        if (prefs.getBoolean(context.getString(R.string.pkSavePeriodic), false)) {
-            setDBSaveAlarm(context, prefs);
-        } else {
-            cancelDBSaveAlarm(context, prefs);
+    @Override
+    protected Integer doInBackground(File... params) {
+        int result = AWUtils.addToZipArchive(params[0], DATABASEFILENAME);
+        prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        if (prefs.getBoolean(mContext.getString(R.string.pkExterneSicherung),
+                false)) {
         }
+        return result;
     }
 
     /**
-     * Setzt den Termin fuer die naechste Automatische Datenbanksicherung,
+     * Sichert die Datenbank. Wird nur auusgefuhrt, wenn Berechtigung vorhanden
      *
      * @param context
      *         Context
-     * @param prefs
-     *         SharedPreferences
      */
-    private static void setDBSaveAlarm(Context context, SharedPreferences prefs) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(System.currentTimeMillis());
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.add(Calendar.DAY_OF_MONTH, 5);
-        SharedPreferences.Editor editor = prefs.edit();
-        long nextDBSave = cal.getTimeInMillis();
-        editor.putLong(context.getString(R.string.nextDoDBSave), nextDBSave).apply();
-        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent newIntent = new Intent(context, AWEventService.class);
-        newIntent.setAction(AWLIBEVENT);
-        newIntent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.DoDatabaseSave);
-        newIntent.putExtra(ALARMTIME, nextDBSave);
-        PendingIntent newAlarmIntent =
-                PendingIntent.getService(context, 0, newIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        mAlarmManager.set(ALARM_TYPE, nextDBSave, newAlarmIntent);
-    }
-
-    public File execute() throws ExecutionException, InterruptedException {
-        new EventDBSaveExecute().execute(backupFile).get();
-        return getFileName();
-    }
-
-    public File getFileName() {
-        return backupFile;
-    }
-
-    private void init(Context context) {
-        mContext = context.getApplicationContext();
-        AWApplication mApplication = ((AWApplication) mContext.getApplicationContext());
-        BACKUPPATH = mApplication.getApplicationBackupPath() + "/";
-        DATABASEFILENAME = mApplication.getApplicationDatabaseAbsoluteFilename();
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        date = new Date(System.currentTimeMillis());
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault());
-        backupFile = new File(BACKUPPATH + fmt.format(cal.getTime()) + ".zip");
+    public void execute(Context context) {
+        if (ContextCompat
+                .checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED) {
+            mContext = context.getApplicationContext();
+            AWApplication mApplication = ((AWApplication) mContext.getApplicationContext());
+            String BACKUPPATH = mApplication.getApplicationBackupPath() + "/";
+            DATABASEFILENAME = mApplication.getApplicationDatabaseAbsoluteFilename();
+            date = new Date(System.currentTimeMillis());
+            Calendar cal = Calendar.getInstance();
+            SimpleDateFormat fmt = new SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault());
+            File backupFile = new File(BACKUPPATH + fmt.format(cal.getTime()) + ".zip");
+            execute(backupFile);
+        }
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        init(context);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        checkDBSaveAlarm(context, prefs);
+    protected void onPostExecute(Integer ergebnis) {
+        String result;
+        switch (ergebnis) {
+            case RESULT_OK:
+                result = mContext.getString(R.string.dbSaved);
+                SharedPreferences.Editor editor = prefs.edit();
+                String mDate = AWDBConvert.convertDate(date);
+                editor.putString(AWEvent.DoDatabaseSave.name(), mDate).apply();
+                break;
+            case RESULT_FILE_ERROR:
+                result = mContext.getString(R.string.dbFileError);
+                break;
+            case RESULT_Divers:
+            default:
+                result = mContext.getString(R.string.dbSaveError);
+                break;
+        }
+        mNotification.setHasProgressBar(false);
+        mNotification.replaceNotification(result);
     }
 
-    public void save() {
-        new EventDBSaveExecute().execute(backupFile);
-    }
-
-    private class EventDBSaveExecute extends AsyncTask<File, Void, Integer> {
-        @Override
-        protected Integer doInBackground(File... params) {
-            return AWUtils.addToZipArchive(params[0], DATABASEFILENAME);
-        }
-
-        @Override
-        protected void onPostExecute(Integer ergebnis) {
-            String result;
-            switch (ergebnis) {
-                case RESULT_OK:
-                    result = mContext.getString(R.string.dbSaved);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    String mDate = AWDBConvert.convertDate(date);
-                    editor.putString(AWEvent.DoDatabaseSave.name(), mDate).apply();
-                    break;
-                case RESULT_FILE_ERROR:
-                    result = mContext.getString(R.string.dbFileError);
-                    break;
-                case RESULT_Divers:
-                default:
-                    result = mContext.getString(R.string.dbSaveError);
-                    break;
-            }
-            mNotification.setHasProgressBar(false);
-            mNotification.replaceNotification(result);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            String ticker = mContext.getString(R.string.tickerDBSicherung);
-            String contentTitle = mContext.getString(R.string.contentTextDBSicherung);
-            mNotification = new AWNotification(mContext, contentTitle);
-            mNotification.setTicker(ticker);
-            mNotification.setHasProgressBar(true);
-            mNotification.createNotification(contentTitle);
-        }
+    @Override
+    protected void onPreExecute() {
+        String ticker = mContext.getString(R.string.tickerDBSicherung);
+        String contentTitle = mContext.getString(R.string.contentTextDBSicherung);
+        mNotification = new AWNotification(mContext, contentTitle);
+        mNotification.setTicker(ticker);
+        mNotification.setHasProgressBar(true);
+        mNotification.createNotification(contentTitle);
     }
 }
+
