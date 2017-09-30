@@ -80,7 +80,9 @@ public class AWEventService extends IntentService implements AWInterface {
                 int nextDBSave = prefs.getInt(DoDatabaseSave.name() + "nextDBSave", 1);
                 nextDBSave--;
                 if (nextDBSave == 0) {
-                    new EventDBSave().execute(getApplicationContext());
+                    if (prefs.getBoolean(AWEvent.DoDatabaseSave.name(), false)) {
+                        new EventDBSave().execute(getApplicationContext());
+                    }
                     nextDBSave = 5;
                 }
                 prefs.edit().putInt(DoDatabaseSave.name() + "nextDBSave", nextDBSave).apply();
