@@ -36,7 +36,6 @@ import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.utils.AWUtils;
 
 /**
@@ -92,9 +91,7 @@ public class EventDBSave extends AsyncTask<File, Void, Integer> implements AWRes
         switch (ergebnis) {
             case RESULT_OK:
                 result = mContext.getString(R.string.dbSaved);
-                SharedPreferences.Editor editor = prefs.edit();
-                String mDate = AWDBConvert.convertDate(date);
-                editor.putString(AWEvent.DoDatabaseSave.name(), mDate).apply();
+                prefs.edit().putLong(AWEvent.DoDatabaseSave.name(), date.getTime()).apply();
                 break;
             case RESULT_FILE_ERROR:
                 result = mContext.getString(R.string.dbFileError);

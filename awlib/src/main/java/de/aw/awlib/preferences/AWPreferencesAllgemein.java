@@ -32,10 +32,12 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.v14.preference.SwitchPreference;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -127,7 +129,8 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
                 String value = prefs.getString(key, null);
                 preference.setSummary(value);
             } else if (pkKey == R.string.pkSavePeriodic) {
-                setRegelmSicherungSummary(preference, prefs);
+                long value = prefs.getLong(AWEvent.DoDatabaseSave.name(), Long.MAX_VALUE);
+                setRegelmSicherungSummary(preference, prefs, value);
             }
             preference.setOnPreferenceClickListener(this);
         }
@@ -244,21 +247,27 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.nextDoDBSave))) {
-            Preference pref = findPreference(getString(R.string.pkSavePeriodic));
-            setRegelmSicherungSummary(pref, sharedPreferences);
+        if (key.equals(getString(R.string.pkSavePeriodic))) {
+            SwitchPreference pref =
+                    (SwitchPreference) findPreference(key);
+            long value = Long.MAX_VALUE;
+            if (pref.isChecked()) {
+                value = System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS * 5;
+            }
+            setRegelmSicherungSummary(pref, sharedPreferences, value);
         }
     }
 
-    private void setRegelmSicherungSummary(Preference pref, SharedPreferences prefs) {
-        if (prefs.getBoolean(getString(R.string.pkSavePeriodic), false)) {
-            long value = prefs.getLong(getString(R.string.nextDoDBSave), 0);
+    private void setRegelmSicherungSummary(Preference pref, SharedPreferences prefs, long value) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(AWEvent.DoDatabaseSave.name());
+        if (value == Long.MAX_VALUE) {
+            pref.setSummary(getString(R.string.smryDBSavePeriodic));
+        } else {
             String date = AWDBConvert.convertDate(value);
             pref.setSummary(getString(R.string.smryDBSavePeriodicOn) + date);
-        } else {
-            pref.setSummary(prefs.getString(getString(R.string.nextDoDBSave),
-                    getString(R.string.smryDBSavePeriodic)));
         }
+        editor.putLong(AWEvent.DoDatabaseSave.name(), value).apply();
     }
 
     private void startDBSave(AWEvent event) {

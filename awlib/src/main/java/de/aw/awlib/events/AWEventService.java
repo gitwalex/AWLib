@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.preference.PreferenceManager;
+import android.text.format.DateUtils;
 
 import java.util.Calendar;
 
@@ -77,15 +78,12 @@ public class AWEventService extends IntentService implements AWInterface {
             case AWLibDailyEvent:
                 SharedPreferences prefs =
                         PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                int nextDBSave = prefs.getInt(DoDatabaseSave.name() + "nextDBSave", 1);
-                nextDBSave--;
-                if (nextDBSave == 0) {
-                    if (prefs.getBoolean(AWEvent.DoDatabaseSave.name(), false)) {
-                        new EventDBSave().execute(getApplicationContext());
-                    }
-                    nextDBSave = 5;
+                long nextDBSave = prefs.getLong(DoDatabaseSave.name(), Long.MAX_VALUE);
+                if (nextDBSave < System.currentTimeMillis()) {
+                    new EventDBSave().execute(getApplicationContext());
+                    prefs.edit().putLong(DoDatabaseSave.name(), System.currentTimeMillis() +
+                            DateUtils.DAY_IN_MILLIS * 5).apply();
                 }
-                prefs.edit().putInt(DoDatabaseSave.name() + "nextDBSave", nextDBSave).apply();
                 setDailyAlarm(getApplicationContext());
                 break;
             case DoDatabaseSave:
