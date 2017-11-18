@@ -33,8 +33,8 @@ import de.aw.awlib.application.AWApplication;
  * @author alex
  */
 public class AWContentProvider extends ContentProvider implements AWInterface {
+    protected AbstractDBHelper db;
     private boolean batchMode;
-    private AbstractDBHelper db;
     private AWApplication mApplication;
 
     @Override

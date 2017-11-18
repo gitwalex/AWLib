@@ -481,17 +481,11 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
      * Hier sollten alle columnItems aufgefuerht werden, deren Format nicht Text ist. Dann wird im
      * Geschaeftobject der Wert mit dem entsprechenden in die Tabellenspalte geschrieben.
      *
-     * @return Liste der columns. [0] = resID, [1] = format
-     * Liste der moeglichen Formate.
-     * T = normaler Text (optional)
-     * N = Numerisch
-     * C = Numerisch als Currency, Long, anzahl Stellen wie Nachkommastellen Locale.getCurrency
-     * K = Numerisch als Currency, Long, aktuell Anzahl Stellen wie Nachkommastellen
-     * Locale.getCurrency
-     * D = Datum
-     * B = Boolean
-     * P = Numerisch als Prozent
-     * K = Numerisch mit 5 Nachkommastellen (Kurs)
+     * @return Liste der columns. [0] = resID, [1] = format Liste der moeglichen Formate. T =
+     * normaler Text (optional) N = Numerisch C = Numerisch als Currency, Long, anzahl Stellen wie
+     * Nachkommastellen Locale.getCurrency K = Numerisch als Currency, Long, aktuell Anzahl Stellen
+     * wie Nachkommastellen Locale.getCurrency D = Datum B = Boolean P = Numerisch als Prozent K =
+     * Numerisch mit 5 Nachkommastellen (Kurs)
      **/
     @NonNull
     public abstract int[][] getNonTextColumnItems();
@@ -791,22 +785,22 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         database.beginTransaction();
         try {
             for (AWAbstractDBDefinition tbd : getAllDBDefinition()) {
-                if (!tbd.isView()) {
+                if (tbd.doCreate() && !tbd.isView()) {
                     dbhelper.createTable(tbd);
                 }
             }
             for (AWAbstractDBDefinition tbd : getAllDBDefinition()) {
-                if (tbd.isView()) {
+                if (tbd.doCreate() && tbd.isView()) {
                     dbhelper.alterView(tbd);
                 }
             }
             for (AWDBDefinition tbd : AWDBDefinition.values()) {
-                if (!tbd.isView()) {
+                if (tbd.doCreate() && !tbd.isView()) {
                     dbhelper.createTable(tbd);
                 }
             }
             for (AWDBDefinition tbd : AWDBDefinition.values()) {
-                if (tbd.isView()) {
+                if (tbd.doCreate() && tbd.isView()) {
                     dbhelper.alterView(tbd);
                 }
             }
@@ -1004,6 +998,16 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         @Override
         public int describeContents() {
             return 0;
+        }
+
+        /**
+         * Indicator, ob AbstractDBHelper.AWDBDefinition angelegt werden soll. Default true
+         *
+         * @return true
+         */
+        @Override
+        public boolean doCreate() {
+            return true;
         }
 
         /**

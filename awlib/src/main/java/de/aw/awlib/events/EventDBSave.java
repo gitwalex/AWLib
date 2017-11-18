@@ -91,7 +91,6 @@ public class EventDBSave extends AsyncTask<File, Void, Integer> implements AWRes
         switch (ergebnis) {
             case RESULT_OK:
                 result = mContext.getString(R.string.dbSaved);
-                prefs.edit().putLong(AWEvent.DoDatabaseSave.name(), date.getTime()).apply();
                 break;
             case RESULT_FILE_ERROR:
                 result = mContext.getString(R.string.dbFileError);

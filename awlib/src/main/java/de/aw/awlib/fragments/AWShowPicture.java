@@ -17,6 +17,7 @@ package de.aw.awlib.fragments;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,7 +30,6 @@ import com.bumptech.glide.Glide;
 
 import java.io.File;
 
-import de.aw.awlib.Manifest;
 import de.aw.awlib.R;
 
 /**

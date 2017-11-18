@@ -29,6 +29,11 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     void createDatabase(AWDBAlterHelper dbAlterHelper);
 
+    /**
+     * @return true, wenn die Tabelle/View erstellt werden soll.
+     */
+    boolean doCreate();
+
     String getCreateViewSQL();
 
     String getOrderString();
@@ -37,6 +42,9 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     Uri getUri();
 
+    /**
+     * @return true, wenn is sich um eine View handelt
+     */
     boolean isView();
 
     String name();
@@ -46,8 +54,7 @@ public interface AWAbstractDBDefinition extends Parcelable {
     /**
      * Wird geworfen, wenn eine ResID nicht gefunden wurde.
      */
-    @SuppressWarnings("serial")
-    class ResIDNotFoundException extends RuntimeException {
+    @SuppressWarnings("serial") class ResIDNotFoundException extends RuntimeException {
         public ResIDNotFoundException(String detailMessage) {
             super(detailMessage);
         }
