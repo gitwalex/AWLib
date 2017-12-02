@@ -194,6 +194,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         id = source.id;
     }
 
+
     protected int delete(AbstractDBHelper db) {
         if (id == null) {
             AWApplication

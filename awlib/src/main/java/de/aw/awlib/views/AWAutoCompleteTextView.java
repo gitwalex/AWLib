@@ -22,12 +22,10 @@ import android.database.Cursor;
 import android.databinding.BindingAdapter;
 import android.graphics.Rect;
 import android.support.annotation.CallSuper;
-import android.support.annotation.NonNull;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
 import android.widget.FilterQueryProvider;
 import android.widget.TextView;
 
@@ -43,13 +41,10 @@ import de.aw.awlib.database.AWAbstractDBDefinition;
  * @see AWAutoCompleteTextView#onTextChanged(String newText)
  */
 public abstract class AWAutoCompleteTextView
-        extends android.support.v7.widget.AppCompatAutoCompleteTextView
-        implements AWInterface, FilterQueryProvider, AdapterView.OnItemClickListener,
-        AutoCompleteTextView.Validator {
+        extends android.support.v7.widget.AppCompatAutoCompleteTextView implements AWInterface, FilterQueryProvider, AdapterView.OnItemClickListener {
     protected OnTextChangedListener mOnTextChangeListener;
     private int columnIndex;
     private int fromResID;
-    private int mIndex;
     private String mMainColumn;
     private String mOrderBy;
     private String[] mProjection;
@@ -57,7 +52,8 @@ public abstract class AWAutoCompleteTextView
     private String cursorText = "";
     private long selectionID;
     private AWAbstractDBDefinition tbd;
-    private String oldText;
+    private boolean initializedCalled;
+    private boolean doValidateInput;
 
     public AWAutoCompleteTextView(Context context) {
         super(context);
@@ -76,74 +72,12 @@ public abstract class AWAutoCompleteTextView
         view.setOnTextChangedListener(listener);
     }
 
-    private void buildSelectionArguments(String mUserSelection, String[] mUserSelectionArgs,
-                                         String orderBy) {
-        mSelection = tbd.columnName(fromResID) + " Like ? ";
-        mOrderBy = orderBy;
-        if (mOrderBy == null) {
-            mOrderBy = "LENGTH(" + mMainColumn + ")";
-        }
-        if (mUserSelection != null) {
-            if (mUserSelectionArgs != null) {
-                for (String sel : mUserSelectionArgs) {
-                    mUserSelection = mUserSelection.replaceFirst("\\?", "'" + sel + "'");
-                }
-            }
-            mSelection = mSelection + " AND (" + mUserSelection + ")";
-        }
-        mSelection = mSelection + "  GROUP BY " + mMainColumn;
-        mOrderBy = mOrderBy + ", " + mMainColumn;
-    }
-
-    @Override
-    public boolean enoughToFilter() {
-        return true;
-    }
-
-    @Override
-    public final CharSequence fixText(CharSequence invalidText) {
-        return cursorText;
-    }
-
-    public final int getIndex() {
-        return mIndex;
-    }
-
     /**
-     * Dann kann diese View mehrmals in einem Layout verwendet werden.
-     *
-     * @param index
-     *         index
+     * @return Liefert die ID des selektierten Textes. Wenn {@link AWAutoCompleteTextView#validateInput(boolean
+     * doValidateInput)} mit true gerufen wurde, die erste ID aus dem Cursor,ansonsten NOID.
      */
-    public final void setIndex(int index) {
-        mIndex = index;
-    }
-
-    /**
-     * Liefert den Cursor zu einem Text in der TextView. Kann ueberschrieben werden, muss aber im
-     * Cursor an der ersten Stelle den Text und an der zweiten Stelle die ID liefern
-     *
-     * @param constraint
-     *         Text in der TextView
-     *
-     * @return Curos mit Daten
-     */
-    @NonNull
-    protected Cursor getSelectionCursor(String constraint) {
-        String[] mSelectionArgs = new String[]{"%" + constraint + "%"};
-        Cursor c = getContext().getContentResolver()
-                .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs,
-                        mOrderBy);
-        assert c != null;
-        return c;
-    }
-
-    /**
-     * @return Liefert die ID des selektierten Textes. Ist ein Validator gesetzt, den ersten aus dem
-     * Cursor,ansonsten NOID.
-     */
-    public long getSelectionID() {
-        if (getValidator() != null) {
+    public final long getSelectionID() {
+        if (!doValidateInput) {
             return selectionID;
         } else {
             String text = getText().toString();
@@ -173,21 +107,27 @@ public abstract class AWAutoCompleteTextView
     public final void initialize(AWAbstractDBDefinition tbd, String selection,
                                  String[] selectionArgs, int fromResID, String orderBy) {
         if (!isInEditMode()) {
+            initializedCalled = true;
             this.tbd = tbd;
             this.fromResID = fromResID;
             mMainColumn = tbd.columnName(this.fromResID);
-            mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R
-                    .string._id)};
-            buildSelectionArguments(selection, selectionArgs, orderBy);
+            mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
+            mSelection = tbd.columnName(fromResID) + " Like ? ";
+            mOrderBy = orderBy;
+            if (mOrderBy == null) {
+                mOrderBy = "LENGTH(" + mMainColumn + ")";
+            }
+            if (selection != null) {
+                if (selectionArgs != null) {
+                    for (String sel : selectionArgs) {
+                        selection = selection.replaceFirst("\\?", "'" + sel + "'");
+                    }
+                }
+                mSelection = mSelection + " AND (" + selection + ")";
+            }
+            mSelection = mSelection + "  GROUP BY " + mMainColumn;
+            mOrderBy = mOrderBy + ", " + mMainColumn;
         }
-    }
-
-    /**
-     * Ein Text kann nur gueltig sein, wenn die Textlaenge kleiner des selektierten Textes ist.
-     */
-    @Override
-    public boolean isValid(CharSequence text) {
-        return (text.toString().equals(cursorText));
     }
 
     @Override
@@ -206,6 +146,9 @@ public abstract class AWAutoCompleteTextView
     protected void onFinishInflate() {
         super.onFinishInflate();
         if (!isInEditMode()) {
+            if (!initializedCalled) {
+                throw new IllegalStateException("Method 'initialize(AWDBDefinition, String, " + "String[], int, String)' not called");
+            }
             SimpleCursorAdapter mSimpleCursorAdapter = new SimpleCursorAdapter(getContext(),
                     android.R.layout.simple_dropdown_item_1line, null, mProjection,
                     new int[]{android.R.id.text1}, 0);
@@ -238,7 +181,7 @@ public abstract class AWAutoCompleteTextView
         super.onFocusChanged(focused, direction, previouslyFocusedRect);
         if (!focused) {
             dismissDropDown();
-            if (getValidator() != null) {
+            if (doValidateInput) {
                 setText(cursorText);
                 onTextChanged(cursorText);
             }
@@ -261,7 +204,7 @@ public abstract class AWAutoCompleteTextView
 
     @Override
     protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
-        if (getValidator() != null) {
+        if (doValidateInput) {
             onTextChanged(cursorText);
         } else {
             onTextChanged(text.toString());
@@ -277,8 +220,7 @@ public abstract class AWAutoCompleteTextView
     @CallSuper
     protected void onTextChanged(String currentText) {
         if (mOnTextChangeListener != null) {
-            mOnTextChangeListener
-                    .onTextChanged(this, currentText, cursorText, selectionID, mIndex);
+            mOnTextChangeListener.onTextChanged(this, currentText, cursorText, selectionID);
         }
     }
 
@@ -298,7 +240,8 @@ public abstract class AWAutoCompleteTextView
     public Cursor runQuery(final CharSequence constraint) {
         selectionID = NOID;
         final String mConstraint = constraint == null ? "" : constraint.toString().trim();
-        final Cursor data = getSelectionCursor(mConstraint);
+        String[] mSelectionArgs = new String[]{"%" + constraint + "%"};
+        final Cursor data = getContext().getContentResolver().query(tbd.getUri(), mProjection, mSelection, mSelectionArgs, mOrderBy);
         if (data.moveToFirst()) {
             selectionID = data.getLong(1);
             cursorText = data.getString(0).trim();
@@ -327,12 +270,14 @@ public abstract class AWAutoCompleteTextView
     }
 
     /**
-     * Setzt sich selbst als Validator.
+     * Wenn diese Methode true zurueckliefert, sind nur Werte aus dem Cursor erlaubt. Wir ein
+     * Wert erfasst, der nicht im Cursor vorhanden ist, wird der eingegebene Wert mit dem ersten
+     * Wert aus dem Cursor ersetzt.
      *
-     * @see AWAutoCompleteTextView#setValidator(Validator)
+     * @return default false. Neue Werte sind immer erlaubt.
      */
-    public void setValidating() {
-        setValidator(this);
+    protected void validateInput(boolean doValidating) {
+        this.doValidateInput = doValidating;
     }
 
     /**
@@ -349,9 +294,7 @@ public abstract class AWAutoCompleteTextView
          * @param newID
          *         ID aus der DB, wenn Nutzer ein Item aus dem Pulldown selektiert hat oder wenn
          *         der
-         * @param index
-         *         index, wie in {@link AWAutoCompleteTextView#setIndex(int)} gesetzt
          */
-        void onTextChanged(View view, String currentText, String cursorText, long newID, int index);
+        void onTextChanged(View view, String currentText, String cursorText, long newID);
     }
 }

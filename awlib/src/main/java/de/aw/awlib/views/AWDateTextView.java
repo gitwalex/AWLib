@@ -37,12 +37,23 @@ import de.aw.awlib.database.AWDBConvert;
  * TextView fuer Eingabe Datum. Bei Klick wird ein DatePickerDialog gezeigt und eine Aenderung durch
  * dem OnDateSetListener bekanntgegeben
  */
-public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
-        implements AWInterface, DatePickerDialog.OnDateSetListener, OnClickListener {
+public class AWDateTextView extends android.support.v7.widget.AppCompatTextView implements AWInterface, DatePickerDialog.OnDateSetListener, OnClickListener {
     private Calendar cal = Calendar.getInstance();
     private OnDateSetListener mOnDateSetListener;
     private int year, month, day;
     private OnDateValuesSetListener mOnDateValuesSetListener;
+
+    public AWDateTextView(Context context) {
+        super(context);
+    }
+
+    public AWDateTextView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public AWDateTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
 
     @BindingAdapter({"onDateChanged"})
     public static void onDateChanged(AWDateTextView view, OnDateSetListener listener) {
@@ -59,18 +70,6 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
         view.setDate(date);
     }
 
-    public AWDateTextView(Context context) {
-        super(context);
-    }
-
-    public AWDateTextView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public AWDateTextView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
     /**
      * @return Liefert das aktuell angezeigte Datum zurueck
      */
@@ -81,8 +80,7 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     /**
      * Setzt das uebergebene Datum. Die Zeit wird auf 00:00 gesetzt
      *
-     * @param date
-     *         Datum
+     * @param date Datum
      */
     public void setDate(Date date) {
         Calendar newCal = Calendar.getInstance();
@@ -101,6 +99,17 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     }
 
     /**
+     * Setzt das uebergebene Datum.
+     *
+     * @param date Datum im SQLiteFormat
+     * @throws ParseException, wenn das Datum nicht geparst werden kann
+     */
+    public void setDate(String date) throws ParseException {
+        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
+        setDate(d);
+    }
+
+    /**
      * Startet den DatumsDialog, wenn ein {@link OnDateSetListener} gesetzt ist
      */
     @Override
@@ -109,8 +118,7 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
             return;
         }
         if (isFocusable()) {
-            DatePickerDialog mDatePickerDialog =
-                    new DatePickerDialog(getContext(), this, year, month, day);
+            DatePickerDialog mDatePickerDialog = new DatePickerDialog(getContext(), this, year, month, day);
             mDatePickerDialog.show();
         }
     }
@@ -139,27 +147,11 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     }
 
     /**
-     * Setzt das uebergebene Datum.
-     *
-     * @param date
-     *         Datum im SQLiteFormat
-     * @throws ParseException,
-     *         wenn das Datum nicht geparst werden kann
-     */
-    public void setDate(String date) throws ParseException {
-        Date d = AWDBConvert.mSqliteDateFormat.parse(date);
-        setDate(d);
-    }
-
-    /**
      * Setzt die uebergebenen Werte als Datum
      *
-     * @param year
-     *         Jahr
-     * @param month
-     *         Monat
-     * @param day
-     *         Tag des Monats
+     * @param year  Jahr
+     * @param month Monat
+     * @param day   Tag des Monats
      */
     public void setDate(int year, int month, int day) {
         Calendar newCal = Calendar.getInstance();
@@ -173,8 +165,7 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
      * OnHolderClickListener wird nicht beachtet. Stattdessen {@link OnDateSetListener}
      * implementieren
      *
-     * @throws IllegalArgumentException
-     *         bei jedem Aufruf.
+     * @throws IllegalArgumentException bei jedem Aufruf.
      */
     @Override
     public void setOnClickListener(OnClickListener l) {
@@ -188,8 +179,7 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
     /**
      * Registriert einen {@link OnDateSetListener}
      *
-     * @param l
-     *         OnDateSetListener
+     * @param l OnDateSetListener
      */
     public void setOnDateChangedListener(OnDateSetListener l) {
         mOnDateSetListener = l;
@@ -202,10 +192,8 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
         /**
          * Wird gerufen, wenn das Datum eingegeben wurde.
          *
-         * @param view
-         *         View
-         * @param cal
-         *         Calendar mit neuem Datum
+         * @param view View
+         * @param cal  Calendar mit neuem Datum
          */
         void onDateChanged(AWDateTextView view, Calendar cal);
     }
@@ -217,14 +205,10 @@ public class AWDateTextView extends android.support.v7.widget.AppCompatTextView
         /**
          * Wird gerufen, wenn das Datum eingegeben wurde.
          *
-         * @param view
-         *         View
-         * @param year
-         *         Jahr
-         * @param month
-         *         Monat
-         * @param day
-         *         Tag
+         * @param view  View
+         * @param year  Jahr
+         * @param month Monat
+         * @param day   Tag
          */
         void onDateChanged(AWDateTextView view, int year, int month, int day);
     }

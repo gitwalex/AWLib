@@ -34,17 +34,14 @@ public class AWEditNumber extends AWEditText {
 
     public AWEditNumber(Context context) {
         super(context);
-        init();
     }
 
     public AWEditNumber(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     public AWEditNumber(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
     }
 
     @BindingAdapter({"onValueChanged"})
@@ -60,10 +57,9 @@ public class AWEditNumber extends AWEditText {
         return mValue;
     }
 
-    /**
-     * Startwerte festlegen.
-     */
-    private void init() {
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
         setSelectAllOnFocus(true);
         setEms(10);
         setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
