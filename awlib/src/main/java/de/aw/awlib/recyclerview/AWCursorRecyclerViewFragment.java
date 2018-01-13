@@ -52,17 +52,29 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         return mAdapter;
     }
 
+    /**
+     * Liefert den Adapter fuer die RecyclerView.
+     *
+     * @return Als Default wird ein Plain-{@link AWCursorAdapter} zurueckgegeben.
+     */
     protected AWCursorAdapter createCursorAdapter() {
         return new AWCursorAdapter(this);
     }
 
-    public AWCursorAdapter getAdapter() {
+    /**
+     * @return Liefert den in {@link AWCursorRecyclerViewFragment#createCursorAdapter()} erstellten
+     * Adapter zuruck.
+     */
+    public final AWCursorAdapter getAdapter() {
         if (mAdapter == null) {
             mAdapter = createCursorAdapter();
         }
         return mAdapter;
     }
 
+    /**
+     * Startet den Loadermanager
+     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -82,9 +94,8 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
      *         Aktueller Cursor
      * @param cursorPosition
      *         Position innerhalb des Cursors, dessen Daten gebunden werden sollen.
-     * @return true, wenn die View vollstaendig bearbeitet wurde. Bei Rueckgabe von false wird davon
-     * ausgegangen, dass es sich um eine TextView handelt und der Text aus dem Cursor an der
-     * Position gesetzt. Default: false.
+     *
+     * @return true, wenn die View vollstaendig bearbeitet wurde.
      */
     protected boolean onBindView(AWLibViewHolder holder, View view, int resID, Cursor cursor,
                                  int cursorPosition) {
@@ -93,7 +104,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
 
     /**
      * Belegt anhand der viewResIDs in Args die View. Das Format wird automatisch konvertiert.
-     * <p>
      * Sollte nur gerufen werden, wenn die View nicht anderweitig belegt wird, sonden z.B. durch
      * Databinding
      *

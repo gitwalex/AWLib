@@ -20,7 +20,6 @@ package de.aw.awlib.views;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -75,7 +74,7 @@ public class AWLoaderTextViewCurrencyValue extends android.support.v7.widget.App
      * @throws RuntimeException
      *         wenn Argumente nicht vollstaendig sind oder nicht zueinander passen.
      */
-    public void initialize(LoaderManager lm, @NonNull AWAbstractDBDefinition tbd, @IdRes int resID, @NonNull String projection,
+    public void initialize(LoaderManager lm, @NonNull AWAbstractDBDefinition tbd, int resID, @NonNull String projection,
                            @Nullable String selection, @Nullable String[] selectionArgs) {
         if (resID == 0) {
             throw new RuntimeException(

@@ -403,6 +403,7 @@ public final class AWDBAlterHelper {
      *         tbd
      * @param tableindex
      *         Tableindex
+     *
      * @return commaseperated List der Spalten
      */
     public String getCommaSeperatedListNoID(@NonNull AWAbstractDBDefinition tbd,
@@ -450,6 +451,10 @@ public final class AWDBAlterHelper {
         }
         sql.append(")");
         return sql.toString();
+    }
+
+    public SQLiteDatabase getDatabase() {
+        return database;
     }
 
     /**

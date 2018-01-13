@@ -102,8 +102,8 @@ public abstract class AWBasicActivity extends AppCompatActivity implements AWInt
         if (nextActivity != null) {
             try {
                 Intent intent = new Intent(this, Class.forName(nextActivity));
+                args.remove(NEXTACTIVITY);
                 Bundle newArgs = new Bundle(args);
-                newArgs.remove(NEXTACTIVITY);
                 intent.putExtras(newArgs);
                 startActivity(intent);
             } catch (ClassNotFoundException e) {

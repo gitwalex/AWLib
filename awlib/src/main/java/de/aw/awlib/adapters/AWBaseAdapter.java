@@ -20,6 +20,7 @@ package de.aw.awlib.adapters;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
@@ -63,7 +64,16 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     private int mPendingDeleteItemPosition = NO_POSITION;
     private int mPendingChangeLayout;
 
-    protected AWBaseAdapter(@LayoutRes int[] viewHolderResIDs) {
+    /**
+     * Erstellt Adapter mit Liste der ResIDs der moeglichen ViewHolder. Wenn dieser Kontruktor
+     * benutzt wird, wird gemaess des in {@link AWBaseAdapter#getViewType(int)}} zuruckgegebenen
+     * Wertes die View erstellt. Es sollte dann ggfs uberprueft werden, ob {@link
+     * AWBaseAdapter#onViewHolderClick(AWLibViewHolder)} oder {@link AWBaseAdapter#onViewHolderLongClicked(AWLibViewHolder)}
+     * ueberschrieben werden muss.
+     *
+     * @param viewHolderResIDs ResIds der moeglichen ViewHolder.
+     */
+    public AWBaseAdapter(@NonNull @LayoutRes int... viewHolderResIDs) {
         mBinder = null;
         mViewHolderResIDs = viewHolderResIDs;
     }
@@ -77,6 +87,11 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     public AWBaseAdapter(AWBaseAdapterBinder binder) {
         mBinder = binder;
         mViewHolderResIDs = null;
+    }
+
+    public AWBaseAdapter(@NonNull AWBaseAdapterBinder binder, @NonNull @LayoutRes int... viewResIds) {
+        mBinder = binder;
+        mViewHolderResIDs = viewResIds;
     }
 
     /**
@@ -110,6 +125,18 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         callbackTouchHelper.setIsSwipeable(mOnSwipeListener != null);
         callbackTouchHelper.setIsDragable(mOnDragListener != null);
         mTouchHelper = new ItemTouchHelper(callbackTouchHelper);
+    }
+
+    /**
+     * Wird gerufen, wenn in einem Konstruktor ein {@link AWBaseAdapterBinder} gesetzt wurde.
+     *
+     * @param holderView
+     *         ViewHolder
+     *
+     * @return default: null
+     */
+    protected AWLibViewHolder createViewHolder(View holderView) {
+        return null;
     }
 
     /**
@@ -191,7 +218,11 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
-     * Liefert den Typ der View zu eine Position im Adapter
+     * Liefert den Typ der View zu eine Position im Adapter. Ist in einem Konstruktor ein
+     * {@link AWBaseAdapterBinder} gesetzt worden, wird dieser fuer die Ermittliung des ViewTypes
+     * aufgerufen.
+     * Sollte ueberschrieben werden, wenn in einem Konstruktor mehrer ResIds fuer Views gesetzt
+     * wurden.
      *
      * @param position
      *         Position im Adapter
@@ -199,7 +230,10 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * @return Typ der View. Siehe {@link RecyclerView.Adapter#getItemViewType}
      */
     public int getViewType(int position) {
-        return mBinder.getItemViewType(position);
+        if (mBinder != null) {
+            return mBinder.getItemViewType(position);
+        }
+        return super.getItemViewType(position);
     }
 
     @CallSuper
@@ -264,7 +298,8 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                             if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_UP) {
                                 AWBaseAdapter.this.onStopDrag(holder);
                             }
-                            return false;
+                            v.performClick();
+                            return true;
                         }
                     });
                 }
@@ -283,14 +318,21 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                 rowView = inflater.inflate(mPendingChangeLayout, viewGroup, false);
                 break;
             default:
-                rowView = mBinder.onCreateViewHolder(inflater, viewGroup, itemType);
+                if (mViewHolderResIDs != null) {
+                    rowView = inflater.inflate(mViewHolderResIDs[itemType], viewGroup, false);
+                } else
+                    rowView = mBinder.onCreateViewHolder(inflater, viewGroup, itemType);
         }
-        AWLibViewHolder holder = new AWLibViewHolder(rowView);
+        AWLibViewHolder holder = createViewHolder(rowView);
+        if (holder == null) {
+            holder = new AWLibViewHolder(rowView);
+        }
         holder.setOnClickListener(this);
         holder.setOnLongClickListener(this);
         return holder;
     }
 
+    @CallSuper
     @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
@@ -298,15 +340,30 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         mRecyclerView = null;
     }
 
-    public void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from,
-                          RecyclerView.ViewHolder to) {
+    public final void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from, RecyclerView.ViewHolder to) {
         mOnDragListener.onDragged(recyclerView, from, to);
         onItemMoved(from.getAdapterPosition(), to.getAdapterPosition());
     }
 
-    protected abstract void onItemDismissed(int position);
+    /**
+     * Wird gerufen, wenn ein Item entfernt wurde
+     *
+     * @param position
+     *         Position des Items
+     */
+    protected void onItemDismissed(int position) {
+    }
 
-    protected abstract void onItemMoved(int fromPosition, int toPosition);
+    /**
+     * Wird gerufen, wenn ein Item in der Position veraendert wurde
+     *
+     * @param fromPosition
+     *         alte Position
+     * @param toPosition
+     *         neue Position
+     */
+    protected void onItemMoved(int fromPosition, int toPosition) {
+    }
 
     private void onStartDrag(RecyclerView.ViewHolder holder) {
         holder.itemView.setPressed(true);
@@ -317,7 +374,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         holder.itemView.setPressed(false);
     }
 
-    public void onSwiped(AWLibViewHolder viewHolder, int direction, int position, long id) {
+    public final void onSwiped(AWLibViewHolder viewHolder, int direction, int position, long id) {
         mOnSwipeListener.onSwiped(viewHolder, direction, position, id);
     }
 
@@ -331,14 +388,31 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
         }
     }
 
-    protected abstract void onViewHolderClicked(AWLibViewHolder holder);
+    /**
+     * Wird gerufen, wenn ein ViewHolder gecklicked wurde.
+     *
+     * @param holder
+     *         ViewHolder
+     */
+    protected void onViewHolderClicked(AWLibViewHolder holder) {
+    }
 
     @Override
     public final boolean onViewHolderLongClick(AWLibViewHolder holder) {
         return onViewHolderLongClicked(holder);
     }
 
-    protected abstract boolean onViewHolderLongClicked(AWLibViewHolder holder);
+    /**
+     * Wird gerufen, wenn ein ViewHolder long-gecklicked wurde.
+     *
+     * @param holder
+     *         ViewHolder
+     *
+     * @return default: false.
+     */
+    protected boolean onViewHolderLongClicked(AWLibViewHolder holder) {
+        return false;
+    }
 
     /**
      * Setzt den OnDragListener. In diesem Fall wird die RecyclerView Dragable     *
@@ -375,9 +449,11 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     /**
-     * Hier kann ein Item gesetzt werden, dass eine separate View anzeigt. Diese View ist vom Binder
-     * entsprechend zu setzen (in getItemViewType, OnCreateViewHolder). Wenn dann die RecyclerView
-     * bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder zureuckgesetzt
+     * Hier kann ein Item gesetzt werden, dass eine separate View anzeigt. Diese View ist entweder
+     * vom Binder entsprechend zu setzen (in getItemViewType, OnCreateViewHolder) oder durch die
+     * im Konstruktor uebergebeben viewResIds zu bestimmen. Wenn dann die
+     * RecyclerView bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder
+     * zureuckgesetzt
      *
      * @param position
      *         Position des Items

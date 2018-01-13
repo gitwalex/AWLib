@@ -63,6 +63,19 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     }
 
     /**
+     * Databinding. Setzt das uebergebene Object als Handler fuer Databinding
+     *
+     * @param handlerID BR.handlerID
+     * @param handler   handler fuer Databinding
+     */
+    public void setHandler(int handlerID, Object handler) {
+        if (viewDataBinding == null) {
+            viewDataBinding = DataBindingUtil.bind(itemView);
+        }
+        viewDataBinding.setVariable(handlerID, handler);
+    }
+
+    /**
      * Setzt einen OnHolderClickListener auf die View
      *
      * @param onHolderClickListener
@@ -97,7 +110,8 @@ public class AWLibViewHolder extends RecyclerView.ViewHolder
     }
 
     /**
-     * Databinding. Setzt das uebergebene Object als Item fuer Databinding
+     * Databinding. Setzt das uebergebene Object als Item fuer Databinding. Das Object kann kit
+     * {@link AWLibViewHolder#getBindingVariable()} wieder verwendet werden
      *
      * @param variableID
      *         BR.varialbleID

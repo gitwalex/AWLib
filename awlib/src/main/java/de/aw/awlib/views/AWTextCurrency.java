@@ -37,13 +37,11 @@ public class AWTextCurrency extends android.support.v7.widget.AppCompatTextView 
     private long value;
 
     public AWTextCurrency(Context context) {
-        super(context);
-        init(null);
+        this(context, null);
     }
 
     public AWTextCurrency(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(attrs);
+        this(context, attrs, R.style.TextCurrency);
     }
 
     public AWTextCurrency(Context context, AttributeSet attrs, int defStyleAttr) {

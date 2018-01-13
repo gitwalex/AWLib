@@ -36,6 +36,7 @@ package de.aw.awlib.adapters;/*
 
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseIntArray;
@@ -52,8 +53,7 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
 /**
  * Adapter fuer RecyclerView mit Cursor.
  */
-public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.OnHolderClickListener,
-        AWLibViewHolder.OnHolderLongClickListener {
+public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.OnHolderClickListener, AWLibViewHolder.OnHolderLongClickListener {
     private final CursorDataObserver mDataObserver;
     private final String mRowIDColumn;
     private final AWCursorAdapterBinder mBinder;
@@ -71,7 +71,11 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      *         CursorViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
      */
     public AWCursorAdapter(@NonNull AWCursorAdapterBinder binder) {
-        this(binder, "_id");
+        this(binder, null);
+    }
+
+    public AWCursorAdapter(@NonNull @LayoutRes int... viewResIDs) {
+        this(null, viewResIDs);
     }
 
     /**
@@ -79,14 +83,14 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      *
      * @param binder
      *         CursorViewHolderBinder. Wird gerufen,um die einzelnen Views zu initialisieren
-     * @param idColumn
-     *         Name der Spalte, die den Index enthaelt.
+     * @param viewResIds
+     *         Liste der moeglichen ViewHolder-LayoutResIDs
      */
-    protected AWCursorAdapter(@NonNull AWCursorAdapterBinder binder, @NonNull String idColumn) {
-        super(binder);
+    private AWCursorAdapter(AWCursorAdapterBinder binder, int[] viewResIds) {
+        super(binder, viewResIds);
         mBinder = binder;
         mDataObserver = new CursorDataObserver();
-        mRowIDColumn = idColumn;
+        mRowIDColumn = "_id";
         setHasStableIds(true);
     }
 
@@ -96,6 +100,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
      *
      * @param position
      *         Position in der RecyclerView
+     *
      * @return Position im Adapter
      */
     private int convertItemPosition(int position) {
@@ -126,6 +131,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
     /**
      * @param position
      *         Position in der RecyclerView
+     *
      * @return zur Position der RecyclerView die Position im Adapter unter Beruecksichtigung der
      * geloeschten Items
      */
@@ -143,6 +149,10 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         return mPosition;
     }
 
+    protected Cursor getCursor() {
+        return mCursor;
+    }
+
     /**
      * @return Anzahl der im Adapter vorhandenen Items abzueglich der bereits entfernten Items
      */
@@ -158,6 +168,7 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
     /**
      * @param position
      *         Position in der RecyclerView
+     *
      * @return Position im Adapter unter Beruecksichtigung geloeschter und verschobener Items
      */
     @Override
@@ -200,29 +211,46 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
     }
 
     @Override
-    protected void onItemDismissed(int position) {
+    protected final void onItemDismissed(int position) {
         notifyItemRemoved(position);
     }
 
     @Override
-    public void onItemMoved(int fromPosition, int toPosition) {
+    public final void onItemMoved(int fromPosition, int toPosition) {
         notifyItemMoved(fromPosition, toPosition);
     }
 
+    /**
+     * Ist in einem Konstruktor ein {@link AWCursorAdapterBinder} geliefert, wird dort
+     * {@link AWCursorAdapterBinder#onRecyclerItemClick(View, int, long)} gerufen
+     *
+     * @param holder ViewHolder
+     */
     @Override
     protected void onViewHolderClicked(AWLibViewHolder holder) {
         View v = holder.itemView;
         int position = getRecyclerView().getChildAdapterPosition(holder.itemView);
         long id = getItemId(position);
-        mBinder.onRecyclerItemClick(v, position, id);
+        if (mBinder != null) {
+            mBinder.onRecyclerItemClick(v, position, id);
+        }
     }
 
+    /**
+     * Ist in einem Konstruktor ein {@link AWCursorAdapterBinder} geliefert, wird dort
+     * {@link AWCursorAdapterBinder#onRecyclerItemLongClick(View, int, long)} gerufen
+     *
+     * @param holder
+     *         ViewHolder
+     *
+     * @return Ist ein Binder gesetzt, der Wert, der vom Binder gelifert wird. Ansonsten false.
+     */
     @Override
     protected boolean onViewHolderLongClicked(AWLibViewHolder holder) {
         View v = holder.itemView;
         int position = getRecyclerView().getChildAdapterPosition(v);
         long id = getItemId(position);
-        return mBinder.onRecyclerItemLongClick(v, position, id);
+        return mBinder != null && mBinder.onRecyclerItemLongClick(v, position, id);
     }
 
     /**
@@ -279,18 +307,6 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
         boolean onRecyclerItemLongClick(View v, int position, long id);
     }
 
-    /**
-     * Observer fuer einen Cursor. Wird der Cursor invalide (z.B. durch close()), werden die Daten
-     * als ungueltig erklaert.
-     */
-    private class CursorDataObserver extends DataSetObserver {
-        @Override
-        public void onInvalidated() {
-            mDataValid = false;
-            notifyDataSetChanged();
-        }
-    }
-
     private class AWAdapterDataObserver extends RecyclerView.AdapterDataObserver {
         @Override
         public void onChanged() {
@@ -344,6 +360,18 @@ public class AWCursorAdapter extends AWBaseAdapter implements AWLibViewHolder.On
                 removed++;
             }
             super.onItemRangeRemoved(positionStart, itemCount);
+        }
+    }
+
+    /**
+     * Observer fuer einen Cursor. Wird der Cursor invalide (z.B. durch close()), werden die Daten
+     * als ungueltig erklaert.
+     */
+    private class CursorDataObserver extends DataSetObserver {
+        @Override
+        public void onInvalidated() {
+            mDataValid = false;
+            notifyDataSetChanged();
         }
     }
 }

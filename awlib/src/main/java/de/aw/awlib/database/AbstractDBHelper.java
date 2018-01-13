@@ -253,8 +253,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     public final String[] columnNames(int[] resIDs, String... args) {
         // Estmal alle columns der resIDs uebernehmen
         ArrayList<String> names = new ArrayList<>(Arrays.asList(columnNames(resIDs)));
-        // Am ende steht jetzt schon "_id" - entfernen
-        names.remove(names.size() - 1);
         // Jetzt alle String uebernehmen
         names.addAll(Arrays.asList(args));
         // Und anschliessend "_id" hinten anhaengen
