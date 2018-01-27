@@ -255,6 +255,13 @@ public final class AWDBAlterHelper {
         }
     }
 
+    /**
+     * Versorgt die Statistiktabellen
+     */
+    public void analyze() {
+        database.execSQL("analyze");
+    }
+
     private boolean checkView(AWAbstractDBDefinition tbd) {
         ContentValues cv = new ContentValues();
         List<String> fehler = new ArrayList<>();

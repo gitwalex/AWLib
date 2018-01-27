@@ -45,9 +45,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 /**
  * Basis-Adapter fuer RecyclerView. Unterstuetzt Swipe und Drag.
  */
-public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder>
-        implements AWLibViewHolder.OnHolderClickListener,
-        AWLibViewHolder.OnHolderLongClickListener {
+public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder> implements AWLibViewHolder.OnHolderClickListener, AWLibViewHolder.OnHolderLongClickListener {
     static final int UNDODELETEVIEW = -1;
     private static final int CHANGEDVIEW = UNDODELETEVIEW - 1;
     private final AWBaseAdapterBinder mBinder;
@@ -81,8 +79,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     /**
      * Initialisiert Adapter.
      *
-     * @param binder
-     *         Binder fuer onBindView
+     * @param binder Binder fuer onBindView
      */
     public AWBaseAdapter(AWBaseAdapterBinder binder) {
         mBinder = binder;
@@ -130,9 +127,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     /**
      * Wird gerufen, wenn in einem Konstruktor ein {@link AWBaseAdapterBinder} gesetzt wurde.
      *
-     * @param holderView
-     *         ViewHolder
-     *
+     * @param holderView ViewHolder
      * @return default: null
      */
     protected AWLibViewHolder createViewHolder(View holderView) {
@@ -144,8 +139,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * AWBaseAdapter#setOnSwipeListener(OnSwipeListener)} mit einem SwipeListener gerufen wurde.
      * Adapter wird mittels notify informiert.
      *
-     * @param position
-     *         Position des items im Adapter, das entfernt werden soll.
+     * @param position Position des items im Adapter, das entfernt werden soll.
      */
     private void dismissItem(int position) {
         if (position != NO_POSITION) {
@@ -191,8 +185,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * aus dem Adapter entfernt.
      * Der Binder wird durch {@link AWBaseAdapterBinder#onItemDismissed(int)} informiert.
      *
-     * @param position
-     *         Position des Items
+     * @param position Position des Items
      */
     @CallSuper
     public void setPendingDeleteItemPosition(int position) {
@@ -224,9 +217,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * Sollte ueberschrieben werden, wenn in einem Konstruktor mehrer ResIds fuer Views gesetzt
      * wurden.
      *
-     * @param position
-     *         Position im Adapter
-     *
+     * @param position Position im Adapter
      * @return Typ der View. Siehe {@link RecyclerView.Adapter#getItemViewType}
      */
     public int getViewType(int position) {
@@ -291,8 +282,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
                     handleView.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
-                            if (MotionEventCompat.getActionMasked(event) ==
-                                    MotionEvent.ACTION_DOWN) {
+                            if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
                                 AWBaseAdapter.this.onStartDrag(holder);
                             }
                             if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_UP) {
@@ -348,8 +338,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     /**
      * Wird gerufen, wenn ein Item entfernt wurde
      *
-     * @param position
-     *         Position des Items
+     * @param position Position des Items
      */
     protected void onItemDismissed(int position) {
     }
@@ -357,10 +346,8 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     /**
      * Wird gerufen, wenn ein Item in der Position veraendert wurde
      *
-     * @param fromPosition
-     *         alte Position
-     * @param toPosition
-     *         neue Position
+     * @param fromPosition alte Position
+     * @param toPosition   neue Position
      */
     protected void onItemMoved(int fromPosition, int toPosition) {
     }
@@ -391,8 +378,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     /**
      * Wird gerufen, wenn ein ViewHolder gecklicked wurde.
      *
-     * @param holder
-     *         ViewHolder
+     * @param holder ViewHolder
      */
     protected void onViewHolderClicked(AWLibViewHolder holder) {
     }
@@ -405,20 +391,18 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     /**
      * Wird gerufen, wenn ein ViewHolder long-gecklicked wurde.
      *
-     * @param holder
-     *         ViewHolder
-     *
+     * @param holder ViewHolder
      * @return default: false.
      */
     protected boolean onViewHolderLongClicked(AWLibViewHolder holder) {
         return false;
     }
 
+
     /**
      * Setzt den OnDragListener. In diesem Fall wird die RecyclerView Dragable     *
      *
-     * @param listener
-     *         OnDragListener
+     * @param listener OnDragListener
      */
     public final void setOnDragListener(OnDragListener listener) {
         mOnDragListener = listener;
@@ -428,8 +412,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     /**
      * Setzt den OnSwipeListener. In diesem Fall wird die RecyclerView Swipeable
      *
-     * @param listener
-     *         OnSwipeListener
+     * @param listener OnSwipeListener
      */
     public final void setOnSwipeListener(OnSwipeListener listener) {
         mOnSwipeListener = listener;
@@ -441,8 +424,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * dass bei einmaligen beruehren dieses Items der Drag/Drop-Vorgang startet. Die resID muss in
      * onCreate() gesetzt werden.
      *
-     * @param resID
-     *         resID der View, bei deren Beruehrung der Drag/Drop Vorgand starten soll
+     * @param resID resID der View, bei deren Beruehrung der Drag/Drop Vorgand starten soll
      */
     public final void setOnTouchStartDragResID(@IdRes int resID) {
         this.onTouchStartDragResID = resID;
@@ -455,8 +437,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * RecyclerView bewegt wird oder ein anderes Item zu gesetzt wird, wird die View wieder
      * zureuckgesetzt
      *
-     * @param position
-     *         Position des Items
+     * @param position Position des Items
      */
     @CallSuper
     public void setPendingChangedItemPosition(int position, @LayoutRes int layout) {
@@ -472,8 +453,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
      * Setzt die ResID des Textes, der in einer UndoleteView angezeigt wird. Wird die nicht gesetzt,
      * wird 'Geloescht' angezeigt.
      *
-     * @param textresID
-     *         textResID
+     * @param textresID textResID
      */
     public final void setTextResID(@StringRes int textresID) {
         mTextResID = textresID;
@@ -498,8 +478,7 @@ public abstract class AWBaseAdapter extends RecyclerView.Adapter<AWLibViewHolder
     }
 
     public interface OnDragListener {
-        void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from,
-                       RecyclerView.ViewHolder to);
+        void onDragged(RecyclerView recyclerView, RecyclerView.ViewHolder from, RecyclerView.ViewHolder to);
     }
 
     public interface OnSwipeListener {

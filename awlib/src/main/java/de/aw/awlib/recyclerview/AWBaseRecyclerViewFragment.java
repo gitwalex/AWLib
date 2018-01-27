@@ -119,6 +119,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
      *
      * @param minCardWidth
      *         minimale Breits einer Card in dp
+     *
      * @return Anzahl der Cards, die in eine Zelie passen. Ist mindestens eins.
      */
     protected int maxRecyclerViewColumns(int minCardWidth) {
@@ -179,11 +180,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
     /**
      * Wird vom Adapter gerufen, wenn ein  Item  der RecyclerView geclickt wurde. Es wird ggfs. die
      * Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
@@ -211,7 +207,13 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     public void onResume() {
         super.onResume();
         int position = args.getInt(LASTSELECTEDPOSITION);
-        mRecyclerView.scrollToPosition(position);
+        mRecyclerView.getLayoutManager().scrollToPosition(position);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        args.putInt(LASTSELECTEDPOSITION, getRecyclerViewPosition());
     }
 
     @Override
@@ -255,8 +257,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
-        getActivity().getWindow()
-                     .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }
 
     @Override
