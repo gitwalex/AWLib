@@ -29,7 +29,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v14.preference.SwitchPreference;
@@ -55,7 +54,6 @@ import de.aw.awlib.activities.AWWebViewActivity;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
-import de.aw.awlib.events.AWEvent;
 import de.aw.awlib.events.AWEventService;
 import de.aw.awlib.fragments.AWPreferenceFragment;
 import de.aw.awlib.utils.AWUtils;
@@ -63,21 +61,20 @@ import de.aw.awlib.utils.AWUtils;
 import static de.aw.awlib.application.AWApplication.DE_AW_APPLICATIONPATH;
 import static de.aw.awlib.events.AWEvent.DoDatabaseSave;
 import static de.aw.awlib.events.AWEvent.copyAndDebugDatabase;
+import static de.aw.awlib.events.AWEvent.doVaccum;
+import static de.aw.awlib.events.AWEvent.showBackupFiles;
+import static de.aw.awlib.events.AWEvent.showRemoteFileServer;
+import static de.aw.awlib.events.AWEventService.DODATABASESAVE;
 
 /**
  * Erstellt und bearbeitet die allgemeinen Preferences.
  *
  * @author alex
  */
-public final class AWPreferencesAllgemein extends AWPreferenceFragment
-        implements Preference.OnPreferenceClickListener, AWInterface {
-    private static final int[] mPrefs =
-            new int[]{R.string.pkDBVacuum, R.string.pkDBSave, R.string.pkDBRestore,
-                    R.string.pkCopyright, R.string.pkAbout,
-                    R.string.pkCompileInfo, R.string.pkVersionInfo, R.string.pkExterneSicherung,
-                    R.string.pkServerURL, R.string.pkServerUID};
+public final class AWPreferencesAllgemein extends AWPreferenceFragment implements Preference.OnPreferenceClickListener, AWInterface {
+    private static final int[] mPrefs = new int[]{R.string.pkDBVacuum, R.string.pkDBSave, R.string.pkDBRestore, R.string.pkCopyright, R.string.pkAbout, R.string.pkCompileInfo, R.string.pkVersionInfo, R.string.pkExterneSicherung, R.string.pkServerURL, R.string.pkServerUID};
     private AWApplication mApplication;
-    private AWEvent pendingEvent;
+    private int pendingEvent;
 
     private void buildAndShowDialog(int titleRes, int messageRes) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -117,19 +114,16 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
             if (pkKey == R.string.pkCompileInfo) {
                 java.util.Date date = new Date(BuildConfig.BuildTime);
                 DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG);
-                StringBuilder buildInfo =
-                        new StringBuilder("Compilezeit: ").append(df.format(date));
+                StringBuilder buildInfo = new StringBuilder("Compilezeit: ").append(df.format(date));
                 preference.setSummary(buildInfo);
             } else if (pkKey == R.string.pkVersionInfo) {
-                StringBuilder versionInfo = new StringBuilder("Datenbankversion : ")
-                        .append(mApplication.theDatenbankVersion()).append(", Version: ")
-                        .append(BuildConfig.VERSION_NAME);
+                StringBuilder versionInfo = new StringBuilder("Datenbankversion : ").append(mApplication.theDatenbankVersion()).append(", Version: ").append(BuildConfig.VERSION_NAME);
                 preference.setSummary(versionInfo);
             } else if (pkKey == R.string.pkServerUID || pkKey == R.string.pkServerURL) {
                 String value = prefs.getString(key, null);
                 preference.setSummary(value);
             } else if (pkKey == R.string.pkSavePeriodic) {
-                long value = prefs.getLong(AWEvent.DoDatabaseSave.name(), Long.MAX_VALUE);
+                long value = prefs.getLong(DODATABASESAVE, Long.MAX_VALUE);
                 setRegelmSicherungSummary(preference, prefs, value);
             }
             preference.setOnPreferenceClickListener(this);
@@ -143,25 +137,22 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
         if (getString(R.string.pkDBVacuum).equals(key)) {
             buildAndShowDialog(R.string.dbTitleDatenbank, R.string.dlgDatenbankAufraeumen);
             Intent intent = new Intent(getActivity(), AWEventService.class);
-            intent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.doVaccum);
+            intent.putExtra(AWLIBEVENT, doVaccum);
             getActivity().startService(intent);
             return true;
         } else if (getString(R.string.pkDBSave).equals(key)) {
             // Datenbank sichern
-            int permission = ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            int permission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (permission == PackageManager.PERMISSION_GRANTED) {
                 startDBSave(DoDatabaseSave);
             } else {
                 pendingEvent = DoDatabaseSave;
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_PERMISSION_STORAGE);
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_STORAGE);
             }
             return true;
         } else if (getString(R.string.pkDBRestore).equals(key)) {
             Intent intent = new Intent(getActivity(), AWActivityActions.class);
-            intent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.showBackupFiles);
+            intent.putExtra(AWLIBEVENT, showBackupFiles);
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkCopyright).equals(key)) {
@@ -176,34 +167,29 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
             return true;
         } else if (getString(R.string.pkExterneSicherung).equals(key)) {
             Intent intent = new Intent(getActivity(), AWActivityActions.class);
-            intent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.showRemoteFileServer);
+            intent.putExtra(AWLIBEVENT, showRemoteFileServer);
             getActivity().startActivity(intent);
             return true;
         } else if (getString(R.string.pkVersionInfo).equals(key)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            View view =
-                    LayoutInflater.from(getActivity()).inflate(R.layout.awlib_pref_dbversion, null);
+            View view = LayoutInflater.from(getActivity()).inflate(R.layout.awlib_pref_dbversion, null);
             final EditText etVersion = (EditText) view.findViewById(R.id.etVersion);
             builder.setView(view);
-            final AbstractDBHelper mDBHelper =
-                    ((AWApplication) getActivity().getApplicationContext()).getDBHelper();
+            final AbstractDBHelper mDBHelper = ((AWApplication) getActivity().getApplicationContext()).getDBHelper();
             int oldVersion = mDBHelper.getReadableDatabase().getVersion();
             etVersion.setText("" + oldVersion);
             builder.setTitle("Aktuelle Version: " + oldVersion);
-            builder.setPositiveButton(R.string.awlib_btnAccept,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            int newVersion = Integer.parseInt(etVersion.getText().toString());
-                            mDBHelper.getWritableDatabase().setVersion(newVersion);
-                        }
-                    });
+            builder.setPositiveButton(R.string.awlib_btnAccept, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    int newVersion = Integer.parseInt(etVersion.getText().toString());
+                    mDBHelper.getWritableDatabase().setVersion(newVersion);
+                }
+            });
             builder.create().show();
             return true;
         } else if (getString(R.string.pkCompileInfo).equals(key)) {
-            if (ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                    PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 try {
                     copyAndDebugDatabase();
                 } catch (IOException e) {
@@ -211,9 +197,7 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
                 }
             } else {
                 pendingEvent = copyAndDebugDatabase;
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_PERMISSION_STORAGE);
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_STORAGE);
             }
             return true;
         }
@@ -221,8 +205,7 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_PERMISSION_STORAGE:
                 for (int i = 0; i < permissions.length; i++) {
@@ -248,8 +231,7 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pkSavePeriodic))) {
-            SwitchPreference pref =
-                    (SwitchPreference) findPreference(key);
+            SwitchPreference pref = (SwitchPreference) findPreference(key);
             long value = Long.MAX_VALUE;
             if (pref.isChecked()) {
                 value = System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS * 5;
@@ -260,17 +242,17 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
 
     private void setRegelmSicherungSummary(Preference pref, SharedPreferences prefs, long value) {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.remove(AWEvent.DoDatabaseSave.name());
+        editor.remove(DODATABASESAVE);
         if (value == Long.MAX_VALUE) {
             pref.setSummary(getString(R.string.smryDBSavePeriodic));
         } else {
             String date = AWDBConvert.convertDate(value);
             pref.setSummary(getString(R.string.smryDBSavePeriodicOn) + date);
         }
-        editor.putLong(AWEvent.DoDatabaseSave.name(), value).apply();
+        editor.putLong(DODATABASESAVE, value).apply();
     }
 
-    private void startDBSave(AWEvent event) {
+    private void startDBSave(int event) {
         buildAndShowDialog(R.string.dbTitleDatenbank, R.string.dlgDatenbankSichern);
         File folder = new File(DE_AW_APPLICATIONPATH);
         if (!folder.exists()) {
@@ -278,7 +260,7 @@ public final class AWPreferencesAllgemein extends AWPreferenceFragment
         }
         mApplication.createFiles();
         Intent intent = new Intent(getActivity(), AWEventService.class);
-        intent.putExtra(AWLIBEVENT, (Parcelable) event);
+        intent.putExtra(AWLIBEVENT, event);
         getActivity().startService(intent);
     }
 }

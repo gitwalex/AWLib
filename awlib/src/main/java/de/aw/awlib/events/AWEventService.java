@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateUtils;
 
@@ -33,12 +32,16 @@ import java.util.Calendar;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 
+import static de.aw.awlib.events.AWEvent.AWLibDailyEvent;
 import static de.aw.awlib.events.AWEvent.DoDatabaseSave;
+import static de.aw.awlib.events.AWEvent.doVaccum;
 
 /**
  * Bearbeitet Events innerhalb MonMa.
  */
 public class AWEventService extends IntentService implements AWInterface {
+    public static final String DODATABASESAVE = "DoDatabaseSave";
+
     public AWEventService() {
         super("AWEventService");
     }
@@ -46,8 +49,7 @@ public class AWEventService extends IntentService implements AWInterface {
     /**
      * Setzt den taeglichen Alarm auf den naechsten Tag 00:00 Uhr. Das Geraet wird nicht geweckkt.
      *
-     * @param context
-     *         Context
+     * @param context Context
      */
     public static void setDailyAlarm(Context context) {
         Calendar cal = Calendar.getInstance();
@@ -59,9 +61,8 @@ public class AWEventService extends IntentService implements AWInterface {
         AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent newIntent = new Intent(context, AWEventService.class);
         newIntent.setAction(AWLIBEVENT);
-        newIntent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.AWLibDailyEvent);
-        PendingIntent newAlarmIntent =
-                PendingIntent.getService(context, 0, newIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        newIntent.putExtra(AWLIBEVENT, AWLibDailyEvent);
+        PendingIntent newAlarmIntent = PendingIntent.getService(context, 0, newIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         mAlarmManager.set(AlarmManager.RTC, nextAlarm, newAlarmIntent);
         AWApplication.Log("AWLIB next Daily-Alarmset to: " + cal.getTime().toString());
     }
@@ -72,17 +73,15 @@ public class AWEventService extends IntentService implements AWInterface {
     @Override
     protected void onHandleIntent(Intent intent) {
         Bundle extras = intent.getExtras();
-        AWEvent event = extras.getParcelable(AWLIBEVENT);
-        assert event != null;
+        assert extras != null;
+        int event = extras.getInt(AWLIBEVENT);
         switch (event) {
             case AWLibDailyEvent:
-                SharedPreferences prefs =
-                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                long nextDBSave = prefs.getLong(DoDatabaseSave.name(), Long.MAX_VALUE);
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                long nextDBSave = prefs.getLong(DODATABASESAVE, Long.MAX_VALUE);
                 if (nextDBSave < System.currentTimeMillis()) {
                     new EventDBSave().execute(getApplicationContext());
-                    prefs.edit().putLong(DoDatabaseSave.name(), System.currentTimeMillis() +
-                            DateUtils.DAY_IN_MILLIS * 5).apply();
+                    prefs.edit().putLong(DODATABASESAVE, System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS * 5).apply();
                 }
                 setDailyAlarm(getApplicationContext());
                 break;

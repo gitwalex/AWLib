@@ -51,11 +51,9 @@ import de.aw.awlib.recyclerview.AWItemListRecyclerViewListener;
 /**
  * Activity fuer verschiedene Aktionen
  */
-public class AWActivityActions extends AWMainActivity
-        implements AWItemListRecyclerViewListener, AWFragmentActionBar.OnActionFinishListener,
-        AWFragment.OnAWFragmentDismissListener, AWFragment.OnAWFragmentCancelListener,
-        AWBaseRecyclerViewListener {
-    private AWEvent event;
+public class AWActivityActions extends AWMainActivity implements AWItemListRecyclerViewListener, AWFragmentActionBar.OnActionFinishListener, AWFragment.OnAWFragmentDismissListener, AWFragment.OnAWFragmentCancelListener, AWBaseRecyclerViewListener, AWEvent {
+    private static final String AWEVENT = "AWEVENT";
+    private int event;
     private AWRemoteFileServer mRemoteServer;
 
     @Override
@@ -66,17 +64,17 @@ public class AWActivityActions extends AWMainActivity
     /**
      * Wenn BackButton gewaehlt wird, pruefen, ob ein {@link AWFileChooser} gezeigt wird. Ist dies
      * der Fall, wird die Methode {@link AWFileChooser#onBackPressed()} gerufen.
-     * <p>
      * Liefert das Fragment true zuruck, wird keine weitere Aktion durchgefuehrt. Ansonsten wird
      * super.onBackpressed gerufen..
      */
     @Override
     public void onBackPressed() {
-        Fragment mFragment =
-                getSupportFragmentManager().findFragmentByTag(AWEvent.showBackupFiles.name());
-        if (mFragment != null) {
-            if (((AWFileChooser) mFragment).onBackPressed()) {
-                return;
+        if (event == showBackupFiles) {
+            Fragment mFragment = getSupportFragmentManager().findFragmentByTag(AWEVENT);
+            if (mFragment != null) {
+                if (((AWFileChooser) mFragment).onBackPressed()) {
+                    return;
+                }
             }
         }
         super.onBackPressed();
@@ -97,7 +95,7 @@ public class AWActivityActions extends AWMainActivity
                 AWFragment f = AWRemoteServerConnectionData.newInstance(mRemoteServer);
                 f.setOnDismissListener(this);
                 f.setOnCancelListener(this);
-                f.show(getSupportFragmentManager(), event.name());
+                f.show(getSupportFragmentManager(), AWEVENT);
                 break;
         }
     }
@@ -105,8 +103,8 @@ public class AWActivityActions extends AWMainActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        event = args.getParcelable(AWLIBEVENT);
-        if (event == null) {
+        event = args.getInt(AWLIBEVENT);
+        if (event == 0) {
             finish();
         } else {
             Integer subTitleResID = null;
@@ -116,8 +114,7 @@ public class AWActivityActions extends AWMainActivity
                 switch (event) {
                     case showBackupFiles:
                         // Datenbank wiederherstellen
-                        String backupFolderName = ((AWApplication) getApplicationContext())
-                                .getApplicationBackupPath();
+                        String backupFolderName = ((AWApplication) getApplicationContext()).getApplicationBackupPath();
                         f = AWFileChooser.newInstance(backupFolderName);
                         subTitleResID = R.string.fileChooserTitleDoRestore;
                         break;
@@ -138,11 +135,10 @@ public class AWActivityActions extends AWMainActivity
                         }
                         break;
                     default:
-                        throw new IllegalArgumentException(
-                                "Kein Fragment fuer " + getMainAction().name() + " vorgesehen");
+                        throw new IllegalArgumentException("Kein Fragment fuer " + getMainAction().name() + " vorgesehen");
                 }
                 if (f != null) {
-                    ft.add(container, f, event.name());
+                    ft.add(container, f, AWEVENT);
                 }
                 ft.commit();
             }
@@ -159,8 +155,7 @@ public class AWActivityActions extends AWMainActivity
             f = AWRemoteFileChooser.newInstance(mRemoteServer);
         }
         if (f != null) {
-            getSupportFragmentManager().beginTransaction().replace(container, f, event.name())
-                                       .addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().replace(container, f, AWEVENT).addToBackStack(null).commit();
         }
     }
 
@@ -171,15 +166,13 @@ public class AWActivityActions extends AWMainActivity
                 final File file = (File) object;
                 if (!file.isDirectory()) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setPositiveButton(R.string.awlib_btnAccept,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    EventDBRestore dbRestore =
-                                            new EventDBRestore(AWActivityActions.this);
-                                    dbRestore.restore(file);
-                                }
-                            });
+                    builder.setPositiveButton(R.string.awlib_btnAccept, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            EventDBRestore dbRestore = new EventDBRestore(AWActivityActions.this);
+                            dbRestore.restore(file);
+                        }
+                    });
                     builder.setTitle(R.string.dbTitleDatenbank);
                     builder.setMessage(R.string.dlgDatenbankRestore);
                     Dialog dlg = builder.create();
@@ -190,14 +183,12 @@ public class AWActivityActions extends AWMainActivity
     }
 
     @Override
-    public boolean onItemListRecyclerItemLongClick(RecyclerView recyclerView, View view,
-                                                   Object object) {
+    public boolean onItemListRecyclerItemLongClick(RecyclerView recyclerView, View view, Object object) {
         return false;
     }
 
     @Override
-    public void onRecyclerItemClick(RecyclerView parent, View view, int position, long id,
-                                    int viewHolderLayoutID) {
+    public void onRecyclerItemClick(RecyclerView parent, View view, int position, long id, int viewHolderLayoutID) {
         AWFragment f = null;
         if (viewHolderLayoutID == R.layout.awlib_remote_fileserver) {
             try {
@@ -209,14 +200,12 @@ public class AWActivityActions extends AWMainActivity
             }
         }
         if (f != null) {
-            getSupportFragmentManager().beginTransaction().replace(container, f, event.name())
-                                       .addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().replace(container, f, AWEVENT).addToBackStack(null).commit();
         }
     }
 
     @Override
-    public boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position,
-                                           long id, int viewHolderLayoutID) {
+    public boolean onRecyclerItemLongClick(RecyclerView recyclerView, View view, int position, long id, int viewHolderLayoutID) {
         return false;
     }
 }

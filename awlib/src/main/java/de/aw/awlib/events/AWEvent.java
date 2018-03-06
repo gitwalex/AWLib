@@ -17,63 +17,41 @@ package de.aw.awlib.events;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * Definiert moegliche Events innerhalb AWLib.
  */
-public enum AWEvent implements Parcelable {
-    /**
-     * Event fuer Sicherung der Datenbank
-     */
-    DoDatabaseSave,//
+public interface AWEvent {
+    int
+            /**
+             * Event fuer Sicherung der Datenbank
+             */
+            DoDatabaseSave = 1,//
     /**
      * Event zur kompriemierung Datenbank
      */
-    doVaccum,//
+    doVaccum = 2,//
     /**
      * Event restore Datenbank
      */
-    showBackupFiles,//
+    showBackupFiles = 3,//
     /**
      *
      */
-    showRemoteFileServer,//
+    showRemoteFileServer = 4,//
     /**
      *
      */
-    configRemoteFileServer,//
+    configRemoteFileServer = 5,//
     /**
      *
      */
-    copyAndDebugDatabase,//
+    copyAndDebugDatabase = 6,//
     /**
      * Zeigt ein Image. Der Filename (absolut) muss  als String
      * geliefert werden. Der Name des zu ladenden Files wird im Titel angezeigt.Gibt es im Bundle
      * unter 'FRAGMENTTITLE' einen Text, wird dieser als Titel angezeigt. Ansonsten der Letzte Teil
      * des Filenamens
      */
-    ShowPicture,//
-    AWLibDailyEvent;
-    public static final Parcelable.Creator<AWEvent> CREATOR =
-            new android.os.Parcelable.Creator<AWEvent>() {
-                public AWEvent createFromParcel(Parcel in) {
-                    return AWEvent.values()[in.readInt()];
-                }
-
-                public AWEvent[] newArray(int size) {
-                    return new AWEvent[size];
-                }
-            };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(ordinal());
-    }
+    ShowPicture = 7,//
+            AWLibDailyEvent = 8;
 }

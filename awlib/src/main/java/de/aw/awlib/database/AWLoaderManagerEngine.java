@@ -41,26 +41,16 @@ import static de.aw.awlib.application.AWApplication.LogError;
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
  * LAYOUT: Layout des Fragments
- * <p>
- * <p>
  * AWAbstractDBDefinition: AWAbstractDBDefinition des Fragments
- * <p>
  * VIEWRESIDS: VIEWRESIDS des Fragments FROMRESIDs: FROMRESIDs des Fragments
- * <p>
  * Ausserdem folgende optionale Argumente:
- * <p>
  * PROJECTION: Welche Spalten als Ergebnis erwartet werden. Ist diese nicht vorhanden, werden die
  * Spalten gemaess FROMRESIDs  geliefert
- * <p>
  * SELECTION: Selection fuer Cursor
- * <p>
  * SELECTIONARGS: Argumente fuer Selection
- * <p>
  * GROUPBY: GroupBy-Clause fuer Cursor
- * <p>
  * ORDERBY: OrderBy-Clause fuer Cursor. Ist diese nicht belegt, wird die OrderBy-Clause der
  * Tabellendefinition verwendet.
- * <p>
  * Beim Start des Loader wird in der ActionBar die ProgressBar-Indeterminate-Visibility auf true
  * gesetzt. Nach dem Laden wird diese wieder abgeschaltet. Daher ist zwingend beim Ueberschreiben
  * von {@link AWLoaderManagerEngine#onCreateLoader(int, Bundle)} sowie {@link
@@ -77,12 +67,24 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
         mCallback = callback;
     }
 
+    public AWLoaderManagerEngine(AWBasicActivity activity, Callback callback) {
+        this(activity, activity.getSupportLoaderManager(), callback);
+    }
+
     public AWLoaderManagerEngine(AWBasicActivity activity) {
         this(activity, activity.getSupportLoaderManager(), (Callback) activity);
     }
 
     public AWLoaderManagerEngine(AWFragment fragment) {
         this(fragment.getContext(), fragment.getLoaderManager(), (Callback) fragment);
+    }
+
+    public AWLoaderManagerEngine(AWFragment fragment, Callback callback) {
+        this(fragment.getContext(), fragment.getLoaderManager(), callback);
+    }
+
+    public Context getContext() {
+        return mContext;
     }
 
     /**
@@ -92,13 +94,9 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
      * <p/>
      * args.getStringArray(PROJECTION): Columns, die ermittelt werden sollen. Ist das Feld nicht
      * belegt, werden die Spalten gemaess args.getIntArray(FROMRESIDS) geholt.
-     * <p>
      * args.getString(SELECTION): Where-Clause
-     * <p>
      * args.getStringArray(SELECTIONARGS): Argumente fuer SELECTION
-     * <p>
      * args.getString(GROUPBY): GroupBy-Clause
-     * <p>
      * args.getString(ORDERBY): OrderBy-Clause. Ist dies nicht belegt, wird der Cursor gemaess
      * {@link AbstractDBHelper#getOrderString(AWAbstractDBDefinition)} sortiert.
      *

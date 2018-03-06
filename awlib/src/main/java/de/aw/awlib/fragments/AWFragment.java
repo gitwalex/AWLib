@@ -22,7 +22,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
@@ -39,7 +38,8 @@ import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.activities.AWMainActivity;
 import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.events.AWEvent;
+
+import static de.aw.awlib.events.AWEvent.ShowPicture;
 
 /**
  * Template fuer MonMaFragmente
@@ -421,7 +421,7 @@ public abstract class AWFragment extends DialogFragment
     protected void showPictureFrom(String filename) {
         Intent intent = new Intent(getActivity(), AWActivityActions.class);
         intent.putExtra(FILENAME, filename);
-        intent.putExtra(AWLIBEVENT, (Parcelable) AWEvent.ShowPicture);
+        intent.putExtra(AWLIBEVENT, ShowPicture);
         getActivity().startActivity(intent);
     }
 
