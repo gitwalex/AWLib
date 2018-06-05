@@ -17,12 +17,14 @@ package de.aw.awlib;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.DrawableRes;
@@ -32,6 +34,7 @@ import android.support.v4.app.NotificationCompat;
 import java.util.List;
 
 import de.aw.awlib.activities.AWInterface;
+import de.aw.awlib.application.AWApplication;
 
 /**
  * Erstellt und ersetzt Notifications
@@ -40,6 +43,8 @@ public class AWNotification implements AWInterface {
     private static int lastNotifyID = 1;
     protected final Bundle extras = new Bundle();
     private final Context context;
+    private final String mChannelID;
+    private final NotificationChannel mNotificationChannel;
     private String contentTitle;
     private boolean hasProgressBar;
     private int mNotifyID;
@@ -50,32 +55,33 @@ public class AWNotification implements AWInterface {
     /**
      * Siehe {@link AWNotification#AWNotification(Context, String)}
      *
-     * @param startActivity
-     *         Activity, die bei click auf Notification gestartet werden soll. Kann null sein, dann
-     *         wird die AWMainActivity gestartet.
+     * @param startActivity Activity, die bei click auf Notification gestartet werden soll. Kann null sein, dann
+     *                      wird die AWMainActivity gestartet.
      */
-    public AWNotification(@NonNull Context context, @NonNull String contentTitle,
-                          Class startActivity) {
+    public AWNotification(@NonNull Context context, @NonNull String contentTitle, Class startActivity) {
         this(context, contentTitle);
         this.startActivity = startActivity;
     }
 
     /**
-     * @param context
-     *         Context
-     * @param contentTitle
-     *         1. Zeile der Notification
+     * @param context      Context
+     * @param contentTitle 1. Zeile der Notification
      */
     public AWNotification(@NonNull Context context, @NonNull String contentTitle) {
         this.context = context;
         this.contentTitle = contentTitle;
         mNotifyID = lastNotifyID;
         lastNotifyID++;
+        mChannelID = ((AWApplication) context.getApplicationContext()).getNotficationChannelID();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mNotificationChannel = new NotificationChannel(mChannelID, "Nachricht", NotificationManager.IMPORTANCE_DEFAULT);
+        } else {
+            mNotificationChannel = null;
+        }
     }
 
     /**
-     * @param extras
-     *         Bundle fuer die zu rufende Activity
+     * @param extras Bundle fuer die zu rufende Activity
      */
     @CallSuper
     public void addExtras(Bundle extras) {
@@ -88,21 +94,20 @@ public class AWNotification implements AWInterface {
     public void cancel() {
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nMgr = (NotificationManager) context.getSystemService(ns);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            nMgr.createNotificationChannel(mNotificationChannel);
+        }
         nMgr.cancel(mNotifyID);
     }
 
     /**
      * Erstelle Notification.
      *
-     * @param contentListHeader
-     *         Header der Liste.
-     * @param contentListTexte
-     *         Liste der NotificationTexte
-     *
+     * @param contentListHeader Header der Liste.
+     * @param contentListTexte  Liste der NotificationTexte
      * @return die NotificationID
      */
-    public int createNotification(@NonNull String contentListHeader,
-                                  @NonNull List<String> contentListTexte) {
+    public int createNotification(@NonNull String contentListHeader, @NonNull List<String> contentListTexte) {
         NotificationCompat.Builder mBuilder = getNotification();
         mBuilder.setContentTitle(contentTitle);
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
@@ -112,8 +117,11 @@ public class AWNotification implements AWInterface {
         }
         mBuilder.setContentText(contentListHeader);
         mBuilder.setStyle(inboxStyle);
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mNotificationManager.createNotificationChannel(mNotificationChannel);
+        }
+
         mNotificationManager.notify(mNotifyID, mBuilder.build());
         return mNotifyID;
     }
@@ -121,9 +129,7 @@ public class AWNotification implements AWInterface {
     /**
      * Erstellt Notification mit  Titel aus Konstruktor und ContentText
      *
-     * @param contentText
-     *         ContentText
-     *
+     * @param contentText ContentText
      * @return NotifyID
      */
     public int createNotification(@NonNull String contentText) {
@@ -133,19 +139,19 @@ public class AWNotification implements AWInterface {
     /**
      * Erstellt Notification mit neuem Titel und neuen Text
      *
-     * @param contentTitle
-     *         ContentTitel
-     * @param contentText
-     *         ContentText
-     *
+     * @param contentTitle ContentTitel
+     * @param contentText  ContentText
      * @return NotifyID
      */
     public int createNotification(@NonNull String contentTitle, @NonNull String contentText) {
         NotificationCompat.Builder mBuilder = getNotification();
         mBuilder.setContentTitle(contentTitle);
         mBuilder.setContentText(contentText);
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mNotificationManager.createNotificationChannel(mNotificationChannel);
+        }
+
         mNotificationManager.notify(mNotifyID, mBuilder.build());
         return mNotifyID;
     }
@@ -170,7 +176,7 @@ public class AWNotification implements AWInterface {
      * @return NotificationBuilder
      */
     protected NotificationCompat.Builder getNotification() {
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, mChannelID);
         mBuilder.setSmallIcon(getIconResID()).setAutoCancel(true);
         if (ticker != null) {
             mBuilder.setTicker(ticker);
@@ -185,8 +191,7 @@ public class AWNotification implements AWInterface {
             intent = new Intent(context, startActivity);
             intent.putExtras(extras);
             stackBuilder.addNextIntent(intent);
-            PendingIntent resultPendingIntent =
-                    stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             mBuilder.setContentIntent(resultPendingIntent);
         }
         return mBuilder;
@@ -199,9 +204,7 @@ public class AWNotification implements AWInterface {
     /**
      * Setzt die Notification mit einem neuen Text
      *
-     * @param contentText
-     *         Text
-     *
+     * @param contentText Text
      * @return NotifyID
      */
     public int replaceNotification(@NonNull String contentText) {
@@ -211,19 +214,19 @@ public class AWNotification implements AWInterface {
     /**
      * Notification mit nur einer Zeile.
      *
-     * @param contentTitle
-     *         Title der Notification
-     * @param contentText
-     *         Text der Notification
-     *
+     * @param contentTitle Title der Notification
+     * @param contentText  Text der Notification
      * @return NotifyID
      */
     public int replaceNotification(@NonNull String contentTitle, @NonNull String contentText) {
         NotificationCompat.Builder mBuilder = getNotification();
         mBuilder.setContentTitle(contentTitle);
         mBuilder.setContentText(contentText);
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mNotificationManager.createNotificationChannel(mNotificationChannel);
+        }
+
         mNotificationManager.notify(mNotifyID, mBuilder.build());
         return mNotifyID;
     }
@@ -231,15 +234,11 @@ public class AWNotification implements AWInterface {
     /**
      * Ersetze Notification.
      *
-     * @param contentListHeader
-     *         Header der Liste.
-     * @param contentListTexte
-     *         Liste der NotificationTexte
-     *
+     * @param contentListHeader Header der Liste.
+     * @param contentListTexte  Liste der NotificationTexte
      * @return die NotificationID
      */
-    public int replaceNotification(@NonNull String contentListHeader,
-                                   @NonNull List<String> contentListTexte) {
+    public int replaceNotification(@NonNull String contentListHeader, @NonNull List<String> contentListTexte) {
         NotificationCompat.Builder mBuilder = getNotification();
         mBuilder.setContentTitle(contentTitle);
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
@@ -249,8 +248,10 @@ public class AWNotification implements AWInterface {
         }
         mBuilder.setContentText(contentListHeader);
         mBuilder.setStyle(inboxStyle);
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mNotificationManager.createNotificationChannel(mNotificationChannel);
+        }
         mNotificationManager.notify(mNotifyID, mBuilder.build());
         return mNotifyID;
     }
@@ -258,25 +259,22 @@ public class AWNotification implements AWInterface {
     /**
      * Setzt den Ticker fuer die Notification
      *
-     * @param contentTitle
-     *         Titel der Notification
+     * @param contentTitle Titel der Notification
      */
     public void setContentTitle(String contentTitle) {
         this.contentTitle = contentTitle;
     }
 
     /**
-     * @param hasProgressBar
-     *         wenn true, wird in der Notification eine Progressbar gezeigt
+     * @param hasProgressBar wenn true, wird in der Notification eine Progressbar gezeigt
      */
     public void setHasProgressBar(boolean hasProgressBar) {
         this.hasProgressBar = hasProgressBar;
     }
 
     /**
-     * @param number
-     *         Number, die am Ende der Notification angezeigt werden soll, z.B. die Anzahl der
-     *         importierten Umsaetze. Keine Anzeige, wenn NOID
+     * @param number Number, die am Ende der Notification angezeigt werden soll, z.B. die Anzahl der
+     *               importierten Umsaetze. Keine Anzeige, wenn NOID
      */
     public void setNumber(int number) {
         this.number = number;
@@ -285,15 +283,13 @@ public class AWNotification implements AWInterface {
     /**
      * Setzt den Ticker fuer die Notification
      *
-     * @param ticker
-     *         Tickertext
+     * @param ticker Tickertext
      */
     public void setTicker(String ticker) {
         this.ticker = ticker;
     }
 
-    public AWNotification startForegroundNotification(@NonNull Service service,
-                                                      @NonNull String contentText) {
+    public AWNotification startForegroundNotification(@NonNull Service service, @NonNull String contentText) {
         NotificationCompat.Builder mBuilder = getNotification();
         mBuilder.setContentTitle(contentTitle);
         mBuilder.setContentText(contentText);

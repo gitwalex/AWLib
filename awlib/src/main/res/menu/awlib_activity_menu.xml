@@ -18,12 +18,6 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools">
     <item
-        android:id="@+id/awlib_menu_item_calculator"
-        android:orderInCategory="998"
-        android:title="@string/awlib_menu_item_calculator"
-        app:showAsAction="never"
-        tools:ignore="AppCompatResource"/>
-    <item
         android:id="@+id/awlib_menu_item_hilfe"
         android:icon="@drawable/ic_action_help"
         android:orderInCategory="999"

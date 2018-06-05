@@ -42,8 +42,7 @@ import de.aw.awlib.utils.AWUtils;
  * Klasse fuer Sicheren/Restoren DB.
  * Der Filename der Sicherung lautet: yyyy_MM_dd_HH_mm.zip_
  */
-public class EventDBSave extends AsyncTask<File, Void, Integer> implements AWResultCodes,
-        AWInterface {
+public class EventDBSave extends AsyncTask<File, Void, Integer> implements AWResultCodes, AWInterface {
     private static String DATABASEFILENAME;
     private Date date;
     private Context mContext;
@@ -57,8 +56,7 @@ public class EventDBSave extends AsyncTask<File, Void, Integer> implements AWRes
     protected Integer doInBackground(File... params) {
         int result = AWUtils.addToZipArchive(params[0], DATABASEFILENAME);
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        if (prefs.getBoolean(mContext.getString(R.string.pkExterneSicherung),
-                false)) {
+        if (prefs.getBoolean(mContext.getString(R.string.pkExterneSicherung), false)) {
         }
         return result;
     }
@@ -66,13 +64,10 @@ public class EventDBSave extends AsyncTask<File, Void, Integer> implements AWRes
     /**
      * Sichert die Datenbank. Wird nur auusgefuhrt, wenn Berechtigung vorhanden
      *
-     * @param context
-     *         Context
+     * @param context Context
      */
     public void execute(Context context) {
-        if (ContextCompat
-                .checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             mContext = context.getApplicationContext();
             AWApplication mApplication = ((AWApplication) mContext.getApplicationContext());
             String BACKUPPATH = mApplication.getApplicationBackupPath() + "/";

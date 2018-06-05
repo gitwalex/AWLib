@@ -27,7 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import de.aw.awlib.R;
-import de.aw.awlib.views.AWBottomSheetCalculator;
 
 /**
  * Template fuer Activities. Implementiert das globale Menu sowie die entsprechenden Reaktionen
@@ -85,7 +84,7 @@ public abstract class AWMainActivity extends AWBasicActivity implements View.OnC
     protected void onCreate(Bundle savedInstanceState, int layout) {
         super.onCreate(savedInstanceState, layout);
         mainAction = args.getParcelable(AWLIBACTION);
-        mDefaultFAB = (FloatingActionButton) findViewById(R.id.awlib_defaultFAB);
+        mDefaultFAB = findViewById(R.id.awlib_defaultFAB);
         ActionBar bar = getSupportActionBar();
         assert bar != null;
         bar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
@@ -118,11 +117,7 @@ public abstract class AWMainActivity extends AWBasicActivity implements View.OnC
         boolean isConsumed = false;
         Intent intent;
         int i = item.getItemId();
-        if (i == R.id.awlib_menu_item_calculator) {
-            AWBottomSheetCalculator calc = new AWBottomSheetCalculator();
-            calc.show(getSupportFragmentManager(), null);
-            isConsumed = true;
-        } else if (i == R.id.awlib_menu_item_hilfe) {
+        if (i == R.id.awlib_menu_item_hilfe) {
             intent = new Intent(this, AWWebViewActivity.class);
             intent.putExtra(ID, getHelpFile());
             startActivity(intent);

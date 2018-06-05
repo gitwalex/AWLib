@@ -46,7 +46,7 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
         try {
             for (ContentValues cv : values) {
                 long erg = db.insert(uri, null, cv);
-                if (erg == -1 && mApplication.getDebugFlag()) {
+                if (erg == -1) {
                     AWApplication.Log("Insert fehlgeschlagen! Werte: " + cv.toString());
                 } else {
                     result++;
@@ -103,20 +103,17 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
     }
 
     @Override
-    public Cursor query(@NonNull Uri uri, String[] from, String selection, String[] selectionArgs,
-                        String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] from, String selection, String[] selectionArgs, String sortOrder) {
         db = getDBHelper();
         SQLiteDatabase database = db.getReadableDatabase();
         String table = uri.getLastPathSegment();
-        Cursor c = database.query(table + " t1", from, selection, selectionArgs, null, null,
-                sortOrder);
+        Cursor c = database.query(table + " t1", from, selection, selectionArgs, null, null, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
 
     @Override
-    public int update(@NonNull Uri uri, ContentValues values, String selection,
-                      String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         if (!batchMode) {
             db = getDBHelper();
         }

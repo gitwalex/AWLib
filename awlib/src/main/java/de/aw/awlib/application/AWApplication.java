@@ -21,10 +21,7 @@ import android.app.Application;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Debug;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
@@ -34,14 +31,10 @@ import android.view.ViewConfiguration;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.util.Date;
 
-import de.aw.awlib.activities.AWActivityDebug;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AbstractDBHelper;
 import de.aw.awlib.events.AWEventService;
@@ -70,9 +63,7 @@ public abstract class AWApplication extends Application {
     /**
      * Pfad, indem alle de.aw.-Applications abgelegt werden
      */
-    public static final String DE_AW_APPLICATIONPATH =
-            Environment.getExternalStorageDirectory() + "/de.aw";
-    private static final String STACKTRACEPATH = "/stackTrace.txt";
+    public static final String DE_AW_APPLICATIONPATH = Environment.getExternalStorageDirectory() + "/de.aw";
     /**
      * Pfad, indem alle Backups zu de.aw.-Applications abgelegt werden
      */
@@ -96,8 +87,7 @@ public abstract class AWApplication extends Application {
     /**
      * Loggt Warnungen
      *
-     * @param message
-     *         message
+     * @param message message
      */
     public static void Log(String message) {
         Log.d(AWApplication.TAG, message);
@@ -106,8 +96,7 @@ public abstract class AWApplication extends Application {
     /**
      * Loggt Fehler. Die Meldung wird auch in das File Applicationpath/LOG.txt geschrieben
      *
-     * @param message
-     *         Fehlermeldung
+     * @param message Fehlermeldung
      */
     public static void LogError(String message) {
         File logFile = new File(DE_AW_APPLICATIONPATH + "/LOG.txt");
@@ -207,88 +196,20 @@ public abstract class AWApplication extends Application {
         return mDBHelper;
     }
 
-    /**
-     * @return Das DebugFlag der Application Default: True, immer im Debugmodus
-     */
-    public boolean getDebugFlag() {
-        return true;
-    }
-
-    private void handleUncaughtException(Throwable e) throws IOException {
-        e.printStackTrace(); // not all Android versions will print the stack trace automatically
-        String stackTrace = Log.getStackTraceString(e);
-        File stackTraceFile = new File(APPLICATIONPATH + STACKTRACEPATH);
-        FileOutputStream fileout = new FileOutputStream(stackTraceFile);
-        OutputStreamWriter outputWriter = new OutputStreamWriter(fileout);
-        CharSequence date = DateFormat.format("yyyy-MM-dd hh:mm:ss", new Date());
-        outputWriter.write(date + ": " + stackTrace);
-        outputWriter.close();
-        String exceptionAsString = stackTrace + e.getMessage();
-        Intent intent = new Intent(this, AWActivityDebug.class);
-        intent.putExtra(STACKTRACE, exceptionAsString);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // required when starting from Application
-        startActivity(intent);
-    }
 
     @Override
     public void onCreate() {
-        APPLICATIONPATH = AWApplication.DE_AW_APPLICATIONPATH + "/" +
-                theApplicationDirectory().replace("/", "");
+        APPLICATIONPATH = AWApplication.DE_AW_APPLICATIONPATH + "/" + theApplicationDirectory().replace("/", "");
         AWAbstractDBDefinition[] tbds = getDBDefinitionValues();
         if (tbds.length > 0) {
             tbds[0].setAuthority(getAuthority());
         }
         AbstractDBHelper.AWDBDefinition.values()[0].setAuthority(getAuthority());
         createDBHelper(this);
-        boolean mDebugFlag = getDebugFlag();
         super.onCreate();
         AWEventService.setDailyAlarm(this);
-        if (mDebugFlag) {
-            try {
-                // Im Debug-Mode Pruefen lassen, welche Constraints verletzt werden.
-                // Hier nur logging
-                StrictMode.setThreadPolicy(
-                        new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
-                //
-                // Achtung: .detectActivityLeaks() wurde bewusst abgeschaltet
-                // und muss zumdeindest zeitweise mal gestestet werden.
-                // Hintergund:
-                //http://stackoverflow.com/questions/21145261/strictmode-activity-instance-count
-                // -violation-2-instances-1-expected-on-rotati/25252425#25252425
-                StrictMode.setVmPolicy(
-                        new StrictMode.VmPolicy.Builder().detectLeakedClosableObjects()
-                                .detectLeakedRegistrationObjects()
-                                .detectLeakedSqlLiteObjects().penaltyLog()
-                                .build());
-                // Schreiben/Lesen auf Disk erlauben
-                StrictMode.allowThreadDiskReads();
-                StrictMode.allowThreadDiskWrites();
-                // Replace System.err with one that'll monitor for StrictMode
-                // killing us and perform a hprof heap dump just before it does.
-                System.setErr(new PrintStreamThatDumpsHprofWhenStrictModeKillsUs(System.err));
-            } catch (Exception e) {
-                // ignore errors
-            }
-        }
         FragmentManager.enableDebugLogging(EnableFragmentManagerLogging);
         LoaderManager.enableDebugLogging(EnableLoaderManagerLogging);
-        // Bei Abbruch ein Fenster mit der Fehlermeldung
-        // zeigen
-        final UncaughtExceptionHandler oldExceptionHandler =
-                Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable e) {
-                e.printStackTrace();
-                try {
-                    handleUncaughtException(e);
-                } catch (IOException e1) {
-                    //TODO Execption bearbeiten
-                    e1.printStackTrace();
-                }
-                oldExceptionHandler.uncaughtException(thread, e);
-            }
-        });
         //-Ausschalten Device - Option - Button, wenn vorhanden.
         // If an Android device has an option button, the overflow menu is not
         // shown.
@@ -331,28 +252,12 @@ public abstract class AWApplication extends Application {
     }
 
     /**
-     * Im Debug-Modus wird Strict eingeschaltet. Sollte es zu einem Fehler kommen, wird der Heap in
-     * ein File gedumpt.
+     * Liefert die ChannelID der Notifiication der APp zuruck.
+     *
+     * @return ChannelID. Default ist "awlib-channel-01"
      */
-    private class PrintStreamThatDumpsHprofWhenStrictModeKillsUs extends PrintStream {
-        PrintStreamThatDumpsHprofWhenStrictModeKillsUs(OutputStream outs) {
-            super(outs);
-        }
-
-        @Override
-        public synchronized void println(String str) {
-            super.println(str);
-            if (str.startsWith("StrictMode VmPolicy violation with POLICY_DEATH;")) {
-                // StrictMode is about to terminate us... do a heap dump!
-                try {
-                    AWApplication.Log("Logge HPROF...");
-                    File file = new File(APPLICATIONPATH, "strictmode-violation.hprof");
-                    super.println("Dumping HPROF to: " + file.getName());
-                    Debug.dumpHprofData(file.getAbsolutePath());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    public String getNotficationChannelID() {
+        return "awlib-channel-01";
     }
+
 }
