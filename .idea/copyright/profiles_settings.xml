@@ -1,8 +1,0 @@
-<component name="CopyrightManager">
-  <settings default="awlibCopyright">
-    <LanguageOptions name="JAVA">
-      <option name="fileTypeOverride" value="3" />
-      <option name="fileLocation" value="2" />
-    </LanguageOptions>
-  </settings>
-</component>

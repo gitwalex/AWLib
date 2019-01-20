@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../MonMa/MonMa.iml" filepath="$PROJECT_DIR$/../MonMa/MonMa.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AWLib.iml" filepath="$PROJECT_DIR$/AWLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/awlib/awlib.iml" filepath="$PROJECT_DIR$/awlib/awlib.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../MonMa/monma/monma.iml" filepath="$PROJECT_DIR$/../MonMa/monma/monma.iml" />
     </modules>
   </component>
 </project>
