@@ -17,8 +17,6 @@
 package de.aw.awlib.gv;
 
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.databinding.BaseObservable;
 import android.os.Parcel;
@@ -27,12 +25,12 @@ import android.support.annotation.CallSuper;
 import java.text.ParseException;
 import java.util.Date;
 
-import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.database.TableColumns;
 
 /**
  * MonMa AWApplicationGeschaeftsObjekt Vorlage fuer die Geschaeftsvorfaelle, z.B. Bankkonto-Buchung,
@@ -48,49 +46,27 @@ import de.aw.awlib.database.AbstractDBHelper;
  * @author alex
  */
 @SuppressWarnings({"WeakerAccess", "unused"}) public abstract class AWApplicationGeschaeftsObjektNew
-        extends BaseObservable implements AWInterface {
+        extends BaseObservable implements AWInterface, TableColumns {
     private final String CLASSNAME = this.getClass().getSimpleName();
     /**
      * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
      * belegt.
      */
     private final AWAbstractDBDefinition tbd;
-    private final AWApplication mContext;
     protected String selection;
+    protected String[] selectionArgs;
     /**
      * ID des AWApplicationGeschaeftsObjekt
      */
     protected Long id;
-    protected String[] selectionArgs;
     /**
      * Abbild der jeweiligen Zeile der Datenbank. Werden nicht direkt geaendert.
      */
     private ContentValues currentContent = new ContentValues();
     private boolean isDirty;
 
-    /**
-     * Laden eines Geschaeftsvorfalls mit der id aus der Datenbank.
-     *
-     * @param tbd
-     *         Tabelle, der der GV zugeordnet ist.
-     * @param id
-     *         ID des Geschaeftsvorfalls in der entsprechenden Tabelle.
-     *
-     * @throws LineNotFoundException
-     *         Wenn keine Zeile mit der id gefunden wurde.
-     * @throws Resources.NotFoundException
-     *         Wenn kein Datensatz mit dieser ID gefunden wurde.
-     */
-    public AWApplicationGeschaeftsObjektNew(Context context, AWAbstractDBDefinition tbd, Long id)
-            throws LineNotFoundException {
-        this(context, tbd);
-        fillContent(mContext.getDBHelper().getApplicationContext(), id);
-        id = getID();
-        selectionArgs = new String[]{id.toString()};
-    }
-
-    public AWApplicationGeschaeftsObjektNew(Context context, AWAbstractDBDefinition tbd, Cursor c) {
-        this(context, tbd);
+    public AWApplicationGeschaeftsObjektNew(AWAbstractDBDefinition tbd, Cursor c) {
+        this(tbd);
         fillContent(c);
     }
 
@@ -100,34 +76,13 @@ import de.aw.awlib.database.AbstractDBHelper;
      * @param tbd
      *         AWAbstractDBDefinition
      */
-    public AWApplicationGeschaeftsObjektNew(Context context, AWAbstractDBDefinition tbd) {
+    public AWApplicationGeschaeftsObjektNew(AWAbstractDBDefinition tbd) {
         this.tbd = tbd;
-        mContext = (AWApplication) context.getApplicationContext();
-        selection = mContext.getString(R.string._id) + " = ?";
+        selection = _id + " = ?";
     }
 
-    /**
-     * Legt ein neues Geschaeftsobject auf Basis eines anderen GO an. Alle Werte, die in dem neuen
-     * GO moeglich sind, werden kopiert.
-     *
-     * @param tbd
-     *         AWAbstractDBDefinition
-     * @param go
-     *         GO, dessen Inhalte kopiert werden sollen.
-     */
-    protected AWApplicationGeschaeftsObjektNew(Context context, AWAbstractDBDefinition tbd,
-                                               AWApplicationGeschaeftsObjektNew go) {
-        this(context, tbd);
-        for (int resID : tbd.getTableItems()) {
-            Object value = go.currentContent.get(mContext.getDBHelper().columnName(resID));
-            if (value != null) {
-                put(resID, value);
-            }
-        }
-    }
-
-    protected AWApplicationGeschaeftsObjektNew(Context context, Parcel in) {
-        this(context, (AWAbstractDBDefinition) in
+    protected AWApplicationGeschaeftsObjektNew(Parcel in) {
+        this((AWAbstractDBDefinition) in
                 .readParcelable(AWAbstractDBDefinition.class.getClassLoader()));
         this.selection = in.readString();
         this.id = (Long) in.readValue(Long.class.getClassLoader());
@@ -139,52 +94,25 @@ import de.aw.awlib.database.AbstractDBHelper;
     /**
      * Prueft, ob ein Wert zur ResID vorhanden ist.
      *
-     * @param resID
-     *         resID des keys
+     * @param column
+     *         Spaltenname
      *
      * @return true, wenn vorhanden. Sonst false
      */
-    public boolean IsNull(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
-        return currentContent.containsKey(key);
+    public boolean IsNull(String column) {
+        return currentContent.containsKey(column);
     }
 
     /**
      * Prueft, ob ein Wert geaendert wurde oder bereits in der DB vorhanden ist.
      *
-     * @param resID
-     *         resID der Spalte
+     * @param column
+     *         Spaltenname
      *
      * @return true, wenn ein Wert ungleich null enthalten ist
      */
-    public final boolean containsValue(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
-        return currentContent.get(key) != null;
-    }
-
-    protected String convertValue(int resID, Object value) {
-        String newValue = null;
-        if (value != null) {
-            newValue = value.toString();
-            char format = mContext.getDBHelper().getFormat(resID);
-            switch (format) {
-                case 'B':
-                    if (AWDBConvert.convertBoolean(newValue)) {
-                        newValue = "1";
-                    } else {
-                        newValue = "0";
-                    }
-                    break;
-                case 'D':
-                    if (value instanceof Date) {
-                        newValue = AWDBConvert.convertDate2SQLiteDate((Date) value);
-                    }
-                    break;
-                case 'O':
-                    throw new IllegalArgumentException("Kann nicht nach String konvertieren");
-            }
-        }
-        return newValue;
+    public final boolean containsValue(String column) {
+        return currentContent.get(column) != null;
     }
 
     protected void copy(AWApplicationGeschaeftsObjektNew source) {
@@ -194,16 +122,15 @@ import de.aw.awlib.database.AbstractDBHelper;
 
     protected int delete(AbstractDBHelper db) {
         if (id == null) {
-            AWApplication
-                    .Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht " +
-                            "moeglich");
+            AWApplication.Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht " +
+                    "moeglich");
             return 0;
         }
         int result;
         result = db.delete(tbd, selection, selectionArgs);
         isDirty = true;
         if (result != 0) {
-            currentContent.putNull(mContext.getDBHelper().columnName(R.string._id));
+            currentContent.putNull(_id);
             id = null;
         }
         return result;
@@ -256,6 +183,15 @@ import de.aw.awlib.database.AbstractDBHelper;
                     byte[] blob = c.getBlob(i);
                     currentContent.put(c.getColumnName(i), blob);
                     break;
+                case Cursor.FIELD_TYPE_FLOAT:
+                    currentContent.put(c.getColumnName(i), c.getFloat(i));
+                    break;
+                case Cursor.FIELD_TYPE_INTEGER:
+                    currentContent.put(c.getColumnName(i), c.getInt(i));
+                    break;
+                case Cursor.FIELD_TYPE_STRING:
+                    currentContent.put(c.getColumnName(i), c.getString(i));
+                    break;
                 default:
                     String value = c.getString(i);
                     if (value != null) {
@@ -263,130 +199,27 @@ import de.aw.awlib.database.AbstractDBHelper;
                     }
             }
         }
-        id = getAsLong(R.string._id);
+        id = getAsLong(_id);
         selectionArgs = new String[]{id.toString()};
-        currentContent.remove(mContext.getDBHelper().columnName(R.string._id));
+        currentContent.remove(_id);
         isDirty = false;
-    }
-
-    /**
-     * Fuellt den Content aus der Datenbank in currentContent
-     *
-     * @param id
-     *         in der Tabelle
-     *
-     * @throws LineNotFoundException
-     *         Wenn keine Zeile mit der id gefunden wurde.
-     */
-    public final void fillContent(Context context, Long id) throws LineNotFoundException {
-        selectionArgs = new String[]{id.toString()};
-        fillContent(context, id, selection, selectionArgs);
-    }
-
-    /**
-     * Fuellt das Geschaeftsobjekt anhand der uebergebenen Daten aus der DB
-     *
-     * @param id
-     *         id des Objektes
-     * @param selection
-     *         selection
-     * @param selectionArgs
-     *         selectionArgs
-     *
-     * @throws LineNotFoundException
-     *         wenn keine Zeile gefunden wurde.
-     */
-    public final void fillContent(Context context, Long id, String selection,
-                                  String[] selectionArgs) throws LineNotFoundException {
-        Cursor c = context.getContentResolver()
-                .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), selection, selectionArgs,
-                        null);
-        assert c != null;
-        try {
-            if (c.moveToFirst()) {
-                fillContent(c);
-            } else {
-                throw new LineNotFoundException(
-                        tbd.name() + ": Zeile mit id " + id + " nicht gefunden.");
-            }
-        } finally {
-            if (!c.isClosed()) {
-                c.close();
-            }
-        }
-    }
-
-    /**
-     * Fuellt contentValues mit den Daten aus selection und selectionArgs. Bereits vorhandene Daten
-     * werden ueberschrieben.
-     *
-     * @param selection
-     *         Where-Clause
-     * @param selectionArgs
-     *         Argumente
-     *
-     * @throws LineNotFoundException
-     *         Wenn keine Zeile mit der zur Selektion gefunden wurde.
-     * @throws IllegalStateException
-     *         , wenn das Ergebnis mehr als eine Zeile liefert.
-     */
-    public final void fillContent(Context context, String selection, String[] selectionArgs)
-            throws LineNotFoundException {
-        String[] projection = tbd.columnNames(tbd.getTableItems());
-        Cursor c = context.getContentResolver()
-                .query(tbd.getUri(), projection, selection, selectionArgs, null);
-        assert c != null;
-        try {
-            if (c.getCount() > 1) {
-                AWApplication.Log("selection" + selection);
-                if (selectionArgs != null) {
-                    for (String s : selectionArgs) {
-                        AWApplication.Log("selectionArg" + s);
-                    }
-                }
-                throw new IllegalStateException("Selection ergab mehr als eine Zeile!");
-            }
-            if (!c.moveToFirst()) {
-                StringBuilder sb = new StringBuilder();
-                if (selectionArgs != null) {
-                    for (String s : selectionArgs) {
-                        sb.append(" [").append(s).append("] ");
-                    }
-                }
-                throw new LineNotFoundException(
-                        "Zeile mit Selektion " + selection + " zu Argumenten " + sb.toString() +
-                                " nicht gefunden.");
-            } else {
-                fillContent(c);
-            }
-        } finally {
-            if (!c.isClosed()) {
-                c.close();
-            }
-        }
-    }
-
-    protected Resources getApplicationResources() {
-        return mContext.getResources();
     }
 
     /**
      * Liefert den Wert aus dem Geschaeftsobjekt zu Spalte resID als Boolean.
      *
-     * @param resID
-     *         resID der Spalte
+     * @param column
+     *         Spalte
      *
      * @return Den aktuellen Wert der Spalte (true ooder false)
      */
-    public final Boolean getAsBoolean(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
-        String value = currentContent.getAsString(key);
+    public final Boolean getAsBoolean(String column) {
+        String value = currentContent.getAsString(column);
         return AWDBConvert.convertBoolean(value);
     }
 
-    public final byte[] getAsByteArray(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
-        return currentContent.getAsByteArray(key);
+    public final byte[] getAsByteArray(String column) {
+        return currentContent.getAsByteArray(column);
     }
 
     /**
@@ -397,7 +230,7 @@ import de.aw.awlib.database.AbstractDBHelper;
      *
      * @return Date-Objekt oder null
      */
-    public Date getAsDate(String datum) {
+    public final Date getAsDate(String datum) {
         try {
             return new java.sql.Date(AWDBConvert.mSqliteDateFormat.parse(datum).getTime());
         } catch (ParseException e) {
@@ -406,37 +239,27 @@ import de.aw.awlib.database.AbstractDBHelper;
     }
 
     /**
-     * Liest das Datum aus dem Geschaeftsobjekt und liefert es als Date zurueck. Siehe {@link
-     * AWApplicationGeschaeftsObjektNew#getAsDate(String)}
+     * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als Integer.
+     *
+     * @param column
+     *         resID der Spalte
+     *
+     * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
-    public Date getAsDate(int resID) {
-        return getAsDate(getAsString(resID));
+    public final Integer getAsInt(String column) {
+        return currentContent.getAsInteger(column);
     }
 
     /**
      * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als Integer.
      *
-     * @param resID
+     * @param column
      *         resID der Spalte
      *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
-    public final Integer getAsInt(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
-        return currentContent.getAsInteger(key);
-    }
-
-    /**
-     * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als Integer.
-     *
-     * @param resID
-     *         resID der Spalte
-     *
-     * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
-     */
-    public final int getAsInt(int resID, int defaultValue) {
-        String key = mContext.getDBHelper().columnName(resID);
-        Integer value = currentContent.getAsInteger(key);
+    public final int getAsInt(String column, int defaultValue) {
+        Integer value = currentContent.getAsInteger(column);
         if (value == null) {
             value = defaultValue;
         }
@@ -446,22 +269,21 @@ import de.aw.awlib.database.AbstractDBHelper;
     /**
      * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als Long.
      *
-     * @param resID
+     * @param column
      *         resID der Spalte
      *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
-    public final Long getAsLong(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
-        return currentContent.getAsLong(key);
+    public final Long getAsLong(String column) {
+        return currentContent.getAsLong(column);
     }
 
     /**
-     * Wie {@link AWApplicationGeschaeftsObjektNew#getAsLong(int)}, liefert aber den Defaultwert
+     * Wie {@link AWApplicationGeschaeftsObjektNew#getAsLong(String)}, liefert aber den Defaultwert
      * zuruck, wenn die Spalte nicht belegt iist.
      */
-    public final long getAsLong(int resID, long defaultWert) {
-        Long value = getAsLong(resID);
+    public final long getAsLong(String column, long defaultWert) {
+        Long value = getAsLong(column);
         if (value == null) {
             return defaultWert;
         }
@@ -471,14 +293,13 @@ import de.aw.awlib.database.AbstractDBHelper;
     /**
      * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als String.
      *
-     * @param resID
+     * @param column
      *         resID der Spalte
      *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
-    public final String getAsString(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
-        return currentContent.getAsString(key);
+    public final String getAsString(String column) {
+        return currentContent.getAsString(column);
     }
 
     /**
@@ -517,20 +338,9 @@ import de.aw.awlib.database.AbstractDBHelper;
             throw new IllegalStateException(
                     "AWApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
         }
-        for (int resID : tbd.getTableItems()) {
-            char format = mContext.getDBHelper().getFormat(resID);
-            switch (format) {
-                case 'B':
-                    // Vorbelegung mit Wert 'false'
-                    if (!getAsBoolean(resID)) {
-                        put(resID, false);
-                    }
-                    break;
-            }
-        }
         id = db.insert(tbd, null, currentContent);
         if (id != -1) {
-            currentContent.put(mContext.getDBHelper().columnName(R.string._id), id);
+            currentContent.put(_id, id);
         } else {
             AWApplication.Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME +
                     " fehlgeschlagen! Werte: " + currentContent.toString());
@@ -563,31 +373,59 @@ import de.aw.awlib.database.AbstractDBHelper;
      * catname belegt, wird geprueft, ob catID bereits belegt ist. Wenn nicht, wird wird diese dort
      * auch belegt.
      *
-     * @param resID
+     * @param column
      *         ResID der Spalte, die eingefuegt werden soll.
      * @param value
      *         Wert, der eingefuegt werden soll. Wert wird als String eingefuegt. Ist der Wert
      *         bereits identisch vorhanden (DB oder als geaenderter Wert), wird nichts eingefuegt.
      *         Ist value == null oder ein leerer String, wird ein ggfs. geaenderter Wert in der
      *         Spalte und nach Update dann auch aus der DB entfernt.
-     *
-     * @return true, wenn die Aktion erfolgreich war, also ein Wert eingefuegt/entfernt wurde.
-     * false, wenn der gleiche Wert bereitsvorhanden war.
-     *
-     * @throws IllegalArgumentException
-     *         wenn ResID nicht in der Tabelle vorhanden ist
      */
-    public boolean put(int resID, Object value) {
-        String newValue;
-        String key = mContext.getDBHelper().columnName(resID);
-        if (value != null && !value.toString().isEmpty()) {
-            newValue = convertValue(resID, value);
-            currentContent.put(key, newValue);
+    public void put(String column, boolean value) {
+        if (value) {
+            put(column, 1);
         } else {
-            currentContent.putNull(key);
+            put(column, 0);
         }
         isDirty = true;
-        return true;
+    }
+
+    public void put(String column, int value) {
+        currentContent.put(column, value);
+        isDirty = true;
+    }
+
+    public void put(String column, long value) {
+        currentContent.put(column, value);
+        isDirty = true;
+    }
+
+    public void put(String column, float value) {
+        currentContent.put(column, value);
+        isDirty = true;
+    }
+
+    public void put(String column, double value) {
+        currentContent.put(column, value);
+        isDirty = true;
+    }
+
+    public void put(String column, Date date) {
+        if (date != null) {
+            currentContent.put(column, AWDBConvert.convertDate2SQLiteDate(date));
+        } else {
+            currentContent.putNull(column);
+        }
+        isDirty = true;
+    }
+
+    public void put(String column, String value) {
+        if (value != null) {
+            currentContent.put(column, value);
+        } else {
+            currentContent.putNull(column);
+        }
+        isDirty = true;
     }
 
     /**
@@ -596,43 +434,38 @@ import de.aw.awlib.database.AbstractDBHelper;
      * catname belegt, wird geprueft, ob catID bereits belegt ist. Wenn nicht, wird wird diese dort
      * auch belegt.
      *
-     * @param resID
+     * @param column
      *         ResID der Spalte, die eingefuegt werden soll.
      * @param value
      *         BlobWert, der eingefuegt werden soll.
      *
-     * @return true, wenn die Aktion erfolgreich war, also ein Wert eingefuegt/entfernt wurde.
-     * false, wenn der gleiche Wert bereitsvorhanden war.
-     *
      * @throws IllegalArgumentException
      *         wenn ResID nicht in der Tabelle vorhanden ist
      */
-    public boolean put(int resID, byte[] value) {
-        String key = mContext.getDBHelper().columnName(resID);
+    public void put(String column, byte[] value) {
         if (value == null) {
-            currentContent.putNull(key);
+            currentContent.putNull(column);
         } else {
-            currentContent.put(key, value);
+            currentContent.put(column, value);
         }
         isDirty = true;
-        return true;
     }
 
     /**
      * Aendert oder Fuegt Daten ein.
      *
-     * @param resID
+     * @param column
      *         ResID der Spalte, die entfernt werden soll.
      *
      * @throws UnsupportedOperationException
      *         wennn _id entfernt werden soll.
      */
     @CallSuper
-    public void remove(int resID) {
-        if (resID == R.string._id) {
+    public void remove(String column) {
+        if (_id.equals(column)) {
             throw new UnsupportedOperationException("ID entfernen nur mit delete()!");
         }
-        currentContent.putNull(mContext.getDBHelper().columnName(resID));
+        currentContent.putNull(column);
         isDirty = true;
     }
 
@@ -660,7 +493,7 @@ import de.aw.awlib.database.AbstractDBHelper;
                     "AWApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
         }
         if (isDirty) {
-            currentContent.put(mContext.getDBHelper().columnName(R.string._id), getID());
+            currentContent.put(_id, getID());
             selectionArgs = new String[]{id.toString()};
             result = db.update(tbd, currentContent, selection, selectionArgs);
             if (result != 1) {

@@ -1,7 +1,5 @@
-package de.aw.awlib.database;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.database;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.database;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -52,7 +52,8 @@ import static de.aw.awlib.application.AWApplication.LogError;
  * Helper fuer die SQLite-Database
  */
 @SuppressWarnings({"WeakerAccess", "TryFinallyCanBeTryWithResources", "unused"})
-public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInterface {
+public abstract class AbstractDBHelper extends SQLiteOpenHelper
+        implements AWInterface, TableColumns {
     /**
      * Map der ResIDs auf das Format der Spalte
      */
@@ -82,9 +83,9 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
         }
         /*
          * Belegung der Maps fuer:
-		 * 1. mapResID2columnNames
-		 * 2. mapColumnName2ResID
-		 */
+         * 1. mapResID2columnNames
+         * 2. mapColumnName2ResID
+         */
         for (int[] map : getNonTextColumnItems()) {
             resID = map[0];
             mapResID2Formate.put(resID, (char) map[1]);
@@ -309,18 +310,16 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     }
 
     /**
-     * siehe {@link SQLiteDatabase#delete(String, String, String[])}
-     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
-     * AbstractDBHelper#notifyCursors(Uri)} gerufen.
+     * siehe {@link SQLiteDatabase#delete(String, String, String[])} Befindet sich die Datenbank
+     * nicht innerhalb einer Transaktion wird {@link AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
     public final int delete(AWAbstractDBDefinition tbd, String selection, String[] selectionArgs) {
         return delete(tbd.getUri(), selection, selectionArgs);
     }
 
     /**
-     * siehe {@link SQLiteDatabase#delete(String, String, String[])}
-     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
-     * AbstractDBHelper#notifyCursors(Uri)} gerufen.
+     * siehe {@link SQLiteDatabase#delete(String, String, String[])} Befindet sich die Datenbank
+     * nicht innerhalb einer Transaktion wird {@link AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
     public final int delete(Uri uri, String selection, String[] selectionArgs) {
         if (db == null) {
@@ -361,10 +360,9 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                                       int oldVersion, int newVersion);
 
     /**
-     * siehe {@link SQLiteDatabase#endTransaction()}
-     * Transaktionen koennen geschachtelt werden. Erst wenn keine Transaktion mehr ansteht, wird mit
-     * jeder in der gesamten Transaction genutzen Uri {@link AbstractDBHelper#notifyCursors(Uri)}
-     * gerufen.
+     * siehe {@link SQLiteDatabase#endTransaction()} Transaktionen koennen geschachtelt werden. Erst
+     * wenn keine Transaktion mehr ansteht, wird mit jeder in der gesamten Transaction genutzen Uri
+     * {@link AbstractDBHelper#notifyCursors(Uri)} gerufen.
      */
     public final void endTransaction() {
         db.endTransaction();
@@ -693,9 +691,9 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     }
 
     /**
-     * siehe {@link SQLiteDatabase#insert(String, String, ContentValues)}
-     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
-     * AbstractDBHelper#notifyCursors(Uri)} gerufen.
+     * siehe {@link SQLiteDatabase#insert(String, String, ContentValues)} Befindet sich die
+     * Datenbank nicht innerhalb einer Transaktion wird {@link AbstractDBHelper#notifyCursors(Uri)}
+     * gerufen.
      */
     public final long insert(AWAbstractDBDefinition tbd, String nullColumnHack,
                              ContentValues content) {
@@ -703,9 +701,9 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     }
 
     /**
-     * siehe {@link SQLiteDatabase#insert(String, String, ContentValues)}
-     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
-     * AbstractDBHelper#notifyCursors(Uri)} gerufen.
+     * siehe {@link SQLiteDatabase#insert(String, String, ContentValues)} Befindet sich die
+     * Datenbank nicht innerhalb einer Transaktion wird {@link AbstractDBHelper#notifyCursors(Uri)}
+     * gerufen.
      */
     public final long insert(Uri uri, String nullColumnHack, ContentValues content) {
         if (db == null) {
@@ -864,9 +862,10 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     }
 
     /**
-     * siehe {@link SQLiteDatabase#update(String, ContentValues, String, String[])}
-     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
-     * AbstractDBHelper#notifyCursors(Uri)} gerufen.
+     * siehe {@link SQLiteDatabase#update(String, ContentValues, String, String[])} Befindet sich
+     * die Datenbank nicht innerhalb einer Transaktion wird
+     * {@link AbstractDBHelper#notifyCursors(Uri)}
+     * gerufen.
      */
     public final int update(AWAbstractDBDefinition tbd, ContentValues content, String selection,
                             String[] selectionArgs) {
@@ -874,9 +873,10 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
     }
 
     /**
-     * siehe {@link SQLiteDatabase#update(String, ContentValues, String, String[])}
-     * Befindet sich die Datenbank nicht innerhalb einer Transaktion wird {@link
-     * AbstractDBHelper#notifyCursors(Uri)} gerufen.
+     * siehe {@link SQLiteDatabase#update(String, ContentValues, String, String[])} Befindet sich
+     * die Datenbank nicht innerhalb einer Transaktion wird
+     * {@link AbstractDBHelper#notifyCursors(Uri)}
+     * gerufen.
      */
     public final int update(Uri uri, ContentValues content, String selection,
                             String[] selectionArgs) {
@@ -895,12 +895,12 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
 
     /**
      * @author Alexander Winkler
-     *         <p/>
-     *         Aufzaehlung der Tabellen der Datenbank. 1. Parameter ist ein Integer-Array der resIds
-     *         (R.string.xxx)der Tabellenspalten
+     * <p/>
+     * Aufzaehlung der Tabellen der Datenbank. 1. Parameter ist ein Integer-Array der resIds
+     * (R.string.xxx)der Tabellenspalten
      */
-    @SuppressWarnings("unused")
-    public enum AWDBDefinition implements Parcelable, AWAbstractDBDefinition {
+    @SuppressWarnings("unused") public enum AWDBDefinition
+            implements Parcelable, AWAbstractDBDefinition {
         /**
          * Definition fuer Calendar
          */
@@ -915,6 +915,11 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
             public int[] getTableItems() {
                 return new int[]{R.string._id//
                 };
+            }
+
+            @Override
+            public String[] getTableColumns() {
+                return new String[]{_id};
             }
 
             @Override
@@ -933,6 +938,12 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                         , R.string.column_connectionType//
                         , R.string.column_maindirectory//
                 };
+            }
+
+            @Override
+            public String[] getTableColumns() {
+                return new String[]{_id, column_serverurl, column_userID, column_connectionType,
+                        column_maindirectory};
             }
         };
         public static final Parcelable.Creator<AWDBDefinition> CREATOR =
@@ -1047,6 +1058,11 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper implements AWInt
                 order.append(", ").append(orderColumns[i]);
             }
             return order.toString();
+        }
+
+        @Override
+        public String[] getTableColumns() {
+            return null;
         }
 
         @Override
