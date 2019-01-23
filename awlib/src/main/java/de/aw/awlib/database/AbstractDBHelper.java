@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.database;
 
 import android.content.ContentResolver;
@@ -1058,11 +1057,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
                 order.append(", ").append(orderColumns[i]);
             }
             return order.toString();
-        }
-
-        @Override
-        public String[] getTableColumns() {
-            return null;
         }
 
         @Override
