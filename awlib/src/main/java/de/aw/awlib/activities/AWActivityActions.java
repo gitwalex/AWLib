@@ -1,10 +1,5 @@
-/**
- *
- */
-package de.aw.awlib.activities;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -19,6 +14,11 @@ package de.aw.awlib.activities;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+/**
+ *
+ */
+package de.aw.awlib.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -43,7 +43,7 @@ import de.aw.awlib.fragments.AWFragmentRemoteFileServer;
 import de.aw.awlib.fragments.AWRemoteFileChooser;
 import de.aw.awlib.fragments.AWRemoteServerConnectionData;
 import de.aw.awlib.fragments.AWShowPicture;
-import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
+import de.aw.awlib.gv.AWApplicationGeschaeftsObjektNew;
 import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWBaseRecyclerViewListener;
 import de.aw.awlib.recyclerview.AWItemListRecyclerViewListener;
@@ -194,7 +194,7 @@ public class AWActivityActions extends AWMainActivity implements AWItemListRecyc
             try {
                 mRemoteServer = new AWRemoteFileServer(this, id);
                 f = AWRemoteFileChooser.newInstance(mRemoteServer);
-            } catch (AWApplicationGeschaeftsObjekt.LineNotFoundException e) {
+            } catch (AWApplicationGeschaeftsObjektNew.LineNotFoundException e) {
                 //TODO Execption bearbeiten
                 e.printStackTrace();
             }

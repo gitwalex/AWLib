@@ -16,9 +16,12 @@
  */
 package de.aw.awlib.gv;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.databinding.BaseObservable;
+import android.net.Uri;
 import android.os.Parcel;
 import android.support.annotation.CallSuper;
 
@@ -45,15 +48,15 @@ import de.aw.awlib.database.TableColumns;
  *
  * @author alex
  */
-@SuppressWarnings({"WeakerAccess", "unused"}) public abstract class AWApplicationGeschaeftsObjektNew
-        extends BaseObservable implements AWInterface, TableColumns {
+public abstract class AWApplicationGeschaeftsObjektNew extends BaseObservable
+        implements AWInterface, TableColumns {
     private final String CLASSNAME = this.getClass().getSimpleName();
     /**
      * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
      * belegt.
      */
     private final AWAbstractDBDefinition tbd;
-    protected String selection;
+    protected String selection = _id + " = ?";
     protected String[] selectionArgs;
     /**
      * ID des AWApplicationGeschaeftsObjekt
@@ -78,17 +81,31 @@ import de.aw.awlib.database.TableColumns;
      */
     public AWApplicationGeschaeftsObjektNew(AWAbstractDBDefinition tbd) {
         this.tbd = tbd;
-        selection = _id + " = ?";
+    }
+
+    public AWApplicationGeschaeftsObjektNew(ContentResolver cr, AWAbstractDBDefinition tbd,
+                                            long id) {
+        this(tbd);
+        selectionArgs = new String[]{String.valueOf(id)};
+        String[] projection = tbd.getTableColumns();
+        String orderby = tbd.getOrderString();
+        Cursor c = getCursor(cr, tbd, projection, selection, selectionArgs, orderby);
+        fillContent(c);
     }
 
     protected AWApplicationGeschaeftsObjektNew(Parcel in) {
         this((AWAbstractDBDefinition) in
                 .readParcelable(AWAbstractDBDefinition.class.getClassLoader()));
-        this.selection = in.readString();
         this.id = (Long) in.readValue(Long.class.getClassLoader());
         this.selectionArgs = in.createStringArray();
         this.currentContent = in.readParcelable(ContentValues.class.getClassLoader());
         this.isDirty = in.readByte() != 0;
+    }
+
+    public static Cursor getCursor(ContentResolver cr, AWAbstractDBDefinition tbd,
+                                   String[] projection, String selection, String[] selectionArgs,
+                                   String sortOrder) {
+        return cr.query(tbd.getUri(), projection, selection, selectionArgs, sortOrder, null);
     }
 
     /**
@@ -111,7 +128,7 @@ import de.aw.awlib.database.TableColumns;
      *
      * @return true, wenn ein Wert ungleich null enthalten ist
      */
-    public final boolean containsValue(String column) {
+    public final boolean containsKey(String column) {
         return currentContent.get(column) != null;
     }
 
@@ -120,18 +137,35 @@ import de.aw.awlib.database.TableColumns;
         id = source.id;
     }
 
+    @Deprecated
     protected int delete(AbstractDBHelper db) {
         if (id == null) {
             AWApplication.Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht " +
                     "moeglich");
-            return 0;
+            return -1;
         }
         int result;
         result = db.delete(tbd, selection, selectionArgs);
-        isDirty = true;
         if (result != 0) {
             currentContent.putNull(_id);
             id = null;
+            isDirty = false;
+        }
+        return result;
+    }
+
+    protected int delete(ContentResolver db) {
+        if (id == null) {
+            AWApplication.Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht " +
+                    "moeglich");
+            return -1;
+        }
+        int result;
+        result = db.delete(tbd.getUri(), selection, selectionArgs);
+        if (result != 0) {
+            currentContent.putNull(_id);
+            id = null;
+            isDirty = true;
         }
         return result;
     }
@@ -191,6 +225,9 @@ import de.aw.awlib.database.TableColumns;
                     break;
                 case Cursor.FIELD_TYPE_STRING:
                     currentContent.put(c.getColumnName(i), c.getString(i));
+                    break;
+                case Cursor.FIELD_TYPE_NULL:
+                    putNull(c.getColumnName(i));
                     break;
                 default:
                     String value = c.getString(i);
@@ -333,6 +370,7 @@ import de.aw.awlib.database.TableColumns;
         return id.intValue();
     }
 
+    @Deprecated
     protected long insert(AbstractDBHelper db) {
         if (isInserted()) {
             throw new IllegalStateException(
@@ -341,13 +379,30 @@ import de.aw.awlib.database.TableColumns;
         id = db.insert(tbd, null, currentContent);
         if (id != -1) {
             currentContent.put(_id, id);
+            selectionArgs = new String[]{id.toString()};
+            isDirty = false;
         } else {
             AWApplication.Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME +
                     " fehlgeschlagen! Werte: " + currentContent.toString());
-            currentContent.clear();
         }
-        selectionArgs = new String[]{id.toString()};
-        isDirty = false;
+        return id;
+    }
+
+    protected long insert(ContentResolver db) {
+        if (isInserted()) {
+            throw new IllegalStateException(
+                    "AWApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
+        }
+        Uri uri = db.insert(tbd.getUri(), currentContent);
+        id = ContentUris.parseId(uri);
+        if (id != -1) {
+            currentContent.put(_id, id);
+            selectionArgs = new String[]{id.toString()};
+            isDirty = false;
+        } else {
+            AWApplication.Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME +
+                    " fehlgeschlagen! Werte: " + currentContent.toString());
+        }
         return id;
     }
 
@@ -367,6 +422,10 @@ import de.aw.awlib.database.TableColumns;
         return id != null;
     }
 
+    public final boolean isNull(String column) {
+        return currentContent.get(column) == null;
+    }
+
     /**
      * Aendert oder Fuegt Daten ein. Werden mAccountID oder buchungsID belegt, werden die
      * entsprechenden Variaablen (neu) belegt. Wird catID belegt, wird aucch catname belegt. Wird
@@ -381,6 +440,7 @@ import de.aw.awlib.database.TableColumns;
      *         Ist value == null oder ein leerer String, wird ein ggfs. geaenderter Wert in der
      *         Spalte und nach Update dann auch aus der DB entfernt.
      */
+    @CallSuper
     public void put(String column, boolean value) {
         if (value) {
             put(column, 1);
@@ -390,26 +450,31 @@ import de.aw.awlib.database.TableColumns;
         isDirty = true;
     }
 
+    @CallSuper
     public void put(String column, int value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
+    @CallSuper
     public void put(String column, long value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
+    @CallSuper
     public void put(String column, float value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
+    @CallSuper
     public void put(String column, double value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
+    @CallSuper
     public void put(String column, Date date) {
         if (date != null) {
             currentContent.put(column, AWDBConvert.convertDate2SQLiteDate(date));
@@ -419,9 +484,20 @@ import de.aw.awlib.database.TableColumns;
         isDirty = true;
     }
 
+    @CallSuper
     public void put(String column, String value) {
         if (value != null) {
             currentContent.put(column, value);
+        } else {
+            currentContent.putNull(column);
+        }
+        isDirty = true;
+    }
+
+    @CallSuper
+    public void put(String column, CharSequence value) {
+        if (value != null) {
+            currentContent.put(column, value.toString());
         } else {
             currentContent.putNull(column);
         }
@@ -442,6 +518,7 @@ import de.aw.awlib.database.TableColumns;
      * @throws IllegalArgumentException
      *         wenn ResID nicht in der Tabelle vorhanden ist
      */
+    @CallSuper
     public void put(String column, byte[] value) {
         if (value == null) {
             currentContent.putNull(column);
@@ -451,9 +528,12 @@ import de.aw.awlib.database.TableColumns;
         isDirty = true;
     }
 
+    @CallSuper
+    public final void putNull(String column) {
+        currentContent.putNull(column);
+    }
+
     /**
-     * Aendert oder Fuegt Daten ein.
-     *
      * @param column
      *         ResID der Spalte, die entfernt werden soll.
      *
@@ -465,7 +545,7 @@ import de.aw.awlib.database.TableColumns;
         if (_id.equals(column)) {
             throw new UnsupportedOperationException("ID entfernen nur mit delete()!");
         }
-        currentContent.putNull(column);
+        currentContent.remove(column);
         isDirty = true;
     }
 
@@ -486,6 +566,7 @@ import de.aw.awlib.database.TableColumns;
         return sb.toString();
     }
 
+    @Deprecated
     protected int update(AbstractDBHelper db) {
         int result = 0;
         if (id == null) {
@@ -495,11 +576,29 @@ import de.aw.awlib.database.TableColumns;
         if (isDirty) {
             currentContent.put(_id, getID());
             selectionArgs = new String[]{id.toString()};
-            result = db.update(tbd, currentContent, selection, selectionArgs);
+            result = db.update(tbd.getUri(), currentContent, selection, selectionArgs);
             if (result != 1) {
                 throw new IllegalStateException(
-                        "Fehler beim Update. Satz nicht gefunden mit RowID " + id +
-                                ", SelectionID = " + selectionArgs[0]);
+                        "Fehler beim Update. Satz nicht gefunden mit RowID " + id);
+            }
+            isDirty = false;
+        }
+        return result;
+    }
+
+    protected int update(ContentResolver db) {
+        int result = 0;
+        if (id == null) {
+            throw new IllegalStateException(
+                    "AWApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
+        }
+        if (isDirty) {
+            currentContent.put(_id, getID());
+            selectionArgs = new String[]{id.toString()};
+            result = db.update(tbd.getUri(), currentContent, selection, selectionArgs);
+            if (result != 1) {
+                throw new IllegalStateException(
+                        "Fehler beim Update. Satz nicht gefunden mit RowID " + id);
             }
             isDirty = false;
         }
@@ -508,7 +607,6 @@ import de.aw.awlib.database.TableColumns;
 
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(this.tbd, flags);
-        dest.writeString(this.selection);
         dest.writeValue(this.id);
         dest.writeStringArray(this.selectionArgs);
         dest.writeParcelable(this.currentContent, flags);

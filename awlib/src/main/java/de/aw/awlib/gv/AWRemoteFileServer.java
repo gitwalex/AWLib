@@ -1,7 +1,5 @@
-package de.aw.awlib.gv;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.gv;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.gv;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -65,7 +65,7 @@ public class AWRemoteFileServer implements Parcelable {
     }
 
     public AWRemoteFileServer(Context context, long id)
-            throws AWApplicationGeschaeftsObjekt.LineNotFoundException {
+            throws AWApplicationGeschaeftsObjektNew.LineNotFoundException {
         fillContent(context, id);
         mSelectionArgs = new String[]{String.valueOf(id)};
         mURL = currentContent.getAsString(context.getString(R.string.column_serverurl));
@@ -113,11 +113,11 @@ public class AWRemoteFileServer implements Parcelable {
      *
      * @param id
      *         id des Objektes
-     * @throws AWApplicationGeschaeftsObjekt.LineNotFoundException
+     * @throws AWApplicationGeschaeftsObjektNew.LineNotFoundException
      *         wenn keine Zeile gefunden wurde.
      */
     public final void fillContent(Context context, Long id)
-            throws AWApplicationGeschaeftsObjekt.LineNotFoundException {
+            throws AWApplicationGeschaeftsObjektNew.LineNotFoundException {
         mSelectionArgs = new String[]{id.toString()};
         Cursor c = context.getContentResolver()
                           .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), mSelection,
@@ -133,7 +133,7 @@ public class AWRemoteFileServer implements Parcelable {
                 }
                 currentContent.remove(context.getString(R.string._id));
             } else {
-                throw new AWApplicationGeschaeftsObjekt.LineNotFoundException(
+                throw new AWApplicationGeschaeftsObjektNew.LineNotFoundException(
                         tbd.name() + ": Zeile mit id " + id + " nicht gefunden.");
             }
         } finally {

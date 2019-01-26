@@ -1,5 +1,5 @@
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -70,3 +70,4 @@ dependencies {
     implementation files('libs/commons-net-3.4.jar')
     implementation files('libs/itextg-5.5.10.jar')
 }
+
