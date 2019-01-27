@@ -126,14 +126,11 @@ public final class AWDBAlterHelper implements TableColumns {
         database.execSQL(copyValuesSQL);
         dropTable(tbd.name());
         renameTable(tempTableName, tbd.name());
-        tbd.createDatabase(this);
     }
 
     /**
-     * Aendert eine Tabelle und haengt eine neuen Column hinten an. Indices werden neu angelegt.
-     * Nacharbeiten durch die Tabelle selbst werden ermoeglicht durch Aufruf {@link
-     * AWAbstractDBDefinition#createDatabase(AWDBAlterHelper)}. Der defualtWert wird in die neue
-     * Column eingetragen
+     * Aendert eine Tabelle und haengt eine neuen Column hinten an. Indices werden neu angelegt. Der
+     * defaultWert wird in die neue Column eingetragen
      *
      * @param tbd
      *         AWAbstractDBDefinition
@@ -151,9 +148,7 @@ public final class AWDBAlterHelper implements TableColumns {
     }
 
     /**
-     * Aendert eine Tabelle und haengt eine neuen Column hinten an. Indices werden neu angelegt.
-     * Nacharbeiten durch die Tabelle selbst werden ermoeglicht durch Aufruf {@link
-     * AWAbstractDBDefinition#createDatabase(AWDBAlterHelper)}
+     * Aendert eine Tabelle und haengt eine neuen Column hinten an.
      *
      * @param tbd
      *         AWAbstractDBDefinition
@@ -166,7 +161,6 @@ public final class AWDBAlterHelper implements TableColumns {
                                     String columnformat) {
         String sql = "ALTER TABLE " + tbd.name() + " ADD " + columnname + " " + columnformat;
         database.execSQL(sql);
-        tbd.createDatabase(this);
     }
 
     public void alterTableDistinct(AWAbstractDBDefinition tbd, String distinctColumn) {
@@ -181,13 +175,11 @@ public final class AWDBAlterHelper implements TableColumns {
         database.execSQL(copyValuesSQL);
         dropTable(tbd.name());
         renameTable(tempTableName, tbd.name());
-        tbd.createDatabase(this);
     }
 
     /**
      * Aendert eine Tabelle. Die neue Tabelle hat keine geaenderten Columns, nur die gleichen oder
-     * weniger! Alle Indices werden wieder angelegt. Nacharbeiten durch die Tabelle selbst werden
-     * ermoeglicht durch Aufruf {@link AWAbstractDBDefinition#createDatabase(AWDBAlterHelper)}
+     * weniger!
      *
      * @param tbd
      *         AWAbstractDBDefinition
@@ -205,7 +197,6 @@ public final class AWDBAlterHelper implements TableColumns {
         database.execSQL(copyValuesSQL);
         dropTable(tbd.name());
         renameTable(tempTableName, tbd.name());
-        tbd.createDatabase(this);
     }
 
     /**
@@ -239,7 +230,6 @@ public final class AWDBAlterHelper implements TableColumns {
             dropView(tbd);
             String sql = ("CREATE VIEW " + tbd.name() + " AS " + viewSQL);
             database.execSQL(sql);
-            tbd.createDatabase(this);
             checkView(tbd);
         }
     }
@@ -294,7 +284,6 @@ public final class AWDBAlterHelper implements TableColumns {
         String sql =
                 "CREATE TABLE IF NOT EXISTS " + tbd.name() + " ( " + tbd.getCreateViewSQL() + ")";
         database.execSQL(sql);
-        tbd.createDatabase(this);
     }
 
     /**

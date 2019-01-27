@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.csvimportexport;
 
 import android.database.Cursor;
@@ -92,16 +91,13 @@ public class AWCSVExporter {
      */
     public void doExport(@NonNull AWAbstractDBDefinition tbd, int[] fromResIDs, String selection,
                          String[] selectionArgs, String groupBy) {
-        if (fromResIDs == null) {
-            fromResIDs = tbd.getTableItems();
-        }
         if (groupBy != null) {
             if (selection == null) {
                 selection = " 1 = 1 ";
             }
             selection += " GROUP BY " + groupBy;
         }
-        String[] projection = tbd.columnNames(fromResIDs);
+        String[] projection = tbd.getTableColumns();
         Cursor c = mDBHelper.getContentResolver()
                 .query(tbd.getUri(), projection, selection, selectionArgs, null);
         doExport(tbd, c);

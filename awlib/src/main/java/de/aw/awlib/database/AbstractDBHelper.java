@@ -444,19 +444,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
     }
 
     /**
-     * Hier sollten alle columnItems aufgefuerht werden, deren Format nicht Text ist. Dann wird im
-     * Geschaeftobject der Wert mit dem entsprechenden in die Tabellenspalte geschrieben.
-     *
-     * @return Liste der columns. [0] = resID, [1] = format Liste der moeglichen Formate. T =
-     * normaler Text (optional) N = Numerisch C = Numerisch als Currency, Long, anzahl Stellen wie
-     * Nachkommastellen Locale.getCurrency K = Numerisch als Currency, Long, aktuell Anzahl Stellen
-     * wie Nachkommastellen Locale.getCurrency D = Datum B = Boolean P = Numerisch als Prozent K =
-     * Numerisch mit 5 Nachkommastellen (Kurs)
-     **/
-    @NonNull
-    public abstract int[][] getNonTextColumnItems();
-
-    /**
      * Ermittelt die Anzahl der Zeilen, die durch die Selection potentiell zurueckgeliefert werden.
      *
      * @param tbd

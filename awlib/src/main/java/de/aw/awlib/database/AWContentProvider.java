@@ -1,7 +1,5 @@
-package de.aw.awlib.database;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.database;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.database;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -102,18 +102,22 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
         return true;
     }
 
+
     @Override
-    public Cursor query(@NonNull Uri uri, String[] from, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] from, String selection, String[] selectionArgs,
+                        String sortOrder) {
         db = getDBHelper();
         SQLiteDatabase database = db.getReadableDatabase();
         String table = uri.getLastPathSegment();
-        Cursor c = database.query(table + " t1", from, selection, selectionArgs, null, null, sortOrder);
+        Cursor c = database.query(table + " t1", from, selection, selectionArgs, null, null,
+                sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
 
     @Override
-    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection,
+                      String[] selectionArgs) {
         if (!batchMode) {
             db = getDBHelper();
         }

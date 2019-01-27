@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.database;
 
 import android.net.Uri;
@@ -26,8 +25,6 @@ public interface AWAbstractDBDefinition extends Parcelable {
     String columnName(int newColumn);
 
     String[] columnNames(int... intArray);
-
-    void createDatabase(AWDBAlterHelper dbAlterHelper);
 
     /**
      * @return true, wenn die Tabelle/View erstellt werden soll.
