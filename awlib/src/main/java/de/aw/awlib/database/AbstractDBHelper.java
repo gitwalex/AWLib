@@ -495,27 +495,9 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      *
      * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
      */
-    public final String getOrderString(@NonNull int... resIDs) {
-        String[] orderColumns = columnNames(resIDs);
-        return getOrderString(orderColumns);
-    }
-
-    public final String getOrderString(String[] orderColumns) {
-        StringBuilder order = new StringBuilder(orderColumns[0]);
-        for (int i = 1; i < orderColumns.length; i++) {
-            order.append(", ").append(orderColumns[i]);
-        }
-        return order.toString();
-    }
-
-    /**
-     * OrderBy-String - direkt fuer SQLITE verwendbar.
-     *
-     * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
-     */
     public final String getOrderString(AWAbstractDBDefinition tbd) {
         String[] orderColumns = getOrderColumns(tbd);
-        return getOrderString(orderColumns);
+        return getCommaSeperatedList(orderColumns);
     }
 
     public final Integer getResID(String resName) {
