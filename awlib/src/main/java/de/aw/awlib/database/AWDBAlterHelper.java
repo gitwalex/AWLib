@@ -75,11 +75,12 @@ public final class AWDBAlterHelper implements TableColumns {
      * @param indexColumns
      *         Spalten des Index, Komme getrennt
      */
-    public void alterIndex(AWAbstractDBDefinition tbd, String indexName, String indexColumns) {
+    public void alterIndex(AWAbstractDBDefinition tbd, String indexName, String[] indexColumns) {
+        String columns = AbstractDBHelper.getCommaSeperatedList(indexColumns);
         dropIndex(tbd);
-        String sql = "CREATE ";
-        sql = sql + "INDEX IF NOT EXISTS " + indexName + " on " + tbd.name() + " (" + indexColumns +
-                ")";
+        String sql =
+                "CREATE INDEX IF NOT EXISTS " + indexName + " on " + tbd.name() + " (" + columns +
+                        ")";
         database.execSQL(sql);
     }
 
@@ -218,9 +219,11 @@ public final class AWDBAlterHelper implements TableColumns {
      *         IndexItems
      */
     public void alterUniqueIndex(AWAbstractDBDefinition tbd, String indexName,
-                                 int[] uniqueIndexItems) {
+                                 String[] uniqueIndexItems) {
+        String columns = AbstractDBHelper.getCommaSeperatedList(uniqueIndexItems);
         dropIndex(indexName);
-        String sql = getCreateIndexSQL(tbd, indexName, uniqueIndexItems, true);
+        String sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + indexName + " on " + tbd.name() + " (" +
+                columns + ")";
         database.execSQL(sql);
     }
 
