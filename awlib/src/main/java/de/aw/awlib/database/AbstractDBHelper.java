@@ -56,8 +56,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
     /**
      * Map der ResIDs auf das Format der Spalte
      */
-    private final SparseArray<Character> mapResID2Formate = new SparseArray<>();
-    private final Map<Character, String> formate = new HashMap<>();
     private final Map<String, Integer> mapColumnName2ResID = new HashMap<>();
     private final SparseArray<String> mapResID2ColumnName = new SparseArray<>();
     private final WeakReference<AWApplication> mApplicationContext;
@@ -73,22 +71,9 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
                 ((AWApplication) context.getApplicationContext()).theDatenbankVersion());
         mApplicationContext = new WeakReference<>((AWApplication) context.getApplicationContext());
         int resID = R.string._id;
-        mapResID2Formate.put(resID, 'I');
         mapColumnName2ResID.put(context.getString(resID), resID);
         String[] s = {"TTEXT", "DDate", "NNUMERIC", "MNUMERIC", "BBoolean", "CNUMERIC", "PNUMERIC",
                 "KNUMERIC", "IINTEGER", "OBLOB"};
-        for (String f : s) {
-            formate.put(f.charAt(0), f.substring(1));
-        }
-        /*
-         * Belegung der Maps fuer:
-         * 1. mapResID2columnNames
-         * 2. mapColumnName2ResID
-         */
-        for (int[] map : getNonTextColumnItems()) {
-            resID = map[0];
-            mapResID2Formate.put(resID, (char) map[1]);
-        }
         for (AWDBDefinition tbd : AWDBDefinition.values()) {
             tbd.setDBHelper(this);
             int[] columns = tbd.getTableItems();
@@ -459,20 +444,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
     }
 
     /**
-     * @param resID
-     *         resID
-     *
-     * @return Liefert das Format der column zurueck
-     */
-    public final Character getFormat(Integer resID) {
-        Character format = mapResID2Formate.get(resID);
-        if (format == null) {
-            format = 'T';
-        }
-        return format;
-    }
-
-    /**
      * Hier sollten alle columnItems aufgefuerht werden, deren Format nicht Text ist. Dann wird im
      * Geschaeftobject der Wert mit dem entsprechenden in die Tabellenspalte geschrieben.
      *
@@ -562,34 +533,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
 
     public final Integer getResID(String resName) {
         return mapColumnName2ResID.get(resName.trim());
-    }
-
-    /**
-     * Liefert das Format der Column im Klartext fuer SQLite
-     *
-     * @param resId
-     *         ResID der Colimn
-     *
-     * @return Format der Column fuer SQLite im Klartext
-     */
-    public final String getSQLiteFormat(Integer resId) {
-        Character c = mapResID2Formate.get(resId);
-        return getSQLiteFormat(c);
-    }
-
-    /**
-     * Liefert das Format der Column im Klartext fuer SQLite
-     *
-     * @param c
-     *         Character der Colimn
-     *
-     * @return Format der Column fuer SQLite im Klartext
-     */
-    public final String getSQLiteFormat(Character c) {
-        if (c == null) {
-            c = 'T';
-        }
-        return formate.get(c);
     }
 
     /**

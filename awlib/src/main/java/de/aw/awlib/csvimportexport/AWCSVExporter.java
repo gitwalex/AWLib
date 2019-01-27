@@ -1,7 +1,5 @@
-package de.aw.awlib.csvimportexport;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.csvimportexport;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.csvimportexport;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -103,7 +103,7 @@ public class AWCSVExporter {
         }
         String[] projection = tbd.columnNames(fromResIDs);
         Cursor c = mDBHelper.getContentResolver()
-                            .query(tbd.getUri(), projection, selection, selectionArgs, null);
+                .query(tbd.getUri(), projection, selection, selectionArgs, null);
         doExport(tbd, c);
     }
 
@@ -196,22 +196,31 @@ public class AWCSVExporter {
                         columns = new String[c.getColumnCount()];
                         for (int j = 0; j < c.getColumnCount(); j++) {
                             int resID = fromResIDs[j];
-                            char format = mDBHelper.getFormat(resID);
-                            switch (format) {
-                                case 'C':
-                                    Long amount = c.getLong(j);
-                                    columns[j] = nf.format(amount / AWDBConvert.mCurrencyDigits);
+                            switch (c.getType(j)) {
+                                case Cursor.FIELD_TYPE_INTEGER:
+                                    long l = c.getLong(j);
+                                    columns[j] = String.valueOf(l);
                                     break;
-                                case 'D':
-                                    String btag = c.getString(j);
-                                    columns[j] = AWDBConvert.convertDate(btag);
+                                case Cursor.FIELD_TYPE_STRING:
+                                    String s = c.getString(j);
+                                    columns[j] = AWDBConvert.convertDate(s);
                                     break;
-                                case 'M':
-                                    amount = c.getLong(j);
-                                    columns[j] = nf.format(amount / AWDBConvert.mNumberDigits);
+                                case Cursor.FIELD_TYPE_FLOAT:
+                                    float f = c.getFloat(j);
+                                    columns[j] = String.valueOf(f);
                                     break;
+                                case Cursor.FIELD_TYPE_NULL:
+                                    columns[j] = " ";
+                                    break;
+                                case Cursor.FIELD_TYPE_BLOB:
+                                    throw new IllegalStateException(
+                                            "Kann Blob nicht " + "exportieren!");
                                 default:
-                                    columns[j] = c.getString(j);
+                                    if (c.isNull(j)) {
+                                        columns[j] = "null";
+                                    } else {
+                                        columns[j] = c.getString(j);
+                                    }
                             }
                         }
                         list.add(columns);

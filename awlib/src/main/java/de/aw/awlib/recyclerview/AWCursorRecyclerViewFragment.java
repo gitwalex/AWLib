@@ -1,7 +1,5 @@
-package de.aw.awlib.recyclerview;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -17,18 +15,16 @@ package de.aw.awlib.recyclerview;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+package de.aw.awlib.recyclerview;
+
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.v4.content.Loader;
 import android.view.View;
-import android.widget.TextView;
 
 import de.aw.awlib.R;
 import de.aw.awlib.adapters.AWCursorAdapter;
-import de.aw.awlib.application.AWApplication;
-import de.aw.awlib.database.AWDBConvert;
-import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * Erstellt eine Liste ueber Daten einer Tabelle.
@@ -120,18 +116,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
             View view = holder.itemView.findViewById(resID);
             if (!onBindView(holder, view, resID, cursor, viewPosition) && fromResIDs != null &&
                     viewPosition < fromResIDs.length) {
-                try {
-                    AbstractDBHelper mDBHelper =
-                            ((AWApplication) getContext().getApplicationContext()).getDBHelper();
-                    TextView tv = (TextView) view;
-                    String text = AWDBConvert.convert(mDBHelper, fromResIDs[viewPosition],
-                            cursor.getString(viewPosition));
-                    tv.setText(text);
-                } catch (ClassCastException e) {
-                    throw new IllegalStateException(
-                            "View mit ResID " + resID + " [" + getString(resID) +
-                                    "] ist keine TextView und muss in onBindView belegt werden.");
-                }
+                throw new IllegalStateException("OnBindViewHolder nicht implementiert!");
             }
         }
     }

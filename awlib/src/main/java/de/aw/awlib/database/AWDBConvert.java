@@ -1,7 +1,5 @@
-package de.aw.awlib.database;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.database;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.database;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -33,15 +33,15 @@ import de.aw.awlib.application.AWApplication;
  * Klasse zum konvertieren von Daten in ein anderes Format
  */
 public class AWDBConvert {
-    public static final Locale mLocale = Locale.getDefault();
-    public static final DateFormat DATEFORMAT = DateFormat.getDateInstance();
+    protected static final Locale mLocale = Locale.getDefault();
     public static final DateFormat mSqliteDateFormat = new SimpleDateFormat("yyyy-MM-dd", mLocale);
-    public static final DateFormat mDateFormat = new SimpleDateFormat("dd.MM.yyyy", mLocale);
-    public static final DecimalFormat CURRENCYFORMAT =
+    private static final DateFormat DATEFORMAT = DateFormat.getDateInstance();
+    private static final DateFormat mDateFormat = new SimpleDateFormat("dd.MM.yyyy", mLocale);
+    private static final DecimalFormat CURRENCYFORMAT =
             (DecimalFormat) NumberFormat.getCurrencyInstance(mLocale);
-    public static final DecimalFormat DECIMALFORMAT =
+    private static final DecimalFormat DECIMALFORMAT =
             (DecimalFormat) NumberFormat.getNumberInstance(mLocale);
-    public static final DecimalFormat PERCENTFORMAT =
+    private static final DecimalFormat PERCENTFORMAT =
             (DecimalFormat) NumberFormat.getPercentInstance(mLocale);
     public static double mCurrencyDigits;
     public static double mNumberDigits;
@@ -58,102 +58,12 @@ public class AWDBConvert {
         // PERCENTFORMAT.applyPattern("#.##%");
     }
 
-    public static String convert(AbstractDBHelper mDBHelper, int resID, String value) {
-        Character format = mDBHelper.getFormat(resID);
-        if (format != null & value != null) {
-            switch (format) {
-                case 'D':// Datum
-                    value = convertDate(value);
-                    break;
-                case 'I':
-                case 'M':// Number
-                case 'N':// Number
-                    value = convertNumber(value);
-                    break;
-                case 'K':// Number
-                case 'C':// Currency
-                    value = convertCurrency(value);
-                    break;
-                case 'B':// Boolean
-                    value = convertBoolean(value).toString();
-                    break;
-                case 'P':// Percent
-                    value = convertPercent(value);
-                    break;
-                case 'T':// Text
-                    // keine Aenderung
-                    break;
-                default:
-                    throw new IllegalArgumentException("Format " + format + " nicht bekannt!");
-            }
-        }
-        if (value == null) {
-            value = "";
-        }
-        return value;
-    }
-
-    /**
-     * Konvertiert einen String als Datum
-     *
-     * @param value
-     *         Datum als String im SQLLite-Format('yyyy-mm-tt')
-     * @return Date
-     *
-     * @throws ParseException,
-     *         wenn Datum nicht geparste werden kann
-     */
-    public static Date convertAsDate(String value) throws ParseException {
-        return mSqliteDateFormat.parse(value);
-    }
-
-    public static long convertAsLong(String value) {
-        if (value == null) {
-            return 0L;
-        }
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            Log("NumberFormatException in convertAsLong: " + value);
-            return 0L;
-        }
-    }
-
-    /**
-     * Konvertiert einen String nach Boolean.
-     *
-     * @param value
-     *         value
-     * @return true, wenn 1. value ="X" oder value = "x" oder value = "true". Sonst false.
-     */
-    public static Boolean convertBoolean(String value) {
-        return "true".equals(value) || "x".equals(value) || "X".equals(value) || "1".equals(value);
+    protected static void Log(String message) {
+        AWApplication.Log(message);
     }
 
     public static String convertCurrency(long amount) {
         return CURRENCYFORMAT.format(amount / mCurrencyDigits);
-    }
-
-    public static String convertCurrency(String amount) {
-        if (amount == null) {
-            return convertCurrency(0);
-        }
-        try {
-            long value = Long.parseLong(amount);
-            return convertCurrency(value);
-        } catch (NumberFormatException e) {
-            Log("NumberFormatException in convertCurrency: " + amount);
-        }
-        return amount;
-    }
-
-    /**
-     * @param value
-     *         value
-     * @return konvertiertes double im Currency-Longforamt. Wert wird entsprechend gerundet.
-     */
-    public static Long convertCurrency(double value) {
-        return Math.round((value * mCurrencyDigits));
     }
 
     /**
@@ -161,6 +71,7 @@ public class AWDBConvert {
      *
      * @param millis
      *         Datum in Millis
+     *
      * @return Datum im Format TT.MM.YYYY
      */
     public static String convertDate(long millis) {
@@ -170,6 +81,7 @@ public class AWDBConvert {
     /**
      * @param date
      *         Datum
+     *
      * @return Date als String im Format dd.MM.YYYY
      */
     public static String convertDate(Date date) {
@@ -181,6 +93,7 @@ public class AWDBConvert {
      *
      * @param value
      *         Datum im SQLite-Format
+     *
      * @return Datum als String
      */
     public static String convertDate(String value) {
@@ -201,6 +114,7 @@ public class AWDBConvert {
     /**
      * @param number
      *         number
+     *
      * @return Liefert eine Zahl (mit entsprechenden Nachkommastellen) als String zurueck. Damit
      * kann z.B. die Menge WP angezeigt werden.
      */
@@ -238,9 +152,5 @@ public class AWDBConvert {
 
     public static double getNumberDigits() {
         return mNumberDigits;
-    }
-
-    protected static void Log(String message) {
-        AWApplication.Log(message);
     }
 }

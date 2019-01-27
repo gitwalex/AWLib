@@ -232,8 +232,8 @@ public abstract class AWApplicationGeschaeftsObjektNew extends BaseObservable
      * @return Den aktuellen Wert der Spalte (true ooder false)
      */
     public final Boolean getAsBoolean(String column) {
-        String value = currentContent.getAsString(column);
-        return AWDBConvert.convertBoolean(value);
+        int value = getAsInt(column, 0);
+        return value == 1;
     }
 
     public final byte[] getAsByteArray(String column) {
@@ -275,7 +275,7 @@ public abstract class AWApplicationGeschaeftsObjektNew extends BaseObservable
      * @param column
      *         resID der Spalte
      *
-     * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
+     * @return Den aktuellen Wert der Spalte oder default, wenn nicht vorhanden
      */
     public final int getAsInt(String column, int defaultValue) {
         Integer value = currentContent.getAsInteger(column);

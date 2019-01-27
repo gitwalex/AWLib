@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.database;
 
 import android.content.ContentValues;
@@ -25,13 +24,12 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.aw.awlib.R;
 import de.aw.awlib.application.AWApplication;
 
 /**
  * Helper-Klasse fuer Aenderungen/Neuanlagen in der DB
  */
-public final class AWDBAlterHelper {
+public final class AWDBAlterHelper implements TableColumns {
     private final SQLiteDatabase database;
     private final AbstractDBHelper dbhelper;
     private final String idColumn;
@@ -46,7 +44,7 @@ public final class AWDBAlterHelper {
     public AWDBAlterHelper(AbstractDBHelper dbhelper, SQLiteDatabase database) {
         this.dbhelper = dbhelper;
         this.database = database;
-        idColumn = dbhelper.getApplicationResources().getString(R.string._id);
+        idColumn = _id;
     }
 
     /**
@@ -133,36 +131,21 @@ public final class AWDBAlterHelper {
     /**
      * Aendert eine Tabelle und haengt eine neuen Column hinten an. Indices werden neu angelegt.
      * Nacharbeiten durch die Tabelle selbst werden ermoeglicht durch Aufruf {@link
-     * AWAbstractDBDefinition#createDatabase(AWDBAlterHelper)}
-     *
-     * @param tbd
-     *         AWAbstractDBDefinition
-     * @param newColumn
-     *         neue Column
-     */
-    public void alterTableAddColumn(AWAbstractDBDefinition tbd, int newColumn) {
-        String colName = dbhelper.columnName(newColumn);
-        String format = dbhelper.getSQLiteFormat(newColumn);
-        String sql = "ALTER TABLE " + tbd.name() + " ADD " + colName + " " + format;
-        database.execSQL(sql);
-        tbd.createDatabase(this);
-    }
-
-    /**
-     * Aendert eine Tabelle und haengt eine neuen Column hinten an. Indices werden neu angelegt.
-     * Nacharbeiten durch die Tabelle selbst werden ermoeglicht durch Aufruf {@link
      * AWAbstractDBDefinition#createDatabase(AWDBAlterHelper)}. Der defualtWert wird in die neue
      * Column eingetragen
      *
      * @param tbd
      *         AWAbstractDBDefinition
-     * @param newColumn
-     *         neue Column
+     * @param columnname
+     *         Name neue Column
+     * @param columnformat
+     *         Formaat der Column (TEXT, INTEGER...)
+     * @param defaultWert
+     *         defaultwert der column nach einfuegen
      */
-    public void alterTableAddColumn(AWAbstractDBDefinition tbd, int newColumn, String defaultWert) {
-        alterTableAddColumn(tbd, newColumn);
-        String colName = dbhelper.columnName(newColumn);
-        String sql = "UPDATE " + tbd.name() + " SET  " + colName + " = " + defaultWert;
+    public void alterTableAddColumn(AWAbstractDBDefinition tbd, String columnname,
+                                    String columnformat, String defaultWert) {
+        String sql = "UPDATE " + tbd.name() + " SET  " + columnname + " = " + defaultWert;
         database.execSQL(sql);
     }
 
@@ -173,11 +156,14 @@ public final class AWDBAlterHelper {
      *
      * @param tbd
      *         AWAbstractDBDefinition
-     * @param newColumn
-     *         neue Column
+     * @param columnname
+     *         Name neue Column
+     * @param columnformat
+     *         Formaat der Column (TEXT, INTEGER...)
      */
-    public void alterTableAddColumn(AWAbstractDBDefinition tbd, String newColumn) {
-        String sql = "ALTER TABLE " + tbd.name() + " ADD " + newColumn + " TEXT";
+    public void alterTableAddColumn(AWAbstractDBDefinition tbd, String columnname,
+                                    String columnformat) {
+        String sql = "ALTER TABLE " + tbd.name() + " ADD " + columnname + " " + columnformat;
         database.execSQL(sql);
         tbd.createDatabase(this);
     }
@@ -309,34 +295,6 @@ public final class AWDBAlterHelper {
     }
 
     /**
-     * Legt eine Tabelle mit Namen und Spalten an
-     *
-     * @param tablename
-     *         Tabellenname
-     * @param colums
-     *         Spaltennamen
-     * @param formate
-     *         Formate der Spalte
-     */
-    public void createTable(String tablename, String[] colums, char[] formate) {
-        String[] format = new String[formate.length];
-        for (int i = 0; i < formate.length; i++) {
-            format[i] = dbhelper.getSQLiteFormat(formate[i]);
-        }
-        dropTable(tablename);
-        StringBuilder sql = new StringBuilder(" ( ");
-        sql.append("_id INTEGER PRIMARY KEY ");
-        for (int i = 0; i < formate.length; i++) {
-            String colName = colums[i];
-            String f = format[i];
-            sql.append(", ").append(colName).append(" ").append(f);
-        }
-        sql.append(")");
-        String createSQL = "CREATE TABLE IF NOT EXISTS " + tablename + sql.toString();
-        database.execSQL(createSQL);
-    }
-
-    /**
      * Dropt alle Indices der Datenbank.
      */
     public void dropAllIndices() {
@@ -437,27 +395,6 @@ public final class AWDBAlterHelper {
         sql = sql + "INDEX IF NOT EXISTS " + indexName + " on " + tbd.name() + " (" +
                 dbhelper.getCommaSeperatedList(columns) + ")";
         return sql;
-    }
-
-    /**
-     * @return den String fuer den Aubau eine Tabelle (ohne CREATE TABLE AS name)
-     */
-    public String getCreateTableSQL(AWAbstractDBDefinition tbd) {
-        StringBuilder sql = new StringBuilder(" ( ");
-        boolean id = true;
-        for (int resID : tbd.getTableItems()) {
-            String colName = dbhelper.columnName(resID);
-            String format = dbhelper.getSQLiteFormat(resID);
-            if (id) {
-                sql.append(colName).append(" INTEGER PRIMARY KEY ");
-                id = false;
-            } else {
-                sql.append(", ").append(colName).append(" ");
-                sql.append(format);
-            }
-        }
-        sql.append(")");
-        return sql.toString();
     }
 
     public SQLiteDatabase getDatabase() {
