@@ -126,7 +126,8 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public Date getAsDate(int resID) {
-        return super.getAsDate(getAsString(resID));
+        String key = mContext.getDBHelper().columnName(resID);
+        return super.getAsDate(key);
     }
 
     /**

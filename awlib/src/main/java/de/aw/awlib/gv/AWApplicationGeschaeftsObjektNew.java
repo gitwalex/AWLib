@@ -17,11 +17,9 @@
 package de.aw.awlib.gv;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.databinding.BaseObservable;
-import android.net.Uri;
 import android.os.Parcel;
 import android.support.annotation.CallSuper;
 
@@ -137,7 +135,6 @@ public abstract class AWApplicationGeschaeftsObjektNew extends BaseObservable
         id = source.id;
     }
 
-    @Deprecated
     protected int delete(AbstractDBHelper db) {
         if (id == null) {
             AWApplication.Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht " +
@@ -150,22 +147,6 @@ public abstract class AWApplicationGeschaeftsObjektNew extends BaseObservable
             currentContent.putNull(_id);
             id = null;
             isDirty = false;
-        }
-        return result;
-    }
-
-    protected int delete(ContentResolver db) {
-        if (id == null) {
-            AWApplication.Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht " +
-                    "moeglich");
-            return -1;
-        }
-        int result;
-        result = db.delete(tbd.getUri(), selection, selectionArgs);
-        if (result != 0) {
-            currentContent.putNull(_id);
-            id = null;
-            isDirty = true;
         }
         return result;
     }
@@ -269,7 +250,8 @@ public abstract class AWApplicationGeschaeftsObjektNew extends BaseObservable
      */
     public final Date getAsDate(String datum) {
         try {
-            return new java.sql.Date(AWDBConvert.mSqliteDateFormat.parse(datum).getTime());
+            return new java.sql.Date(
+                    AWDBConvert.mSqliteDateFormat.parse(getAsString(datum)).getTime());
         } catch (ParseException e) {
             return null;
         }
@@ -370,31 +352,12 @@ public abstract class AWApplicationGeschaeftsObjektNew extends BaseObservable
         return id.intValue();
     }
 
-    @Deprecated
     protected long insert(AbstractDBHelper db) {
         if (isInserted()) {
             throw new IllegalStateException(
                     "AWApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
         }
         id = db.insert(tbd, null, currentContent);
-        if (id != -1) {
-            currentContent.put(_id, id);
-            selectionArgs = new String[]{id.toString()};
-            isDirty = false;
-        } else {
-            AWApplication.Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME +
-                    " fehlgeschlagen! Werte: " + currentContent.toString());
-        }
-        return id;
-    }
-
-    protected long insert(ContentResolver db) {
-        if (isInserted()) {
-            throw new IllegalStateException(
-                    "AWApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
-        }
-        Uri uri = db.insert(tbd.getUri(), currentContent);
-        id = ContentUris.parseId(uri);
         if (id != -1) {
             currentContent.put(_id, id);
             selectionArgs = new String[]{id.toString()};
@@ -566,27 +529,7 @@ public abstract class AWApplicationGeschaeftsObjektNew extends BaseObservable
         return sb.toString();
     }
 
-    @Deprecated
     protected int update(AbstractDBHelper db) {
-        int result = 0;
-        if (id == null) {
-            throw new IllegalStateException(
-                    "AWApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
-        }
-        if (isDirty) {
-            currentContent.put(_id, getID());
-            selectionArgs = new String[]{id.toString()};
-            result = db.update(tbd.getUri(), currentContent, selection, selectionArgs);
-            if (result != 1) {
-                throw new IllegalStateException(
-                        "Fehler beim Update. Satz nicht gefunden mit RowID " + id);
-            }
-            isDirty = false;
-        }
-        return result;
-    }
-
-    protected int update(ContentResolver db) {
         int result = 0;
         if (id == null) {
             throw new IllegalStateException(

@@ -1,7 +1,5 @@
-package de.aw.awlib.database;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.database;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -118,9 +118,11 @@ public final class AWDBAlterHelper {
     public void alterTable(AWAbstractDBDefinition tbd, int[] fromColumns) {
         String colums = dbhelper.getCommaSeperatedList(fromColumns);
         String tempTableName = "temp" + tbd.name();
-        String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
-        String copyValuesSQL = "INSERT INTO temp" + tbd.name() + " (" + colums + ") SELECT " +
-                colums + " FROM " + tbd.name();
+        String createTempTable =
+                "CREATE TABLE " + tempTableName + "(" + tbd.getCreateViewSQL() + ")";
+        String copyValuesSQL =
+                "INSERT INTO temp" + tbd.name() + " (" + colums + ") SELECT " + colums + " FROM " +
+                        tbd.name();
         database.execSQL(createTempTable);
         database.execSQL(copyValuesSQL);
         dropTable(tbd.name());
@@ -182,13 +184,12 @@ public final class AWDBAlterHelper {
 
     public void alterTableDistinct(AWAbstractDBDefinition tbd, String distinctColumn) {
         String tempTableName = "temp" + tbd.name();
-        String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
+        String createTempTable =
+                "CREATE TABLE " + tempTableName + "(" + tbd.getCreateViewSQL() + ")";
         String oldColumnNames = dbhelper.getCommaSeperatedList(tbd.getTableItems());
         String copyValuesSQL =
                 "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
-                        oldColumnNames +
-                        " FROM " +
-                        tbd.name() + " GROUP BY " + distinctColumn;
+                        oldColumnNames + " FROM " + tbd.name() + " GROUP BY " + distinctColumn;
         database.execSQL(createTempTable);
         database.execSQL(copyValuesSQL);
         dropTable(tbd.name());
@@ -207,13 +208,12 @@ public final class AWDBAlterHelper {
     public void alterTableOnlyDeletedColumns(AWAbstractDBDefinition tbd) {
         AWApplication.Log("Alter Table: " + tbd.name());
         String tempTableName = "temp" + tbd.name();
-        String createTempTable = "CREATE TABLE " + tempTableName + getCreateTableSQL(tbd);
+        String createTempTable =
+                "CREATE TABLE " + tempTableName + "( " + tbd.getCreateViewSQL() + ")";
         String oldColumnNames = dbhelper.getCommaSeperatedList(tbd.getTableItems());
         String copyValuesSQL =
                 "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
-                        oldColumnNames +
-                        " FROM " +
-                        tbd.name();
+                        oldColumnNames + " FROM " + tbd.name();
         database.execSQL(createTempTable);
         database.execSQL(copyValuesSQL);
         dropTable(tbd.name());
@@ -287,10 +287,9 @@ public final class AWDBAlterHelper {
 
     public void copyValues(AWAbstractDBDefinition from, int[] columns, AWAbstractDBDefinition to) {
         String mColumns = dbhelper.getCommaSeperatedList(columns);
-        String sql = "INSERT INTO " + to.name() + " (" + mColumns + ") SELECT " +
-                mColumns +
-                " FROM " +
-                from.name();
+        String sql =
+                "INSERT INTO " + to.name() + " (" + mColumns + ") SELECT " + mColumns + " FROM " +
+                        from.name();
         database.execSQL(sql);
     }
 
@@ -303,7 +302,8 @@ public final class AWDBAlterHelper {
      */
     public void createTable(AWAbstractDBDefinition tbd) {
         dropTable(tbd.name());
-        String sql = "CREATE TABLE IF NOT EXISTS " + tbd.name() + " " + getCreateTableSQL(tbd);
+        String sql =
+                "CREATE TABLE IF NOT EXISTS " + tbd.name() + " ( " + tbd.getCreateViewSQL() + ")";
         database.execSQL(sql);
         tbd.createDatabase(this);
     }

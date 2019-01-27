@@ -899,7 +899,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      * (R.string.xxx)der Tabellenspalten
      */
     @SuppressWarnings("unused") public enum AWDBDefinition
-            implements Parcelable, AWAbstractDBDefinition {
+            implements Parcelable, AWAbstractDBDefinition, TableColumns {
         /**
          * Definition fuer Calendar
          */
@@ -922,6 +922,16 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
             }
 
             @Override
+            public boolean doCreate() {
+                return false;
+            }
+
+            @Override
+            public String getCreateViewSQL() {
+                return null;
+            }
+
+            @Override
             public Uri getUri() {
                 if (mUri == null) {
                     mUri = Uri.parse("content://com.android.calendar/calendars");
@@ -929,6 +939,16 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
                 return mUri;
             }
         }, RemoteServer() {
+            @Override
+            public String getCreateViewSQL() {
+                return _id + " INTEGER PRIMARY KEY, " //
+                        + column_serverurl + "TEXT, " //
+                        + column_userID + " TEXT, " //
+                        + column_connectionType + " + TEXT, "//
+                        + column_maindirectory + " +  TEXT" //
+                        + ")";
+            }
+
             @Override
             public int[] getTableItems() {
                 return new int[]{R.string._id//
@@ -1022,9 +1042,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
          * @return den String fuer den Aubau einer View (ohne CREATE View AS name). Muss bei Views
          * ueberscheiben werden. Standard: null
          */
-        public String getCreateViewSQL() {
-            return null;
-        }
+        public abstract String getCreateViewSQL();
 
         /**
          * Liste der fuer eine sinnvolle Sortierung notwendigen Spalten.
