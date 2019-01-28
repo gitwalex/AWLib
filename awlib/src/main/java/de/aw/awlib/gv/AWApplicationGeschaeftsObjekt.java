@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.gv;
 
 import android.content.Context;
@@ -23,8 +22,8 @@ import android.os.Parcel;
 
 import java.util.Date;
 
-import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
+import de.aw.awlib.database.AbstractDBHelper;
 
 /**
  * MonMa AWApplicationGeschaeftsObjekt Vorlage fuer die Geschaeftsvorfaelle, z.B. Bankkonto-Buchung,
@@ -44,8 +43,6 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
      * belegt.
      */
-    private final AWApplication mContext;
-
     /**
      * Laden eines Geschaeftsvorfalls mit der id aus der Datenbank.
      *
@@ -62,12 +59,10 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
     public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd, Long id)
             throws LineNotFoundException {
         super(context.getContentResolver(), tbd, id);
-        mContext = (AWApplication) context.getApplicationContext();
     }
 
-    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd, Cursor c) {
+    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd, Cursor c) {
         super(tbd, c);
-        mContext = (AWApplication) context.getApplicationContext();
     }
 
     /**
@@ -76,14 +71,12 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      * @param tbd
      *         AWAbstractDBDefinition
      */
-    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd) {
+    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd) {
         super(tbd);
-        mContext = (AWApplication) context.getApplicationContext();
     }
 
-    protected AWApplicationGeschaeftsObjekt(Context context, Parcel in) {
+    protected AWApplicationGeschaeftsObjekt(Parcel in) {
         super(in);
-        mContext = (AWApplication) context.getApplicationContext();
     }
 
     /**
@@ -96,7 +89,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public final boolean containsKey(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         return super.containsKey(key);
     }
 
@@ -110,13 +103,13 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public final Boolean getAsBoolean(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         return super.getAsBoolean(key);
     }
 
     @Deprecated
     public final byte[] getAsByteArray(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         return super.getAsByteArray(key);
     }
 
@@ -126,7 +119,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public Date getAsDate(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         return super.getAsDate(key);
     }
 
@@ -140,7 +133,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public final Integer getAsInt(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         return super.getAsInt(key);
     }
 
@@ -154,7 +147,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public final int getAsInt(int resID, int defaultValue) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         return super.getAsInt(key, defaultValue);
     }
 
@@ -168,7 +161,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public final Long getAsLong(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         return super.getAsLong(key);
     }
 
@@ -178,7 +171,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public final long getAsLong(int resID, long defaultWert) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         return super.getAsLong(key, defaultWert);
     }
 
@@ -192,7 +185,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public final String getAsString(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         return super.getAsString(key);
     }
 
@@ -215,7 +208,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public void put(int resID, String value) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         super.put(key, value);
     }
 
@@ -235,49 +228,49 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      */
     @Deprecated
     public void put(int resID, byte[] value) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         super.put(key, value);
     }
 
     @Deprecated
     public void put(int resID, int value) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         super.put(key, value);
     }
 
     @Deprecated
     public void put(int resID, CharSequence value) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         super.put(key, value);
     }
 
     @Deprecated
     public void put(int resID, Date value) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         super.put(key, value);
     }
 
     @Deprecated
     public void put(int resID, long value) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         super.put(key, value);
     }
 
     @Deprecated
     public void put(int resID, boolean value) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         super.put(key, value);
     }
 
     @Deprecated
     public void putNull(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         super.putNull(key);
     }
 
     @Deprecated
     public void remove(int resID) {
-        String key = mContext.getDBHelper().columnName(resID);
+        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
         super.remove(key);
     }
 }

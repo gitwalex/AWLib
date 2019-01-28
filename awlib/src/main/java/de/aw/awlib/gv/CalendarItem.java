@@ -1,7 +1,5 @@
-package de.aw.awlib.gv;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -17,9 +15,10 @@ package de.aw.awlib.gv;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+package de.aw.awlib.gv;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.provider.CalendarContract.Calendars;
 
@@ -34,8 +33,8 @@ public class CalendarItem extends AWApplicationGeschaeftsObjekt {
             AbstractDBHelper.AWDBDefinition.AndroidCalendar;
     private final ContentValues currentContent;
 
-    public CalendarItem(Context context, Cursor c) {
-        super(context, tbd, c);
+    public CalendarItem(Cursor c) {
+        super(tbd, c);
         currentContent = getContent();
     }
 

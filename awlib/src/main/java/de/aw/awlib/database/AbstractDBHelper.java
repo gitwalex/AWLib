@@ -28,7 +28,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
@@ -56,9 +55,11 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
     /**
      * Map der ResIDs auf das Format der Spalte
      */
-    private final Map<String, Integer> mapColumnName2ResID = new HashMap<>();
-    private final SparseArray<String> mapResID2ColumnName = new SparseArray<>();
+    public static final Map<String, Integer> mapColumnName2ResID = new HashMap<>();
+    public static final SparseArray<String> mapResID2ColumnName = new SparseArray<>();
     private final WeakReference<AWApplication> mApplicationContext;
+    private final ContentResolver mContentresolver;
+    private final Resources mResources;
     /**
      * DBHelperTemplate ist ein Singleton.
      */
@@ -70,6 +71,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
                 cursorFactory,
                 ((AWApplication) context.getApplicationContext()).theDatenbankVersion());
         mApplicationContext = new WeakReference<>((AWApplication) context.getApplicationContext());
+        mContentresolver = context.getContentResolver();
+        mResources = context.getResources();
         int resID = R.string._id;
         mapColumnName2ResID.put(context.getString(resID), resID);
         String[] s = {"TTEXT", "DDate", "NNUMERIC", "MNUMERIC", "BBoolean", "CNUMERIC", "PNUMERIC",
@@ -91,6 +94,102 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
                 mapColumnName2ResID.put(value, mResID);
             }
         }
+    }
+
+    /**
+     * Liefert zu einer resID ein MAX(resID) zurueck.
+     *
+     * @param resID
+     *         resID des Items
+     *
+     * @return Select Max im Format MAX(itemname) AS itemname
+     */
+    @Deprecated
+    public static String SQLMaxItem(int resID) {
+        String spalte = columnName(resID);
+        return SQLMaxItem(spalte);
+    }
+
+    public static String SQLMaxItem(String column) {
+        return "max(" + column + ") AS " + column;
+    }
+
+    /**
+     * Liefert zu einem Spaltennamen ein SUM(resID) zurueck.
+     *
+     * @param column
+     *         Name der Spalte
+     *
+     * @return Select SUM im Format SUM(itemname) AS itemname
+     */
+    public static String SQLSumItem(String column) {
+        return "sum(" + column + ") AS " + column;
+    }
+
+    /**
+     * @param resID
+     *         resID
+     *
+     * @return Liefert den Spaltennamen zu einer resID zurueck
+     */
+    public static String columnName(int resID) {
+        return mapResID2ColumnName.get(resID);
+    }
+
+    /**
+     * Erstellt eine projection ahnhand von ResIDs und weiteren Spaltennamen
+     *
+     * @param resIDs
+     *         ResIDs, die in der prjection gewuenscht sind
+     * @param args
+     *         Spaltenbezeichungen als String[]
+     *
+     * @return projection
+     */
+    public static String[] columnNames(int[] resIDs, String... args) {
+        // Estmal alle columns der resIDs uebernehmen
+        ArrayList<String> names = new ArrayList<>(Arrays.asList(columnNames(resIDs)));
+        // Jetzt alle String uebernehmen
+        names.addAll(Arrays.asList(args));
+        // Und anschliessend "_id" hinten anhaengen
+        names.add(columnName(R.string._id));
+        return names.toArray(new String[names.size()]);
+    }
+
+    /**
+     * Liste der Columns als StringArray
+     *
+     * @param resIDs
+     *         Liste der ResId, zu denen die Columnnames gewuenscht werden.
+     *
+     * @return Liste der Columns. Anm Ende wird noch die Spalte '_id' hinzugefuegt.
+     *
+     * @throws AWAbstractDBDefinition.ResIDNotFoundException
+     *         wenn ResId nicht in der Liste der Columns enthalten ist.
+     * @throws IllegalArgumentException
+     *         wenn initialize(context) nicht gerufen wurde
+     */
+    public static String[] columnNames(int... resIDs) {
+        if (resIDs != null) {
+            boolean idPresent = false;
+            List<String> columns = new ArrayList<>();
+            for (int resID : resIDs) {
+                String col = columnName(resID);
+                if (resID == R.string._id) {
+                    idPresent = true;
+                }
+                if (col == null) {
+                    throw new AWAbstractDBDefinition.ResIDNotFoundException(
+                            "ResID " + resID + " nicht " + "vorhanden!.");
+                }
+                columns.add(col);
+            }
+            if (!idPresent) {
+                columns.add(columnName(R.string._id));
+            }
+            return columns.toArray(new String[columns.size()]);
+        }
+        return null;
     }
 
     /**
@@ -136,7 +235,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      *
      * @return ColumnNamen, Komma getrennt
      */
-    public static String getCommaSeperatedList(@NonNull String[] columns) {
+    public static String getCommaSeperatedList(@NonNull String... columns) {
         StringBuilder indexSQL = new StringBuilder(columns[0]);
         for (int j = 1; j < columns.length; j++) {
             String column = columns[j];
@@ -146,62 +245,20 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
     }
 
     /**
-     * Liefert zu einer resID ein MAX(resID) zurueck.
+     * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
      *
-     * @param resID
-     *         resID des Items
+     * @param tableindex
+     *         Array, zu dem die Namen ermittelt werden sollen
      *
-     * @return Select Max im Format MAX(itemname) AS itemname
+     * @return ColumnNamen, Komma getrennt
      */
-    public final String SQLMaxItem(int resID) {
-        String spalte = columnName(resID);
-        return "max(" + spalte + ") AS " + spalte;
-    }
-
-    /**
-     * Erstellt SubSelect.
-     *
-     * @param tbd
-     *         DBDefinition
-     * @param resID
-     *         resID der Spalte
-     * @param column
-     *         Sapalte, die ermittelt wird.
-     * @param selection
-     *         Kann null sein
-     * @param selectionArgs
-     *         kann null sein. Es wird keinerlei Pruefung vorgenommen.
-     *
-     * @return SubSelect
-     */
-    public final String SQLSubSelect(AWAbstractDBDefinition tbd, int resID, String column,
-                                     String selection, String[] selectionArgs) {
-        String spalte = columnName(resID);
-        String sql = " (SELECT " + column + " FROM " + tbd.name() + " b ? ) AS " + spalte;
-        if (selectionArgs != null) {
-            for (String args : selectionArgs) {
-                selection = selection.replaceFirst("\\?", args);
-            }
+    public static String getCommaSeperatedList(@NonNull int[] tableindex) {
+        StringBuilder indexSQL = new StringBuilder(columnName(tableindex[0]));
+        for (int j = 1; j < tableindex.length; j++) {
+            String column = columnName(tableindex[j]);
+            indexSQL.append(", ").append(column);
         }
-        if (!TextUtils.isEmpty(selection)) {
-            sql = sql.replace("?", " WHERE " + selection);
-        } else {
-            sql = sql.replace("?", "");
-        }
-        return sql;
-    }
-
-    /**
-     * Liefert zu einer resID ein SUM(resID) zurueck.
-     *
-     * @param resID
-     *         resID des Items
-     *
-     * @return Select Max im Format SUM(itemname) AS itemname
-     */
-    public final String SQLSumItem(int resID) {
-        String spalte = columnName(resID);
-        return "sum(" + spalte + ") AS " + spalte;
+        return indexSQL.toString();
     }
 
     /**
@@ -213,84 +270,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
             usedTables.clear();
         }
         db.beginTransaction();
-    }
-
-    /**
-     * @param resID
-     *         resID
-     *
-     * @return Liefert den Spaltennamen zu einer resID zurueck
-     */
-    public final String columnName(int resID) {
-        return mapResID2ColumnName.get(resID);
-    }
-
-    /**
-     * Erstellt eine projection ahnhand von ResIDs und weiteren Spaltennamen
-     *
-     * @param resIDs
-     *         ResIDs, die in der prjection gewuenscht sind
-     * @param args
-     *         Spaltenbezeichungen als String[]
-     *
-     * @return projection
-     */
-    public final String[] columnNames(int[] resIDs, String... args) {
-        // Estmal alle columns der resIDs uebernehmen
-        ArrayList<String> names = new ArrayList<>(Arrays.asList(columnNames(resIDs)));
-        // Jetzt alle String uebernehmen
-        names.addAll(Arrays.asList(args));
-        // Und anschliessend "_id" hinten anhaengen
-        names.add(columnName(R.string._id));
-        return names.toArray(new String[names.size()]);
-    }
-
-    /**
-     * @return Liefert alle Spaltennamen zu den ResIDs zurueck. Es wird keine id angehaengt.
-     */
-    public final String[] columnNames(AWAbstractDBDefinition tbd) {
-        int[] resIDs = tbd.getTableItems();
-        String[] columns = new String[resIDs.length];
-        for (int i = 0; i < resIDs.length; i++) {
-            columns[i] = columnName(resIDs[i]);
-        }
-        return columns;
-    }
-
-    /**
-     * Liste der Columns als StringArray
-     *
-     * @param resIDs
-     *         Liste der ResId, zu denen die Columnnames gewuenscht werden.
-     *
-     * @return Liste der Columns. Anm Ende wird noch die Spalte '_id' hinzugefuegt.
-     *
-     * @throws AWAbstractDBDefinition.ResIDNotFoundException
-     *         wenn ResId nicht in der Liste der Columns enthalten ist.
-     * @throws IllegalArgumentException
-     *         wenn initialize(context) nicht gerufen wurde
-     */
-    public final String[] columnNames(int... resIDs) {
-        if (resIDs != null) {
-            boolean idPresent = false;
-            List<String> columns = new ArrayList<>();
-            for (int resID : resIDs) {
-                String col = columnName(resID);
-                if (resID == R.string._id) {
-                    idPresent = true;
-                }
-                if (col == null) {
-                    throw new AWAbstractDBDefinition.ResIDNotFoundException(
-                            "ResID " + resID + " nicht " + "vorhanden!.");
-                }
-                columns.add(col);
-            }
-            if (!idPresent) {
-                columns.add(columnName(R.string._id));
-            }
-            return columns.toArray(new String[columns.size()]);
-        }
-        return null;
     }
 
     /**
@@ -370,7 +349,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
     }
 
     public final Resources getApplicationResources() {
-        return mApplicationContext.get().getResources();
+        return mResources;
     }
 
     /**
@@ -397,25 +376,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
         return columns;
     }
 
-    /**
-     * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-     *
-     * @param tableindex
-     *         Array, zu dem die Namen ermittelt werden sollen
-     *
-     * @return ColumnNamen, Komma getrennt
-     */
-    public final String getCommaSeperatedList(@NonNull int[] tableindex) {
-        StringBuilder indexSQL = new StringBuilder(columnName(tableindex[0]));
-        for (int j = 1; j < tableindex.length; j++) {
-            String column = columnName(tableindex[j]);
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
     public ContentResolver getContentResolver() {
-        return mApplicationContext.get().getContentResolver();
+        return mContentresolver;
     }
 
     /**
@@ -476,18 +438,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      *
      * @return ResId der Spalten, die zu einer Sortierung herangezogen werden sollen.
      */
-    public int[] getOrderByItems(AWAbstractDBDefinition tbd) {
-        return new int[]{tbd.getTableItems()[0]};
-    }
-
-    /**
-     * Liefert ein Array der Columns zurueck, nach den sortiert werden sollte,
-     *
-     * @return Array der Columns, nach denen sortiert werden soll.
-     */
-    public final String[] getOrderColumns(AWAbstractDBDefinition tbd) {
-        int[] columItems = getOrderByItems(tbd);
-        return columnNames(columItems);
+    public String[] getOrderByItems(AWAbstractDBDefinition tbd) {
+        return new String[]{tbd.getTableColumns()[0]};
     }
 
     /**
@@ -496,8 +448,8 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
      */
     public final String getOrderString(AWAbstractDBDefinition tbd) {
-        String[] orderColumns = getOrderColumns(tbd);
-        return getCommaSeperatedList(orderColumns);
+        String[] orderColumns = getOrderByItems(tbd);
+        return orderColumns == null ? null : getCommaSeperatedList(orderColumns);
     }
 
     public final Integer getResID(String resName) {
@@ -536,7 +488,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      * @return DBDefinition der Tabellennamen. Kann leer sein.
      */
     public final List<AWAbstractDBDefinition> getTableNamesForColumn(int columnresID) {
-        String column = getApplicationResources().getString(columnresID);
+        String column = AbstractDBHelper.mapResID2ColumnName.get(columnresID);
         List<String> tables = getTableNamesForColumn(column);
         List<AWAbstractDBDefinition> tbdList = new ArrayList<>();
         for (String table : tables) {
@@ -682,7 +634,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      */
     @CallSuper
     protected boolean notifyCursors(Uri uri) {
-        mApplicationContext.get().getContentResolver().notifyChange(uri, null);
+        mContentresolver.notifyChange(uri, null);
         return uri.getLastPathSegment().equals(AWDBDefinition.RemoteServer.name());
     }
 
@@ -905,7 +857,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
          *         wenn ResId nicht in der Liste der Columns enthalten ist.
          */
         public String columnName(int resID) {
-            return dbHelper.columnName(resID);
+            return AbstractDBHelper.columnName(resID);
         }
 
         /**
@@ -922,7 +874,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
          *         wenn initialize(context) nicht gerufen wurde
          */
         public String[] columnNames(int... resIDs) {
-            return dbHelper.columnNames(resIDs);
+            return AbstractDBHelper.columnNames(resIDs);
         }
 
         /**
@@ -957,22 +909,12 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
         public abstract String getCreateViewSQL();
 
         /**
-         * Liste der fuer eine sinnvolle Sortierung notwendigen Spalten.
-         *
-         * @return ResId der Spalten, die zu einer Sortierung herangezogen werden sollen.
-         */
-        public int[] getOrderByItems() {
-            return new int[]{getTableItems()[0]};
-        }
-
-        /**
          * Liefert ein Array der Columns zurueck, nach den sortiert werden sollte,
          *
          * @return Array der Columns, nach denen sortiert werden soll.
          */
-        public String[] getOrderColumns() {
-            int[] columItems = getOrderByItems();
-            return columnNames(columItems);
+        public String[] getOrderByColumns() {
+            return new String[]{getTableColumns()[0]};
         }
 
         /**
@@ -981,7 +923,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
          * @return OrderBy-String, wie in der Definition der ENUM vorgegeben
          */
         public String getOrderString() {
-            String[] orderColumns = getOrderColumns();
+            String[] orderColumns = getOrderByColumns();
             StringBuilder order = new StringBuilder(orderColumns[0]);
             for (int i = 1; i < orderColumns.length; i++) {
                 order.append(", ").append(orderColumns[i]);
