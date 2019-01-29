@@ -640,7 +640,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
 
     @Override
     public final void onCreate(SQLiteDatabase database) {
-        AWDBAlterHelper dbhelper = new AWDBAlterHelper(this, database);
+        AWDBAlterHelper dbhelper = new AWDBAlterHelper(database);
         database.beginTransaction();
         try {
             for (AWAbstractDBDefinition tbd : getAllDBDefinition()) {
@@ -677,7 +677,7 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      */
     @Override
     public final void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-        AWDBAlterHelper dbhelper = new AWDBAlterHelper(this, database);
+        AWDBAlterHelper dbhelper = new AWDBAlterHelper(database);
         database.beginTransaction();
         try {
             doUpgrade(database, dbhelper, oldVersion, newVersion);

@@ -16,7 +16,7 @@
  */
 package de.aw.awlib.gv;
 
-import android.content.Context;
+import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Parcel;
 
@@ -56,9 +56,9 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      * @throws android.content.res.Resources.NotFoundException
      *         Wenn kein Datensatz mit dieser ID gefunden wurde.
      */
-    public AWApplicationGeschaeftsObjekt(Context context, AWAbstractDBDefinition tbd, Long id)
+    public AWApplicationGeschaeftsObjekt(ContentResolver cr, AWAbstractDBDefinition tbd, Long id)
             throws LineNotFoundException {
-        super(context.getContentResolver(), tbd, id);
+        super(cr, tbd, id);
     }
 
     public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd, Cursor c) {

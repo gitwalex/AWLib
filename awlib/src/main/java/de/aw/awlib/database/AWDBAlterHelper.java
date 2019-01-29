@@ -19,7 +19,6 @@ package de.aw.awlib.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,38 +30,13 @@ import de.aw.awlib.application.AWApplication;
  */
 public final class AWDBAlterHelper implements TableColumns {
     private final SQLiteDatabase database;
-    private final AbstractDBHelper dbhelper;
-    private final String idColumn;
 
     /**
      * Initialisiert AWDBAlterHelper. Die letzte vergebene indexNummer/uniqueIndexNummer wird aus
      * Preferences gelesen.
-     *
-     * @param dbhelper
-     *         AbstractDBHelper
      */
-    public AWDBAlterHelper(AbstractDBHelper dbhelper, SQLiteDatabase database) {
-        this.dbhelper = dbhelper;
+    public AWDBAlterHelper(SQLiteDatabase database) {
         this.database = database;
-        idColumn = _id;
-    }
-
-    /**
-     * Aendert einen Index
-     *
-     * @param tbd
-     *         AWAbstractDBDefinition
-     * @param indexName
-     *         Name des Index
-     * @param indexItems
-     *         Items des Index
-     */
-    public void alterIndex(AWAbstractDBDefinition tbd, String indexName, int[] indexItems) {
-        if (!tbd.isView()) {
-            dropIndex(tbd);
-            String sql = getCreateIndexSQL(tbd, indexName, indexItems, false);
-            database.execSQL(sql);
-        }
     }
 
     /**
@@ -114,8 +88,8 @@ public final class AWDBAlterHelper implements TableColumns {
      * @param fromColumns
      *         Spalten, die kopiert werden sollen
      */
-    public void alterTable(AWAbstractDBDefinition tbd, int[] fromColumns) {
-        String colums = dbhelper.getCommaSeperatedList(fromColumns);
+    public void alterTable(AWAbstractDBDefinition tbd, String[] fromColumns) {
+        String colums = AbstractDBHelper.getCommaSeperatedList(fromColumns);
         String tempTableName = "temp" + tbd.name();
         String createTempTable =
                 "CREATE TABLE " + tempTableName + "(" + tbd.getCreateViewSQL() + ")";
@@ -167,7 +141,7 @@ public final class AWDBAlterHelper implements TableColumns {
         String tempTableName = "temp" + tbd.name();
         String createTempTable =
                 "CREATE TABLE " + tempTableName + "(" + tbd.getCreateViewSQL() + ")";
-        String oldColumnNames = dbhelper.getCommaSeperatedList(tbd.getTableItems());
+        String oldColumnNames = AbstractDBHelper.getCommaSeperatedList(tbd.getTableItems());
         String copyValuesSQL =
                 "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
                         oldColumnNames + " FROM " + tbd.name() + " GROUP BY " + distinctColumn;
@@ -189,7 +163,7 @@ public final class AWDBAlterHelper implements TableColumns {
         String tempTableName = "temp" + tbd.name();
         String createTempTable =
                 "CREATE TABLE " + tempTableName + "( " + tbd.getCreateViewSQL() + ")";
-        String oldColumnNames = dbhelper.getCommaSeperatedList(tbd.getTableItems());
+        String oldColumnNames = AbstractDBHelper.getCommaSeperatedList(tbd.getTableColumns());
         String copyValuesSQL =
                 "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
                         oldColumnNames + " FROM " + tbd.name();
@@ -264,8 +238,9 @@ public final class AWDBAlterHelper implements TableColumns {
         return fehler.size() == 0;
     }
 
-    public void copyValues(AWAbstractDBDefinition from, int[] columns, AWAbstractDBDefinition to) {
-        String mColumns = dbhelper.getCommaSeperatedList(columns);
+    public void copyValues(AWAbstractDBDefinition from, String[] columns,
+                           AWAbstractDBDefinition to) {
+        String mColumns = AbstractDBHelper.getCommaSeperatedList(columns);
         String sql =
                 "INSERT INTO " + to.name() + " (" + mColumns + ") SELECT " + mColumns + " FROM " +
                         from.name();
@@ -351,42 +326,6 @@ public final class AWDBAlterHelper implements TableColumns {
     public void dropView(String s) {
         String sql = "DROP VIEW IF EXISTS " + s;
         database.execSQL(sql);
-    }
-
-    /**
-     * Liefert die Tabellenspalten der Tabelle ohne _id zuruck.
-     *
-     * @param tbd
-     *         tbd
-     * @param tableindex
-     *         Tableindex
-     *
-     * @return commaseperated List der Spalten
-     */
-    public String getCommaSeperatedListNoID(@NonNull AWAbstractDBDefinition tbd,
-                                            @NonNull int[] tableindex) {
-        List<String> columns = new ArrayList<>();
-        for (int resID : tableindex) {
-            columns.add(dbhelper.columnName(resID));
-        }
-        columns.remove(idColumn);
-        StringBuilder indexSQL = new StringBuilder(columns.get(0));
-        for (int j = 1; j < columns.size(); j++) {
-            String column = columns.get(j);
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
-    public String getCreateIndexSQL(AWAbstractDBDefinition tbd, String indexName, int[] columns,
-                                    boolean uniqueIndex) {
-        String sql = "CREATE ";
-        if (uniqueIndex) {
-            sql = sql + "UNIQUE ";
-        }
-        sql = sql + "INDEX IF NOT EXISTS " + indexName + " on " + tbd.name() + " (" +
-                dbhelper.getCommaSeperatedList(columns) + ")";
-        return sql;
     }
 
     public SQLiteDatabase getDatabase() {
