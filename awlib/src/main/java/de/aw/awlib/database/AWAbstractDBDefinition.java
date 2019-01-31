@@ -22,10 +22,6 @@ import android.os.Parcelable;
 /**
  */
 public interface AWAbstractDBDefinition extends Parcelable {
-    String columnName(int newColumn);
-
-    String[] columnNames(int... intArray);
-
     /**
      * @return true, wenn die Tabelle/View erstellt werden soll.
      */

@@ -1,10 +1,5 @@
-/**
- *
- */
-package de.aw.awlib.activities;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -20,16 +15,22 @@ package de.aw.awlib.activities;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ *
+ */
+package de.aw.awlib.activities;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import de.aw.awlib.database.TableColumns;
 import de.aw.awlib.events.AWEvent;
 import de.aw.awlib.fragments.AWFileChooser;
 
 /**
  * @author alex
  */
-public interface AWInterface {
+public interface AWInterface extends TableColumns {
     String
             /**
              *
@@ -47,10 +48,6 @@ public interface AWInterface {
              *
              */
             , VIEWRESIDS = "VIEWRESIDS"
-            /**
-             *
-             */
-            , FROMRESIDS = "FROMRESIDS"
             /**
              *
              */

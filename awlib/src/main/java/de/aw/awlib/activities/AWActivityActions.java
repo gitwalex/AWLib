@@ -43,7 +43,7 @@ import de.aw.awlib.fragments.AWFragmentRemoteFileServer;
 import de.aw.awlib.fragments.AWRemoteFileChooser;
 import de.aw.awlib.fragments.AWRemoteServerConnectionData;
 import de.aw.awlib.fragments.AWShowPicture;
-import de.aw.awlib.gv.AWApplicationGeschaeftsObjektNew;
+import de.aw.awlib.gv.AWApplicationGeschaeftsObjekt;
 import de.aw.awlib.gv.AWRemoteFileServer;
 import de.aw.awlib.recyclerview.AWBaseRecyclerViewListener;
 import de.aw.awlib.recyclerview.AWItemListRecyclerViewListener;
@@ -194,7 +194,7 @@ public class AWActivityActions extends AWMainActivity implements AWItemListRecyc
             try {
                 mRemoteServer = new AWRemoteFileServer(this, id);
                 f = AWRemoteFileChooser.newInstance(mRemoteServer);
-            } catch (AWApplicationGeschaeftsObjektNew.LineNotFoundException e) {
+            } catch (AWApplicationGeschaeftsObjekt.LineNotFoundException e) {
                 //TODO Execption bearbeiten
                 e.printStackTrace();
             }

@@ -1,7 +1,5 @@
-package de.aw.awlib.fragments;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.fragments;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.fragments;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -45,8 +45,7 @@ public class AWRemoteServerConnectionData extends AWFragment {
     private static final int layout = R.layout.awlib_dialog_remote_fileserver;
     private static final int[] viewResIDs =
             new int[]{R.id.awlib_etDBServerName, R.id.awlib_etDBUserName};
-    private static final int[] fromResIDs =
-            new int[]{R.string.column_serverurl, R.string.column_userID};
+    private static final String[] projection = new String[]{column_serverurl, column_userID, _id};
     private EditText mPasswortEditText;
     private AWRemoteFileServer mRemoteFileServer;
     private EditText mUIDEditText;
@@ -78,12 +77,10 @@ public class AWRemoteServerConnectionData extends AWFragment {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        mRemoteFileServer
-                                .put(getContext(), R.string.column_serverurl,
-                                        mURLEditText.getText().toString());
-                        mRemoteFileServer
-                                .put(getContext(), R.string.column_userID,
-                                        mUIDEditText.getText().toString());
+                        mRemoteFileServer.put(getContext(), R.string.column_serverurl,
+                                mURLEditText.getText().toString());
+                        mRemoteFileServer.put(getContext(), R.string.column_userID,
+                                mUIDEditText.getText().toString());
                         mRemoteFileServer.setUserPassword(mPasswortEditText.getText().toString());
                         if (mRemoteFileServer.isValid()) {
                             AWApplication mAppConfig =
@@ -97,13 +94,12 @@ public class AWRemoteServerConnectionData extends AWFragment {
                             View view = getView();
                             if (view != null) {
                                 Snackbar.make(view, getString(R.string.awlib_datensatzSaved),
-                                        Snackbar.LENGTH_SHORT)
-                                        .show();
+                                        Snackbar.LENGTH_SHORT).show();
                             }
                         }
                     }
-                }).setNegativeButton(R.string.awlib_btnCancel,
-                new DialogInterface.OnClickListener() {
+                })
+                .setNegativeButton(R.string.awlib_btnCancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         // Nix tun
@@ -120,11 +116,11 @@ public class AWRemoteServerConnectionData extends AWFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mURLEditText = (EditText) view.findViewById(R.id.awlib_etDBServerName);
-        mUIDEditText = (EditText) view.findViewById(R.id.awlib_etDBUserName);
-        mPasswortEditText = (EditText) view.findViewById(R.id.awlib_etDBUserPW);
+        mURLEditText = view.findViewById(R.id.awlib_etDBServerName);
+        mUIDEditText = view.findViewById(R.id.awlib_etDBUserName);
+        mPasswortEditText = view.findViewById(R.id.awlib_etDBUserPW);
         mPasswortEditText.setText(mRemoteFileServer.getUserPassword());
-        CheckBox mConnectionTypeCheckBox = (CheckBox) view.findViewById(R.id.cbConnectionType);
+        CheckBox mConnectionTypeCheckBox = view.findViewById(R.id.cbConnectionType);
         mConnectionTypeCheckBox
                 .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -146,6 +142,6 @@ public class AWRemoteServerConnectionData extends AWFragment {
         super.setInternalArguments(args);
         args.putInt(LAYOUT, layout);
         args.putIntArray(VIEWRESIDS, viewResIDs);
-        args.putIntArray(FROMRESIDS, fromResIDs);
+        args.putStringArray(PROJECTION, projection);
     }
 }

@@ -1,7 +1,5 @@
-package de.aw.awlib.views;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -17,11 +15,14 @@ package de.aw.awlib.views;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+package de.aw.awlib.views;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.databinding.BindingAdapter;
 import android.graphics.Rect;
 import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.AttributeSet;
 import android.view.View;
@@ -41,10 +42,10 @@ import de.aw.awlib.database.AWAbstractDBDefinition;
  * @see AWAutoCompleteTextView#onTextChanged(String newText)
  */
 public abstract class AWAutoCompleteTextView
-        extends android.support.v7.widget.AppCompatAutoCompleteTextView implements AWInterface, FilterQueryProvider, AdapterView.OnItemClickListener {
+        extends android.support.v7.widget.AppCompatAutoCompleteTextView
+        implements AWInterface, FilterQueryProvider, AdapterView.OnItemClickListener {
     protected OnTextChangedListener mOnTextChangeListener;
     private int columnIndex;
-    private int fromResID;
     private String mMainColumn;
     private String mOrderBy;
     private String[] mProjection;
@@ -73,7 +74,8 @@ public abstract class AWAutoCompleteTextView
     }
 
     /**
-     * @return Liefert die ID des selektierten Textes. Wenn {@link AWAutoCompleteTextView#validateInput(boolean
+     * @return Liefert die ID des selektierten Textes. Wenn
+     * {@link AWAutoCompleteTextView#validateInput(boolean
      * doValidateInput)} mit true gerufen wurde, die erste ID aus dem Cursor,ansonsten NOID.
      */
     public final long getSelectionID() {
@@ -97,7 +99,7 @@ public abstract class AWAutoCompleteTextView
      *         selection
      * @param selectionArgs
      *         Argumente zur Selection
-     * @param fromResID
+     * @param column
      *         Feld, welches fuer die Selection benutzt werden soll.
      * @param orderBy
      *
@@ -105,14 +107,13 @@ public abstract class AWAutoCompleteTextView
      *         wenn LoaderManager null ist.
      */
     public final void initialize(AWAbstractDBDefinition tbd, String selection,
-                                 String[] selectionArgs, int fromResID, String orderBy) {
+                                 String[] selectionArgs, @NonNull String column, String orderBy) {
         if (!isInEditMode()) {
             initializedCalled = true;
             this.tbd = tbd;
-            this.fromResID = fromResID;
-            mMainColumn = tbd.columnName(this.fromResID);
-            mProjection = new String[]{tbd.columnName(fromResID), tbd.columnName(R.string._id)};
-            mSelection = tbd.columnName(fromResID) + " Like ? ";
+            mMainColumn = column;
+            mProjection = new String[]{column, _id};
+            mSelection = column + " Like ? ";
             mOrderBy = orderBy;
             if (mOrderBy == null) {
                 mOrderBy = "LENGTH(" + mMainColumn + ")";
@@ -147,7 +148,8 @@ public abstract class AWAutoCompleteTextView
         super.onFinishInflate();
         if (!isInEditMode()) {
             if (!initializedCalled) {
-                throw new IllegalStateException("Method 'initialize(AWDBDefinition, String, " + "String[], int, String)' not called");
+                throw new IllegalStateException("Method 'initialize(AWDBDefinition, String, " +
+                        "String[], int, String)' not called");
             }
             SimpleCursorAdapter mSimpleCursorAdapter = new SimpleCursorAdapter(getContext(),
                     android.R.layout.simple_dropdown_item_1line, null, mProjection,
@@ -225,10 +227,9 @@ public abstract class AWAutoCompleteTextView
     }
 
     /**
-     * Nach tippen wird hier nachgelesen. Es wird mit 'LIKE %constraint%' ausgewaehlt.
-     * Hat der Cursor Daten und validierung ist eingeschaltet (es ist kein neuer Wert zugelassen),
-     * wird die erste ID aus dem Cursor geholt und der  Text auf den entsprechenden Wert des Cursors
-     * gesetzt.
+     * Nach tippen wird hier nachgelesen. Es wird mit 'LIKE %constraint%' ausgewaehlt. Hat der
+     * Cursor Daten und validierung ist eingeschaltet (es ist kein neuer Wert zugelassen), wird die
+     * erste ID aus dem Cursor geholt und der  Text auf den entsprechenden Wert des Cursors gesetzt.
      * Gibt es nur einen oder gar keinen Wert, wird Dropdown ausgeblendet
      *
      * @param constraint
@@ -241,7 +242,8 @@ public abstract class AWAutoCompleteTextView
         selectionID = NOID;
         final String mConstraint = constraint == null ? "" : constraint.toString().trim();
         String[] mSelectionArgs = new String[]{"%" + constraint + "%"};
-        final Cursor data = getContext().getContentResolver().query(tbd.getUri(), mProjection, mSelection, mSelectionArgs, mOrderBy);
+        final Cursor data = getContext().getContentResolver()
+                .query(tbd.getUri(), mProjection, mSelection, mSelectionArgs, mOrderBy);
         if (data.moveToFirst()) {
             selectionID = data.getLong(1);
             cursorText = data.getString(0).trim();
@@ -261,7 +263,7 @@ public abstract class AWAutoCompleteTextView
                 }
             }
         });
-        columnIndex = data.getColumnIndexOrThrow(tbd.columnName(fromResID));
+        columnIndex = data.getColumnIndexOrThrow(mMainColumn);
         return data;
     }
 
@@ -270,9 +272,9 @@ public abstract class AWAutoCompleteTextView
     }
 
     /**
-     * Wenn diese Methode true zurueckliefert, sind nur Werte aus dem Cursor erlaubt. Wir ein
-     * Wert erfasst, der nicht im Cursor vorhanden ist, wird der eingegebene Wert mit dem ersten
-     * Wert aus dem Cursor ersetzt.
+     * Wenn diese Methode true zurueckliefert, sind nur Werte aus dem Cursor erlaubt. Wir ein Wert
+     * erfasst, der nicht im Cursor vorhanden ist, wird der eingegebene Wert mit dem ersten Wert aus
+     * dem Cursor ersetzt.
      *
      * @return default false. Neue Werte sind immer erlaubt.
      */

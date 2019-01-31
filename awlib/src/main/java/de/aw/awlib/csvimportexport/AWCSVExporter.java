@@ -164,11 +164,6 @@ public class AWCSVExporter {
 
         @Override
         protected Integer doInBackground(Void... voids) {
-            int[] fromResIDs = new int[c.getColumnCount()];
-            for (int i = 0; i < c.getColumnCount(); i++) {
-                String columnname = c.getColumnName(i);
-                fromResIDs[i] = mDBHelper.getResID(columnname);
-            }
             List<String[]> list = new ArrayList<>();
             String filename = mApplicationExportPath + "/" + this.filename;
             File file = new File(filename);
@@ -191,7 +186,6 @@ public class AWCSVExporter {
                         // Cursor auslesen
                         columns = new String[c.getColumnCount()];
                         for (int j = 0; j < c.getColumnCount(); j++) {
-                            int resID = fromResIDs[j];
                             switch (c.getType(j)) {
                                 case Cursor.FIELD_TYPE_INTEGER:
                                     long l = c.getLong(j);

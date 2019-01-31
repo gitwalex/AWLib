@@ -1,7 +1,5 @@
-package de.aw.awlib.fragments;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -17,21 +15,25 @@ package de.aw.awlib.fragments;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+package de.aw.awlib.fragments;
+
 import android.os.Bundle;
 
 import de.aw.awlib.R;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.database.TableColumns;
 import de.aw.awlib.recyclerview.AWCursorRecyclerViewFragment;
 
 /**
  * Fragment zur Anzeige der bisher konfigurierten RemoteFileServer
  */
-public class AWFragmentRemoteFileServer extends AWCursorRecyclerViewFragment {
+public class AWFragmentRemoteFileServer extends AWCursorRecyclerViewFragment
+        implements TableColumns {
     private static final AbstractDBHelper.AWDBDefinition tbd =
             AbstractDBHelper.AWDBDefinition.RemoteServer;
-    private static final int[] fromResIDs =
-            new int[]{R.string.column_serverurl, R.string.column_userID,
-                    R.string.column_connectionType, R.string.column_maindirectory};
+    private static final String[] projection =
+            new String[]{column_serverurl, column_userID, column_connectionType,
+                    column_maindirectory, _id};
     private static final int viewHolderLayout = R.layout.awlib_remote_fileserver;
     private static final int[] viewResIDs =
             new int[]{R.id.tvRemoteFileServerName, R.id.tvUserName, R.id.tvConnectionType,
@@ -43,6 +45,6 @@ public class AWFragmentRemoteFileServer extends AWCursorRecyclerViewFragment {
         args.putParcelable(DBDEFINITION, tbd);
         args.putInt(VIEWHOLDERLAYOUT, viewHolderLayout);
         args.putIntArray(VIEWRESIDS, viewResIDs);
-        args.putIntArray(FROMRESIDS, fromResIDs);
+        args.putStringArray(PROJECTION, projection);
     }
 }

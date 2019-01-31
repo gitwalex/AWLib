@@ -1,7 +1,5 @@
-package de.aw.awlib.views;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.views;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.views;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -33,9 +33,9 @@ import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AWLoaderManagerEngine;
 
 /**
- * Convenience-Klasse fuer TextView, die mit einem Loader hinterlegt ist. ID der TextView wird
- * durch xml vorgegeben. Alternativ wird die resID benutzt, die in initialize() uebergeben
- * wird. Der Wert wird als Waehrung angezeigt.
+ * Convenience-Klasse fuer TextView, die mit einem Loader hinterlegt ist. ID der TextView wird durch
+ * xml vorgegeben. Alternativ wird die resID benutzt, die in initialize() uebergeben wird. Der Wert
+ * wird als Waehrung angezeigt.
  */
 public class AWLoaderTextViewCurrencyValue extends android.support.v7.widget.AppCompatTextView
         implements AWInterface, AWLoaderManagerEngine.Callback {
@@ -61,9 +61,6 @@ public class AWLoaderTextViewCurrencyValue extends android.support.v7.widget.App
      *         LoaderManager
      * @param tbd
      *         DBDefinition fuer Loader
-     * @param resID
-     *         des Items, welches geladen wird. Wird fuer Anzeige der Daten im korrekten Format
-     *         benoetigt.
      * @param projection
      *         Item , welches geladen werden soll.
      * @param selection
@@ -74,22 +71,13 @@ public class AWLoaderTextViewCurrencyValue extends android.support.v7.widget.App
      * @throws RuntimeException
      *         wenn Argumente nicht vollstaendig sind oder nicht zueinander passen.
      */
-    public void initialize(LoaderManager lm, @NonNull AWAbstractDBDefinition tbd, int resID, @NonNull String projection,
-                           @Nullable String selection, @Nullable String[] selectionArgs) {
-        if (resID == 0) {
-            throw new RuntimeException(
-                    "resID muss mit einem Wert initialisiert sein. Wird fuer Konvertieren der " +
-                            "Daten benoetigt.");
-        }
-        // setzten der ID, wenn noch nicht vorhanden.
-        if (getId() == NO_ID) {
-            setId(resID);
-        }
+    public void initialize(LoaderManager lm, @NonNull AWAbstractDBDefinition tbd,
+                           @NonNull String projection, @Nullable String selection,
+                           @Nullable String[] selectionArgs) {
         args.putParcelable(DBDEFINITION, tbd);
         args.putStringArray(PROJECTION, new String[]{projection});
         args.putString(SELECTION, selection);
         args.putStringArray(SELECTIONARGS, selectionArgs);
-        args.putIntArray(FROMRESIDS, new int[]{resID});
         // Starten des Loaders
         mLoaderManagerEngine = new AWLoaderManagerEngine(getContext(), lm, this);
         mLoaderManagerEngine.startOrRestartLoader(getId(), args);

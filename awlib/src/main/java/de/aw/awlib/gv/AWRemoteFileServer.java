@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 
 import de.aw.awlib.R;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.database.TableColumns;
 import de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType;
 
 import static de.aw.awlib.activities.AWInterface.NOID;
@@ -34,7 +35,7 @@ import static de.aw.awlib.utils.AWRemoteFileServerHandler.ConnectionType.SSL;
 /**
  * Stammdaten fuer einen AWRemoteFileServer.
  */
-public class AWRemoteFileServer implements Parcelable {
+public class AWRemoteFileServer implements Parcelable, TableColumns {
     public static final Parcelable.Creator<AWRemoteFileServer> CREATOR =
             new Parcelable.Creator<AWRemoteFileServer>() {
                 @Override
@@ -49,7 +50,7 @@ public class AWRemoteFileServer implements Parcelable {
             };
     private static final AbstractDBHelper.AWDBDefinition tbd =
             AbstractDBHelper.AWDBDefinition.RemoteServer;
-    private final String mSelection = tbd.columnName(R.string._id) + " = ?";
+    private final String mSelection = _id + " = ?";
     private ContentValues currentContent = new ContentValues();
     private ConnectionType mConnectionType;
     private long mID = NOID;
@@ -64,7 +65,7 @@ public class AWRemoteFileServer implements Parcelable {
     }
 
     public AWRemoteFileServer(Context context, long id)
-            throws AWApplicationGeschaeftsObjektNew.LineNotFoundException {
+            throws AWApplicationGeschaeftsObjekt.LineNotFoundException {
         fillContent(context, id);
         mSelectionArgs = new String[]{String.valueOf(id)};
         mURL = currentContent.getAsString(context.getString(R.string.column_serverurl));
@@ -113,11 +114,11 @@ public class AWRemoteFileServer implements Parcelable {
      * @param id
      *         id des Objektes
      *
-     * @throws AWApplicationGeschaeftsObjektNew.LineNotFoundException
+     * @throws AWApplicationGeschaeftsObjekt.LineNotFoundException
      *         wenn keine Zeile gefunden wurde.
      */
     public final void fillContent(Context context, Long id)
-            throws AWApplicationGeschaeftsObjektNew.LineNotFoundException {
+            throws AWApplicationGeschaeftsObjekt.LineNotFoundException {
         mSelectionArgs = new String[]{id.toString()};
         Cursor c = context.getContentResolver()
                 .query(tbd.getUri(), tbd.getTableColumns(), mSelection, mSelectionArgs, null);
@@ -132,7 +133,7 @@ public class AWRemoteFileServer implements Parcelable {
                 }
                 currentContent.remove(context.getString(R.string._id));
             } else {
-                throw new AWApplicationGeschaeftsObjektNew.LineNotFoundException(
+                throw new AWApplicationGeschaeftsObjekt.LineNotFoundException(
                         tbd.name() + ": Zeile mit id " + id + " nicht gefunden.");
             }
         } finally {

@@ -17,13 +17,21 @@
 package de.aw.awlib.gv;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.databinding.BaseObservable;
 import android.os.Parcel;
+import android.support.annotation.CallSuper;
 
+import java.text.ParseException;
 import java.util.Date;
 
+import de.aw.awlib.activities.AWInterface;
+import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
+import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
+import de.aw.awlib.database.TableColumns;
 
 /**
  * MonMa AWApplicationGeschaeftsObjekt Vorlage fuer die Geschaeftsvorfaelle, z.B. Bankkonto-Buchung,
@@ -38,31 +46,29 @@ import de.aw.awlib.database.AbstractDBHelper;
  *
  * @author alex
  */
-public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschaeftsObjektNew {
+public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
+        implements AWInterface, TableColumns {
+    private final String CLASSNAME = this.getClass().getSimpleName();
     /**
      * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
      * belegt.
      */
+    private final AWAbstractDBDefinition tbd;
+    protected String selection = _id + " = ?";
+    protected String[] selectionArgs;
     /**
-     * Laden eines Geschaeftsvorfalls mit der id aus der Datenbank.
-     *
-     * @param tbd
-     *         Tabelle, der der GV zugeordnet ist.
-     * @param id
-     *         ID des Geschaeftsvorfalls in der entsprechenden Tabelle.
-     *
-     * @throws LineNotFoundException
-     *         Wenn keine Zeile mit der id gefunden wurde.
-     * @throws android.content.res.Resources.NotFoundException
-     *         Wenn kein Datensatz mit dieser ID gefunden wurde.
+     * ID des AWApplicationGeschaeftsObjekt
      */
-    public AWApplicationGeschaeftsObjekt(ContentResolver cr, AWAbstractDBDefinition tbd, Long id)
-            throws LineNotFoundException {
-        super(cr, tbd, id);
-    }
+    protected Long id;
+    /**
+     * Abbild der jeweiligen Zeile der Datenbank. Werden nicht direkt geaendert.
+     */
+    private ContentValues currentContent = new ContentValues();
+    private boolean isDirty;
 
     public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd, Cursor c) {
-        super(tbd, c);
+        this(tbd);
+        fillContent(c);
     }
 
     /**
@@ -72,121 +78,314 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      *         AWAbstractDBDefinition
      */
     public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd) {
-        super(tbd);
+        this.tbd = tbd;
+    }
+
+    public AWApplicationGeschaeftsObjekt(ContentResolver cr, AWAbstractDBDefinition tbd, long id) {
+        this(tbd);
+        selectionArgs = new String[]{String.valueOf(id)};
+        String[] projection = tbd.getTableColumns();
+        String orderby = tbd.getOrderString();
+        Cursor c = getCursor(cr, tbd, projection, selection, selectionArgs, orderby);
+        fillContent(c);
     }
 
     protected AWApplicationGeschaeftsObjekt(Parcel in) {
-        super(in);
+        this((AWAbstractDBDefinition) in
+                .readParcelable(AWAbstractDBDefinition.class.getClassLoader()));
+        this.id = (Long) in.readValue(Long.class.getClassLoader());
+        this.selectionArgs = in.createStringArray();
+        this.currentContent = in.readParcelable(ContentValues.class.getClassLoader());
+        this.isDirty = in.readByte() != 0;
+    }
+
+    public static Cursor getCursor(ContentResolver cr, AWAbstractDBDefinition tbd,
+                                   String[] projection, String selection, String[] selectionArgs,
+                                   String sortOrder) {
+        return cr.query(tbd.getUri(), projection, selection, selectionArgs, sortOrder, null);
+    }
+
+    /**
+     * Prueft, ob ein Wert zur ResID vorhanden ist.
+     *
+     * @param column
+     *         Spaltenname
+     *
+     * @return true, wenn vorhanden. Sonst false
+     */
+    public boolean IsNull(String column) {
+        return currentContent.containsKey(column);
     }
 
     /**
      * Prueft, ob ein Wert geaendert wurde oder bereits in der DB vorhanden ist.
      *
-     * @param resID
-     *         resID der Spalte
+     * @param column
+     *         Spaltenname
      *
      * @return true, wenn ein Wert ungleich null enthalten ist
      */
-    @Deprecated
-    public final boolean containsKey(int resID) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        return super.containsKey(key);
+    public final boolean containsKey(String column) {
+        return currentContent.get(column) != null;
+    }
+
+    protected void copy(AWApplicationGeschaeftsObjekt source) {
+        currentContent = source.getContent();
+        id = source.id;
+    }
+
+    protected int delete(AbstractDBHelper db) {
+        if (id == null) {
+            AWApplication.Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht " +
+                    "moeglich");
+            return -1;
+        }
+        int result;
+        result = db.delete(tbd, selection, selectionArgs);
+        if (result != 0) {
+            currentContent.putNull(_id);
+            id = null;
+            isDirty = false;
+        }
+        return result;
+    }
+
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * @param o
+     *         zu vergleichendes Object.
+     *
+     * @return true,  wenn das vergleichende Object ein Geschaeftsobjekte ist, beide auf die gleiche
+     * Tabelle zeigen (DBDefiniton)und die gleiche Anzahl Werte mit den gleichen Inhalten in den
+     * ContentValues vorhanden sind.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AWApplicationGeschaeftsObjekt that = (AWApplicationGeschaeftsObjekt) o;
+        return tbd == that.tbd && currentContent.equals(that.currentContent);
+    }
+
+    /**
+     * Fuellt currentContent (aus einem Cursor. Cursor kann auch leer sein. Hat der Cursor mehrere
+     * Zeilen, wird nur die erste uebernommen. Es werden nur Werte ungleich null uebernommen.
+     * <p/>
+     * Alle vorigen Werte werden verworfen.
+     *
+     * @param c
+     *         Cursor
+     */
+    public final void fillContent(Cursor c) throws LineNotFoundException {
+        if (c.isBeforeFirst()) {
+            if (!c.moveToFirst()) {
+                throw new LineNotFoundException("Cursor ist leer!");
+            }
+        }
+        currentContent.clear();
+        for (int i = 0; i < c.getColumnCount(); i++) {
+            int type = c.getType(i);
+            switch (type) {
+                case Cursor.FIELD_TYPE_BLOB:
+                    byte[] blob = c.getBlob(i);
+                    currentContent.put(c.getColumnName(i), blob);
+                    break;
+                case Cursor.FIELD_TYPE_FLOAT:
+                    currentContent.put(c.getColumnName(i), c.getFloat(i));
+                    break;
+                case Cursor.FIELD_TYPE_INTEGER:
+                    currentContent.put(c.getColumnName(i), c.getInt(i));
+                    break;
+                case Cursor.FIELD_TYPE_STRING:
+                    currentContent.put(c.getColumnName(i), c.getString(i));
+                    break;
+                case Cursor.FIELD_TYPE_NULL:
+                    putNull(c.getColumnName(i));
+                    break;
+                default:
+                    String value = c.getString(i);
+                    if (value != null) {
+                        currentContent.put(c.getColumnName(i), c.getString(i));
+                    }
+            }
+        }
+        id = getAsLong(_id);
+        selectionArgs = new String[]{id.toString()};
+        currentContent.remove(_id);
+        isDirty = false;
     }
 
     /**
      * Liefert den Wert aus dem Geschaeftsobjekt zu Spalte resID als Boolean.
      *
-     * @param resID
-     *         resID der Spalte
+     * @param column
+     *         Spalte
      *
      * @return Den aktuellen Wert der Spalte (true ooder false)
      */
-    @Deprecated
-    public final Boolean getAsBoolean(int resID) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        return super.getAsBoolean(key);
+    public final Boolean getAsBoolean(String column) {
+        int value = getAsInt(column, 0);
+        return value == 1;
     }
 
-    @Deprecated
-    public final byte[] getAsByteArray(int resID) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        return super.getAsByteArray(key);
+    public final byte[] getAsByteArray(String column) {
+        return currentContent.getAsByteArray(column);
     }
 
     /**
-     * Liest das Datum aus dem Geschaeftsobjekt und liefert es als Date zurueck. Siehe {@link
-     * AWApplicationGeschaeftsObjekt#getAsDate(String)}
-     */
-    @Deprecated
-    public Date getAsDate(int resID) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        return super.getAsDate(key);
-    }
-
-    /**
-     * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als Integer.
+     * Konvertiert ein Datum zurueck.
      *
-     * @param resID
-     *         resID der Spalte
+     * @param datum
+     *         Datum im SQLite-Format
      *
-     * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
+     * @return Date-Objekt oder null
      */
-    @Deprecated
-    public final Integer getAsInt(int resID) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        return super.getAsInt(key);
+    public final Date getAsDate(String datum) {
+        try {
+            return new java.sql.Date(
+                    AWDBConvert.mSqliteDateFormat.parse(getAsString(datum)).getTime());
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     /**
      * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als Integer.
      *
-     * @param resID
+     * @param column
      *         resID der Spalte
      *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
-    @Deprecated
-    public final int getAsInt(int resID, int defaultValue) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        return super.getAsInt(key, defaultValue);
+    public final Integer getAsInt(String column) {
+        return currentContent.getAsInteger(column);
+    }
+
+    /**
+     * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als Integer.
+     *
+     * @param column
+     *         resID der Spalte
+     *
+     * @return Den aktuellen Wert der Spalte oder default, wenn nicht vorhanden
+     */
+    public final int getAsInt(String column, int defaultValue) {
+        Integer value = currentContent.getAsInteger(column);
+        if (value == null) {
+            value = defaultValue;
+        }
+        return value;
     }
 
     /**
      * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als Long.
      *
-     * @param resID
+     * @param column
      *         resID der Spalte
      *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
-    @Deprecated
-    public final Long getAsLong(int resID) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        return super.getAsLong(key);
+    public final Long getAsLong(String column) {
+        return currentContent.getAsLong(column);
     }
 
     /**
-     * Wie {@link AWApplicationGeschaeftsObjekt#getAsLong(int)}, liefert aber den Defaultwert
+     * Wie {@link AWApplicationGeschaeftsObjekt#getAsLong(String)}, liefert aber den Defaultwert
      * zuruck, wenn die Spalte nicht belegt iist.
      */
-    @Deprecated
-    public final long getAsLong(int resID, long defaultWert) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        return super.getAsLong(key, defaultWert);
+    public final long getAsLong(String column, long defaultWert) {
+        Long value = getAsLong(column);
+        if (value == null) {
+            return defaultWert;
+        }
+        return value;
     }
 
     /**
      * Liefert den aktuellsten Wert aus dem Geschaeftsobjekt zu Spalte resID als String.
      *
-     * @param resID
+     * @param column
      *         resID der Spalte
      *
      * @return Den aktuellen Wert der Spalte oder null, wenn nicht vorhanden
      */
-    @Deprecated
-    public final String getAsString(int resID) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        return super.getAsString(key);
+    public final String getAsString(String column) {
+        return currentContent.getAsString(column);
+    }
+
+    /**
+     * @return Liefert eine Kopie der akteullen  Werte zurueck.
+     */
+    public final ContentValues getContent() {
+        return new ContentValues(currentContent);
+    }
+
+    protected AWAbstractDBDefinition getDBDefinition() {
+        return tbd;
+    }
+
+    /**
+     * @return ID des Geschaeftsvorfalls
+     */
+    public long getID() {
+        if (id == null) {
+            throw new IllegalStateException("ID ist Null. Vorher insert() " + "ausfuehren");
+        }
+        return id;
+    }
+
+    /**
+     * @return ID als Integer
+     */
+    public final Integer getIDAsInt() {
+        if (id == null) {
+            throw new IllegalStateException("ID ist Null. Vorher insert() " + "ausfuehren");
+        }
+        return id.intValue();
+    }
+
+    protected long insert(AbstractDBHelper db) {
+        if (isInserted()) {
+            throw new IllegalStateException(
+                    "AWApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
+        }
+        id = db.insert(tbd, null, currentContent);
+        if (id != -1) {
+            currentContent.put(_id, id);
+            selectionArgs = new String[]{id.toString()};
+            isDirty = false;
+        } else {
+            AWApplication.Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME +
+                    " fehlgeschlagen! Werte: " + currentContent.toString());
+        }
+        return id;
+    }
+
+    /**
+     * @return true, wenn Aenderungen vorgenomen wurden.
+     */
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    /**
+     * Check, ob das Geschaeftsobjekt schon in die DB eingefuegt wurde
+     *
+     * @return true, wenn bereits eingefuegt.
+     */
+    public final boolean isInserted() {
+        return id != null;
+    }
+
+    public final boolean isNull(String column) {
+        return currentContent.get(column) == null;
     }
 
     /**
@@ -195,21 +394,76 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      * catname belegt, wird geprueft, ob catID bereits belegt ist. Wenn nicht, wird wird diese dort
      * auch belegt.
      *
-     * @param resID
+     * @param column
      *         ResID der Spalte, die eingefuegt werden soll.
      * @param value
      *         Wert, der eingefuegt werden soll. Wert wird als String eingefuegt. Ist der Wert
      *         bereits identisch vorhanden (DB oder als geaenderter Wert), wird nichts eingefuegt.
      *         Ist value == null oder ein leerer String, wird ein ggfs. geaenderter Wert in der
      *         Spalte und nach Update dann auch aus der DB entfernt.
-     *
-     * @throws IllegalArgumentException
-     *         wenn ResID nicht in der Tabelle vorhanden ist
      */
-    @Deprecated
-    public void put(int resID, String value) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        super.put(key, value);
+    @CallSuper
+    public void put(String column, boolean value) {
+        if (value) {
+            put(column, 1);
+        } else {
+            put(column, 0);
+        }
+        isDirty = true;
+    }
+
+    @CallSuper
+    public void put(String column, int value) {
+        currentContent.put(column, value);
+        isDirty = true;
+    }
+
+    @CallSuper
+    public void put(String column, long value) {
+        currentContent.put(column, value);
+        isDirty = true;
+    }
+
+    @CallSuper
+    public void put(String column, float value) {
+        currentContent.put(column, value);
+        isDirty = true;
+    }
+
+    @CallSuper
+    public void put(String column, double value) {
+        currentContent.put(column, value);
+        isDirty = true;
+    }
+
+    @CallSuper
+    public void put(String column, Date date) {
+        if (date != null) {
+            currentContent.put(column, AWDBConvert.convertDate2SQLiteDate(date));
+        } else {
+            currentContent.putNull(column);
+        }
+        isDirty = true;
+    }
+
+    @CallSuper
+    public void put(String column, String value) {
+        if (value != null) {
+            currentContent.put(column, value);
+        } else {
+            currentContent.putNull(column);
+        }
+        isDirty = true;
+    }
+
+    @CallSuper
+    public void put(String column, CharSequence value) {
+        if (value != null) {
+            currentContent.put(column, value.toString());
+        } else {
+            currentContent.putNull(column);
+        }
+        isDirty = true;
     }
 
     /**
@@ -218,7 +472,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      * catname belegt, wird geprueft, ob catID bereits belegt ist. Wenn nicht, wird wird diese dort
      * auch belegt.
      *
-     * @param resID
+     * @param column
      *         ResID der Spalte, die eingefuegt werden soll.
      * @param value
      *         BlobWert, der eingefuegt werden soll.
@@ -226,51 +480,89 @@ public abstract class AWApplicationGeschaeftsObjekt extends AWApplicationGeschae
      * @throws IllegalArgumentException
      *         wenn ResID nicht in der Tabelle vorhanden ist
      */
-    @Deprecated
-    public void put(int resID, byte[] value) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        super.put(key, value);
+    @CallSuper
+    public void put(String column, byte[] value) {
+        if (value == null) {
+            currentContent.putNull(column);
+        } else {
+            currentContent.put(column, value);
+        }
+        isDirty = true;
     }
 
-    @Deprecated
-    public void put(int resID, int value) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        super.put(key, value);
+    @CallSuper
+    public final void putNull(String column) {
+        currentContent.putNull(column);
     }
 
-    @Deprecated
-    public void put(int resID, CharSequence value) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        super.put(key, value);
+    /**
+     * @param column
+     *         ResID der Spalte, die entfernt werden soll.
+     *
+     * @throws UnsupportedOperationException
+     *         wennn _id entfernt werden soll.
+     */
+    @CallSuper
+    public void remove(String column) {
+        if (_id.equals(column)) {
+            throw new UnsupportedOperationException("ID entfernen nur mit delete()!");
+        }
+        currentContent.remove(column);
+        isDirty = true;
     }
 
-    @Deprecated
-    public void put(int resID, Date value) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        super.put(key, value);
+    /**
+     * Lesbare Informationen zum Geschaeftvorfall
+     *
+     * @see Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        if (id != null) {
+            sb.append(", ID: ").append(getID());
+        } else {
+            sb.append(", Noch nicht eingefuegt");
+        }
+        sb.append(linefeed).append("Werte: ").append(currentContent.toString());
+        return sb.toString();
     }
 
-    @Deprecated
-    public void put(int resID, long value) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        super.put(key, value);
+    protected int update(AbstractDBHelper db) {
+        int result = 0;
+        if (id == null) {
+            throw new IllegalStateException(
+                    "AWApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
+        }
+        if (isDirty) {
+            currentContent.put(_id, getID());
+            selectionArgs = new String[]{id.toString()};
+            result = db.update(tbd.getUri(), currentContent, selection, selectionArgs);
+            if (result != 1) {
+                throw new IllegalStateException(
+                        "Fehler beim Update. Satz nicht gefunden mit RowID " + id);
+            }
+            isDirty = false;
+        }
+        return result;
     }
 
-    @Deprecated
-    public void put(int resID, boolean value) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        super.put(key, value);
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(this.tbd, flags);
+        dest.writeValue(this.id);
+        dest.writeStringArray(this.selectionArgs);
+        dest.writeParcelable(this.currentContent, flags);
+        dest.writeByte(this.isDirty ? (byte) 1 : (byte) 0);
     }
 
-    @Deprecated
-    public void putNull(int resID) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        super.putNull(key);
-    }
+    public static class LineNotFoundException extends RuntimeException {
+        /**
+         *
+         */
+        private static final long serialVersionUID = -3204185849776637352L;
 
-    @Deprecated
-    public void remove(int resID) {
-        String key = AbstractDBHelper.mapResID2ColumnName.get(resID);
-        super.remove(key);
+        public LineNotFoundException(String detailMessage) {
+            super(detailMessage);
+        }
     }
 }

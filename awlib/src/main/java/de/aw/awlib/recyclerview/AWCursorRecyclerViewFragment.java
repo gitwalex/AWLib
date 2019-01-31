@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.recyclerview;
 
 import android.database.Cursor;
@@ -40,7 +39,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
     protected int indexColumn;
     private AWCursorAdapter mAdapter;
     private int[] viewResIDs;
-    private int[] fromResIDs;
 
     @Override
     protected final AWCursorAdapter createBaseAdapter() {
@@ -114,10 +112,7 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
         for (int viewPosition = 0; viewPosition < viewResIDs.length; viewPosition++) {
             int resID = viewResIDs[viewPosition];
             View view = holder.itemView.findViewById(resID);
-            if (!onBindView(holder, view, resID, cursor, viewPosition) && fromResIDs != null &&
-                    viewPosition < fromResIDs.length) {
-                throw new IllegalStateException("OnBindViewHolder nicht implementiert!");
-            }
+            onBindView(holder, view, resID, cursor, viewPosition);
         }
     }
 
@@ -125,7 +120,6 @@ public abstract class AWCursorRecyclerViewFragment extends AWBaseRecyclerViewFra
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewResIDs = args.getIntArray(VIEWRESIDS);
-        fromResIDs = args.getIntArray(FROMRESIDS);
     }
 
     @Override

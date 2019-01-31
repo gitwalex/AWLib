@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.database;
 
 import android.content.Context;
@@ -30,13 +29,11 @@ import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.fragments.AWFragment;
 
 import static de.aw.awlib.activities.AWInterface.DBDEFINITION;
-import static de.aw.awlib.activities.AWInterface.FROMRESIDS;
 import static de.aw.awlib.activities.AWInterface.GROUPBY;
 import static de.aw.awlib.activities.AWInterface.ORDERBY;
 import static de.aw.awlib.activities.AWInterface.PROJECTION;
 import static de.aw.awlib.activities.AWInterface.SELECTION;
 import static de.aw.awlib.activities.AWInterface.SELECTIONARGS;
-import static de.aw.awlib.application.AWApplication.LogError;
 
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
@@ -108,24 +105,12 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
         if (tbd != null) {
             Uri mUri = tbd.getUri();
             String[] projection = args.getStringArray(PROJECTION);
-            int[] fromResIDs = args.getIntArray(FROMRESIDS);
-            if (projection != null && fromResIDs != null) {
-                LogError(getClass().getSimpleName() +
-                        ": PROJECTION und FROMRESIDS sind belegt! Pruefen!");
-            }
-            if (projection == null) {
-                // Null: Also fromResIDs
-                projection = tbd.columnNames(fromResIDs);
-            }
-            if (projection == null) {
-                projection = tbd.getTableColumns();
-            }
             String selection = args.getString(SELECTION);
             String[] selectionArgs = args.getStringArray(SELECTIONARGS);
             String groupBy = args.getString(GROUPBY);
             if (groupBy != null) {
                 if (selection == null) {
-                    selection = " 1=1";
+                    selection = " 1=1 ";
                 }
                 selection = selection + " GROUP BY " + groupBy;
             }
