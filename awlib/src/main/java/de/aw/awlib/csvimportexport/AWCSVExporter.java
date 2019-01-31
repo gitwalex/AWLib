@@ -16,6 +16,7 @@
  */
 package de.aw.awlib.csvimportexport;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -39,7 +40,6 @@ import de.aw.awlib.AWResultCodes;
 import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
-import de.aw.awlib.database.AbstractDBHelper;
 
 import static de.aw.awlib.AWResultCodes.RESULT_OK;
 
@@ -61,16 +61,14 @@ public class AWCSVExporter {
     }
 
     private final ExportCursorListener mExportCursorListener;
-    private final AbstractDBHelper mDBHelper;
+    private final AWApplication mContext;
     private String fullFilename;
     private String mApplicationExportPath;
 
-    public AWCSVExporter(@NonNull AbstractDBHelper abstractDBHelper,
-                         @NonNull ExportCursorListener listener) {
+    public AWCSVExporter(@NonNull Context context, @NonNull ExportCursorListener listener) {
         mExportCursorListener = listener;
-        mApplicationExportPath =
-                abstractDBHelper.getApplicationContext().getApplicationExportPath();
-        mDBHelper = abstractDBHelper;
+        mContext = (AWApplication) context.getApplicationContext();
+        mApplicationExportPath = mContext.getApplicationExportPath();
     }
 
     /**
@@ -98,7 +96,7 @@ public class AWCSVExporter {
             selection += " GROUP BY " + groupBy;
         }
         String[] projection = tbd.getTableColumns();
-        Cursor c = mDBHelper.getContentResolver()
+        Cursor c = mContext.getContentResolver()
                 .query(tbd.getUri(), projection, selection, selectionArgs, null);
         doExport(tbd, c);
     }

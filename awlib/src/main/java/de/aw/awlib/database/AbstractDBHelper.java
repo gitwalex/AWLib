@@ -29,7 +29,6 @@ import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -48,10 +47,6 @@ import static de.aw.awlib.application.AWApplication.LogError;
 @SuppressWarnings({"WeakerAccess", "TryFinallyCanBeTryWithResources", "unused"})
 public abstract class AbstractDBHelper extends SQLiteOpenHelper
         implements AWInterface, TableColumns {
-    /**
-     * Map der ResIDs auf das Format der Spalte
-     */
-    private final WeakReference<AWApplication> mApplicationContext;
     private final ContentResolver mContentresolver;
     private final Resources mResources;
     /**
@@ -64,7 +59,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
         super(context, ((AWApplication) context.getApplicationContext()).theDatenbankname(),
                 cursorFactory,
                 ((AWApplication) context.getApplicationContext()).theDatenbankVersion());
-        mApplicationContext = new WeakReference<>((AWApplication) context.getApplicationContext());
         mContentresolver = context.getContentResolver();
         mResources = context.getResources();
     }
@@ -201,10 +195,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      * @return AWAbstractDBDefinition als Array
      */
     public abstract AWAbstractDBDefinition[] getAllDBDefinition();
-
-    public AWApplication getApplicationContext() {
-        return mApplicationContext.get();
-    }
 
     public final Resources getApplicationResources() {
         return mResources;
