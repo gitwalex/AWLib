@@ -1,7 +1,5 @@
-package de.aw.awlib.database;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.database;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.database;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -40,21 +40,18 @@ import static de.aw.awlib.application.AWApplication.LogError;
 
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
- * LAYOUT: Layout des Fragments
- * AWAbstractDBDefinition: AWAbstractDBDefinition des Fragments
- * VIEWRESIDS: VIEWRESIDS des Fragments FROMRESIDs: FROMRESIDs des Fragments
- * Ausserdem folgende optionale Argumente:
- * PROJECTION: Welche Spalten als Ergebnis erwartet werden. Ist diese nicht vorhanden, werden die
- * Spalten gemaess FROMRESIDs  geliefert
- * SELECTION: Selection fuer Cursor
- * SELECTIONARGS: Argumente fuer Selection
- * GROUPBY: GroupBy-Clause fuer Cursor
- * ORDERBY: OrderBy-Clause fuer Cursor. Ist diese nicht belegt, wird die OrderBy-Clause der
- * Tabellendefinition verwendet.
- * Beim Start des Loader wird in der ActionBar die ProgressBar-Indeterminate-Visibility auf true
- * gesetzt. Nach dem Laden wird diese wieder abgeschaltet. Daher ist zwingend beim Ueberschreiben
- * von {@link AWLoaderManagerEngine#onCreateLoader(int, Bundle)} sowie {@link
- * AWLoaderManagerEngine#onLoadFinished(Loader, Cursor)} super(...) zu rufen! }
+ * LAYOUT: Layout des Fragments AWAbstractDBDefinition: AWAbstractDBDefinition des Fragments
+ * VIEWRESIDS: VIEWRESIDS des Fragments FROMRESIDs: FROMRESIDs des Fragments Ausserdem folgende
+ * optionale Argumente: PROJECTION: Welche Spalten als Ergebnis erwartet werden. Ist diese nicht
+ * vorhanden, werden die Spalten gemaess FROMRESIDs  geliefert SELECTION: Selection fuer Cursor
+ * SELECTIONARGS: Argumente fuer Selection GROUPBY: GroupBy-Clause fuer Cursor ORDERBY:
+ * OrderBy-Clause fuer Cursor. Ist diese nicht belegt, wird die OrderBy-Clause der
+ * Tabellendefinition verwendet. Beim Start des Loader wird in der ActionBar die
+ * ProgressBar-Indeterminate-Visibility auf true gesetzt. Nach dem Laden wird diese wieder
+ * abgeschaltet. Daher ist zwingend beim Ueberschreiben von
+ * {@link AWLoaderManagerEngine#onCreateLoader(int,
+ * Bundle)} sowie {@link AWLoaderManagerEngine#onLoadFinished(Loader, Cursor)} super(...) zu rufen!
+ * }
  */
 public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Cursor> {
     private final Callback mCallback;
@@ -94,11 +91,11 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
      * <p/>
      * args.getStringArray(PROJECTION): Columns, die ermittelt werden sollen. Ist das Feld nicht
      * belegt, werden die Spalten gemaess args.getIntArray(FROMRESIDS) geholt.
-     * args.getString(SELECTION): Where-Clause
-     * args.getStringArray(SELECTIONARGS): Argumente fuer SELECTION
-     * args.getString(GROUPBY): GroupBy-Clause
-     * args.getString(ORDERBY): OrderBy-Clause. Ist dies nicht belegt, wird der Cursor gemaess
-     * {@link AbstractDBHelper#getOrderString(AWAbstractDBDefinition)} sortiert.
+     * args.getString(SELECTION): Where-Clause args.getStringArray(SELECTIONARGS): Argumente fuer
+     * SELECTION args.getString(GROUPBY): GroupBy-Clause args.getString(ORDERBY): OrderBy-Clause.
+     * Ist dies nicht belegt, wird der Cursor gemaess
+     * {@link AbstractDBHelper#getOrderString(AWAbstractDBDefinition)}
+     * sortiert.
      *
      * @throws NullPointerException
      *         wenn weder PROJECTION noch FROMRESIDS belegt sind
@@ -121,7 +118,7 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
                 projection = tbd.columnNames(fromResIDs);
             }
             if (projection == null) {
-                projection = tbd.columnNames(tbd.getTableItems());
+                projection = tbd.getTableColumns();
             }
             String selection = args.getString(SELECTION);
             String[] selectionArgs = args.getStringArray(SELECTIONARGS);

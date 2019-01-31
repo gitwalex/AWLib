@@ -32,7 +32,6 @@ import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -96,20 +95,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
         }
     }
 
-    /**
-     * Liefert zu einer resID ein MAX(resID) zurueck.
-     *
-     * @param resID
-     *         resID des Items
-     *
-     * @return Select Max im Format MAX(itemname) AS itemname
-     */
-    @Deprecated
-    public static String SQLMaxItem(int resID) {
-        String spalte = columnName(resID);
-        return SQLMaxItem(spalte);
-    }
-
     public static String SQLMaxItem(String column) {
         return "max(" + column + ") AS " + column;
     }
@@ -134,26 +119,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
      */
     public static String columnName(int resID) {
         return mapResID2ColumnName.get(resID);
-    }
-
-    /**
-     * Erstellt eine projection ahnhand von ResIDs und weiteren Spaltennamen
-     *
-     * @param resIDs
-     *         ResIDs, die in der prjection gewuenscht sind
-     * @param args
-     *         Spaltenbezeichungen als String[]
-     *
-     * @return projection
-     */
-    public static String[] columnNames(int[] resIDs, String... args) {
-        // Estmal alle columns der resIDs uebernehmen
-        ArrayList<String> names = new ArrayList<>(Arrays.asList(columnNames(resIDs)));
-        // Jetzt alle String uebernehmen
-        names.addAll(Arrays.asList(args));
-        // Und anschliessend "_id" hinten anhaengen
-        names.add(columnName(R.string._id));
-        return names.toArray(new String[names.size()]);
     }
 
     /**
@@ -239,23 +204,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
         StringBuilder indexSQL = new StringBuilder(columns[0]);
         for (int j = 1; j < columns.length; j++) {
             String column = columns[j];
-            indexSQL.append(", ").append(column);
-        }
-        return indexSQL.toString();
-    }
-
-    /**
-     * Liefert zu einem int-Array die entsprechenden ColumnNamen getrennt durch Kommata zurueck
-     *
-     * @param tableindex
-     *         Array, zu dem die Namen ermittelt werden sollen
-     *
-     * @return ColumnNamen, Komma getrennt
-     */
-    public static String getCommaSeperatedList(@NonNull int[] tableindex) {
-        StringBuilder indexSQL = new StringBuilder(columnName(tableindex[0]));
-        for (int j = 1; j < tableindex.length; j++) {
-            String column = columnName(tableindex[j]);
             indexSQL.append(", ").append(column);
         }
         return indexSQL.toString();

@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.gv;
 
 import android.content.ContentValues;
@@ -113,6 +112,7 @@ public class AWRemoteFileServer implements Parcelable {
      *
      * @param id
      *         id des Objektes
+     *
      * @throws AWApplicationGeschaeftsObjektNew.LineNotFoundException
      *         wenn keine Zeile gefunden wurde.
      */
@@ -120,8 +120,7 @@ public class AWRemoteFileServer implements Parcelable {
             throws AWApplicationGeschaeftsObjektNew.LineNotFoundException {
         mSelectionArgs = new String[]{id.toString()};
         Cursor c = context.getContentResolver()
-                          .query(tbd.getUri(), tbd.columnNames(tbd.getTableItems()), mSelection,
-                                  mSelectionArgs, null);
+                .query(tbd.getUri(), tbd.getTableColumns(), mSelection, mSelectionArgs, null);
         try {
             if (c.moveToFirst()) {
                 currentContent.clear();

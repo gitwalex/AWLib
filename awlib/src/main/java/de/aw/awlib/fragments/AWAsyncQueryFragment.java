@@ -1,7 +1,5 @@
-package de.aw.awlib.fragments;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -17,6 +15,8 @@ package de.aw.awlib.fragments;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+package de.aw.awlib.fragments;
+
 import android.content.AsyncQueryHandler;
 import android.database.Cursor;
 import android.net.Uri;
@@ -28,15 +28,15 @@ import de.aw.awlib.database.AWAbstractDBDefinition;
 /**
  * LoaderFragment. Laedt mittels LoaderManager einen Cursor. Es werden folgende Argumente erwartet:
  * <p>LAYOUT: Layout des Fragments</p> <p>DBDEFINITION: DBDefinition des Fragments</p>
- * <p>VIEWRESIDS: VIEWRESIDS des Fragments</p> <p>FROMRESIDs: FROMRESIDs des Fragments</p> Ausserdem
- * folgende optionale Argumente: <p>PROJECTION: Welche Spalten als Ergebnis erwartet werden. Ist
- * diese nicht vorhanden, werden alle Spalten der Tabelle geliefert</p> <p>SELECTION: Selection fuer
- * Cursor</p> <p>SELECTIONARGS: Argumente fuer Selection </p> <p>GROUPBY: GroupBy-Clause fuer
- * Cursor</p> <p>ORDERBY: OrderBy-Clause fuer Cursor. Ist diese nicht belegt, wird die
- * OrderBy-Clause der Tabellendefinition verwendet. <p> Beim Start des Loader wird in der ActionBar
- * die ProgressBar-Indeterminate-Visibility auf true gesetzt. Nach dem Laden wird diese wieder
- * abgeschaltet. Daher ist zwingend beim Ueberschreiben von {@link AWAsyncQueryFragment#onQueryComplete(int,
- * Object, Cursor)} super(...) zu rufen! }</p>
+ * <p>VIEWRESIDS: VIEWRESIDS des Fragments</p> <p>FROMRESIDs: FROMRESIDs des Fragments</p>
+ * Ausserdem folgende optionale Argumente: <p>PROJECTION: Welche Spalten als Ergebnis erwartet
+ * werden. Ist diese nicht vorhanden, werden alle Spalten der Tabelle geliefert</p> <p>SELECTION:
+ * Selection fuer Cursor</p> <p>SELECTIONARGS: Argumente fuer Selection </p> <p>GROUPBY:
+ * GroupBy-Clause fuer Cursor</p> <p>ORDERBY: OrderBy-Clause fuer Cursor. Ist diese nicht belegt,
+ * wird die OrderBy-Clause der Tabellendefinition verwendet. <p> Beim Start des Loader wird in der
+ * ActionBar die ProgressBar-Indeterminate-Visibility auf true gesetzt. Nach dem Laden wird diese
+ * wieder abgeschaltet. Daher ist zwingend beim Ueberschreiben von {@link
+ * AWAsyncQueryFragment#onQueryComplete(int, Object, Cursor)} super(...) zu rufen! }</p>
  */
 public abstract class AWAsyncQueryFragment extends AWFragment {
     protected QueryHandler mQueryHelper;
@@ -70,11 +70,8 @@ public abstract class AWAsyncQueryFragment extends AWFragment {
         }
 
         public void startQuery(int token, Bundle args) {
-            String[] mProjection;
             AWAbstractDBDefinition tbd = args.getParcelable(DBDEFINITION);
-            if ((mProjection = args.getStringArray(PROJECTION)) == null) {
-                mProjection = tbd.columnNames(args.getIntArray(FROMRESIDS));
-            }
+            String[] mProjection = args.getStringArray(PROJECTION);
             String mSelection = args.getString(SELECTION);
             String[] mSelectionArgs = args.getStringArray(SELECTIONARGS);
             String mGroupBy = args.getString(GROUPBY);

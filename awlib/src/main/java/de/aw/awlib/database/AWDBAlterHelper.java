@@ -141,7 +141,7 @@ public final class AWDBAlterHelper implements TableColumns {
         String tempTableName = "temp" + tbd.name();
         String createTempTable =
                 "CREATE TABLE " + tempTableName + "(" + tbd.getCreateViewSQL() + ")";
-        String oldColumnNames = AbstractDBHelper.getCommaSeperatedList(tbd.getTableItems());
+        String oldColumnNames = AbstractDBHelper.getCommaSeperatedList(tbd.getTableColumns());
         String copyValuesSQL =
                 "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
                         oldColumnNames + " FROM " + tbd.name() + " GROUP BY " + distinctColumn;
@@ -218,7 +218,7 @@ public final class AWDBAlterHelper implements TableColumns {
     private boolean checkView(AWAbstractDBDefinition tbd) {
         ContentValues cv = new ContentValues();
         List<String> fehler = new ArrayList<>();
-        String[] projection = tbd.columnNames(tbd.getTableItems());
+        String[] projection = tbd.getTableColumns();
         Cursor c = database.query(tbd.name(), projection, null, null, null, null, null);
         try {
             for (String column : c.getColumnNames()) {
