@@ -33,8 +33,6 @@ public interface AWAbstractDBDefinition extends Parcelable {
 
     String[] getTableColumns();
 
-    int[] getTableItems();
-
     Uri getUri();
 
     /**

@@ -34,7 +34,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.application.AWApplication;
 
@@ -600,16 +599,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
         AndroidCalendar() {
             public Uri mUri;
 
-            /**
-             *
-             * @return nur _id als Table-Item
-             */
-            @Override
-            public int[] getTableItems() {
-                return new int[]{R.string._id//
-                };
-            }
-
             @Override
             public String[] getTableColumns() {
                 return new String[]{_id};
@@ -641,16 +630,6 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
                         + column_connectionType + " + TEXT, "//
                         + column_maindirectory + " +  TEXT" //
                         + ")";
-            }
-
-            @Override
-            public int[] getTableItems() {
-                return new int[]{R.string._id//
-                        , R.string.column_serverurl//
-                        , R.string.column_userID//
-                        , R.string.column_connectionType//
-                        , R.string.column_maindirectory//
-                };
             }
 
             @Override
