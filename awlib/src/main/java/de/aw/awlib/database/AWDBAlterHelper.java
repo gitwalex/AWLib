@@ -208,6 +208,20 @@ public final class AWDBAlterHelper implements TableColumns {
         }
     }
 
+    public void alterWPUMsatz(AWAbstractDBDefinition tbd) {
+        String tempTableName = "temp" + tbd.name();
+        String createTempTable =
+                "CREATE TABLE " + tempTableName + "( " + tbd.getCreateViewSQL() + ")";
+        String oldColumnNames = AbstractDBHelper.getCommaSeperatedList(tbd.getTableColumns());
+        String copyValuesSQL =
+                "INSERT INTO temp" + tbd.name() + " (" + oldColumnNames + ") SELECT " +
+                        oldColumnNames + " FROM " + tbd.name();
+        database.execSQL(createTempTable);
+        database.execSQL(copyValuesSQL);
+        dropTable(tbd.name());
+        renameTable(tempTableName, tbd.name());
+    }
+
     /**
      * Versorgt die Statistiktabellen
      */
@@ -217,6 +231,7 @@ public final class AWDBAlterHelper implements TableColumns {
 
     private boolean checkView(AWAbstractDBDefinition tbd) {
         ContentValues cv = new ContentValues();
+        AWApplication.Log("View wird ueberprueft: " + tbd.name());
         List<String> fehler = new ArrayList<>();
         String[] projection = tbd.getTableColumns();
         Cursor c = database.query(tbd.name(), projection, null, null, null, null, null);

@@ -201,7 +201,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
                     currentContent.put(c.getColumnName(i), c.getFloat(i));
                     break;
                 case Cursor.FIELD_TYPE_INTEGER:
-                    currentContent.put(c.getColumnName(i), c.getInt(i));
+                    currentContent.put(c.getColumnName(i), c.getLong(i));
                     break;
                 case Cursor.FIELD_TYPE_STRING:
                     currentContent.put(c.getColumnName(i), c.getString(i));
