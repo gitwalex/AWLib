@@ -14,13 +14,11 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.database;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
@@ -102,15 +100,12 @@ public class AWContentProvider extends ContentProvider implements AWInterface {
         return true;
     }
 
-
     @Override
     public Cursor query(@NonNull Uri uri, String[] from, String selection, String[] selectionArgs,
                         String sortOrder) {
         db = getDBHelper();
-        SQLiteDatabase database = db.getReadableDatabase();
         String table = uri.getLastPathSegment();
-        Cursor c = database.query(table + " t1", from, selection, selectionArgs, null, null,
-                sortOrder);
+        Cursor c = db.query(table + " t1", from, selection, selectionArgs, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }

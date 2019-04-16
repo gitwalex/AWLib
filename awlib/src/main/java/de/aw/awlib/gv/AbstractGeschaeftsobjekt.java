@@ -21,7 +21,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.databinding.BaseObservable;
 import android.os.Parcel;
-import android.support.annotation.CallSuper;
+import android.os.Parcelable;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -31,7 +31,8 @@ import de.aw.awlib.application.AWApplication;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
-import de.aw.awlib.database.TableColumns;
+
+import static de.aw.awlib.database.TableColumns._id;
 
 /**
  * MonMa AWApplicationGeschaeftsObjekt Vorlage fuer die Geschaeftsvorfaelle, z.B. Bankkonto-Buchung,
@@ -46,27 +47,21 @@ import de.aw.awlib.database.TableColumns;
  *
  * @author alex
  */
-public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
-        implements AWInterface, TableColumns {
-    private final String CLASSNAME = this.getClass().getSimpleName();
+public abstract class AbstractGeschaeftsobjekt extends BaseObservable
+        implements Cloneable, Parcelable {
     /**
      * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
      * belegt.
      */
     private final AWAbstractDBDefinition tbd;
+    private final String selection = _id + " = ?";
     /**
      * Abbild der jeweiligen Zeile der Datenbank. Werden nicht direkt geaendert.
      */
     private final ContentValues currentContent = new ContentValues();
-    protected String selection = _id + " = ?";
-    protected String[] selectionArgs;
-    /**
-     * ID des AWApplicationGeschaeftsObjekt
-     */
-    protected Long id;
     private boolean isDirty;
 
-    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd, Cursor c) {
+    public AbstractGeschaeftsobjekt(AWAbstractDBDefinition tbd, Cursor c) {
         this(tbd);
         fillContent(c);
     }
@@ -77,32 +72,46 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      * @param tbd
      *         AWAbstractDBDefinition
      */
-    public AWApplicationGeschaeftsObjekt(AWAbstractDBDefinition tbd) {
+    public AbstractGeschaeftsobjekt(AWAbstractDBDefinition tbd) {
         this.tbd = tbd;
     }
 
-    public AWApplicationGeschaeftsObjekt(ContentResolver cr, AWAbstractDBDefinition tbd, long id) {
+    public AbstractGeschaeftsobjekt(AbstractDBHelper db, AWAbstractDBDefinition tbd, long id) {
         this(tbd);
-        selectionArgs = new String[]{String.valueOf(id)};
+        String[] selectionArgs = new String[]{String.valueOf(id)};
         String[] projection = tbd.getTableColumns();
         String orderby = tbd.getOrderString();
         Cursor c = null;
         try {
-            c = cr.query(tbd.getUri(), projection, selection, selectionArgs, orderby);
+            c = db.query(tbd.name(), projection, selection, selectionArgs, orderby);
             fillContent(c);
         } finally {
-            c.close();
+            if (c != null) {
+                c.close();
+            }
         }
     }
 
-    protected AWApplicationGeschaeftsObjekt(Parcel in) {
-        this((AWAbstractDBDefinition) in
-                .readParcelable(AWAbstractDBDefinition.class.getClassLoader()));
-        this.id = (Long) in.readValue(Long.class.getClassLoader());
-        this.selectionArgs = in.createStringArray();
+    public AbstractGeschaeftsobjekt(ContentResolver cr, AWAbstractDBDefinition tbd, long id) {
+        this(tbd);
+        String[] selectionArgs = new String[]{String.valueOf(id)};
+        String[] projection = tbd.getTableColumns();
+        String orderby = tbd.getOrderString();
+        Cursor c = getCursor(cr, tbd, projection, selection, selectionArgs, orderby);
+        fillContent(c);
+    }
+
+    protected AbstractGeschaeftsobjekt(Parcel in) {
+        this.tbd = in.readParcelable(AWAbstractDBDefinition.class.getClassLoader());
         ContentValues cv = in.readParcelable(ContentValues.class.getClassLoader());
         currentContent.putAll(cv);
         this.isDirty = in.readByte() != 0;
+    }
+
+    public static Cursor getCursor(ContentResolver cr, AWAbstractDBDefinition tbd,
+                                   String[] projection, String selection, String[] selectionArgs,
+                                   String sortOrder) {
+        return cr.query(tbd.getUri(), projection, selection, selectionArgs, sortOrder, null);
     }
 
     /**
@@ -113,8 +122,21 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @return true, wenn vorhanden. Sonst false
      */
-    public boolean IsNull(String column) {
-        return currentContent.containsKey(column);
+    public final boolean IsNull(String column) {
+        return currentContent.get(column) == null;
+    }
+
+    @Override
+    protected Object clone() {
+        try {
+            AbstractGeschaeftsobjekt gv = (AbstractGeschaeftsobjekt) super.clone();
+            gv.isDirty = isDirty;
+            gv.currentContent.putAll(currentContent);
+            return gv;
+        } catch (CloneNotSupportedException e) {
+            // Kann nicht passieren. Wir sind clonable
+            return null;
+        }
     }
 
     /**
@@ -130,21 +152,18 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
     }
 
     protected int delete(AbstractDBHelper db) {
-        if (id == null) {
-            AWApplication.Log("AWApplicationGeschaeftsObjekt noch nicht angelegt! Delete nicht " +
-                    "moeglich");
-            return -1;
-        }
-        int result;
-        result = db.delete(tbd, selection, selectionArgs);
-        if (result != 0) {
-            currentContent.putNull(_id);
-            id = null;
-            isDirty = false;
+        int result = -1;
+        try {
+            String[] selectionArgs = new String[]{String.valueOf(getID())};
+            result = db.delete(tbd, selection, selectionArgs);
+            isDirty = result != 0;
+        } catch (NullPointerException e) {
+            throw new IllegalStateException("Datensatz noch nicht eingefuegt. Kann nicht loeschen");
         }
         return result;
     }
 
+    @Override
     public int describeContents() {
         return 0;
     }
@@ -165,7 +184,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AWApplicationGeschaeftsObjekt that = (AWApplicationGeschaeftsObjekt) o;
+        AbstractGeschaeftsobjekt that = (AbstractGeschaeftsobjekt) o;
         return tbd == that.tbd && currentContent.equals(that.currentContent);
     }
 
@@ -179,42 +198,42 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *         Cursor
      */
     public final void fillContent(Cursor c) throws LineNotFoundException {
-        if (c.isBeforeFirst()) {
-            if (!c.moveToFirst()) {
-                throw new LineNotFoundException("Cursor ist leer!");
-            }
+        if (c.isBeforeFirst() && !c.moveToFirst()) {
+            throw new LineNotFoundException("Cursor ist leer!");
         }
         currentContent.clear();
         for (int i = 0; i < c.getColumnCount(); i++) {
-            int type = c.getType(i);
-            switch (type) {
-                case Cursor.FIELD_TYPE_BLOB:
-                    byte[] blob = c.getBlob(i);
-                    currentContent.put(c.getColumnName(i), blob);
-                    break;
-                case Cursor.FIELD_TYPE_FLOAT:
-                    currentContent.put(c.getColumnName(i), c.getFloat(i));
-                    break;
-                case Cursor.FIELD_TYPE_INTEGER:
-                    currentContent.put(c.getColumnName(i), c.getLong(i));
-                    break;
-                case Cursor.FIELD_TYPE_STRING:
-                    currentContent.put(c.getColumnName(i), c.getString(i));
-                    break;
-                case Cursor.FIELD_TYPE_NULL:
-                    putNull(c.getColumnName(i));
-                    break;
-                default:
-                    String value = c.getString(i);
-                    if (value != null) {
-                        currentContent.put(c.getColumnName(i), c.getString(i));
-                    }
+            String colName = c.getColumnName(i);
+            if (c.isNull(i)) {
+                currentContent.putNull(colName);
+            } else {
+                int type = c.getType(i);
+                switch (type) {
+                    case Cursor.FIELD_TYPE_BLOB:
+                        byte[] blob = c.getBlob(i);
+                        currentContent.put(colName, blob);
+                        break;
+                    case Cursor.FIELD_TYPE_FLOAT:
+                        currentContent.put(colName, c.getFloat(i));
+                        break;
+                    case Cursor.FIELD_TYPE_INTEGER:
+                        currentContent.put(colName, c.getLong(i));
+                        break;
+                    case Cursor.FIELD_TYPE_STRING:
+                        currentContent.put(colName, c.getString(i));
+                        break;
+                    case Cursor.FIELD_TYPE_NULL:
+                        putNull(colName);
+                        break;
+                    default:
+                        String value = c.getString(i);
+                        if (value != null) {
+                            currentContent.put(colName, value);
+                        }
+                }
             }
+            isDirty = false;
         }
-        id = getAsLong(_id);
-        selectionArgs = new String[]{id.toString()};
-        currentContent.remove(_id);
-        isDirty = false;
     }
 
     /**
@@ -225,9 +244,8 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *
      * @return Den aktuellen Wert der Spalte (true ooder false)
      */
-    public final Boolean getAsBoolean(String column) {
-        int value = getAsInt(column, 0);
-        return value == 1;
+    public final boolean getAsBoolean(String column) {
+        return getAsInt(column, 0) != 0;
     }
 
     public final byte[] getAsByteArray(String column) {
@@ -273,10 +291,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      */
     public final int getAsInt(String column, int defaultValue) {
         Integer value = currentContent.getAsInteger(column);
-        if (value == null) {
-            value = defaultValue;
-        }
-        return value;
+        return value == null ? defaultValue : value;
     }
 
     /**
@@ -297,10 +312,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      */
     public final long getAsLong(String column, long defaultWert) {
         Long value = getAsLong(column);
-        if (value == null) {
-            return defaultWert;
-        }
-        return value;
+        return value == null ? defaultWert : value;
     }
 
     /**
@@ -330,20 +342,14 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      * @return ID des Geschaeftsvorfalls
      */
     public long getID() {
-        if (id == null) {
-            throw new IllegalStateException("ID ist Null. Vorher insert() " + "ausfuehren");
-        }
-        return id;
+        return currentContent.getAsLong(_id);
     }
 
     /**
      * @return ID als Integer
      */
     public final Integer getIDAsInt() {
-        if (id == null) {
-            throw new IllegalStateException("ID ist Null. Vorher insert() " + "ausfuehren");
-        }
-        return id.intValue();
+        return currentContent.getAsInteger(_id);
     }
 
     protected long insert(AbstractDBHelper db) {
@@ -351,13 +357,12 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
             throw new IllegalStateException(
                     "AWApplicationGeschaeftsObjekt bereits angelegt! Insert nicht moeglich");
         }
-        id = db.insert(tbd, null, currentContent);
+        long id = db.insert(tbd, null, currentContent);
         if (id != -1) {
             currentContent.put(_id, id);
-            selectionArgs = new String[]{id.toString()};
             isDirty = false;
         } else {
-            AWApplication.Log("Insert in AWApplicationGeschaeftsObjekt " + CLASSNAME +
+            AWApplication.Log("Insert in AWApplicationGeschaeftsObjekt " + getClass().getName() +
                     " fehlgeschlagen! Werte: " + currentContent.toString());
         }
         return id;
@@ -376,7 +381,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      * @return true, wenn bereits eingefuegt.
      */
     public final boolean isInserted() {
-        return id != null;
+        return currentContent.getAsLong(_id) != null;
     }
 
     public final boolean isNull(String column) {
@@ -397,42 +402,32 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      *         Ist value == null oder ein leerer String, wird ein ggfs. geaenderter Wert in der
      *         Spalte und nach Update dann auch aus der DB entfernt.
      */
-    @CallSuper
-    public void put(String column, boolean value) {
-        if (value) {
-            put(column, 1);
-        } else {
-            put(column, 0);
-        }
+    public final void put(String column, boolean value) {
+        put(column, value ? 1 : 0);
         isDirty = true;
     }
 
-    @CallSuper
-    public void put(String column, int value) {
+    public final void put(String column, int value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
-    @CallSuper
-    public void put(String column, long value) {
+    public final void put(String column, long value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
-    @CallSuper
-    public void put(String column, float value) {
+    public final void put(String column, float value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
-    @CallSuper
-    public void put(String column, double value) {
+    public final void put(String column, double value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
-    @CallSuper
-    public void put(String column, Date date) {
+    public final void put(String column, Date date) {
         if (date != null) {
             currentContent.put(column, AWDBConvert.convertDate2SQLiteDate(date));
         } else {
@@ -441,18 +436,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
         isDirty = true;
     }
 
-    @CallSuper
-    public void put(String column, String value) {
-        if (value != null) {
-            currentContent.put(column, value);
-        } else {
-            currentContent.putNull(column);
-        }
-        isDirty = true;
-    }
-
-    @CallSuper
-    public void put(String column, CharSequence value) {
+    public final void put(String column, CharSequence value) {
         if (value != null) {
             currentContent.put(column, value.toString());
         } else {
@@ -475,35 +459,17 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
      * @throws IllegalArgumentException
      *         wenn ResID nicht in der Tabelle vorhanden ist
      */
-    @CallSuper
-    public void put(String column, byte[] value) {
-        if (value == null) {
-            currentContent.putNull(column);
-        } else {
+    public final void put(String column, byte[] value) {
+        if (value != null) {
             currentContent.put(column, value);
+        } else {
+            currentContent.putNull(column);
         }
         isDirty = true;
     }
 
-    @CallSuper
     public final void putNull(String column) {
         currentContent.putNull(column);
-    }
-
-    /**
-     * @param column
-     *         ResID der Spalte, die entfernt werden soll.
-     *
-     * @throws UnsupportedOperationException
-     *         wennn _id entfernt werden soll.
-     */
-    @CallSuper
-    public void remove(String column) {
-        if (_id.equals(column)) {
-            throw new UnsupportedOperationException("ID entfernen nur mit delete()!");
-        }
-        currentContent.remove(column);
-        isDirty = true;
     }
 
     /**
@@ -514,38 +480,40 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        Long id = currentContent.getAsLong(_id);
         if (id != null) {
-            sb.append(", ID: ").append(getID());
+            sb.append(", ID: ").append(id);
         } else {
             sb.append(", Noch nicht eingefuegt");
         }
-        sb.append(linefeed).append("Werte: ").append(currentContent.toString());
+        sb.append(AWInterface.linefeed).append("Werte: ").append(currentContent.toString());
         return sb.toString();
     }
 
     protected int update(AbstractDBHelper db) {
         int result = 0;
-        if (id == null) {
-            throw new IllegalStateException(
-                    "AWApplicationGeschaeftsObjekt noch nicht angelegt! Update nicht moeglich");
-        }
         if (isDirty) {
-            currentContent.put(_id, getID());
-            selectionArgs = new String[]{id.toString()};
-            result = db.update(tbd.getUri(), currentContent, selection, selectionArgs);
-            if (result != 1) {
+            try {
+                long id = getID();
+                String[] selectionArgs = new String[]{String.valueOf(id)};
+                result = db.update(tbd, currentContent, selection, selectionArgs);
+                if (result == 1) {
+                    isDirty = false;
+                } else {
+                    throw new IllegalStateException(
+                            "Fehler beim Update. Satz nicht gefunden mit RowID " + id);
+                }
+            } catch (NullPointerException e) {
                 throw new IllegalStateException(
-                        "Fehler beim Update. Satz nicht gefunden mit RowID " + id);
+                        "Fehler beim Update. GeschaeftsObjekt noch nicht in DB");
             }
-            isDirty = false;
         }
         return result;
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(this.tbd, flags);
-        dest.writeValue(this.id);
-        dest.writeStringArray(this.selectionArgs);
         dest.writeParcelable(this.currentContent, flags);
         dest.writeByte(this.isDirty ? (byte) 1 : (byte) 0);
     }

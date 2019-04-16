@@ -410,6 +410,14 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
         return id;
     }
 
+    public Cursor query(String table, String[] projection, String selection, String[] selectionArgs,
+                        String orderby) {
+        if (db == null) {
+            db = getWritableDatabase();
+        }
+        return db.query(table, projection, selection, selectionArgs, null, null, orderby);
+    }
+
     /**
      * siehe {@link SQLiteDatabase#insertWithOnConflict(String, String, ContentValues, int)}
      */

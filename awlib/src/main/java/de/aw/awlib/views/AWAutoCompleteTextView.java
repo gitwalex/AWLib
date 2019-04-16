@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
-
 package de.aw.awlib.views;
 
 import android.content.Context;
@@ -71,6 +70,11 @@ public abstract class AWAutoCompleteTextView
     @BindingAdapter({"onTextChanged"})
     public static void onTextChanged(AWAutoCompleteTextView view, OnTextChangedListener listener) {
         view.setOnTextChangedListener(listener);
+    }
+
+    @BindingAdapter({"setID"})
+    public static void setID(AWAutoCompleteTextView view, long id) {
+        view.selectionID = id;
     }
 
     /**
