@@ -517,12 +517,12 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
         AWDBAlterHelper dbhelper = new AWDBAlterHelper(database);
         database.beginTransaction();
         try {
-            doUpgrade(database, dbhelper, oldVersion, newVersion);
             // Bei jeder Aenderung der DB werden alle Views geloescht und neu angelegt.
             List<String> views = getViewNames(database);
             for (String view : views) {
                 database.execSQL("DROP VIEW " + view);
             }
+            doUpgrade(database, dbhelper, oldVersion, newVersion);
             for (AWDBDefinition definition : AWDBDefinition.values()) {
                 if (definition.isView()) {
                     dbhelper.alterView(definition);
