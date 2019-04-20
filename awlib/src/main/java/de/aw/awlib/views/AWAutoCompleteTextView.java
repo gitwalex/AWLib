@@ -29,7 +29,6 @@ import android.widget.AdapterView;
 import android.widget.FilterQueryProvider;
 import android.widget.TextView;
 
-import de.aw.awlib.R;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.database.AWAbstractDBDefinition;
 
@@ -70,11 +69,6 @@ public abstract class AWAutoCompleteTextView
     @BindingAdapter({"onTextChanged"})
     public static void onTextChanged(AWAutoCompleteTextView view, OnTextChangedListener listener) {
         view.setOnTextChangedListener(listener);
-    }
-
-    @BindingAdapter({"setID"})
-    public static void setID(AWAutoCompleteTextView view, long id) {
-        view.selectionID = id;
     }
 
     /**
@@ -145,36 +139,6 @@ public abstract class AWAutoCompleteTextView
             }
         }
         super.onDetachedFromWindow();
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        if (!isInEditMode()) {
-            if (!initializedCalled) {
-                throw new IllegalStateException("Method 'initialize(AWDBDefinition, String, " +
-                        "String[], int, String)' not called");
-            }
-            SimpleCursorAdapter mSimpleCursorAdapter = new SimpleCursorAdapter(getContext(),
-                    android.R.layout.simple_dropdown_item_1line, null, mProjection,
-                    new int[]{android.R.id.text1}, 0);
-            mSimpleCursorAdapter
-                    .setCursorToStringConverter(new SimpleCursorAdapter.CursorToStringConverter() {
-                        @Override
-                        public CharSequence convertToString(Cursor cursor) {
-                            return cursor.getString(columnIndex);
-                        }
-                    });
-            mSimpleCursorAdapter.setFilterQueryProvider(this);
-            setAdapter(mSimpleCursorAdapter);
-            setOnItemClickListener(this);
-            setSelectAllOnFocus(true);
-            setFocusable(true);
-            setFocusableInTouchMode(true);
-            setThreshold(0);
-            setDropDownBackgroundResource(R.color.white);
-            setDropDownHeight(getLineHeight() * 18);
-        }
     }
 
     /**
