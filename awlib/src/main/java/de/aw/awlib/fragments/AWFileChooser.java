@@ -1,7 +1,5 @@
-package de.aw.awlib.fragments;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.fragments;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.fragments;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -165,7 +165,7 @@ public class AWFileChooser extends AWItemListRecyclerViewFragment<File> {
      * Verzeichnis gewechselt werden kann. Ansonsten wird der Default zuruckgeliefert.
      */
     @Override
-    public int getItemViewType(File file, int position) {
+    public int getItemViewType(int position) {
         if (position == 0 && hasParent) {
             return HASPARENTFOLDER;
         }

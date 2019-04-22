@@ -1,7 +1,5 @@
-package de.aw.awlib.recyclerview;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.recyclerview;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.recyclerview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -74,6 +74,10 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
      * @return einen BaseAdapter
      */
     protected abstract AWBaseAdapter createBaseAdapter();
+
+    public AWBaseAdapter getAdapter() {
+        return mAdapter;
+    }
 
     public int getItemViewType(int position) {
         return viewHolderLayout;
@@ -180,6 +184,12 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        args.putInt(LASTSELECTEDPOSITION, getRecyclerViewPosition());
+    }
+
     /**
      * Wird vom Adapter gerufen, wenn ein  Item  der RecyclerView geclickt wurde. Es wird ggfs. die
      * Activity gerufen, die einen {@link AWBaseRecyclerViewListener} implementiert hat.
@@ -208,12 +218,6 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         super.onResume();
         int position = args.getInt(LASTSELECTEDPOSITION);
         mRecyclerView.getLayoutManager().scrollToPosition(position);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        args.putInt(LASTSELECTEDPOSITION, getRecyclerViewPosition());
     }
 
     @Override
@@ -246,7 +250,7 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.awlib_defaultRecyclerView);
+        mRecyclerView = view.findViewById(R.id.awlib_defaultRecyclerView);
         mRecyclerView.setTag(this.getClass().getSimpleName());
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -257,7 +261,8 @@ public abstract class AWBaseRecyclerViewFragment extends AWFragment
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
         noEntryView = view.findViewById(R.id.awlib_tvNoEntries);
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        getActivity().getWindow()
+                .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     }
 
     @Override

@@ -488,6 +488,7 @@ public abstract class AWApplicationGeschaeftsObjekt extends BaseObservable
     @CallSuper
     public final void putNull(String column) {
         currentContent.putNull(column);
+        isDirty = true;
     }
 
     /**

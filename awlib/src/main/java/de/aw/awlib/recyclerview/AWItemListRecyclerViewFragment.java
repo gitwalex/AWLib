@@ -1,7 +1,5 @@
-package de.aw.awlib.recyclerview;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.recyclerview;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.recyclerview;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -50,16 +50,6 @@ public abstract class AWItemListRecyclerViewFragment<T> extends AWBaseRecyclerVi
             mAdapter = createBaseAdapter();
         }
         return mAdapter;
-    }
-
-    @Override
-    public int getItemViewType(T item, int position) {
-        return getItemViewType(position);
-    }
-
-    @Override
-    public final int getItemViewType(int position) {
-        return super.getItemViewType(position);
     }
 
     /**

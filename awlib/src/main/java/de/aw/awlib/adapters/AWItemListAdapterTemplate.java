@@ -1,7 +1,5 @@
-package de.aw.awlib.adapters;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.adapters;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.adapters;
 
 import android.database.Cursor;
 import android.support.annotation.CallSuper;
@@ -105,7 +105,8 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
 
     /**
      * @return die Anzahl der Items. Gibt es einen Cursor, wird die Anzahl der Cursorzeilen
-     * zurueckgeliefert. Erbende Klassen muessen in {@link AWItemListAdapterTemplate#onBindViewHolder(AWLibViewHolder,
+     * zurueckgeliefert. Erbende Klassen muessen in
+     * {@link AWItemListAdapterTemplate#onBindViewHolder(AWLibViewHolder,
      * int)} entsprechend nachlesen.
      */
     @Override
@@ -156,18 +157,19 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     }
 
     /**
-     * Hier kann eine Item zu loeschen vorgemerkt werden. In diesem Fall wird eine View mit
-     * 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView bewegt wird oder ein
-     * anderes Item zu Loeschung vorgemerjt wird, wird das Item tatsaechlich aus dem Adapter
-     * entfernt.
-     * Der Binder wird durch {@link AWBaseAdapterBinder#onItemDismissed(int)} informiert.
+     * Ruft bei Klick auf Item in der RecyclerView
+     * {@link AWListAdapterBinder#onRecyclerItemClick(View,
+     * int, Object)}
      *
-     * @param item
-     *         Item
+     * @param holder
+     *         ViewHolder
      */
-    public final void setPendingDeleteItem(@NonNull T item) {
-        super.setPendingDeleteItemPosition(getPosition(item));
-        mPendingDeleteItem = item;
+    @Override
+    protected final void onViewHolderClicked(AWLibViewHolder holder) {
+        View v = holder.itemView;
+        int position = getRecyclerView().getChildAdapterPosition(holder.itemView);
+        T item = get(position);
+        mBinder.onRecyclerItemClick(v, position, item);
     }
 
     /**
@@ -233,23 +235,9 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
     public abstract void onItemMoved(int fromPosition, int toPosition);
 
     /**
-     * Ruft bei Klick auf Item in der RecyclerView
-     * {@link AWListAdapterBinder#onRecyclerItemClick(View, int, Object)}
-     *
-     * @param holder
-     *         ViewHolder
-     */
-    @Override
-    protected final void onViewHolderClicked(AWLibViewHolder holder) {
-        View v = holder.itemView;
-        int position = getRecyclerView().getChildAdapterPosition(holder.itemView);
-        T item = get(position);
-        mBinder.onRecyclerItemClick(v, position, item);
-    }
-
-    /**
      * Ruft bei LongKlick auf Item in der RecyclerView .
-     * {@link AWListAdapterBinder#onRecyclerItemLongClick(View, int, Object)}
+     * {@link AWListAdapterBinder#onRecyclerItemLongClick(View,
+     * int, Object)}
      *
      * @param holder
      *         ViewHolder
@@ -260,6 +248,20 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
         int position = getRecyclerView().getChildAdapterPosition(v);
         T item = get(position);
         return mBinder.onRecyclerItemLongClick(v, position, item);
+    }
+
+    /**
+     * Hier kann eine Item zu loeschen vorgemerkt werden. In diesem Fall wird eine View mit
+     * 'Geloescht' bzw. 'Rueckgaengig' angezeigt. Wenn dann die RecyclerView bewegt wird oder ein
+     * anderes Item zu Loeschung vorgemerjt wird, wird das Item tatsaechlich aus dem Adapter
+     * entfernt. Der Binder wird durch {@link AWBaseAdapterBinder#onItemDismissed(int)} informiert.
+     *
+     * @param item
+     *         Item
+     */
+    public final void setPendingDeleteItem(@NonNull T item) {
+        super.setPendingDeleteItemPosition(getPosition(item));
+        mPendingDeleteItem = item;
     }
 
     /**
@@ -385,8 +387,6 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      * Binder fuer Adapter-Aktionen
      */
     public interface AWListAdapterBinder<T> extends AWBaseAdapterBinder {
-        int getItemViewType(T item, int position);
-
         /**
          * Wird zum Binden des ViewHolders gerufen
          *
@@ -450,8 +450,8 @@ public abstract class AWItemListAdapterTemplate<T> extends AWBaseAdapter {
      */
     public interface ItemGenerator<T> {
         /**
-         * Erstellt das Items ab der Position im Curosr. Der Cursor steht an der ersten
-         * zu generierenden Position.
+         * Erstellt das Items ab der Position im Curosr. Der Cursor steht an der ersten zu
+         * generierenden Position.
          *
          * @param c
          *         Aktueller Cursor. Steht schon an der Stelle, die Daten fuer das erste Item

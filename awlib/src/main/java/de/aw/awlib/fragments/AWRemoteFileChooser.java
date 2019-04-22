@@ -1,7 +1,5 @@
-package de.aw.awlib.fragments;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.fragments;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -51,7 +51,6 @@ import static android.net.Uri.withAppendedPath;
 public class AWRemoteFileChooser extends AWItemListRecyclerViewFragment<FTPFile>
         implements ExecutionListener, AWFragment.OnAWFragmentDismissListener,
         AWFragment.OnAWFragmentCancelListener, AWInterface {
-    protected static final String DIRECTORYNAME = "DIRECTORYNAME";
     private static final int layout = R.layout.awlib_remote_filechooser;
     private static final int[] viewResIDs =
             new int[]{R.id.awlib_fileName, R.id.awlib_fileData, R.id.folderImage};
@@ -140,8 +139,8 @@ public class AWRemoteFileChooser extends AWItemListRecyclerViewFragment<FTPFile>
     }
 
     @Override
-    public int getItemViewType(FTPFile file, int position) {
-        if (position == 0 && file.getName().equals("..")) {
+    public int getItemViewType(int position) {
+        if (position == 0 && getAdapter().get(position).getName().equals("..")) {
             return BACKTOPARENT;
         }
         return super.getItemViewType(position);
@@ -305,7 +304,7 @@ public class AWRemoteFileChooser extends AWItemListRecyclerViewFragment<FTPFile>
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mServerErrorLayout = view.findViewById(R.id.awlib_llServerError);
-        mServerErrorTexte = (TextView) view.findViewById(R.id.awlib_tvServerError);
+        mServerErrorTexte = view.findViewById(R.id.awlib_tvServerError);
         mProgressServerConnection = view.findViewById(R.id.pbDlgServerConnection);
     }
 

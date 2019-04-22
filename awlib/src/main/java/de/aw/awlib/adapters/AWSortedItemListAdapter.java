@@ -1,7 +1,5 @@
-package de.aw.awlib.adapters;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.adapters;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.adapters;
 
 import android.database.Cursor;
 import android.support.annotation.CallSuper;
@@ -93,9 +93,9 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
      * @param other
      *         das zu vergleichende Item
      *
-     * @return -1, wenn dieses Item vor other liegen soll
-     * 1, wenn dieses Item hinter other liegen soll
-     * sonst 0. Dann wird {@link AWSortedItemListAdapter#areItemsTheSame(Object, Object)} gerufen
+     * @return -1, wenn dieses Item vor other liegen soll 1, wenn dieses Item hinter other liegen
+     * soll sonst 0. Dann wird {@link AWSortedItemListAdapter#areItemsTheSame(Object, Object)}
+     * gerufen
      */
     protected abstract int compare(T item, T other);
 
@@ -129,7 +129,7 @@ public abstract class AWSortedItemListAdapter<T> extends AWItemListAdapterTempla
 
     @Override
     public int getViewType(int position) {
-        return mBinder.getItemViewType(get(position), position);
+        return mBinder.getItemViewType(position);
     }
 
     @Override
