@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.databinding.BaseObservable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.CallSuper;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -49,6 +50,7 @@ import static de.aw.awlib.database.TableColumns._id;
  */
 public abstract class AbstractGeschaeftsobjekt extends BaseObservable
         implements Cloneable, Parcelable {
+    protected final String[] selectionArgs = new String[]{_id};
     /**
      * Tabellendefinition, fuer die dieser AWApplicationGeschaeftsObjekt gilt. Wird im Konstruktor
      * belegt.
@@ -204,9 +206,7 @@ public abstract class AbstractGeschaeftsobjekt extends BaseObservable
         currentContent.clear();
         for (int i = 0; i < c.getColumnCount(); i++) {
             String colName = c.getColumnName(i);
-            if (c.isNull(i)) {
-                currentContent.putNull(colName);
-            } else {
+            if (!c.isNull(i)) {
                 int type = c.getType(i);
                 switch (type) {
                     case Cursor.FIELD_TYPE_BLOB:
@@ -407,12 +407,14 @@ public abstract class AbstractGeschaeftsobjekt extends BaseObservable
         isDirty = true;
     }
 
-    public final void put(String column, int value) {
+    @CallSuper
+    public void put(String column, int value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
-    public final void put(String column, long value) {
+    @CallSuper
+    public void put(String column, long value) {
         currentContent.put(column, value);
         isDirty = true;
     }
@@ -422,12 +424,19 @@ public abstract class AbstractGeschaeftsobjekt extends BaseObservable
         isDirty = true;
     }
 
+    @CallSuper
+    public void put(String column, String value) {
+        currentContent.put(column, value);
+        isDirty = true;
+    }
+
     public final void put(String column, double value) {
         currentContent.put(column, value);
         isDirty = true;
     }
 
-    public final void put(String column, Date date) {
+    @CallSuper
+    public void put(String column, Date date) {
         if (date != null) {
             currentContent.put(column, AWDBConvert.convertDate2SQLiteDate(date));
         } else {
