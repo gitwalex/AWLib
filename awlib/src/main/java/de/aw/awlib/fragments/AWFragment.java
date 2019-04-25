@@ -1,7 +1,5 @@
-package de.aw.awlib.fragments;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -17,6 +15,8 @@ package de.aw.awlib.fragments;
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+package de.aw.awlib.fragments;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,13 +28,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import de.aw.awlib.activities.AWActivityActions;
-import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.activities.AWInterface;
 import de.aw.awlib.activities.AWMainActivity;
 import de.aw.awlib.application.AWApplication;
@@ -44,8 +44,7 @@ import static de.aw.awlib.events.AWEvent.ShowPicture;
 /**
  * Template fuer MonMaFragmente
  * <p/>
- * Folgende Funktionen:
- * Bereitstellung eines Bundle 'args' fuer alle abgeleiteten Klassen
+ * Folgende Funktionen: Bereitstellung eines Bundle 'args' fuer alle abgeleiteten Klassen
  */
 public abstract class AWFragment extends DialogFragment
         implements AWInterface, AWFragmentInterface {
@@ -138,8 +137,8 @@ public abstract class AWFragment extends DialogFragment
     }
 
     /**
-     * Wird ein Dialog gecancelt, wird der mOnCancelListener gerufen (wenn vorhanden)
-     * Ausserdem ist dann isCanceled true.
+     * Wird ein Dialog gecancelt, wird der mOnCancelListener gerufen (wenn vorhanden) Ausserdem ist
+     * dann isCanceled true.
      */
     @Override
     public void onCancel(DialogInterface dialog) {
@@ -151,8 +150,7 @@ public abstract class AWFragment extends DialogFragment
 
     /**
      * Setzen der durch setArguments(args) erhaltenen bzw. Ruecksichern der Argumente im Bundle
-     * args.
-     * Gibt es keine MainAction unter AWLIBACTION, wird MainAction.SHOW verwendet.
+     * args. Gibt es keine MainAction unter AWLIBACTION, wird MainAction.SHOW verwendet.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -218,8 +216,7 @@ public abstract class AWFragment extends DialogFragment
 
     /**
      * Deregistrierung als OnSharedPreferenceListener, wenn die Klasse eine Instanz von
-     * OnSharedPreferenceChangeListener ist.
-     * Wiederherstellen eines Subtitles, wenn vorhanden.
+     * OnSharedPreferenceChangeListener ist. Wiederherstellen eines Subtitles, wenn vorhanden.
      */
     @Override
     public void onPause() {
@@ -267,7 +264,7 @@ public abstract class AWFragment extends DialogFragment
         super.onStart();
         if (timer != 0) {
             Log("Fragment " + getClass().getSimpleName() + " Startdauer: " +
-                    String.valueOf(System.currentTimeMillis() - timer));
+                    (System.currentTimeMillis() - timer));
             timer = 0;
         }
     }
@@ -327,13 +324,12 @@ public abstract class AWFragment extends DialogFragment
 
     /**
      * Methode wird aus onAttach gerufen. Im uebergebenen Bundle sind alle Argumente gespeichert,
-     * die ggfs. in newInstance(...) belegt wurden.
-     * Zweckmaessigerweise wird zuerst super.setInternalArguments(args) gerufen. Danach sind in args
-     * die Argumente der Vererbungshirache vorhanden, welche auch ueberschrieben werden koennen. Es
-     * koennen weitere Argumente zum Initialisieren genau dieses Fragments gesetzt werden.
-     * Argumente, die von einem vererbten Fragment gesetzt werden, sind aber noch nicht vorhanden.
-     * Werden diese benoetigt, sollten diese fruehestens in onCreate(saveStateInstance) aus args
-     * geholt werden.
+     * die ggfs. in newInstance(...) belegt wurden. Zweckmaessigerweise wird zuerst
+     * super.setInternalArguments(args) gerufen. Danach sind in args die Argumente der
+     * Vererbungshirache vorhanden, welche auch ueberschrieben werden koennen. Es koennen weitere
+     * Argumente zum Initialisieren genau dieses Fragments gesetzt werden. Argumente, die von einem
+     * vererbten Fragment gesetzt werden, sind aber noch nicht vorhanden. Werden diese benoetigt,
+     * sollten diese fruehestens in onCreate(saveStateInstance) aus args geholt werden.
      *
      * @param args
      *         Bundle mit Argumenten.
@@ -366,7 +362,7 @@ public abstract class AWFragment extends DialogFragment
      *         Text des Subtitles
      */
     public void setSubTitle(CharSequence subTitle) {
-        ActionBar bar = ((AWBasicActivity) getActivity()).getSupportActionBar();
+        ActionBar bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (bar != null) {
             if (!isSavedActionBarSubtitle) {
                 mSavedActionBarSubtitle = bar.getSubtitle();
@@ -395,7 +391,7 @@ public abstract class AWFragment extends DialogFragment
      *         Text des STitles
      */
     public void setTitle(CharSequence title) {
-        ActionBar bar = ((AWBasicActivity) getActivity()).getSupportActionBar();
+        ActionBar bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (bar != null) {
             bar.setTitle(title);
         }

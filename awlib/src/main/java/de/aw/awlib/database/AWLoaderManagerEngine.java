@@ -24,8 +24,8 @@ import android.support.annotation.CallSuper;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 
-import de.aw.awlib.activities.AWBasicActivity;
 import de.aw.awlib.fragments.AWFragment;
 
 import static de.aw.awlib.activities.AWInterface.DBDEFINITION;
@@ -61,11 +61,11 @@ public class AWLoaderManagerEngine implements LoaderManager.LoaderCallbacks<Curs
         mCallback = callback;
     }
 
-    public AWLoaderManagerEngine(AWBasicActivity activity, Callback callback) {
+    public AWLoaderManagerEngine(AppCompatActivity activity, Callback callback) {
         this(activity, activity.getSupportLoaderManager(), callback);
     }
 
-    public AWLoaderManagerEngine(AWBasicActivity activity) {
+    public AWLoaderManagerEngine(AppCompatActivity activity) {
         this(activity, activity.getSupportLoaderManager(), (Callback) activity);
     }
 

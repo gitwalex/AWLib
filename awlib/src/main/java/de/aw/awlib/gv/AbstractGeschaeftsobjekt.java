@@ -33,6 +33,7 @@ import de.aw.awlib.database.AWAbstractDBDefinition;
 import de.aw.awlib.database.AWDBConvert;
 import de.aw.awlib.database.AbstractDBHelper;
 
+import static de.aw.awlib.activities.AWInterface.NOID;
 import static de.aw.awlib.database.TableColumns._id;
 
 /**
@@ -99,7 +100,7 @@ public abstract class AbstractGeschaeftsobjekt extends BaseObservable
         String[] selectionArgs = new String[]{String.valueOf(id)};
         String[] projection = tbd.getTableColumns();
         String orderby = tbd.getOrderString();
-        Cursor c = getCursor(cr, tbd, projection, selection, selectionArgs, orderby);
+        Cursor c = cr.query(tbd.getUri(), projection, selection, selectionArgs, orderby);
         fillContent(c);
     }
 
@@ -108,12 +109,6 @@ public abstract class AbstractGeschaeftsobjekt extends BaseObservable
         ContentValues cv = in.readParcelable(ContentValues.class.getClassLoader());
         currentContent.putAll(cv);
         this.isDirty = in.readByte() != 0;
-    }
-
-    public static Cursor getCursor(ContentResolver cr, AWAbstractDBDefinition tbd,
-                                   String[] projection, String selection, String[] selectionArgs,
-                                   String sortOrder) {
-        return cr.query(tbd.getUri(), projection, selection, selectionArgs, sortOrder, null);
     }
 
     /**
@@ -342,14 +337,14 @@ public abstract class AbstractGeschaeftsobjekt extends BaseObservable
      * @return ID des Geschaeftsvorfalls
      */
     public long getID() {
-        return currentContent.getAsLong(_id);
+        return getAsLong(_id, NOID);
     }
 
     /**
      * @return ID als Integer
      */
     public final Integer getIDAsInt() {
-        return currentContent.getAsInteger(_id);
+        return getAsInt(_id, NOID);
     }
 
     protected long insert(AbstractDBHelper db) {
