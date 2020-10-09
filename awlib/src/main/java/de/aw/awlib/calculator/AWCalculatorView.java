@@ -1,7 +1,5 @@
-package de.aw.awlib.calculator;
-
 /*
- * AWLib: Eine Bibliothek  zur schnellen Entwicklung datenbankbasierter Applicationen
+ * MonMa: Eine freie Android-Application fuer die Verwaltung privater Finanzen
  *
  * Copyright [2015] [Alexander Winkler, 2373 Dahme/Germany]
  *
@@ -16,6 +14,8 @@ package de.aw.awlib.calculator;
  * You should have received a copy of the GNU General Public License along with this program; if
  * not, see <http://www.gnu.org/licenses/>.
  */
+
+package de.aw.awlib.calculator;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -113,7 +113,7 @@ public class AWCalculatorView extends LinearLayout implements View.OnClickListen
 
     private void onInflate(Context context) {
         inflate(context, layout, this);
-        mCalculatorDisplay = (TextView) findViewById(R.id.calculatorResult);
+        mCalculatorDisplay = findViewById(R.id.calculatorResult);
         mCalculatorBrain = new CalculatorBrain(initialValue);
         df.setMinimumFractionDigits(0);
         df.setMinimumIntegerDigits(1);

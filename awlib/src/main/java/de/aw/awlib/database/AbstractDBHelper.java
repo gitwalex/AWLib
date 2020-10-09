@@ -635,9 +635,9 @@ public abstract class AbstractDBHelper extends SQLiteOpenHelper
                 return _id + " INTEGER PRIMARY KEY, " //
                         + column_serverurl + "TEXT, " //
                         + column_userID + " TEXT, " //
-                        + column_connectionType + " + TEXT, "//
-                        + column_maindirectory + " +  TEXT" //
-                        + ")";
+                        + column_connectionType + " TEXT, "//
+                        + column_maindirectory + "   TEXT" //
+                        ;
             }
 
             @Override
